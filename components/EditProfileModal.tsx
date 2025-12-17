@@ -1,0 +1,166 @@
+import React, { useState, useRef } from 'react';
+import { createPortal } from 'react-dom';
+import { User } from '../types.ts';
+import Icon from './common/Icon.tsx';
+import { updateUserProfile } from '../services/firestoreService.ts';
+import ImageCropper from './ImageCropper.tsx';
+
+interface EditProfileModalProps {
+    user: User;
+    onClose: () => void;
+    onSave: (updatedData: { name: string; bio: string; avatar?: string }) => void;
+}
+
+const EditProfileModal: React.FC<EditProfileModalProps> = ({ user, onClose, onSave }) => {
+    const [name, setName] = useState(user.name);
+    const [bio, setBio] = useState(user.bio || '');
+    const [isLoading, setIsLoading] = useState(false);
+    const [error, setError] = useState('');
+    const [avatar, setAvatar] = useState(user.avatar);
+
+    // Image Cropper State
+    const [selectedImage, setSelectedImage] = useState<string | null>(null);
+    const fileInputRef = useRef<HTMLInputElement>(null);
+
+    if (typeof document === 'undefined') return null;
+
+    const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        const file = event.target.files?.[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = () => {
+                setSelectedImage(reader.result as string);
+            };
+            reader.readAsDataURL(file);
+        }
+    };
+
+    const handleCropComplete = (croppedImage: string) => {
+        setAvatar(croppedImage);
+        setSelectedImage(null); // Close cropper
+    };
+
+    const handleSave = async () => {
+        if (!name.trim()) {
+            setError('Name cannot be empty.');
+            return;
+        }
+
+        setError('');
+        setIsLoading(true);
+
+        try {
+            // Include avatar in the update if it changed
+            const updatedData = { name, bio, avatar: avatar !== user.avatar ? avatar : undefined };
+            if (updatedData.avatar) {
+                await updateUserProfile(user.uid, { name, bio, avatar: updatedData.avatar });
+            } else {
+                await updateUserProfile(user.uid, { name, bio });
+            }
+
+            onSave({ name, bio, avatar: avatar });
+            onClose();
+        } catch (err) {
+            console.error("Failed to update profile:", err);
+            setError("Could not save changes. Please try again.");
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    return createPortal(
+        <div
+            className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-start sm:items-center justify-center z-[2000] animate-fade-in overflow-y-auto p-4 sm:p-8"
+            onClick={onClose}
+        >
+            <div
+                className="bg-white dark:bg-slate-900 rounded-3xl shadow-2xl p-8 w-full max-w-md m-4 animate-scale-in border border-slate-200 dark:border-white/10"
+                onClick={(e) => e.stopPropagation()}
+            >
+                <div className="flex justify-between items-center mb-8">
+                    <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Edit Profile</h2>
+                    <button onClick={onClose} className="p-2 -mr-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 rounded-full hover:bg-gray-100 dark:hover:bg-white/5 transition">
+                        <Icon name="x" className="w-6 h-6" />
+                    </button>
+                </div>
+
+                <div className="space-y-6">
+                    {/* Avatar Section */}
+                    <div className="flex flex-col items-center gap-4">
+                        <div className="relative group cursor-pointer" onClick={() => fileInputRef.current?.click()}>
+                            <div className="h-24 w-24 rounded-full overflow-hidden border-4 border-white dark:border-slate-800 shadow-xl ring-2 ring-brand-primary/20">
+                                <img src={avatar || user.avatar} alt="Profile" className="h-full w-full object-cover" />
+                            </div>
+                            <div className="absolute inset-0 bg-black/40 flex items-center justify-center rounded-full opacity-0 group-hover:opacity-100 transition-opacity backdrop-blur-[2px]">
+                                <Icon name="camera" className="h-8 w-8 text-white" />
+                            </div>
+                            <button className="absolute bottom-0 right-0 p-2 bg-brand-primary text-white rounded-full shadow-lg border-2 border-white dark:border-slate-900">
+                                <Icon name="edit" className="h-4 w-4" />
+                            </button>
+                        </div>
+                        <input
+                            type="file"
+                            accept="image/*"
+                            ref={fileInputRef}
+                            onChange={handleFileChange}
+                            className="hidden"
+                        />
+                        <p className="text-sm text-slate-500 dark:text-slate-400">Tap to change photo</p>
+                    </div>
+
+                    <div>
+                        <label htmlFor="name" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Full Name</label>
+                        <input
+                            type="text"
+                            id="name"
+                            value={name}
+                            onChange={(e) => setName(e.target.value)}
+                            className="w-full px-4 py-3 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/20 rounded-xl outline-none transition dark:text-white"
+                        />
+                    </div>
+                    <div>
+                        <label htmlFor="bio" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Bio</label>
+                        <textarea
+                            id="bio"
+                            value={bio}
+                            onChange={(e) => setBio(e.target.value)}
+                            rows={3}
+                            placeholder="Tell us a little about yourself"
+                            className="w-full px-4 py-3 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/20 rounded-xl outline-none transition resize-none dark:text-white"
+                        />
+                    </div>
+                </div>
+
+                {error && <p className="text-red-500 text-sm mt-4 text-center bg-red-50 dark:bg-red-500/10 py-2 rounded-lg">{error}</p>}
+
+                <div className="mt-8 flex justify-end gap-3">
+                    <button
+                        onClick={onClose}
+                        className="px-6 py-2.5 bg-gray-100 dark:bg-white/5 text-gray-700 dark:text-gray-300 font-semibold rounded-xl hover:bg-gray-200 dark:hover:bg-white/10 transition-colors"
+                    >
+                        Cancel
+                    </button>
+                    <button
+                        onClick={handleSave}
+                        disabled={isLoading}
+                        className="px-6 py-2.5 bg-brand-primary text-white font-bold rounded-xl hover:bg-brand-secondary transition-all duration-300 shadow-lg shadow-brand-primary/25 transform hover:scale-[1.02] active:scale-95 disabled:bg-gray-400 disabled:scale-100 disabled:shadow-none min-w-[100px] flex items-center justify-center"
+                    >
+                        {isLoading ? <Icon name="loader" className="w-5 h-5 animate-spin" /> : 'Save Changes'}
+                    </button>
+                </div>
+            </div>
+
+            {/* Image Cropper Modal */}
+            {selectedImage && (
+                <ImageCropper
+                    imageSrc={selectedImage}
+                    onCropComplete={handleCropComplete}
+                    onCancel={() => setSelectedImage(null)}
+                />
+            )}
+        </div>,
+        document.body
+    );
+};
+
+export default EditProfileModal;
