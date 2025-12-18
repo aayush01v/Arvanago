@@ -31,18 +31,15 @@ const ChatWidget: React.FC<ChatWidgetProps> = ({
     // Drag State
     const [position, setPosition] = useState({ x: 0, y: 0 });
     const [isDragging, setIsDragging] = useState(false);
+    const [isMaximized, setIsMaximized] = useState(false); // New state for maximize toggle
     const dragStartPos = useRef({ x: 0, y: 0 });
 
     const messagesEndRef = useRef<HTMLDivElement>(null);
 
     // DRAG LOGIC
     const handleMouseDown = (e: React.MouseEvent) => {
-        // Check if we are on a large screen using matchMedia for robustness or just window width
-        if (window.innerWidth < 768) return;
-
+        // Removed window width check to allow dragging on mobile
         setIsDragging(true);
-        // current mouse - current translate = origin
-        // new translate = new mouse - origin
         dragStartPos.current = {
             x: e.clientX - position.x,
             y: e.clientY - position.y
@@ -63,6 +60,16 @@ const ChatWidget: React.FC<ChatWidgetProps> = ({
         if (isDragging) {
             window.addEventListener('mousemove', handleMouseMove);
             window.addEventListener('mouseup', handleMouseUp);
+            // Add touch support for mobile drag
+            window.addEventListener('touchmove', (e) => {
+                if (!isDragging) return;
+                const touch = e.touches[0];
+                setPosition({
+                    x: touch.clientX - dragStartPos.current.x,
+                    y: touch.clientY - dragStartPos.current.y
+                });
+            });
+            window.addEventListener('touchend', handleMouseUp);
         }
         return () => {
             window.removeEventListener('mousemove', handleMouseMove);
@@ -178,58 +185,65 @@ const ChatWidget: React.FC<ChatWidgetProps> = ({
 
     return (
         <div
-            /* 
-               Layout Strategy:
-               Mobile: Fixed inset-0 (full screen), no transform.
-               Desktop: Fixed, bottom-20 right-6, width 400 height 600, apply transform for drag.
-            */
-            className="fixed z-50 flex flex-col shadow-2xl overflow-hidden animate-fade-in-up transition-shadow duration-200 
-                   inset-0 w-full h-full 
-                   md:inset-auto md:w-[400px] md:h-[600px] md:bottom-20 md:right-6 md:rounded-2xl"
+            className={`fixed z-50 flex flex-col shadow-2xl overflow-hidden animate-fade-in-up transition-all duration-200 
+                   ${isMaximized ? 'inset-0 w-full h-full rounded-none' : 'w-[90vw] h-[70vh] bottom-20 right-4 rounded-2xl md:w-[400px] md:h-[600px] md:bottom-20 md:right-6'}
+                   border border-slate-200 dark:border-slate-800`}
             style={{
-                // Only apply transform on desktop where Drag is relevant
-                transform: window.innerWidth >= 768 ? `translate(${position.x}px, ${position.y}px)` : 'none'
+                transform: isMaximized ? 'none' : `translate(${position.x}px, ${position.y}px)`
             }}
         >
             {/* Header */}
             <div
                 onMouseDown={handleMouseDown}
+                onTouchStart={(e) => {
+                    // Simple touch drag start
+                    const touch = e.touches[0];
+                    setIsDragging(true);
+                    dragStartPos.current = {
+                        x: touch.clientX - position.x,
+                        y: touch.clientY - position.y
+                    };
+                }}
                 className="p-3 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between 
                        bg-white/95 dark:bg-slate-900/95 backdrop-blur-md z-10 select-none 
-                       cursor-default md:cursor-move"
+                       cursor-move"
             >
                 <div className="flex items-center gap-3">
-                    {/* Window Controls (Desktop Only) */}
-                    <div className="hidden md:flex items-center gap-1.5 mr-1">
+                    {/* Window Controls (Visible on all screens now) */}
+                    <div className="flex items-center gap-1.5 mr-2">
                         <button
                             onClick={(e) => { e.stopPropagation(); onClose(); }}
-                            className="w-3 h-3 rounded-full bg-red-500 hover:scale-110 transition-transform shadow-sm"
+                            className="w-3.5 h-3.5 rounded-full bg-red-500 hover:scale-110 transition-transform shadow-sm flex items-center justify-center group"
                             title="Close"
-                        />
+                        >
+                            {/* Optional: Add X icon on hover */}
+                            <Icon name="x" className="w-2 h-2 text-red-900 opacity-0 group-hover:opacity-100" />
+                        </button>
                         <button
                             onClick={(e) => {
                                 e.stopPropagation();
-                                onClose();
-                                navigate('/chat');
+                                setIsMaximized(!isMaximized);
                             }}
-                            className="w-3 h-3 rounded-full bg-green-500 hover:scale-110 transition-transform shadow-sm"
-                            title="Full Screen"
-                        />
+                            className="w-3.5 h-3.5 rounded-full bg-green-500 hover:scale-110 transition-transform shadow-sm flex items-center justify-center group"
+                            title={isMaximized ? "Restore" : "Maximize"}
+                        >
+                            <Icon name={isMaximized ? "minimize" : "maximize"} className="w-2 h-2 text-green-900 opacity-0 group-hover:opacity-100" />
+                        </button>
                     </div>
 
                     {selectedChatId ? (
                         <div className="flex items-center gap-2">
                             <button
                                 onClick={(e) => { e.stopPropagation(); setSelectedChatId(null); }}
-                                className="p-1.5 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full transition-colors z-20"
+                                className="p-1.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-full transition-colors z-20 flex-shrink-0"
                             >
-                                <Icon name="arrow-left" className="w-5 h-5 text-slate-900 dark:text-white" />
+                                <Icon name="arrow-left" className="w-4 h-4 text-slate-900 dark:text-white" />
                             </button>
-                            <div className="flex items-center gap-2">
+                            <div className="flex items-center gap-2 overflow-hidden">
                                 <img src={activeChatUser?.avatar || 'https://i.pravatar.cc/150'} className="w-8 h-8 rounded-full border border-slate-200 dark:border-slate-700" />
-                                <div className="flex flex-col">
-                                    <h3 className="font-bold text-sm leading-none text-slate-900 dark:text-gray-100">{activeChatUser?.name}</h3>
-                                    <span className="text-[10px] text-green-500">@{activeChatUser?.username}</span>
+                                <div className="flex flex-col min-w-0">
+                                    <h3 className="font-bold text-sm leading-none text-slate-900 dark:text-gray-100 truncate">{activeChatUser?.name}</h3>
+                                    <span className="text-[10px] text-green-500 truncate">@{activeChatUser?.username}</span>
                                 </div>
                             </div>
                         </div>
@@ -237,16 +251,9 @@ const ChatWidget: React.FC<ChatWidgetProps> = ({
                         <h3 className="font-bold text-lg ml-1 text-slate-800 dark:text-white">Messages</h3>
                     )}
                 </div>
-
-                <div className="flex items-center gap-2">
-                    {/* Mobile Close */}
-                    <button onClick={onClose} className="md:hidden p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full">
-                        <Icon name="x" className="w-6 h-6 text-slate-600 dark:text-slate-300" />
-                    </button>
-                </div>
             </div>
 
-            {/* Content Container - Ensure opaque background */}
+            {/* Content Container */}
             <div className="flex-1 bg-white dark:bg-slate-900 w-full h-full overflow-hidden flex flex-col relative">
 
                 {/* List View */}
