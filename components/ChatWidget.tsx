@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import ReactDOM from 'react-dom';
 import { Chat, ChatMessage, chatService } from '../services/chatService';
 import { User } from '../types';
 import Icon from './common/Icon';
@@ -28,17 +29,30 @@ const ChatWidget: React.FC<ChatWidgetProps> = ({
     const [searchResults, setSearchResults] = useState<User[]>([]);
     const [creatingChat, setCreatingChat] = useState(false);
 
-    // Drag State
+    // Window State
     const [position, setPosition] = useState({ x: 0, y: 0 });
     const [isDragging, setIsDragging] = useState(false);
     const [isMaximized, setIsMaximized] = useState(false);
-    const [isMinimized, setIsMinimized] = useState(false); // New local minimize state
-    const dragStartPos = useRef({ x: 0, y: 0 });
+    const [isMinimized, setIsMinimized] = useState(false);
 
+    // Window Size Hook for Responsive Logic
+    const [windowWidth, setWindowWidth] = useState(window.innerWidth);
+
+    const dragStartPos = useRef({ x: 0, y: 0 });
     const messagesEndRef = useRef<HTMLDivElement>(null);
 
-    // DRAG LOGIC
+    // Track window resize
+    useEffect(() => {
+        const handleResize = () => setWindowWidth(window.innerWidth);
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
+
+    const isMobile = windowWidth < 768;
+
+    // DRAG LOGIC (Desktop Only)
     const handleMouseDown = (e: React.MouseEvent) => {
+        if (isMobile || isMaximized) return; // Disable drag on mobile or when maximized
         setIsDragging(true);
         dragStartPos.current = {
             x: e.clientX - position.x,
@@ -49,7 +63,7 @@ const ChatWidget: React.FC<ChatWidgetProps> = ({
     useEffect(() => {
         const handleMouseMove = (e: MouseEvent) => {
             if (!isDragging) return;
-            e.preventDefault(); // Prevent text selection
+            e.preventDefault();
             setPosition({
                 x: e.clientX - dragStartPos.current.x,
                 y: e.clientY - dragStartPos.current.y
@@ -60,16 +74,6 @@ const ChatWidget: React.FC<ChatWidgetProps> = ({
         if (isDragging) {
             window.addEventListener('mousemove', handleMouseMove);
             window.addEventListener('mouseup', handleMouseUp);
-            // Add touch support for mobile drag
-            window.addEventListener('touchmove', (e) => {
-                if (!isDragging) return;
-                const touch = e.touches[0];
-                setPosition({
-                    x: touch.clientX - dragStartPos.current.x,
-                    y: touch.clientY - dragStartPos.current.y
-                });
-            });
-            window.addEventListener('touchend', handleMouseUp);
         }
         return () => {
             window.removeEventListener('mousemove', handleMouseMove);
@@ -77,7 +81,7 @@ const ChatWidget: React.FC<ChatWidgetProps> = ({
         };
     }, [isDragging]);
 
-    // Subscribe to messages
+    // Data Subscriptions and Logic
     useEffect(() => {
         if (!selectedChatId) {
             setMessages([]);
@@ -98,7 +102,6 @@ const ChatWidget: React.FC<ChatWidgetProps> = ({
         }
     }, [messages, isMinimized]);
 
-    // Search logic
     useEffect(() => {
         const search = async () => {
             if (searchTerm.trim().length > 1) {
@@ -185,80 +188,81 @@ const ChatWidget: React.FC<ChatWidgetProps> = ({
 
     if (!isOpen) return null;
 
-    // determine dimensions classes
-    // Modified for mobile: smaller size and allow dragging (no fixed full width)
-    let dimensionClasses = 'w-[350px] max-w-[95vw] h-[550px] max-h-[85vh] bottom-20 right-4 rounded-2xl md:w-[400px] md:h-[600px] md:bottom-20 md:right-6';
+    // --- RENDER LOGIC ---
 
-    if (isMaximized) {
-        dimensionClasses = 'inset-0 w-full h-full rounded-none';
-    } else if (isMinimized) {
-        // When minimized, shrink to just the header height (approx 60px)
-        dimensionClasses = 'w-[200px] h-[60px] bottom-20 right-4 rounded-2xl';
-    }
+    // Determine styles based on state
+    // Mobile: Always fixed inset-0 (Full Screen)
+    // Desktop: Fixed, transform applied for drag
 
-    return (
+    const desktopStyle = {
+        transform: isMaximized ? 'none' : `translate(${position.x}px, ${position.y}px)`,
+        width: isMaximized ? '100%' : '400px',
+        height: isMaximized ? '100%' : (isMinimized ? 'auto' : '600px'),
+        bottom: isMaximized ? 0 : '80px',
+        right: isMaximized ? 0 : '24px',
+        borderRadius: isMaximized ? 0 : '1rem',
+    };
+
+    const content = (
         <div
-            className={`fixed z-50 flex flex-col shadow-2xl overflow-hidden animate-fade-in-up transition-all duration-200 
-                   ${dimensionClasses}
-                   border border-slate-200 dark:border-slate-800`}
-            style={{
-                transform: isMaximized ? 'none' : `translate(${position.x}px, ${position.y}px)`
-            }}
+            className={`fixed z-[9999] bg-white dark:bg-slate-900 shadow-2xl overflow-hidden flex flex-col border border-slate-200 dark:border-slate-800
+                ${isMobile
+                    ? 'inset-0 w-full h-full rounded-none' // Mobile: Full Screen
+                    : 'rounded-2xl transition-all duration-200' // Desktop
+                }
+            `}
+            style={isMobile ? {} : desktopStyle}
         >
             {/* Header */}
             <div
                 onMouseDown={handleMouseDown}
-                onTouchStart={(e) => {
-                    const touch = e.touches[0];
-                    setIsDragging(true);
-                    dragStartPos.current = {
-                        x: touch.clientX - position.x,
-                        y: touch.clientY - position.y
-                    };
-                }}
-                className="p-3 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between 
-                       bg-white/95 dark:bg-slate-900/95 backdrop-blur-md z-10 select-none 
-                       cursor-move"
-                style={{ touchAction: 'none' }} // Prevent scrolling while dragging on mobile
+                className={`flex-shrink-0 p-3 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between 
+                       bg-white/95 dark:bg-slate-900/95 backdrop-blur-md z-10 select-none
+                       ${isMobile ? '' : 'cursor-move'}
+                `}
             >
                 <div className="flex items-center gap-3">
-                    {/* Window Controls (Red/Green dots only) */}
-                    <div className="flex items-center gap-1.5 mr-2">
-                        <button
-                            onClick={(e) => {
-                                e.stopPropagation();
-                                if (isMaximized) setIsMaximized(false);
-                                setIsMinimized(!isMinimized);
-                            }}
-                            className="w-3.5 h-3.5 rounded-full bg-red-500 hover:scale-110 transition-transform shadow-sm flex items-center justify-center group"
-                            title={isMinimized ? "Expand" : "Minimize"}
-                        >
-                        </button>
-                        <button
-                            onClick={(e) => {
-                                e.stopPropagation();
-                                if (isMinimized) setIsMinimized(false);
-                                setIsMaximized(!isMaximized);
-                            }}
-                            className="w-3.5 h-3.5 rounded-full bg-green-500 hover:scale-110 transition-transform shadow-sm flex items-center justify-center group"
-                            title={isMaximized ? "Restore" : "Maximize"}
-                        >
-                        </button>
-                    </div>
+                    {/* Window Controls (Desktop Only) */}
+                    {!isMobile && (
+                        <div className="flex items-center gap-1.5 mr-2">
+                            <button
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    setIsMinimized(!isMinimized);
+                                }}
+                                className="w-3.5 h-3.5 rounded-full bg-yellow-500 hover:scale-110 transition-transform shadow-sm flex items-center justify-center group"
+                                title={isMinimized ? "Expand" : "Minimize"}
+                            />
+                            <button
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    onClose();
+                                    navigate('/chat');
+                                }}
+                                className="w-3.5 h-3.5 rounded-full bg-green-500 hover:scale-110 transition-transform shadow-sm"
+                                title="Full Screen Page"
+                            />
+                            <button
+                                onClick={(e) => { e.stopPropagation(); onClose(); }}
+                                className="w-3.5 h-3.5 rounded-full bg-red-500 hover:scale-110 transition-transform shadow-sm"
+                                title="Close"
+                            />
+                        </div>
+                    )}
 
-                    {selectedChatId && !isMinimized ? (
+                    {selectedChatId && (!isMinimized || isMobile) ? (
                         <div className="flex items-center gap-2">
                             <button
                                 onClick={(e) => { e.stopPropagation(); setSelectedChatId(null); }}
-                                className="p-1.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-full transition-colors z-20 flex-shrink-0"
+                                className="p-1.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-full transition-colors z-20"
                             >
-                                <Icon name="arrowLeft" className="w-4 h-4 text-slate-900 dark:text-white" />
+                                <Icon name="arrow-left" className="w-5 h-5 text-slate-900 dark:text-white" />
                             </button>
-                            <div className="flex items-center gap-2 overflow-hidden">
+                            <div className="flex items-center gap-2">
                                 <img src={activeChatUser?.avatar || 'https://i.pravatar.cc/150'} className="w-8 h-8 rounded-full border border-slate-200 dark:border-slate-700" />
-                                <div className="flex flex-col min-w-0">
-                                    <h3 className="font-bold text-sm leading-none text-slate-900 dark:text-gray-100 truncate">{activeChatUser?.name}</h3>
-                                    <span className="text-[10px] text-green-500 truncate">@{activeChatUser?.username}</span>
+                                <div className="flex flex-col">
+                                    <h3 className="font-bold text-sm leading-none text-slate-900 dark:text-gray-100">{activeChatUser?.name}</h3>
+                                    <span className="text-[10px] text-green-500">@{activeChatUser?.username}</span>
                                 </div>
                             </div>
                         </div>
@@ -266,12 +270,16 @@ const ChatWidget: React.FC<ChatWidgetProps> = ({
                         <h3 className="font-bold text-lg ml-1 text-slate-800 dark:text-white">Messages</h3>
                     )}
                 </div>
+
+                {isMobile && (
+                    <button onClick={onClose} className="p-2 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800">
+                        <Icon name="x" className="w-6 h-6 text-slate-500" />
+                    </button>
+                )}
             </div>
 
-            {/* Content Container - hidden if minimized */}
-            {/* Added logic to hide content when minimized to just show header */}
-            <div className={`flex-1 bg-white dark:bg-slate-900 w-full h-full overflow-hidden flex flex-col relative ${isMinimized ? 'hidden' : ''}`}>
-
+            {/* Content (Hidden if minimized on Desktop) */}
+            <div className={`flex-1 overflow-hidden relative flex flex-col bg-white dark:bg-slate-900 ${(!isMobile && isMinimized) ? 'hidden' : ''}`}>
                 {/* List View */}
                 {!selectedChatId && (
                     <div className="absolute inset-0 overflow-y-auto p-2 scrollbar-thin">
@@ -286,14 +294,13 @@ const ChatWidget: React.FC<ChatWidgetProps> = ({
                                     className="w-full pl-9 pr-4 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 border-none text-sm focus:ring-2 focus:ring-brand-primary/50 text-slate-900 dark:text-white"
                                 />
                             </div>
-                            {/* Search Results */}
                             {searchResults.length > 0 && (
                                 <div className="absolute top-12 left-0 right-0 bg-white dark:bg-slate-900 shadow-xl rounded-xl border border-slate-200 dark:border-slate-800 z-20 max-h-60 overflow-y-auto">
                                     {searchResults.map(u => (
                                         <div key={u.uid} onClick={() => !creatingChat && handleUserSelect(u)} className="p-3 hover:bg-slate-50 dark:hover:bg-slate-800 cursor-pointer flex items-center gap-3">
                                             <img src={u.avatar || 'https://i.pravatar.cc/150'} className="w-8 h-8 rounded-full" />
                                             <p className="text-sm font-bold flex-1 text-slate-900 dark:text-white">{u.name}</p>
-                                            {creatingChat && <Icon name="spinner" className="w-4 h-4 animate-spin" />}
+                                            {creatingChat && <Icon name="loader" className="w-4 h-4 animate-spin" />}
                                         </div>
                                     ))}
                                 </div>
@@ -356,6 +363,8 @@ const ChatWidget: React.FC<ChatWidgetProps> = ({
             </div>
         </div>
     );
+
+    return ReactDOM.createPortal(content, document.body);
 };
 
 export default ChatWidget;
