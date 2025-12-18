@@ -148,6 +148,54 @@ const SidebarLayout: React.FC<SidebarLayoutProps> = ({
     return staticPages.get('dashboard')!;
   }, [courses, location.pathname]);
 
+  // Chat State
+  const [isChatOpen, setChatOpen] = useState(false);
+  const [chats, setChats] = useState<import('../services/chatService').Chat[]>([]);
+  const [chatsLoading, setChatsLoading] = useState(true);
+
+  // Subscribe to chats for global unread count
+  useEffect(() => {
+    if (!user?.uid) return;
+    setChatsLoading(true);
+    const unsubscribe = import('../services/chatService').then(({ chatService }) => {
+      return chatService.subscribeToChats(user.uid, (updatedChats) => {
+        setChats(updatedChats);
+        setChatsLoading(false);
+      });
+    });
+
+    return () => {
+      unsubscribe.then(unsub => unsub && unsub());
+    };
+  }, [user?.uid]);
+
+  // Calculate unread count
+  const unreadCount = useMemo(() => {
+    if (!user?.uid) return 0;
+    return chats.reduce((count, chat) => {
+      const lastRead = chat.lastRead?.[user.uid];
+      const lastMsg = chat.lastMessage;
+
+      // If no last message, no unread
+      if (!lastMsg) return count;
+
+      // If I sent the last message, it's read
+      if (lastMsg.senderId === user.uid) return count;
+
+      // If I haven't read it yet (timestamp check)
+      // If no lastRead entry, it's unread
+      if (!lastRead) return count + 1;
+
+      // If message allows > lastRead
+      if (lastMsg.timestamp.seconds > lastRead.seconds) return count + 1;
+
+      return count;
+    }, 0);
+  }, [chats, user?.uid]);
+
+  // Lazy load ChatWidget
+  const ChatWidget = React.lazy(() => import('./ChatWidget'));
+
   return (
     <>
       <div className="relative min-h-screen overflow-hidden bg-gradient-to-br from-slate-100 via-white to-slate-200 text-slate-800 dark:from-slate-950 dark:via-slate-950 dark:to-slate-900 dark:text-gray-200">
@@ -183,6 +231,8 @@ const SidebarLayout: React.FC<SidebarLayoutProps> = ({
               pageSubtitle={currentPage.subtitle}
               isDarkMode={isDarkMode}
               onThemeToggle={onThemeToggle}
+              unreadChatCount={unreadCount}
+              onChatClick={() => setChatOpen(!isChatOpen)}
             />
             <main className="relative z-10 flex-1 px-2 pb-6 pt-4 sm:px-6 lg:px-10">
               <div className="relative mx-auto max-w-6xl">
@@ -209,6 +259,17 @@ const SidebarLayout: React.FC<SidebarLayoutProps> = ({
             </main>
           </div>
         </div>
+
+        {/* Global Chat Widget */}
+        <React.Suspense fallback={null}>
+          <ChatWidget
+            isOpen={isChatOpen}
+            onClose={() => setChatOpen(false)}
+            currentUser={user}
+            chats={chats}
+            isLoadingChats={chatsLoading}
+          />
+        </React.Suspense>
       </div>
     </>
   );

@@ -125,7 +125,24 @@ const Profile: React.FC<ProfileProps> = ({ user, onProfileUpdate }) => {
           </div>
 
           <h1 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white mt-3 text-center whitespace-nowrap">{user.name}</h1>
-          <p className="text-sm md:text-base text-slate-500 dark:text-slate-400 font-medium text-center">{user.jobTitle || 'Learner'}</p>
+
+          {/* Username Display with Copy */}
+          <div className="flex items-center gap-2 mt-1">
+            <span className="text-slate-500 dark:text-slate-400 font-medium text-sm">@{user.username || 'username'}</span>
+            <button
+              onClick={() => {
+                navigator.clipboard.writeText(user.username || '');
+                setToastMessage("Username copied!");
+                setShowToast(true);
+              }}
+              className="p-1 text-slate-400 hover:text-brand-primary transition-colors"
+              title="Copy Username"
+            >
+              <Icon name="copy" className="w-3.5 h-3.5" />
+            </button>
+          </div>
+
+          <p className="text-sm md:text-base text-slate-500 dark:text-slate-400 font-medium text-center mt-1">{user.jobTitle || 'Learner'}</p>
         </div>
       </div>
 

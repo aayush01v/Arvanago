@@ -3,32 +3,32 @@ import firebase from 'firebase/compat/app';
 import { Timestamp, User } from '../types.ts';
 
 export interface ChatMessage {
-    id: string;
-    senderId: string;
-    text: string;
-    timestamp: Timestamp;
+  id: string;
+  senderId: string;
+  text: string;
+  timestamp: Timestamp;
 }
 
 export interface Chat {
-    id: string;
-    participants: string[];
-    lastMessage?: {
-        text: string;
-        senderId: string;
-        timestamp: Timestamp;
-    };
-    updatedAt: Timestamp;
-    participantDetails?: { // Populated client-side or via separate query
-        [uid: string]: Partial<User>;
-    };
+  id: string;
+  participants: string[];
+  lastMessage?: {
+    text: string;
+    senderId: string;
+    timestamp: Timestamp;
+  };
+  updatedAt: Timestamp;
+  participantDetails?: { // Populated client-side or via separate query
+    [uid: string]: Partial<User>;
+  };
 }
 
 export const chatService = {
-    // Create or Get existing chat
-    async getOrCreateChat(currentUserId: string, otherUserId: string): Promise<string> {
-        // Deterministic ID to prevent duplicate chats
-        const participants = [currentUserId, otherUserId].sort();
-        const chatId = \`\${participants[0]}_\${participants[1]}\`;
+  // Create or Get existing chat
+  async getOrCreateChat(currentUserId: string, otherUserId: string): Promise<string> {
+    // Deterministic ID to prevent duplicate chats
+    const participants = [currentUserId, otherUserId].sort();
+    const chatId = `${participants[0]}_${participants[1]}`;
 
     const chatRef = db.collection('chats').doc(chatId);
     const chatDoc = await chatRef.get();
@@ -64,6 +64,15 @@ export const chatService = {
         timestamp,
       },
       updatedAt: timestamp,
+      [`lastRead.${senderId}`]: timestamp // Sender has read their own message
+    });
+  },
+
+  // Mark chat as read
+  async markChatRead(chatId: string, userId: string): Promise<void> {
+    const chatRef = db.collection('chats').doc(chatId);
+    await chatRef.update({
+      [`lastRead.${userId}`]: firebase.firestore.FieldValue.serverTimestamp()
     });
   },
 
@@ -79,7 +88,7 @@ export const chatService = {
         } as Chat));
         callback(chats);
       });
-    
+
     return unsubscribe;
   },
 
@@ -98,12 +107,12 @@ export const chatService = {
 
     return unsubscribe;
   },
-  
+
   // Helper to fetch other user details (simple version)
   async fetchUserDetails(userId: string): Promise<Partial<User> | null> {
     const doc = await db.collection('users').doc(userId).get();
     if (doc.exists) {
-        return doc.data() as Partial<User>;
+      return doc.data() as Partial<User>;
     }
     return null;
   },
@@ -113,12 +122,39 @@ export const chatService = {
     // Firestore doesn't support substring search natively without external tools (Algolia etc).
     // For this demo/scale, we will fetch users and filter client side or do a prefix match.
     // Prefix match:
-    const snapshot = await db.collection('users')
+    // Prefix match on Name
+    const nameSnapshotPromise = db.collection('users')
       .where('name', '>=', nameQuery)
       .where('name', '<=', nameQuery + '\uf8ff')
       .limit(10)
       .get();
-      
-    return snapshot.docs.map(doc => doc.data() as User);
+
+    // Prefix match on Username
+    const usernameSnapshotPromise = db.collection('users')
+      .where('username', '>=', nameQuery)
+      .where('username', '<=', nameQuery + '\uf8ff')
+      .limit(10)
+      .get();
+
+    try {
+      const [nameSnapshot, usernameSnapshot] = await Promise.all([nameSnapshotPromise, usernameSnapshotPromise]);
+
+      const usersMap = new Map<string, User>();
+
+      nameSnapshot.docs.forEach(doc => {
+        const data = doc.data() as User;
+        usersMap.set(data.uid, data);
+      });
+
+      usernameSnapshot.docs.forEach(doc => {
+        const data = doc.data() as User;
+        usersMap.set(data.uid, data);
+      });
+
+      return Array.from(usersMap.values());
+    } catch (e) {
+      console.error("Error searching users:", e);
+      return [];
+    }
   }
 };

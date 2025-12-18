@@ -13,6 +13,8 @@ interface HeaderProps {
   pageSubtitle?: string;
   isDarkMode: boolean;
   onThemeToggle: (isDark: boolean) => void;
+  unreadChatCount?: number;
+  onChatClick?: () => void;
 }
 
 const Header: React.FC<HeaderProps> = ({
@@ -23,6 +25,8 @@ const Header: React.FC<HeaderProps> = ({
   pageSubtitle,
   isDarkMode,
   onThemeToggle,
+  unreadChatCount = 0,
+  onChatClick,
 }) => {
   return (
     <header
@@ -73,33 +77,20 @@ const Header: React.FC<HeaderProps> = ({
 
           <div className="flex items-center justify-end gap-3 md:gap-5">
             {/* Chat */}
-            <Link to="/chat">
-              <button
-                className={`
-                  flex h-10 w-10 items-center justify-center rounded-xl border border-white/40 bg-white/60 text-slate-600 shadow-sm shadow-white/40 transition-all duration-300 hover:scale-105 hover:bg-white/80 hover:text-brand-primary dark:border-white/10 dark:bg-white/5 dark:text-slate-300 dark:hover:text-white relative group
-                `}
-                aria-label="Chat"
-              >
-                <Icon name="message-circle" className="h-5 w-5" />
-                <span className="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full border-2 border-white dark:border-slate-900 group-hover:scale-110 transition-transform"></span>
-              </button>
-            </Link>
-
-            {/* Theme Toggle Button - Visible when space permits (hidden on very small screens if crowded, but usually fine) */}
             <button
-              onClick={() => onThemeToggle(!isDarkMode)}
-              className="group flex h-10 w-10 items-center justify-center rounded-xl border border-white/40 bg-white/60 text-slate-600 shadow-sm shadow-white/40 transition-all duration-300 hover:scale-105 hover:bg-white/80 hover:text-brand-primary dark:border-white/10 dark:bg-white/5 dark:text-slate-300 dark:hover:text-white"
-              aria-label={isDarkMode ? "Switch to light mode" : "Switch to dark mode"}
+              onClick={onChatClick}
+              className={`
+                flex h-10 w-10 items-center justify-center rounded-xl border border-white/40 bg-white/60 text-slate-600 shadow-sm shadow-white/40 transition-all duration-300 hover:scale-105 hover:bg-white/80 hover:text-brand-primary dark:border-white/10 dark:bg-white/5 dark:text-slate-300 dark:hover:text-white relative group
+              `}
+              aria-label="Chat"
             >
-              <div className="relative h-5 w-5 overflow-hidden">
-                <div className={`absolute inset-0 transform transition-transform duration-500 ${isDarkMode ? 'translate-y-0' : '-translate-y-8'}`}>
-                  <Icon name="moon" className="h-5 w-5" />
-                </div>
-                <div className={`absolute inset-0 transform transition-transform duration-500 ${isDarkMode ? 'translate-y-8' : 'translate-y-0'}`}>
-                  <Icon name="sun" className="h-5 w-5" />
-                </div>
-              </div>
+              <Icon name="message-circle" className="h-5 w-5" />
+              {unreadChatCount > 0 && (
+                <span className="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full border-2 border-white dark:border-slate-900 group-hover:scale-110 transition-transform animate-pulse"></span>
+              )}
             </button>
+
+
 
             <div className="hidden flex-col text-right sm:flex">
               <span className="text-sm font-semibold text-slate-600 dark:text-slate-200">{user.name}</span>

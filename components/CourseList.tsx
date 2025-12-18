@@ -226,8 +226,9 @@ const CourseList: React.FC<CourseListProps> = ({
   return (
     <div className="p-4 sm:p-6 lg:p-8 space-y-8 animate-fade-in">
       {/* Header */}
-      <div className="relative overflow-hidden rounded-[32px] glass-ambient p-8 md:p-12 shadow-2xl">
+      <div className="relative overflow-hidden rounded-[32px] glass-ambient dark:bg-slate-900/60 p-8 md:p-12 shadow-2xl">
         <div className="absolute top-0 right-0 w-96 h-96 bg-brand-primary/20 rounded-full blur-[120px] pointer-events-none -translate-y-1/2 translate-x-1/2" />
+
         <div className="relative z-10 max-w-2xl">
           <h2 className="text-4xl md:text-5xl font-black text-slate-900 dark:text-white mb-4 tracking-tight">Explore Courses</h2>
           <p className="text-lg text-slate-600 dark:text-slate-300 leading-relaxed mb-8">

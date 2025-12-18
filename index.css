@@ -66,6 +66,7 @@ body {
 
 /* Utilities / Component Classes */
 
+
 .glass-ambient {
   position: relative;
   background: var(--glass-surface);
@@ -74,6 +75,13 @@ body {
   overflow: hidden;
   backdrop-filter: blur(18px);
 }
+
+.dark .glass-ambient {
+  background: var(--glass-dark);
+  border-color: rgba(255, 255, 255, 0.05);
+  box-shadow: 0 20px 80px rgba(0, 0, 0, 0.4);
+}
+
 
 @media (max-width: 768px) {
   .glass-ambient {

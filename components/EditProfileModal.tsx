@@ -13,6 +13,7 @@ interface EditProfileModalProps {
 
 const EditProfileModal: React.FC<EditProfileModalProps> = ({ user, onClose, onSave }) => {
     const [name, setName] = useState(user.name);
+    const [username, setUsername] = useState(user.username || '');
     const [bio, setBio] = useState(user.bio || '');
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState('');
@@ -51,14 +52,12 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({ user, onClose, onSa
 
         try {
             // Include avatar in the update if it changed
-            const updatedData = { name, bio, avatar: avatar !== user.avatar ? avatar : undefined };
-            if (updatedData.avatar) {
-                await updateUserProfile(user.uid, { name, bio, avatar: updatedData.avatar });
-            } else {
-                await updateUserProfile(user.uid, { name, bio });
-            }
+            const updatedData: any = { name, username, bio, avatar: avatar !== user.avatar ? avatar : undefined };
+            if (!updatedData.avatar) delete updatedData.avatar;
 
-            onSave({ name, bio, avatar: avatar });
+            await updateUserProfile(user.uid, updatedData);
+
+            onSave({ ...user, ...updatedData });
             onClose();
         } catch (err) {
             console.error("Failed to update profile:", err);
@@ -117,6 +116,21 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({ user, onClose, onSa
                             onChange={(e) => setName(e.target.value)}
                             className="w-full px-4 py-3 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/20 rounded-xl outline-none transition dark:text-white"
                         />
+                    </div>
+
+                    <div>
+                        <label htmlFor="username" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Username (Chat Handle)</label>
+                        <div className="relative">
+                            <span className="absolute left-4 top-3.5 text-gray-500 dark:text-gray-400">@</span>
+                            <input
+                                type="text"
+                                id="username"
+                                value={username}
+                                onChange={(e) => setUsername(e.target.value.replace(/[^a-zA-Z0-9_]/g, ''))}
+                                placeholder="username"
+                                className="w-full pl-8 pr-4 py-3 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/20 rounded-xl outline-none transition dark:text-white"
+                            />
+                        </div>
                     </div>
                     <div>
                         <label htmlFor="bio" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Bio</label>
