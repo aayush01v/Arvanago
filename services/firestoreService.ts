@@ -390,6 +390,128 @@ const FALLBACK_COURSE_SEEDS: ReadonlyArray<Course> = [
       { id: 'res-3', name: 'Starter_Code_v1.zip', type: 'ZIP', size: '5.6MB' }
     ]
   },
+  {
+    id: "web_dev_bootcamp",
+    title: "Complete Web Dev Bootcamp: Basics to Advanced",
+    category: "Web Development",
+    description: "Master full-stack web development: HTML/CSS/JS, React, Node.js, and MongoDB.",
+    longDescription: "A complete zero-to-hero bootcamp curated from top industry resources. Master the modern web stack starting with static HTML/CSS, moving to dynamic React frontends, and finishing with robust Node.js/MongoDB backends. Build real production-ready applications.",
+    learningOutcomes: [
+      "Build responsive websites with HTML5 & CSS3 (Flexbox/Grid)",
+      "Master modern JavaScript (ES2025+) mechanics",
+      "Create interactive UIs with React 19 & Hooks",
+      "Develop RESTful APIs with Node.js & Express",
+      "Manage data with MongoDB & Mongoose"
+    ],
+    thumbnail: "https://images.unsplash.com/photo-1547658719-da2b51169166?w=800&q=80",
+    progress: 0,
+    totalDuration: "15h 20m",
+    rating: 4.9,
+    studentCount: 3420,
+    isPublished: true,
+    resources: [
+      {
+        id: "r_wd_1",
+        name: "VS Code Setup Guide",
+        type: "PDF",
+        size: "2.1MB",
+        url: "https://example.com/resources/vscode_setup.pdf",
+      },
+      {
+        id: "r_wd_2",
+        name: "Final Project Assets",
+        type: "ZIP",
+        size: "15MB",
+        url: "https://example.com/resources/project_assets.zip",
+      }
+    ],
+    sections: [
+      {
+        id: "wd_ph1",
+        title: "Phase 1: Beginner – Core Frontend",
+        lectures: [
+          {
+            id: "wd_html",
+            title: "HTML Fundamentals",
+            duration: "31m",
+            videoUrl: "https://www.youtube.com/embed/Gs5yi3Hi5qo",
+            summary: "Covers semantic tags, forms, and accessibility from scratch. A perfect intro with modern best practices.",
+            isCompleted: false,
+            isPreview: true,
+          },
+          {
+            id: "wd_css",
+            title: "CSS Styling and Layouts",
+            duration: "45m",
+            videoUrl: "https://www.youtube.com/embed/QeslNHmTObk",
+            summary: "Hands-on Flexbox/Grid, responsive design, and animations. Essential for mobile-first sites.",
+            isCompleted: false,
+            isPreview: false,
+          },
+          {
+            id: "wd_js_basics",
+            title: "JavaScript Basics",
+            duration: "120m",
+            videoUrl: "https://www.youtube.com/embed/ogdtB_m6G5g",
+            summary: "Variables, Loops, Functions. Simple explanations with console demos. Builds a basic calculator.",
+            isCompleted: false,
+          }
+        ],
+      },
+      {
+        id: "wd_ph2",
+        title: "Phase 2: Intermediate – Dynamic Frontend (React)",
+        lectures: [
+          {
+            id: "wd_react_state",
+            title: "React Components and State",
+            duration: "20m",
+            videoUrl: "https://www.youtube.com/embed/OA5JAmTcTz4",
+            summary: "Quick setup with props and hooks. Great for transitioning from vanilla JS without boilerplate overwhelm.",
+            isCompleted: false,
+          },
+          {
+            id: "wd_react_hooks",
+            title: "React Hooks and Routing",
+            duration: "90m",
+            videoUrl: "https://www.youtube.com/embed/TtPXvEcE11E",
+            summary: "Deep dive into useState/useEffect and React Router. Includes building a Todo app.",
+            isCompleted: false,
+          }
+        ],
+      },
+      {
+        id: "wd_ph3",
+        title: "Phase 3: Advanced – Backend and Full-Stack",
+        lectures: [
+          {
+            id: "wd_node",
+            title: "Node.js and Express Setup",
+            duration: "60m",
+            videoUrl: "https://www.youtube.com/embed/yGl3f0xTl_0",
+            summary: "From npm init to REST APIs. Covers middleware and error handling for MERN stack starters.",
+            isCompleted: false,
+          },
+          {
+            id: "wd_mongo",
+            title: "MongoDB for Web Apps",
+            duration: "120m",
+            videoUrl: "https://www.youtube.com/embed/Zndy6PfyLLM",
+            summary: "CRUD ops, schemas with Mongoose, and aggregation. Integrates directly with Node.",
+            isCompleted: false,
+          },
+          {
+            id: "wd_mern",
+            title: "Full-Stack MERN Project",
+            duration: "120m",
+            videoUrl: "https://www.youtube.com/embed/LzMnsfqjzkA",
+            summary: "Build a complete blog app with React, Node, and MongoDB. Covers Auth (JWT) and deployment.",
+            isCompleted: false,
+          }
+        ],
+      }
+    ],
+  },
 ];
 
 const cloneFallbackCourse = (course: Course, courseMap: Map<string, Course>): Course => {
@@ -1214,6 +1336,34 @@ export const getOrCreateUser = async (
       updates.role = adminRole;
     }
 
+    // Check deleted status
+    if (firestoreData.isDeleted) {
+      throw new Error('This account has been deleted.');
+    }
+
+    if (firestoreData.isDisabled) {
+      // Check for time-based suspension
+      if (firestoreData.disabledUntil) {
+        const now = new Date();
+        const disabledUntilDate = firestoreData.disabledUntil.toDate();
+
+        if (now < disabledUntilDate) {
+          const dateStr = new Intl.DateTimeFormat('en-US', {
+            month: 'short', day: 'numeric', hour: 'numeric', minute: 'numeric'
+          }).format(disabledUntilDate);
+          throw new Error(`Your account is suspended until ${dateStr}.`);
+        } else {
+          // Suspension expired - Auto-enable
+          updates.isDisabled = false;
+          updates.disabledUntil = null;
+          firestoreData.isDisabled = false; // Update local var for return
+        }
+      } else {
+        // Indefinite suspension
+        throw new Error('Your account has been disabled by an administrator.');
+      }
+    }
+
     await userRef.update(updates);
 
     return {
@@ -1232,9 +1382,22 @@ export const getOrCreateUser = async (
       coursesAuthored: firestoreData.coursesAuthored,
       streak: newStreak,
       lastLogin: updates.lastLogin as Timestamp,
+      isDisabled: firestoreData.isDisabled,
+      disabledUntil: (updates.disabledUntil !== undefined ? updates.disabledUntil : firestoreData.disabledUntil) || null,
+      isDeleted: firestoreData.isDeleted,
 
       themePreference,
       role: (updates.role as 'student' | 'admin' | 'super_admin' | undefined) || firestoreData.role || (isAdmin ? adminRole : 'student'),
+
+      // New Profile Fields
+      username: firestoreData.username || '',
+      followers: firestoreData.followers || 0,
+      following: firestoreData.following || 0,
+      postsCount: firestoreData.postsCount || 0,
+      coverPhoto: firestoreData.coverPhoto || 'https://images.unsplash.com/photo-1579546929518-9e396f3cc809?auto=format&fit=crop&w=1200&q=80',
+      jobTitle: firestoreData.jobTitle || 'Learner',
+      gallery: firestoreData.gallery || [],
+      socialLinks: firestoreData.socialLinks || [],
     } satisfies User;
   }
 
@@ -1252,6 +1415,16 @@ export const getOrCreateUser = async (
     wishlist: [],
     pendingTasks: [],
     lastLogin: firebase.firestore.Timestamp.now(),
+    // New Profile Defaults
+    followers: 0,
+    following: 0,
+    postsCount: 0,
+    username: '',
+    coverPhoto: 'https://images.unsplash.com/photo-1579546929518-9e396f3cc809?auto=format&fit=crop&w=1200&q=80',
+    jobTitle: 'Learner',
+    bio: 'Ready to learn!',
+    socialLinks: [],
+    gallery: [],
 
     themePreference: 'light',
     role: isAdmin ? adminRole : 'student',

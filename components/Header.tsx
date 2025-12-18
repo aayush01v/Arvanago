@@ -1,5 +1,6 @@
 
 import React from 'react';
+import { Link } from 'react-router-dom';
 import Icon from './common/Icon.tsx';
 import { User } from '../types.ts';
 import { LOGO_URL } from '../constants.ts';
@@ -71,6 +72,19 @@ const Header: React.FC<HeaderProps> = ({
           </div>
 
           <div className="flex items-center justify-end gap-3 md:gap-5">
+            {/* Chat */}
+            <Link to="/chat">
+              <button
+                className={`
+                  flex h-10 w-10 items-center justify-center rounded-xl border border-white/40 bg-white/60 text-slate-600 shadow-sm shadow-white/40 transition-all duration-300 hover:scale-105 hover:bg-white/80 hover:text-brand-primary dark:border-white/10 dark:bg-white/5 dark:text-slate-300 dark:hover:text-white relative group
+                `}
+                aria-label="Chat"
+              >
+                <Icon name="message-circle" className="h-5 w-5" />
+                <span className="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full border-2 border-white dark:border-slate-900 group-hover:scale-110 transition-transform"></span>
+              </button>
+            </Link>
+
             {/* Theme Toggle Button - Visible when space permits (hidden on very small screens if crowded, but usually fine) */}
             <button
               onClick={() => onThemeToggle(!isDarkMode)}

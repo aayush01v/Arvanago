@@ -38,16 +38,14 @@ const InfoModal: React.FC<InfoModalProps> = ({ isOpen, onClose }) => {
   return (
     <div
       onClick={onClose}
-      className={`fixed inset-0 z-50 flex items-center justify-center p-4 transition-all duration-300 ${
-        isOpen ? 'bg-black/60 backdrop-blur-sm' : 'bg-black/0'
-      }`}
+      className={`fixed inset-0 z-50 flex items-center justify-center p-4 transition-all duration-300 ${isOpen ? 'bg-black/60 backdrop-blur-sm' : 'bg-black/0'
+        }`}
       style={{ animation: isOpen ? 'fadeIn 0.3s ease-out' : 'fadeOut 0.3s ease-out' }}
     >
       <div
         onClick={(e) => e.stopPropagation()}
-        className={`relative w-full max-w-2xl max-h-[85vh] bg-white dark:bg-slate-800 rounded-3xl shadow-2xl overflow-hidden transform transition-all duration-300 ${
-          isOpen ? 'scale-100 opacity-100' : 'scale-95 opacity-0'
-        }`}
+        className={`relative w-full max-w-2xl max-h-[85vh] bg-white dark:bg-slate-800 rounded-3xl shadow-2xl overflow-hidden transform transition-all duration-300 ${isOpen ? 'scale-100 opacity-100' : 'scale-95 opacity-0'
+          }`}
         style={{ animation: isOpen ? 'scaleIn 0.3s ease-out' : 'scaleOut 0.3s ease-out' }}
       >
         {/* Header */}
@@ -67,11 +65,10 @@ const InfoModal: React.FC<InfoModalProps> = ({ isOpen, onClose }) => {
           <div className="mt-4 flex gap-2">
             <button
               onClick={() => setActiveTab('contact')}
-              className={`flex-1 rounded-full px-6 py-2.5 text-sm font-semibold transition-all ${
-                activeTab === 'contact'
+              className={`flex-1 rounded-full px-6 py-2.5 text-sm font-semibold transition-all ${activeTab === 'contact'
                   ? 'bg-white text-brand-primary shadow-lg'
                   : 'bg-white/20 text-white hover:bg-white/30'
-              }`}
+                }`}
             >
               <div className="flex items-center justify-center gap-2">
                 <Icon name="mail" className="h-4 w-4" />
@@ -80,11 +77,10 @@ const InfoModal: React.FC<InfoModalProps> = ({ isOpen, onClose }) => {
             </button>
             <button
               onClick={() => setActiveTab('terms')}
-              className={`flex-1 rounded-full px-6 py-2.5 text-sm font-semibold transition-all ${
-                activeTab === 'terms'
+              className={`flex-1 rounded-full px-6 py-2.5 text-sm font-semibold transition-all ${activeTab === 'terms'
                   ? 'bg-white text-brand-primary shadow-lg'
                   : 'bg-white/20 text-white hover:bg-white/30'
-              }`}
+                }`}
             >
               <div className="flex items-center justify-center gap-2">
                 <Icon name="file-text" className="h-4 w-4" />
@@ -117,10 +113,10 @@ const InfoModal: React.FC<InfoModalProps> = ({ isOpen, onClose }) => {
                     <div>
                       <h4 className="font-semibold text-slate-900 dark:text-white">Email</h4>
                       <a
-                        href="mailto:edusimulate@sendapp.uk"
+                        href="mailto:edusimulate@duck.com"
                         className="text-brand-primary hover:underline"
                       >
-                        edusimulate@sendapp.uk
+                        edusimulate@duck.com
                       </a>
                     </div>
                   </div>
@@ -153,7 +149,7 @@ const InfoModal: React.FC<InfoModalProps> = ({ isOpen, onClose }) => {
 
               <div className="text-center">
                 <a
-                  href="mailto:edusimulate@sendapp.uk"
+                  href="mailto:edusimulate@duck.com"
                   className="inline-flex items-center gap-2 rounded-full bg-brand-primary px-8 py-3 font-semibold text-white shadow-lg transition-all hover:bg-brand-primary/90 hover:shadow-xl hover:scale-105 active:scale-95"
                 >
                   <Icon name="mail" className="h-5 w-5" />

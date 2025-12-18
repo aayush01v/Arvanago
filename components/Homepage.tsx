@@ -5,378 +5,291 @@ import Icon from './common/Icon.tsx';
 import { useScrollAnimation } from '../hooks/useScrollAnimation.ts';
 import { Course } from '../types.ts';
 import { LOGO_URL } from '../constants.ts';
-import { useTypingEffect } from '../hooks/useTypingEffect.ts';
 import InfoModal from './InfoModal.tsx';
 
 interface HomepageProps {
-  onNavigateToLogin: () => void;
-  onCourseSelect: (course: Course) => void;
-  courses: Course[];
-  isLoadingCourses?: boolean;
+    onNavigateToLogin: () => void;
+    onCourseSelect: (course: Course) => void;
+    courses: Course[];
+    isLoadingCourses?: boolean;
 }
 
-const CategoryCard: React.FC<{ category: { name: string; icon: string; tags: string[] } }> = ({ category }) => {
-  const ref = useScrollAnimation();
-  return (
-    <div ref={ref} className="bg-white dark:bg-slate-800 rounded-xl shadow-md border border-slate-100 dark:border-slate-700 p-6 flex flex-col h-full scroll-animate transition-all duration-300 hover:-translate-y-1.5 hover:shadow-brand-primary/20">
-      <div className="flex justify-between items-start">
-        <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-2">{category.name}</h3>
-        <div className="p-3 bg-slate-100 dark:bg-slate-700 rounded-full">
-          <Icon name={category.icon} className="w-6 h-6 text-brand-primary" />
-        </div>
-      </div>
-      <div className="flex flex-wrap gap-2 mb-4">
-        {category.tags.map(tag => (
-          <span key={tag} className="text-xs text-slate-600 dark:text-slate-400 bg-slate-100 dark:bg-slate-700 px-2 py-1 rounded-md">{tag}</span>
-        ))}
-      </div>
-      <a href="#" onClick={e => e.preventDefault()} className="inline-flex items-center mt-auto text-sm font-semibold text-brand-primary hover:underline">
-        Explore Category <Icon name="arrowRight" className="w-4 h-4 ml-1" />
-      </a>
-    </div>
-  );
-};
-
-const SearchResultCourseCard: React.FC<{ course: Course; onClick: () => void }> = ({ course, onClick }) => {
-  const previewImage = course.thumbnailUrl ?? course.thumbnail;
-  return (
-    <div
-      onClick={onClick}
-      className="flex items-center p-4 bg-white dark:bg-slate-700/50 rounded-lg cursor-pointer transition-all duration-300 hover:bg-brand-light dark:hover:bg-slate-700 hover:shadow-md transform hover:scale-[1.02]"
-    >
-      <img src={previewImage} alt={course.title} className="w-24 h-16 object-cover rounded-md mr-4 flex-shrink-0" />
-      <div className="flex-1 min-w-0">
-        <span className="text-xs font-semibold text-brand-primary dark:text-purple-400 uppercase">{course.category}</span>
-        <h4 className="font-bold text-slate-800 dark:text-white truncate">{course.title}</h4>
-        <p className="text-sm text-slate-500 dark:text-slate-400 truncate">{course.description}</p>
-      </div>
-      <Icon name="chevronRight" className="w-5 h-5 text-slate-400 ml-2 flex-shrink-0" />
-    </div>
-  );
-};
-
-const SearchResultsModal: React.FC<{
-  isOpen: boolean;
-  onClose: () => void;
-  isLoading: boolean;
-  results: Course[];
-  onCourseSelect: (course: Course) => void;
-  searchQuery: string;
-}> = ({ isOpen, onClose, isLoading, results, onCourseSelect, searchQuery }) => {
-  if (!isOpen) return null;
-
-  return (
-    <div onClick={onClose} className="fixed inset-0 bg-black bg-opacity-60 flex items-start justify-center z-50 animate-fade-in pt-16 sm:pt-20">
-      <div
-        onClick={(e) => e.stopPropagation()}
-        className="bg-slate-50 dark:bg-slate-800 rounded-2xl shadow-2xl w-full max-w-2xl m-4 animate-scale-in flex flex-col max-h-[70vh]"
-      >
-        <header className="flex justify-between items-center p-4 border-b border-slate-200 dark:border-slate-700 flex-shrink-0">
-          <h2 className="text-lg font-bold text-slate-800 dark:text-white truncate">
-            Results for "{searchQuery}"
-          </h2>
-          <button onClick={onClose} aria-label="Close search results" className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
-            <Icon name="x" className="w-6 h-6" />
-          </button>
-        </header>
-        <div className="p-4 overflow-y-auto">
-          {isLoading ? (
-            <div className="flex justify-center items-center h-48">
-              <Icon name="spinner" className="w-10 h-10 text-brand-primary animate-spin" />
+const BentoCard: React.FC<{
+    title: string;
+    subtitle?: string;
+    icon?: string;
+    className?: string;
+    children?: React.ReactNode;
+    delay?: string;
+}> = ({ title, subtitle, icon, className = "", children, delay = "0s" }) => {
+    const ref = useScrollAnimation();
+    return (
+        <div
+            ref={ref}
+            className={`group relative overflow-hidden bg-white dark:bg-slate-900 border border-slate-200 dark:border-white/10 rounded-3xl p-6 hover:shadow-2xl transition-all duration-500 hover:-translate-y-1 ${className}`}
+            style={{ animationDelay: delay }}
+        >
+            <div className="absolute top-0 right-0 p-8 opacity-5 group-hover:opacity-10 transition-opacity duration-500 transform group-hover:scale-110 origin-top-right">
+                {icon && <Icon name={icon} className="w-32 h-32" />}
             </div>
-          ) : results.length > 0 ? (
-            <div className="space-y-3">
-              {results.map(course => (
-                <SearchResultCourseCard key={course.id} course={course} onClick={() => onCourseSelect(course)} />
-              ))}
-            </div>
-          ) : (
-            <div className="text-center py-12">
-              <Icon name="search" className="w-16 h-16 text-slate-300 dark:text-slate-600 mx-auto" />
-              <h3 className="mt-4 text-xl font-semibold text-slate-700 dark:text-slate-300">No Courses Found</h3>
-              <p className="mt-1 text-slate-500 dark:text-slate-400">Try a different search term to find your perfect course.</p>
-            </div>
-          )}
-        </div>
-      </div>
-    </div>
-  );
-};
-
-const Homepage: React.FC<HomepageProps> = ({ onNavigateToLogin, onCourseSelect, courses, isLoadingCourses = false }) => {
-  const introRef = useScrollAnimation();
-  const metricsRef = useScrollAnimation();
-  const categoriesRef = useScrollAnimation();
-
-  const [searchQuery, setSearchQuery] = useState('');
-  const [isSearchModalOpen, setIsSearchModalOpen] = useState(false);
-  const [searchResults, setSearchResults] = useState<Course[]>([]);
-  const [isSearching, setIsSearching] = useState(false);
-  const [isInfoModalOpen, setIsInfoModalOpen] = useState(false);
-
-  const subtitles = [
-    "Unlock your potential with Edusimulate — where learning comes alive.",
-    "Interactive. Intelligent. Immersive. That’s Edusimulate.",
-    "Where knowledge meets simulation — Edusimulate.",
-    "Learn by Doing.",
-  ];
-  const typedSubtitle = useTypingEffect(subtitles);
-
-  const categoryDetails = [
-    { name: 'NEET', icon: 'neet', tags: ['Class 11', 'Class 12', 'Dropper'] },
-    { name: 'IIT JEE', icon: 'iit', tags: ['Class 11', 'Class 12', 'Dropper'] },
-    { name: 'School Preparation', icon: 'school', tags: ['Class 6', 'Class 10', 'CBSE'] },
-    { name: 'UPSC', icon: 'upsc', tags: ['Prelims', 'Mains', 'CSE'] },
-  ];
-
-  const metrics = [
-    { icon: 'live', title: 'Daily Live', subtitle: 'Interactive classes' },
-    { icon: 'test', title: '10 Million+', subtitle: 'Tests, papers & notes' },
-    { icon: 'doubt', title: '24 x 7', subtitle: 'Doubt solving sessions' },
-    { icon: 'cube', title: '100+', subtitle: 'Immersive 3D Models' },
-  ];
-
-  const canSearch = Boolean(searchQuery.trim()) && !isSearching && !isLoadingCourses;
-
-  const handleSearch = async () => {
-    if (!canSearch) return;
-
-    setIsSearching(true);
-    setSearchResults([]);
-    setIsSearchModalOpen(true);
-
-    await new Promise(resolve => setTimeout(resolve, 500));
-
-    try {
-      const query = searchQuery.toLowerCase().trim();
-      const results = courses.filter(course =>
-        course.title.toLowerCase().includes(query) ||
-        course.description.toLowerCase().includes(query) ||
-        course.category.toLowerCase().includes(query)
-      );
-      setSearchResults(results);
-    } catch (error) {
-      console.error("Search error:", error);
-      setSearchResults([]);
-    } finally {
-      setIsSearching(false);
-    }
-  };
-
-  const handleCourseSelection = (course: Course) => {
-    setIsSearchModalOpen(false);
-    onCourseSelect(course);
-  };
-
-  return (
-    <>
-      <div className="bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-white font-sans overflow-x-hidden relative">
-        {/* Decorative background blobs */}
-        {/* Decorative background blobs - Optimized */}
-        <div className="fixed top-0 -left-20 w-80 h-80 rounded-full opacity-60 dark:opacity-20 animate-blob mix-blend-multiply dark:mix-blend-normal transform-gpu blur-3xl pointer-events-none" style={{ background: 'radial-gradient(circle, rgba(216, 180, 254, 0.8) 0%, transparent 70%)' }}></div>
-        <div className="fixed top-0 -right-20 w-80 h-80 rounded-full opacity-60 dark:opacity-20 animate-blob mix-blend-multiply dark:mix-blend-normal transform-gpu blur-3xl pointer-events-none" style={{ animationDelay: '2s', background: 'radial-gradient(circle, rgba(199, 210, 254, 0.8) 0%, transparent 70%)' }}></div>
-        <div className="fixed -bottom-20 left-10 w-80 h-80 rounded-full opacity-60 dark:opacity-20 animate-blob mix-blend-multiply dark:mix-blend-normal transform-gpu blur-3xl pointer-events-none" style={{ animationDelay: '4s', background: 'radial-gradient(circle, rgba(253, 164, 175, 0.8) 0%, transparent 70%)' }}></div>
-
-        <header className="absolute top-0 left-0 right-0 z-30 bg-transparent">
-          <div className="container mx-auto px-6 py-4 flex justify-between items-center">
-            <div className="flex items-center">
-              <img src={LOGO_URL} alt="Edusimulate Logo" className="h-8 mr-2" />
-              <span className="text-xl font-bold text-slate-900 dark:text-white">Edusimulate</span>
-            </div>
-            <button
-              onClick={onNavigateToLogin}
-              className="glass-reflection px-6 py-3 bg-white/10 dark:bg-white/5 backdrop-blur-lg border border-white/30 dark:border-white/10 rounded-full font-semibold text-base text-slate-900 dark:text-white shadow-lg transition-all transform hover:scale-105 hover:bg-white/20 dark:hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-white/50 animate-glass-glow shadow-brand-primary/30 dark:shadow-brand-primary/20 duration-150 ease-in-out active:scale-95"
-            >
-              Login / Register
-            </button>
-          </div>
-        </header>
-
-        <main className="pt-28 md:pt-32 relative z-10">
-          {/* Additional Decorative Icons for Desktop */}
-          <div className="hidden lg:block absolute top-[20%] left-[5%] text-brand-primary/10 animate-float-1" style={{ animationDuration: '30s' }}>
-            <Icon name="atom" className="w-24 h-24" />
-          </div>
-          <div className="hidden lg:block absolute top-[60%] right-[8%] text-brand-primary/10 animate-float-2" style={{ animationDuration: '35s' }}>
-            <Icon name="brain-circuit" className="w-28 h-28" />
-          </div>
-          <div className="hidden lg:block absolute bottom-[10%] left-[10%] text-brand-primary/10 animate-float-1" style={{ animationDuration: '40s' }}>
-            <Icon name="dna" className="w-20 h-20" />
-          </div>
-
-          {/* Hero Banner */}
-          <section className="container mx-auto px-6 mb-16">
-            <div className="relative bg-white/40 dark:bg-slate-800/30 backdrop-blur-xl rounded-2xl p-8 md:p-12 flex items-center justify-between overflow-hidden shadow-2xl border border-white/50 dark:border-slate-700/50">
-              {/* Animated icons layer */}
-              <div className="absolute inset-0 z-0 opacity-50 dark:opacity-20">
-                <div className="absolute top-[10%] left-[5%] animate-float-1" style={{ animationDuration: '20s' }}><Icon name="iit" className="w-16 h-16 text-purple-400/30 dark:text-purple-300/20" /></div>
-                <div className="absolute top-[60%] left-[15%] animate-float-2" style={{ animationDuration: '28s' }}><Icon name="test" className="w-20 h-20 text-indigo-400/30 dark:text-indigo-300/20" /></div>
-                <div className="absolute top-[20%] right-[10%] animate-float-1" style={{ animationDuration: '22s' }}><Icon name="cube" className="w-12 h-12 text-pink-400/30 dark:text-pink-300/20" /></div>
-                <div className="absolute bottom-[10%] right-[20%] animate-float-2" style={{ animationDuration: '25s' }}><Icon name="school" className="w-24 h-24 text-blue-400/30 dark:text-blue-300/20" /></div>
-                <div className="absolute bottom-[25%] left-[45%] animate-float-1" style={{ animationDuration: '30s' }}><Icon name="neet" className="w-10 h-10 text-green-400/30 dark:text-green-300/20" /></div>
-              </div>
-
-              <div className="space-y-3 z-10">
-                <p className="font-semibold text-purple-800 dark:text-purple-200">NEW BATCHES STARTING SOON</p>
-                <h2 className="text-3xl md:text-4xl font-extrabold text-slate-900 dark:text-white text-shadow">C++ Basics Course</h2>
-                <button
-                  onClick={onNavigateToLogin}
-                  className="glass-reflection bg-white/20 dark:bg-white/10 text-slate-900 dark:text-white font-bold py-2 px-5 rounded-full hover:bg-white/30 dark:hover:bg-white/20 transition-all transform hover:scale-105 active:scale-95 backdrop-blur-md border border-white/40 dark:border-white/20 shadow-md animate-glass-glow shadow-brand-primary/30 dark:shadow-brand-primary/20 duration-150 ease-in-out"
-                >
-                  Tap to Explore
-                </button>
-              </div>
-              <div className="hidden md:flex items-center justify-center relative w-48 h-48 lg:w-64 lg:h-64 z-10">
-                <Icon name="cube" className="w-full h-full text-white/50 animate-float-1 opacity-70" style={{ animationDuration: '15s' }} />
-                <div className="absolute inset-0 bg-gradient-to-tr from-white/10 to-transparent rounded-full transform rotate-45"></div>
-              </div>
-            </div>
-          </section>
-
-          {/* Intro Section */}
-          <section ref={introRef} className="container mx-auto px-6 mb-20 text-center scroll-animate">
-            <h2 className="text-4xl md:text-5xl font-extrabold text-slate-900 dark:text-white leading-tight">
-              Edusimulate's Trusted & Affordable <br />
-              <span className="text-brand-primary">Educational Platform</span>
-            </h2>
-            <div className="mt-6 max-w-3xl xl:max-w-4xl mx-auto min-h-[5rem] md:min-h-[4rem] flex items-center justify-center">
-              <p className="text-xl md:text-2xl text-slate-600 dark:text-slate-400 font-handwriting">
-                {typedSubtitle}<span className="animate-text-cursor-blink font-sans font-light">|</span>
-              </p>
-            </div>
-            <div className="mt-8 max-w-2xl mx-auto">
-              <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none">
-                  <Icon name="search" className="w-5 h-5 text-slate-400" />
+            <div className="relative z-10 flex flex-col h-full">
+                <div className="mb-4">
+                    {icon && <div className="w-10 h-10 rounded-xl bg-slate-100 dark:bg-white/10 flex items-center justify-center mb-4 text-slate-900 dark:text-white"><Icon name={icon} className="w-5 h-5" /></div>}
+                    <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-1">{title}</h3>
+                    {subtitle && <p className="text-sm text-slate-500 dark:text-slate-400">{subtitle}</p>}
                 </div>
-                <input
-                  type="search"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  onKeyPress={(e) => { if (e.key === 'Enter') handleSearch() }}
-                  placeholder="What do you want to learn today?"
-                  aria-label="Search for courses"
-                  disabled={isSearching}
-                  className="w-full pl-14 pr-16 py-4 text-lg bg-slate-100 dark:bg-slate-800 border-2 border-transparent focus:border-brand-primary rounded-full shadow-md outline-none focus:ring-4 focus:ring-brand-primary/20 transition-all duration-300"
-                />
-                <button
-                  onClick={handleSearch}
-                  disabled={!canSearch}
-                  aria-label="Search courses"
-                  className="absolute right-2 top-1/2 -translate-y-1/2 h-12 w-12 bg-slate-200 dark:bg-slate-700 text-brand-primary rounded-full flex items-center justify-center hover:bg-slate-300 dark:hover:bg-slate-600 transition-all transform hover:scale-110 active:scale-95 disabled:bg-slate-400 disabled:scale-100 dark:disabled:bg-slate-600 disabled:text-white"
-                >
-                  <Icon name="arrowRight" className="w-6 h-6" />
-                </button>
-              </div>
+                <div className="mt-auto">
+                    {children}
+                </div>
             </div>
-            {isLoadingCourses && (
-              <div
-                className="mt-4 inline-flex items-center justify-center gap-2 text-sm text-slate-500 dark:text-slate-400"
-                role="status"
-                aria-live="polite"
-              >
-                <Icon name="spinner" className="w-4 h-4 animate-spin text-brand-primary" />
-                <span>Loading featured courses…</span>
-              </div>
-            )}
-          </section>
+        </div>
+    );
+};
 
-          {/* Metrics Section */}
-          <section ref={metricsRef} className="container mx-auto px-6 mb-20 scroll-animate">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-              {metrics.map((metric, index) => (
-                <div key={index} className="flex items-center p-4 bg-white dark:bg-slate-800/50 rounded-xl shadow-md border border-slate-100 dark:border-slate-700 transition-transform duration-300 hover:scale-105">
-                  <div className="p-3 bg-brand-light dark:bg-slate-700 rounded-lg mr-4">
-                    <Icon name={metric.icon} className="w-6 h-6 text-brand-primary" />
-                  </div>
-                  <div>
-                    <p className="font-bold text-slate-800 dark:text-white">{metric.title}</p>
-                    <p className="text-sm text-slate-500 dark:text-slate-400">
-                      {metric.subtitle}
+const Homepage: React.FC<HomepageProps> = ({ onNavigateToLogin }) => {
+    const [isInfoModalOpen, setIsInfoModalOpen] = useState(false);
+    const scrollRef = useScrollAnimation();
+
+    return (
+        <div className="bg-slate-50 dark:bg-[#0B1120] text-slate-800 dark:text-white font-sans overflow-x-hidden relative min-h-screen">
+
+            {/* 1. Cinematic Ambient Background */}
+            <div className="fixed inset-0 pointer-events-none overflow-hidden">
+                <div className="absolute top-[-20%] left-[-10%] w-[70vw] h-[70vw] rounded-full opacity-30 dark:opacity-10 animate-blob pointer-events-none mix-blend-screen" style={{ background: 'radial-gradient(circle, rgba(56, 189, 248, 0.4) 0%, transparent 60%)', filter: 'blur(60px)' }} />
+                <div className="absolute bottom-[-20%] right-[-10%] w-[60vw] h-[60vw] rounded-full opacity-30 dark:opacity-10 animate-blob pointer-events-none mix-blend-screen" style={{ animationDelay: '5s', background: 'radial-gradient(circle, rgba(139, 92, 246, 0.4) 0%, transparent 60%)', filter: 'blur(60px)' }} />
+            </div>
+
+            {/* Header */}
+            <header className="absolute top-0 left-0 right-0 z-50 pt-6 px-6">
+                <div className="container mx-auto flex justify-between items-center backdrop-blur-sm bg-white/30 dark:bg-black/20 rounded-full px-6 py-3 border border-white/40 dark:border-white/5">
+                    <div className="flex items-center gap-3">
+                        <div className="relative">
+                            <div className="absolute inset-0 bg-brand-primary blur-md opacity-50"></div>
+                            <img src={LOGO_URL} alt="Logo" className="relative h-8 w-8" />
+                        </div>
+                        <span className="text-lg font-bold tracking-tight text-slate-900 dark:text-white">Edusimulate</span>
+                    </div>
+                    <div className="flex items-center gap-4">
+                        <button onClick={() => setIsInfoModalOpen(true)} className="hidden md:flex items-center gap-2 text-sm font-medium text-slate-600 dark:text-slate-300 hover:text-brand-primary transition-colors">
+                            <Icon name="mail" className="w-4 h-4" /> Contact
+                        </button>
+                        <div className="h-4 w-px bg-slate-300 dark:bg-slate-700 hidden md:block"></div>
+                        <button
+                            onClick={onNavigateToLogin}
+                            className="group relative px-6 py-2 rounded-full bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-bold text-sm shadow-xl hover:shadow-2xl hover:-translate-y-0.5 transition-all duration-300 overflow-hidden"
+                        >
+                            <div className="absolute inset-0 bg-gradient-to-r from-brand-primary to-purple-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                            <span className="relative z-10 group-hover:text-white transition-colors">Start Learning</span>
+                        </button>
+                    </div>
+                </div>
+            </header>
+
+            <main className="relative z-10 pt-32 pb-20 px-6">
+
+                {/* 2. Hero Section - Detailed & Immersive */}
+                <section className="container mx-auto max-w-7xl mb-32 text-center relative">
+                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[400px] bg-brand-primary/20 blur-[120px] rounded-full pointer-events-none opacity-50 dark:opacity-20 animate-pulse-slow"></div>
+
+                    <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-brand-primary/10 border border-brand-primary/20 text-brand-primary font-bold text-xs uppercase tracking-widest mb-8 animate-fade-in-down">
+                        <span className="w-2 h-2 rounded-full bg-brand-primary animate-ping"></span>
+                        Arvanago Platform 2.0 Live
+                    </div>
+
+                    <h1 className="relative text-6xl md:text-8xl font-black text-slate-900 dark:text-white tracking-tighter mb-8 leading-[1.1] animate-fade-in-up">
+                        The Future of <br />
+                        <span className="inline-block text-transparent bg-clip-text bg-gradient-to-r from-blue-600 via-brand-primary to-purple-600 animate-gradient-x pb-4">Digital Learning</span>
+                    </h1>
+
+                    <p className="text-xl md:text-2xl text-slate-600 dark:text-slate-400 max-w-3xl mx-auto mb-12 leading-relaxed animate-fade-in-up font-light" style={{ animationDelay: '0.1s' }}>
+                        A unified ecosystem combining <b className="text-slate-900 dark:text-white font-semibold">AI Education</b>, <b className="text-slate-900 dark:text-white font-semibold">Physics Simulation</b>, and <b className="text-slate-900 dark:text-white font-semibold">Game Publishing</b>.
                     </p>
-                  </div>
+
+                    <div className="flex flex-col sm:flex-row items-center justify-center gap-4 animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
+                        <button
+                            onClick={onNavigateToLogin}
+                            className="w-full sm:w-auto px-8 py-4 rounded-2xl bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-bold text-lg shadow-lg hover:shadow-brand-primary/25 hover:scale-105 transition-all duration-300 flex items-center justify-center gap-3"
+                        >
+                            <Icon name="rocket" className="w-5 h-5" /> Get Started Free
+                        </button>
+                        <button
+                            onClick={() => setIsInfoModalOpen(true)}
+                            className="w-full sm:w-auto px-8 py-4 rounded-2xl bg-white/50 dark:bg-white/5 backdrop-blur-md text-slate-900 dark:text-white font-bold text-lg border border-slate-200 dark:border-white/10 hover:bg-white dark:hover:bg-white/10 transition-all duration-300"
+                        >
+                            Explore Ecosystem
+                        </button>
+                    </div>
+
+                    {/* Social Proof Strip */}
+                    <div className="mt-20 pt-10 border-t border-slate-200/50 dark:border-white/5 flex flex-wrap justify-center gap-8 md:gap-16 opacity-0 animate-fade-in" style={{ animationDelay: '0.5s', animationFillMode: 'forwards' }}>
+                        {[
+                            { label: "Active Learners", val: "50k+" },
+                            { label: "Simulations Ran", val: "1.2M+" },
+                            { label: "Countries", val: "25+" },
+                            { label: "Uptime", val: "99.9%" }
+                        ].map((stat, i) => (
+                            <div key={i} className="text-center">
+                                <div className="text-3xl font-black text-slate-900 dark:text-white">{stat.val}</div>
+                                <div className="text-xs font-bold text-slate-500 uppercase tracking-widest">{stat.label}</div>
+                            </div>
+                        ))}
+                    </div>
+                </section>
+
+                {/* 3. Bento Grid Showcase */}
+                <section className="container mx-auto max-w-7xl mb-32">
+                    <div className="flex flex-col md:flex-row justify-between items-end mb-12 px-4">
+                        <div>
+                            <h2 className="text-4xl font-bold text-slate-900 dark:text-white mb-2">The Ecosystem</h2>
+                            <p className="text-slate-500 text-lg">Everything you need to master the digital world.</p>
+                        </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-4 grid-rows-4 gap-4 md:h-[800px]">
+
+                        {/* Main Product: EduSimulate */}
+                        <BentoCard
+                            title="EduSimulate LMS"
+                            subtitle="Artificial Intelligence Learning"
+                            icon="brain-circuit"
+                            className="md:col-span-2 md:row-span-4 bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-slate-800 dark:to-slate-900"
+                            delay="0s"
+                        >
+                            <div className="space-y-6 mt-8">
+                                <div className="p-4 rounded-2xl bg-white dark:bg-white/5 border border-slate-100 dark:border-white/5 shadow-sm">
+                                    <div className="flex items-center justify-between mb-2">
+                                        <span className="text-sm font-bold text-slate-700 dark:text-slate-300">Your Progress</span>
+                                        <span className="text-xs font-bold text-brand-primary">84%</span>
+                                    </div>
+                                    <div className="w-full bg-slate-100 dark:bg-white/10 rounded-full h-2 overflow-hidden">
+                                        <div className="bg-brand-primary h-full w-[84%] rounded-full" />
+                                    </div>
+                                </div>
+                                <p className="text-slate-600 dark:text-slate-400">
+                                    Experience a curriculum that adapts to your learning pace. Real-time doubt solving, personalized quizzes, and certification.
+                                </p>
+                                <div className="grid grid-cols-2 gap-4 mt-8">
+                                    <div className="flex items-center gap-2 text-sm text-slate-500 font-medium"><Icon name="check-circle" className="w-4 h-4 text-green-500" /> NEET / JEE</div>
+                                    <div className="flex items-center gap-2 text-sm text-slate-500 font-medium"><Icon name="check-circle" className="w-4 h-4 text-green-500" /> UPSC</div>
+                                    <div className="flex items-center gap-2 text-sm text-slate-500 font-medium"><Icon name="check-circle" className="w-4 h-4 text-green-500" /> Coding</div>
+                                    <div className="flex items-center gap-2 text-sm text-slate-500 font-medium"><Icon name="check-circle" className="w-4 h-4 text-green-500" /> K-12</div>
+                                </div>
+                            </div>
+                        </BentoCard>
+
+                        {/* Product: CarX */}
+                        <BentoCard
+                            title="CarX Engine"
+                            subtitle="Physics Simulation"
+                            icon="cpu"
+                            className="md:col-span-2 md:row-span-2 bg-gradient-to-br from-orange-50 to-red-50 dark:from-slate-800 dark:to-slate-900"
+                            delay="0.1s"
+                        >
+                            <div className="mt-4 flex items-center justify-between">
+                                <p className="text-slate-600 dark:text-slate-400 max-w-xs">
+                                    High-fidelity vehicle dynamics powered by C++20.
+                                </p>
+                                <div className="w-16 h-16 rounded-full bg-orange-500/20 flex items-center justify-center animate-spin-slow">
+                                    <Icon name="settings" className="w-8 h-8 text-orange-500" />
+                                </div>
+                            </div>
+                        </BentoCard>
+
+                        {/* Product: RGSGT */}
+                        <BentoCard
+                            title="RGSGT Publishing"
+                            subtitle="Game Distribution"
+                            icon="gamepad"
+                            className="md:col-span-1 md:row-span-2 bg-gradient-to-br from-purple-50 to-pink-50 dark:from-slate-800 dark:to-slate-900"
+                            delay="0.2s"
+                        >
+                            <div className="mt-4">
+                                <p className="text-sm text-slate-600 dark:text-slate-400 mb-4">Launch your games to millions.</p>
+                                <div className="flex -space-x-2">
+                                    {[1, 2, 3].map(i => (
+                                        <div key={i} className="w-8 h-8 rounded-full bg-slate-200 dark:bg-slate-700 border-2 border-white dark:border-slate-800" />
+                                    ))}
+                                </div>
+                            </div>
+                        </BentoCard>
+
+                        {/* Stat Card */}
+                        <BentoCard
+                            title="Global Scale"
+                            subtitle="Infrastructure"
+                            icon="globe"
+                            className="md:col-span-1 md:row-span-2 bg-slate-900 text-white"
+                            delay="0.3s"
+                        >
+                            <div className="mt-4">
+                                <div className="text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-teal-400">99.9%</div>
+                                <div className="text-xs text-slate-400 uppercase mt-1">Uptime SLA</div>
+                            </div>
+                        </BentoCard>
+
+                    </div>
+                </section>
+
+                {/* 4. Final CTA - Premium Glass Card */}
+                {/* 4. Final CTA - Premium Glass Card (Compact & Sleek) */}
+                <section className="container mx-auto px-6 mb-20">
+                    <div className="relative rounded-3xl overflow-hidden p-8 md:p-12 text-center group hover:scale-[1.01] transition-transform duration-500">
+                        {/* Background Video/Image Placeholders */}
+                        <div className="absolute inset-0 bg-slate-900 border border-white/10 dark:border-white/5 shadow-2xl">
+                            <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-20" />
+                            <div className="absolute top-0 right-0 w-[300px] h-[300px] bg-purple-500/30 rounded-full blur-[80px] -translate-y-1/2 translate-x-1/2" />
+                            <div className="absolute bottom-0 left-0 w-[300px] h-[300px] bg-blue-500/30 rounded-full blur-[80px] translate-y-1/2 -translate-x-1/2" />
+                        </div>
+
+                        <div className="relative z-10 max-w-5xl mx-auto flex flex-col md:flex-row items-center justify-between gap-8">
+                            <div className="text-left md:flex-1">
+                                <h2 className="text-3xl md:text-4xl font-black text-white mb-3 tracking-tight">Ready to start?</h2>
+                                <p className="text-lg text-slate-300 leading-relaxed max-w-xl">
+                                    Join student, developer, and educator on the platform redefining education.
+                                </p>
+                                <div className="flex items-center gap-4 mt-4 text-sm text-slate-400 font-medium">
+                                    <span className="flex items-center gap-1.5"><Icon name="check-circle" className="w-4 h-4 text-green-400" /> Cancel anytime</span>
+                                    <span className="flex items-center gap-1.5"><Icon name="check-circle" className="w-4 h-4 text-green-400" /> No credit card</span>
+                                </div>
+                            </div>
+
+                            <div className="flex-shrink-0 w-full md:w-auto">
+                                <button
+                                    onClick={onNavigateToLogin}
+                                    className="w-full md:w-auto px-8 py-4 rounded-xl bg-white text-slate-900 font-bold text-lg shadow-xl shadow-brand-primary/20 hover:bg-brand-light transform hover:-translate-y-0.5 transition-all duration-300 flex items-center justify-center gap-2"
+                                >
+                                    Sign Up Now <Icon name="arrowRight" className="w-5 h-5" />
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+            </main>
+
+            {/* Footer */}
+            <footer className="border-t border-slate-200 dark:border-white/5 py-12 bg-white dark:bg-[#0B1120]">
+                <div className="container mx-auto px-6 text-center">
+                    <div className="flex items-center justify-center gap-2 mb-8 opacity-70">
+                        <img src={LOGO_URL} alt="Logo" className="h-8 w-8 grayscale" />
+                        <span className="font-semibold text-lg text-slate-900 dark:text-white">Edusimulate</span>
+                    </div>
+                    <div className="flex justify-center gap-8 mb-8 text-sm text-slate-500 dark:text-slate-400">
+                        <Link to="/about" className="hover:text-brand-primary transition-colors">About Us</Link>
+                        <button onClick={() => setIsInfoModalOpen(true)} className="hover:text-brand-primary transition-colors">Contact</button>
+                        <button onClick={() => setIsInfoModalOpen(true)} className="hover:text-brand-primary transition-colors">Privacy Policy</button>
+                        <button onClick={() => setIsInfoModalOpen(true)} className="hover:text-brand-primary transition-colors">Terms of Service</button>
+                    </div>
+                    <p className="text-xs text-slate-400">© 2025 Edusimulate Ecosystem. All rights reserved.</p>
                 </div>
-              ))}
-            </div>
-          </section>
+            </footer>
 
-          {/* Course Categories Section */}
-          <section ref={categoriesRef} className="container mx-auto px-6 mb-20 scroll-animate">
-            <div className="text-center mb-12">
-              <h2 className="text-4xl md:text-5xl font-extrabold text-slate-900 dark:text-white">
-                Explore Our Top Categories
-              </h2>
-              <p className="text-xl text-slate-600 dark:text-slate-400 mt-4 max-w-2xl mx-auto">
-                Find the perfect course to match your academic goals.
-              </p>
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-              {categoryDetails.map(cat => (
-                <CategoryCard key={cat.name} category={cat} />
-              ))}
-            </div>
-          </section>
-
-          {/* Final CTA */}
-          <section className="container mx-auto px-6 mb-20">
-            <div className="relative bg-gradient-to-r from-brand-primary to-purple-600 rounded-2xl p-8 md:p-12 lg:p-16 text-center text-white overflow-hidden">
-              <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10"></div>
-              <h2 className="text-3xl md:text-4xl font-extrabold text-shadow">Ready to Start Learning?</h2>
-              <p className="mt-4 max-w-2xl mx-auto text-lg opacity-90">Join thousands of students who are already excelling with Edusimulate.</p>
-              <button
-                onClick={onNavigateToLogin}
-                className="glass-reflection mt-8 px-8 py-3 bg-white/20 backdrop-blur-lg border-2 border-white/40 text-white font-bold text-lg rounded-full shadow-lg hover:bg-white/30 transition-all transform hover:scale-105 active:scale-95 focus:outline-none focus:ring-2 focus:ring-white/50 animate-glass-glow shadow-brand-primary/30 dark:shadow-brand-primary/20 duration-150 ease-in-out"
-              >
-                Sign Up for Free
-              </button>
-            </div>
-          </section>
-
-        </main>
-
-        <footer className="relative z-10 bg-slate-100 dark:bg-slate-800/50 border-t border-slate-200 dark:border-slate-700/50 mt-10">
-          <div className="container mx-auto px-6 py-8 text-center text-slate-500 dark:text-slate-400">
-            <div className="flex justify-center items-center mb-4 text-slate-700 dark:text-slate-200">
-              <img src={LOGO_URL} alt="Edusimulate Logo" className="h-8 mr-2" />
-              <span className="text-lg font-semibold">Edusimulate</span>
-            </div>
-            <p>&copy; {new Date().getFullYear()} Edusimulate. All rights reserved.</p>
-            <p className="text-sm mt-2">Empowering the next generation of learners through technology.</p>
-            <div className="mt-6 flex justify-center gap-4">
-              <Link
-                to="/about"
-                className="inline-flex items-center gap-2 bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-200 font-medium px-5 py-2 rounded-full shadow-md hover:bg-slate-300 dark:hover:bg-slate-600 hover:shadow-lg transition-all transform hover:scale-105 active:scale-95 text-sm"
-              >
-                <Icon name="globe" className="w-4 h-4" />
-                About Us
-              </Link>
-              <button
-                onClick={() => setIsInfoModalOpen(true)}
-                className="inline-flex items-center gap-2 bg-brand-primary/90 text-white font-medium px-5 py-2 rounded-full shadow-md hover:bg-brand-primary hover:shadow-lg transition-all transform hover:scale-105 active:scale-95 text-sm"
-              >
-                <Icon name="info" className="w-4 h-4" />
-                Contact & Terms
-              </button>
-            </div>
-          </div>
-        </footer>
-
-        <SearchResultsModal
-          isOpen={isSearchModalOpen}
-          onClose={() => setIsSearchModalOpen(false)}
-          isLoading={isSearching}
-          results={searchResults}
-          onCourseSelect={handleCourseSelection}
-          searchQuery={searchQuery}
-        />
-
-        <InfoModal
-          isOpen={isInfoModalOpen}
-          onClose={() => setIsInfoModalOpen(false)}
-        />
-      </div>
-    </>
-  );
+            <InfoModal
+                isOpen={isInfoModalOpen}
+                onClose={() => setIsInfoModalOpen(false)}
+            />
+        </div>
+    );
 };
 
 export default Homepage;

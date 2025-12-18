@@ -22,6 +22,7 @@ const DashboardPage = React.lazy(() => import('@/pages/DashboardPage'));
 const MyLearningsPage = React.lazy(() => import('@/pages/MyLearningsPage'));
 const PublicExplorePage = React.lazy(() => import('@/pages/PublicExplorePage'));
 const LeaderboardPage = React.lazy(() => import('@/pages/LeaderboardPage'));
+const ChatPage = React.lazy(() => import('./pages/ChatPage'));
 const ProfilePage = React.lazy(() => import('@/pages/ProfilePage'));
 const CourseDetailPage = React.lazy(() => import('@/pages/CourseDetailPage'));
 const CourseLecturePage = React.lazy(() => import('@/pages/CourseLecturePage'));
@@ -121,6 +122,7 @@ const App: React.FC = () => {
           setAuthError(null);
         } catch (error: any) {
           console.error('Error getting user data:', error);
+          await auth.signOut(); // Force sign out if getOrCreateUser fails (e.g. disabled)
           setUser(null);
           setAuthError(error.message || "Failed to load user profile. Please try again.");
         } finally {
@@ -369,6 +371,7 @@ const App: React.FC = () => {
             <Route path="/my-learnings" element={<MyLearningsPage />} />
             <Route path="/explore" element={<ExploreCoursesPage />} />
             <Route path="/leaderboard" element={<LeaderboardPage />} />
+            <Route path="/chat" element={<ChatPage />} />
             <Route path="/profile" element={<ProfilePage />} />
             <Route path="/courses/:courseId/learn" element={<CourseLearnPage />} />
             <Route

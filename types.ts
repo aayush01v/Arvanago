@@ -25,6 +25,18 @@ export interface User {
   themePreference?: 'light' | 'dark';
   role?: 'student' | 'admin' | 'super_admin';
   isDisabled?: boolean;
+  disabledUntil?: Timestamp | null;
+  isDeleted?: boolean;
+  progress?: Record<string, string[]>; // Map courseId -> completedLectureIds
+  // New Profile Fields
+  username?: string;
+  jobTitle?: string;
+  coverPhoto?: string;
+  socialLinks?: { platform: string; url: string }[];
+  followers: number;
+  following: number;
+  postsCount: number;
+  gallery?: string[];
 }
 
 export interface Comment {

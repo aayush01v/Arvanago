@@ -6,6 +6,7 @@ import EditProfileModal from './EditProfileModal.tsx';
 import ImageCropper from './ImageCropper.tsx';
 import { uploadToImgBB } from "../utils/uploadToImgBB";
 import { auth, db } from "../services/firebase";
+import { Link } from 'react-router-dom';
 
 interface ProfileProps {
   user: User;
@@ -13,19 +14,17 @@ interface ProfileProps {
 }
 
 const ProfileStat: React.FC<{ icon: string; value: string; label: string; color: string; }> = ({ icon, value, label, color }) => (
-  <div className="interactive-card flex items-center p-6 bg-white/40 dark:bg-slate-800/40 backdrop-blur-md border border-white/50 dark:border-white/10 rounded-2xl group transition-all duration-300 hover:-translate-y-1 hover:border-brand-primary/30 shadow-lg">
-    <div className={`p-4 rounded-2xl mr-5 ${color} bg-opacity-10 group-hover:bg-opacity-20 transition-all duration-300 group-hover:scale-110`}>
-      <Icon name={icon} className={`w-8 h-8 text-${color.replace('bg-', '')}-600 dark:text-${color.replace('bg-', '')}-400`} />
-    </div>
-    <div>
-      <p className="text-3xl font-black text-slate-800 dark:text-white drop-shadow-sm">{value}</p>
-      <p className="text-sm font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide">{label}</p>
-    </div>
+  <div className="flex flex-col items-center justify-center p-4">
+    <span className="text-xl font-bold text-slate-900 dark:text-white">{value}</span>
+    <span className="text-sm text-slate-500 font-medium">{label}</span>
   </div>
 );
 
 const Profile: React.FC<ProfileProps> = ({ user, onProfileUpdate }) => {
   const [isEditModalOpen, setEditModalOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState<'Profile' | 'Followers' | 'Friends' | 'Gallery'>('Profile');
+
+  // Image Upload State
   const [avatarUrl, setAvatarUrl] = useState(user.avatar);
   const [uploading, setUploading] = useState(false);
   const [isCropModalOpen, setCropModalOpen] = useState(false);
@@ -34,8 +33,10 @@ const Profile: React.FC<ProfileProps> = ({ user, onProfileUpdate }) => {
   const [toastMessage, setToastMessage] = useState("Photo updated");
 
   const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const coverInputRef = useRef<HTMLInputElement | null>(null);
 
   const openFilePicker = () => fileInputRef.current?.click();
+  const openCoverPicker = () => coverInputRef.current?.click();
 
   useEffect(() => {
     if (!showToast) return;
@@ -43,19 +44,9 @@ const Profile: React.FC<ProfileProps> = ({ user, onProfileUpdate }) => {
     return () => clearTimeout(timer);
   }, [showToast]);
 
-  useEffect(() => {
-    return () => {
-      if (selectedImage) {
-        URL.revokeObjectURL(selectedImage);
-      }
-    };
-  }, [selectedImage]);
-
   const handleAvatarChange: React.ChangeEventHandler<HTMLInputElement> = (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
-
-    if (selectedImage) URL.revokeObjectURL(selectedImage);
     const objectUrl = URL.createObjectURL(file);
     setSelectedImage(objectUrl);
     setCropModalOpen(true);
@@ -64,21 +55,17 @@ const Profile: React.FC<ProfileProps> = ({ user, onProfileUpdate }) => {
 
   const handleCropComplete = async (croppedFile: File) => {
     setUploading(true);
-    setCropModalOpen(false); // Close cropper immediately or keep open with loading state? Better close and show spinner on avatar.
-
+    setCropModalOpen(false);
     try {
       const imgUrl = await uploadToImgBB(croppedFile);
-
-      const current = auth.currentUser;
-      if (!current) throw new Error("User not logged in");
-
-      const userRef = doc(db, "users", current.uid);
-      await updateDoc(userRef, { avatar: imgUrl });
-
-      setAvatarUrl(imgUrl);
-      onProfileUpdate({ avatar: imgUrl });
-      setToastMessage("Photo updated successfully");
-      setShowToast(true);
+      if (auth.currentUser) {
+        const userRef = doc(db, "users", auth.currentUser.uid);
+        await updateDoc(userRef, { avatar: imgUrl });
+        setAvatarUrl(imgUrl);
+        onProfileUpdate({ avatar: imgUrl });
+        setToastMessage("Profile photo updated");
+        setShowToast(true);
+      }
     } catch (err) {
       console.error(err);
       setToastMessage("Failed to update photo");
@@ -89,143 +76,211 @@ const Profile: React.FC<ProfileProps> = ({ user, onProfileUpdate }) => {
     }
   };
 
-  const handleCancelCrop = () => {
-    setCropModalOpen(false);
-    setSelectedImage(null);
+  const handleCoverChange: React.ChangeEventHandler<HTMLInputElement> = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // For cover photo, just upload directly for now (simplified)
+    setToastMessage("Uploading cover...");
+    setShowToast(true);
+    try {
+      const imgUrl = await uploadToImgBB(file);
+      if (auth.currentUser) {
+        const userRef = doc(db, "users", auth.currentUser.uid);
+        await updateDoc(userRef, { coverPhoto: imgUrl });
+        onProfileUpdate({ coverPhoto: imgUrl });
+        setToastMessage("Cover photo updated");
+      }
+    } catch (e) {
+      setToastMessage("Failed to upload cover");
+    }
   };
 
-  // Calculate level progress
-  const pointsForCurrentLevel = (user.level - 1) * 1000;
-  const pointsForNextLevel = user.level * 1000;
-  const pointsInCurrentLevel = user.points - pointsForCurrentLevel;
-  const pointsNeededForLevelUp = pointsForNextLevel - pointsForCurrentLevel;
-  const progressPercentage = Math.max(0, Math.min(100, (pointsInCurrentLevel / pointsNeededForLevelUp) * 100));
-
   return (
-    <>
-      <div className="max-w-6xl mx-auto space-y-12 p-4 sm:p-6 lg:p-8 animate-fade-in">
+    <div className="max-w-7xl mx-auto p-4 sm:p-6 lg:p-8 animate-fade-in relative z-0">
 
-        {/* Profile Card */}
-        <div className="relative overflow-hidden rounded-[3rem] glass-ambient p-8 md:p-12 shadow-2xl border border-white/50 dark:border-white/10">
-          {/* Decorative Background Elements */}
-          <div className="absolute -top-20 -left-20 w-80 h-80 bg-brand-primary/20 rounded-full blur-[100px] pointer-events-none" />
-          <div className="absolute -bottom-20 -right-20 w-80 h-80 bg-brand-secondary/20 rounded-full blur-[100px] pointer-events-none" />
+      {/* Cover Photo Area */}
+      <div className="relative w-full h-48 sm:h-64 md:h-80 rounded-[2rem] md:rounded-[2.5rem] overflow-hidden shadow-2xl mb-16 md:mb-20 group">
+        <img
+          src={user.coverPhoto || 'https://images.unsplash.com/photo-1579546929518-9e396f3cc809?auto=format&fit=crop&w=1200&q=80'}
+          className="w-full h-full object-cover"
+          alt="Cover"
+        />
+        <div className="absolute inset-0 bg-black/20 group-hover:bg-black/40 transition-colors"></div>
+        <button onClick={openCoverPicker} className="absolute top-4 right-4 md:top-6 md:right-6 p-2 bg-white/20 backdrop-blur-md rounded-full text-white opacity-0 group-hover:opacity-100 transition-opacity hover:bg-white/40">
+          <Icon name="edit" className="w-5 h-5" />
+        </button>
+        <input type="file" ref={coverInputRef} className="hidden" accept="image/*" onChange={handleCoverChange} />
 
-          <div className="relative z-10 flex flex-col md:flex-row items-center md:items-start text-center md:text-left gap-8">
-            <div className="relative group">
-              <div className="relative w-40 h-40 md:w-48 md:h-48">
-                <div className="absolute -inset-2 bg-gradient-to-r from-brand-primary via-brand-secondary to-brand-primary rounded-full animate-rotate-slow opacity-75 blur-sm"></div>
-
-                <div className="relative w-full h-full rounded-full overflow-hidden border-4 border-white dark:border-slate-800 shadow-2xl">
-                  <img src={avatarUrl} alt={user.name} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
-                </div>
-
-                <button
-                  onClick={openFilePicker}
-                  disabled={uploading}
-                  aria-label="Change profile photo"
-                  className="absolute bottom-1 right-1 bg-white/90 dark:bg-slate-800/90 backdrop-blur-sm p-3 rounded-full shadow-lg border border-white/20 hover:scale-110 active:scale-95 transition-all group/edit"
-                >
-                  {uploading ? (
-                    <svg className="animate-spin h-5 w-5 text-brand-primary" viewBox="0 0 24 24">
-                      <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
-                    </svg>
-                  ) : (
-                    <Icon name="edit" className="h-5 w-5 text-slate-700 dark:text-white group-hover/edit:text-brand-primary" />
-                  )}
-                </button>
-              </div>
-
-
-              <input
-                type="file"
-                accept="image/*"
-                ref={fileInputRef}
-                className="hidden"
-                onChange={handleAvatarChange}
-              />
+        {/* Avatar - Positioned Absolute Overlapping */}
+        <div className="absolute -bottom-12 md:-bottom-16 left-1/2 -translate-x-1/2 flex flex-col items-center">
+          <div className="relative">
+            <div className="w-24 h-24 sm:w-28 sm:h-28 md:w-32 md:h-32 rounded-full p-1 bg-white dark:bg-slate-900 shadow-xl">
+              <img src={avatarUrl} className="w-full h-full rounded-full object-cover" alt="Profile" />
             </div>
-
-            <div className="flex-1 min-w-0 pt-4">
-              <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4">
-                <div>
-                  <h1 className="text-4xl md:text-5xl font-black text-slate-900 dark:text-white tracking-tight">{user.name}</h1>
-                  <p className="text-lg md:text-xl text-slate-600 dark:text-slate-300 font-medium mt-2">{user.bio || `Level ${user.level} - Passionate Learner`}</p>
-                </div>
-                <button
-                  onClick={() => setEditModalOpen(true)}
-                  className="px-6 py-3 rounded-2xl bg-white/50 dark:bg-slate-800/50 backdrop-blur-md border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white font-bold shadow-sm hover:shadow-md hover:bg-white/70 dark:hover:bg-slate-800/70 transition-all flex items-center justify-center gap-2 self-center md:self-start"
-                >
-                  <Icon name="edit" className="w-4 h-4" /> Edit Profile
-                </button>
-              </div>
-
-              <div className="bg-white/30 dark:bg-slate-900/30 rounded-2xl p-6 backdrop-blur-sm border border-white/20 dark:border-white/5 mt-6">
-                <div className="flex justify-between items-end mb-2">
-                  <span className="text-sm font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Level Progress</span>
-                  <span className="font-bold text-brand-primary bg-brand-primary/10 px-3 py-1 rounded-full text-xs">
-                    {pointsInCurrentLevel.toLocaleString()} / {pointsNeededForLevelUp.toLocaleString()} XP
-                  </span>
-                </div>
-                <div className="w-full bg-slate-200/50 dark:bg-slate-700/50 rounded-full h-4 overflow-hidden shadow-inner">
-                  <div className="bg-gradient-to-r from-brand-primary to-brand-secondary h-full rounded-full shadow-[0_0_15px_rgba(124,58,237,0.5)] relative">
-                    <div className="absolute inset-0 bg-white/20 animate-pulse-bright" />
-                  </div>
-                </div>
-                <div className="flex justify-between mt-2 text-xs font-semibold text-slate-400">
-                  <span>Level {user.level}</span>
-                  <span>Level {user.level + 1}</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Stats Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          <ProfileStat icon="star" value={user.points.toLocaleString()} label="Total Points" color="bg-yellow-400" />
-          <ProfileStat icon="flame" value={`${user.streak} Days`} label="Learning Streak" color="bg-red-500" />
-          <ProfileStat icon="award" value={`${user.level}`} label="Current Level" color="bg-blue-500" />
-          <ProfileStat icon="courses" value={`${user.ongoingCourses.length}`} label="Active Courses" color="bg-green-500" />
-          <ProfileStat icon="check" value="8" label="Courses Completed" color="bg-purple-500" />
-          <ProfileStat icon="leaderboard" value="#3" label="All-Time Rank" color="bg-indigo-500" />
-        </div>
-
-        {/* Achievements */}
-        <div className="rounded-[2.5rem] bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 p-8 shadow-xl">
-          <div className="flex items-center gap-4 mb-8">
-            <div className="p-3 rounded-2xl bg-yellow-400/10 text-yellow-500">
-              <Icon name="award" className="w-8 h-8" />
-            </div>
-            <div>
-              <h3 className="text-2xl font-black text-slate-900 dark:text-white">Achievements</h3>
-              <p className="text-slate-500 dark:text-slate-400">Badges you've earned on your journey.</p>
-            </div>
+            <button onClick={openFilePicker} className="absolute bottom-1 right-1 md:bottom-2 md:right-1 p-1.5 md:p-2 bg-brand-primary rounded-full text-white shadow-lg hover:bg-brand-secondary transition-colors">
+              <Icon name="camera" className="w-3 h-3 md:w-4 md:h-4" />
+            </button>
+            <input type="file" ref={fileInputRef} className="hidden" accept="image/*" onChange={handleAvatarChange} />
           </div>
 
-          <div className="flex flex-wrap gap-4">
-            {['Scholar', 'Streak Master', 'Quick Learner', 'Top 10', 'Quantum Explorer', 'History Buff'].map(badge => (
-              <div key={badge} className="group relative flex flex-col items-center p-4 bg-slate-50 dark:bg-slate-800/50 rounded-2xl w-32 text-center transition-all duration-300 hover:scale-110 hover:shadow-lg hover:bg-white dark:hover:bg-slate-800 border border-transparent hover:border-yellow-400/30 cursor-pointer">
-                <div className="relative p-4 mb-3">
-                  <div className="absolute inset-0 bg-yellow-400/20 rounded-full scale-0 group-hover:scale-100 transition-transform duration-300 pointer-events-none" />
-                  <Icon name="award" className="w-8 h-8 text-yellow-500 relative z-10 drop-shadow-sm" />
-                </div>
-                <span className="text-xs font-bold text-slate-700 dark:text-slate-300 group-hover:text-yellow-600 dark:group-hover:text-yellow-400 transition-colors">{badge}</span>
-              </div>
-            ))}
-            <div className="flex flex-col items-center justify-center p-4 rounded-2xl w-32 text-center border-2 border-dashed border-slate-200 dark:border-slate-700 opacity-50">
-              <span className="text-xs font-semibold text-slate-400">More coming soon</span>
-            </div>
-          </div>
+          <h1 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white mt-3 text-center whitespace-nowrap">{user.name}</h1>
+          <p className="text-sm md:text-base text-slate-500 dark:text-slate-400 font-medium text-center">{user.jobTitle || 'Learner'}</p>
         </div>
       </div>
 
+      {/* Stats Bar */}
+      <div className="flex flex-col md:flex-row justify-between items-center bg-white dark:bg-slate-800 rounded-2xl shadow-sm p-4 md:p-6 mb-6 border border-slate-100 dark:border-slate-700">
+        <div className="flex flex-wrap justify-center gap-6 md:gap-12 mx-auto dark:text-gray-200">
+          <ProfileStat icon="" value={user.postsCount?.toLocaleString() || "0"} label="Posts" color="" />
+          <ProfileStat icon="" value={user.followers?.toLocaleString() || "0"} label="Followers" color="" />
+          <ProfileStat icon="" value={user.following?.toLocaleString() || "0"} label="Following" color="" />
+        </div>
+        <div className="flex gap-3 mt-4 md:mt-0">
+          <Link to="/chat">
+            <button className="px-5 py-2.5 rounded-xl bg-brand-primary text-white font-semibold shadow-lg shadow-brand-primary/25 hover:bg-brand-secondary transition-all text-sm md:text-base">
+              Message
+            </button>
+          </Link>
+          <button onClick={() => setEditModalOpen(true)} className="px-5 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-white font-semibold hover:bg-slate-200 dark:hover:bg-slate-600 transition-all text-sm md:text-base">
+            Edit Profile
+          </button>
+        </div>
+      </div>
 
+      {/* Tabs */}
+      <div className="flex border-b border-slate-200 dark:border-slate-700 mb-8 overflow-x-auto">
+        {['Profile', 'Followers', 'Friends', 'Gallery'].map(tab => (
+          <button
+            key={tab}
+            onClick={() => setActiveTab(tab as any)}
+            className={`px-8 py-4 font-semibold text-sm transition-all relative ${activeTab === tab
+              ? 'text-brand-primary'
+              : 'text-slate-500 hover:text-slate-800 dark:hover:text-slate-300'
+              }`}
+          >
+            {tab}
+            {activeTab === tab && (
+              <span className="absolute bottom-0 left-0 w-full h-0.5 bg-brand-primary rounded-t-full"></span>
+            )}
+          </button>
+        ))}
+      </div>
+
+      {/* Content Area */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+
+        {/* Left Column: Intro */}
+        <div className="lg:col-span-1 space-y-6">
+          <div className="bg-white dark:bg-slate-800 rounded-3xl p-6 shadow-sm border border-slate-100 dark:border-slate-700 section-transition">
+            <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-4">Introduction</h3>
+            <p className="text-slate-600 dark:text-slate-400 text-sm leading-relaxed mb-6">
+              {user.bio || "Hello! I love learning and building new things."}
+            </p>
+
+            <div className="space-y-4">
+              {user.jobTitle && (
+                <div className="flex items-center gap-3 text-sm text-slate-700 dark:text-slate-300">
+                  <div className="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-700 flex items-center justify-center">
+                    <Icon name="briefcase" className="w-4 h-4 text-slate-500" />
+                  </div>
+                  <span>{user.jobTitle}</span>
+                </div>
+              )}
+              {user.email && (
+                <div className="flex items-center gap-3 text-sm text-slate-700 dark:text-slate-300">
+                  <div className="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-700 flex items-center justify-center">
+                    <Icon name="mail" className="w-4 h-4 text-slate-500" />
+                  </div>
+                  <span>{user.email}</span>
+                </div>
+              )}
+
+              <div className="flex items-center gap-3 text-sm text-slate-700 dark:text-slate-300">
+                <div className="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-700 flex items-center justify-center">
+                  <Icon name="globe" className="w-4 h-4 text-slate-500" />
+                </div>
+                <a href="#" className="hover:text-brand-primary transition-colors">www.edusimulate.com</a>
+              </div>
+            </div>
+          </div>
+
+          {/* Photos Widget (Mock) */}
+          <div className="bg-white dark:bg-slate-800 rounded-3xl p-6 shadow-sm border border-slate-100 dark:border-slate-700 section-transition">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-lg font-bold text-slate-900 dark:text-white">Photos</h3>
+              <button className="text-brand-primary text-sm font-semibold">View All</button>
+            </div>
+            <div className="grid grid-cols-3 gap-2">
+              {[1, 2, 3, 4, 5, 6].map(i => (
+                <div key={i} className="aspect-square rounded-xl bg-slate-100 dark:bg-slate-700 overflow-hidden">
+                  <img src={`https://picsum.photos/seed/${i + user.uid}/200`} className="w-full h-full object-cover hover:scale-110 transition-transform cursor-pointer" alt="Gallery" />
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* Right Column: Feed */}
+        <div className="lg:col-span-2 space-y-6">
+
+          {/* Post Input */}
+          <div className="bg-white dark:bg-slate-800 rounded-3xl p-6 shadow-sm border border-slate-100 dark:border-slate-700">
+            <textarea
+              placeholder="Share your thoughts..."
+              className="w-full h-24 bg-transparent border-none resize-none outline-none text-slate-700 dark:text-white placeholder:text-slate-400 text-lg"
+            ></textarea>
+            <div className="flex justify-between items-center mt-4 pt-4 border-t border-slate-100 dark:border-slate-700">
+              <div className="flex gap-2">
+                <button className="p-2 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-full text-brand-primary"><Icon name="image" className="w-5 h-5" /></button>
+                <button className="p-2 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-full text-blue-500"><Icon name="paperclip" className="w-5 h-5" /></button>
+              </div>
+              <button className="px-6 py-2 bg-brand-primary text-white rounded-xl font-bold shadow-lg shadow-brand-primary/20 hover:bg-brand-secondary transition-all">Post</button>
+            </div>
+          </div>
+
+          {/* Sample Post */}
+          {[1, 2].map(post => (
+            <div key={post} className="bg-white dark:bg-slate-800 rounded-3xl p-6 shadow-sm border border-slate-100 dark:border-slate-700 section-transition">
+              <div className="flex gap-4 mb-4">
+                <img src={avatarUrl} className="w-12 h-12 rounded-full object-cover" alt="User" />
+                <div>
+                  <h4 className="font-bold text-slate-900 dark:text-white">{user.name}</h4>
+                  <span className="text-xs text-slate-400">15 min ago</span>
+                </div>
+              </div>
+              <p className="text-slate-600 dark:text-slate-300 leading-relaxed mb-4">
+                Just finished the new {user.ongoingCourses[0] || 'Web Development'} module! The interactive labs are incredible. 🚀 #Learning #Tech
+              </p>
+              {post === 1 && (
+                <div className="rounded-2xl overflow-hidden mb-4">
+                  <img src="https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&w=1200&q=80" className="w-full h-64 object-cover" alt="Post" />
+                </div>
+              )}
+
+              <div className="flex items-center gap-6 pt-4 border-t border-slate-100 dark:border-slate-700">
+                <button className="flex items-center gap-2 text-slate-500 hover:text-red-500 transition-colors">
+                  <Icon name="heart" className="w-5 h-5" /> <span className="text-sm font-semibold">24</span>
+                </button>
+                <button className="flex items-center gap-2 text-slate-500 hover:text-blue-500 transition-colors">
+                  <Icon name="message-circle" className="w-5 h-5" /> <span className="text-sm font-semibold">5</span>
+                </button>
+                <button className="flex items-center gap-2 text-slate-500 hover:text-green-500 transition-colors ml-auto">
+                  <Icon name="share-2" className="w-5 h-5" />
+                </button>
+              </div>
+            </div>
+          ))}
+
+        </div>
+      </div>
+
+      {/* Modals */}
       {isCropModalOpen && selectedImage && (
         <ImageCropper
           imageSrc={selectedImage}
           onCropComplete={handleCropComplete}
-          onCancel={handleCancelCrop}
+          onCancel={() => { setCropModalOpen(false); setSelectedImage(null); }}
         />
       )}
 
@@ -247,7 +302,7 @@ const Profile: React.FC<ProfileProps> = ({ user, onProfileUpdate }) => {
           onSave={onProfileUpdate}
         />
       )}
-    </>
+    </div>
   );
 };
 

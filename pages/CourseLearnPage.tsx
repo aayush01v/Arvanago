@@ -1,6 +1,10 @@
 import React, { useCallback, useEffect, useMemo, useState, useRef } from 'react';
 import { Navigate, useNavigate, useOutletContext, useParams } from 'react-router-dom';
-import Icon from '@/components/common/Icon.tsx';
+import {
+  ArrowLeft, Award, Check, CheckCircle, ChevronDown, ChevronLeft, ChevronRight,
+  Clock, Cpu, Download, File, Inbox, Layout, Layers, MessageCircle, Play,
+  PlusSquare, Star, X
+} from 'lucide-react';
 import { SidebarLayoutContext } from '@/components/SidebarLayout.tsx';
 import { updateUserProfile } from '@/services/firestoreService.ts';
 import { CourseSection, Lecture } from '@/types.ts';
@@ -52,7 +56,7 @@ const SectionSummary: React.FC<{ section: CourseSection; currentLectureId: strin
             flex h-10 w-10 items-center justify-center rounded-full transition-all duration-500
             ${progress === 100 ? 'bg-emerald-500/20 text-emerald-400' : 'bg-brand-primary/20 text-brand-primary'}
           `}>
-            <Icon name={progress === 100 ? 'check-circle' : 'layers'} className="h-5 w-5" />
+            {progress === 100 ? <CheckCircle className="h-5 w-5" /> : <Layers className="h-5 w-5" />}
           </div>
           <div>
             <p className="font-semibold text-slate-800 dark:text-white/90">{section.title}</p>
@@ -63,8 +67,7 @@ const SectionSummary: React.FC<{ section: CourseSection; currentLectureId: strin
             </div>
           </div>
         </div>
-        <Icon
-          name="chevronDown"
+        <ChevronDown
           className={`h-5 w-5 text-slate-400 dark:text-white/40 transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`}
         />
       </button>
@@ -92,7 +95,7 @@ const SectionSummary: React.FC<{ section: CourseSection; currentLectureId: strin
                       : 'border-slate-300 dark:border-white/20 text-transparent group-hover:border-white/40'
                   }
                 `}>
-                  <Icon name={lecture.isCompleted ? 'check' : 'play'} className="h-3 w-3" />
+                  {lecture.isCompleted ? <Check className="h-3 w-3" /> : <Play className="h-3 w-3" />}
                 </div>
 
                 <div className="flex-1 min-w-0">
@@ -100,7 +103,7 @@ const SectionSummary: React.FC<{ section: CourseSection; currentLectureId: strin
                     {lecture.title}
                   </p>
                   <p className="text-xs text-slate-500 dark:text-white/40 flex gap-2 items-center">
-                    <Icon name="clock" className="w-3 h-3" /> {lecture.duration}
+                    <Clock className="w-3 h-3" /> {lecture.duration}
                   </p>
                 </div>
               </button>
@@ -140,17 +143,70 @@ const CourseLearnPage: React.FC = () => {
 
   const [currentLectureId, setCurrentLectureId] = useState<string | null>(primaryLecture?.id ?? null);
   const [activeSection, setActiveSection] = useState<string>('Overview');
+  const [isCompleting, setIsCompleting] = useState(false);
+  const [taskInput, setTaskInput] = useState('');
 
   const [tasks, setTasks] = useState([
     { id: 'task-1', title: 'Review lecture notes', status: 'In progress' },
     { id: 'task-2', title: 'Try the coding exercise', status: 'Pending' },
   ]);
-  const [taskInput, setTaskInput] = useState('');
 
   const sectionList = useMemo(
     () => course?.sections ?? [{ title: 'All lectures', lectures }],
     [course?.sections, lectures],
   );
+
+  // Flattened list for navigation
+  const allLectures = useMemo(() => sectionList.flatMap(s => s.lectures), [sectionList]);
+
+  const goToNextLecture = useCallback(() => {
+    if (!currentLectureId) return;
+    const currentIndex = allLectures.findIndex(l => l.id === currentLectureId);
+    if (currentIndex !== -1 && currentIndex < allLectures.length - 1) {
+      setCurrentLectureId(allLectures[currentIndex + 1].id);
+    }
+  }, [currentLectureId, allLectures]);
+
+  const goToPrevLecture = useCallback(() => {
+    if (!currentLectureId) return;
+    const currentIndex = allLectures.findIndex(l => l.id === currentLectureId);
+    if (currentIndex > 0) {
+      setCurrentLectureId(allLectures[currentIndex - 1].id);
+    }
+  }, [currentLectureId, allLectures]);
+
+  const markAsCompleted = useCallback(async () => {
+    if (!user || !course || !currentLectureId || isCompleting) return;
+
+    // Optimistic UI update could happen here, or wait for DB
+    setIsCompleting(true);
+    try {
+      const currentProgress = user.progress?.[course.id] || [];
+      if (!currentProgress.includes(currentLectureId)) {
+        const newProgress = [...currentProgress, currentLectureId];
+
+        // 1. Update local Context state immediately for responsiveness
+        onProfileUpdate({
+          progress: {
+            ...user.progress,
+            [course.id]: newProgress
+          }
+        });
+
+        // 2. Persist to Firestore
+        await updateUserProfile(user.uid, {
+          progress: {
+            ...user.progress,
+            [course.id]: newProgress
+          }
+        });
+      }
+    } catch (error) {
+      console.error("Failed to mark lecture complete:", error);
+    } finally {
+      setIsCompleting(false);
+    }
+  }, [user, course, currentLectureId, isCompleting, onProfileUpdate]);
 
   const totalLessons = useMemo(
     () => sectionList.reduce((total, section) => total + section.lectures.length, 0),
@@ -220,11 +276,11 @@ const CourseLearnPage: React.FC = () => {
 
   const navigationSections = useMemo(
     () => [
-      { label: 'Overview', icon: 'layout' },
-      { label: 'Resources', icon: 'download' },
-      { label: 'Simulations', icon: 'cpu' },
-      { label: 'Add task', icon: 'plus-square' },
-      { label: 'My doubts', icon: 'message-circle' },
+      { label: 'Overview', icon: Layout },
+      { label: 'Resources', icon: Download },
+      { label: 'Simulations', icon: Cpu },
+      { label: 'Add task', icon: PlusSquare },
+      { label: 'My doubts', icon: MessageCircle },
     ],
     [],
   );
@@ -266,8 +322,9 @@ const CourseLearnPage: React.FC = () => {
           <GlassButton
             onClick={() => navigate('/dashboard')}
             className="flex items-center gap-3 px-5 py-2.5 rounded-full"
+            aria-label="Back to Dashboard"
           >
-            <Icon name="arrowLeft" className="h-4 w-4" />
+            <ArrowLeft className="h-4 w-4" />
             <span className="font-medium text-sm">Dashboard</span>
           </GlassButton>
 
@@ -283,7 +340,7 @@ const CourseLearnPage: React.FC = () => {
                 <path className="text-brand-primary fill-none stroke-current drop-shadow-[0_0_10px_rgba(var(--brand-primary-rgb),0.5)] transition-all duration-1000 ease-out" strokeDasharray={`${course.progress}, 100`} strokeWidth="3" strokeLinecap="round" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
               </svg>
               <div className="absolute inset-0 flex items-center justify-center">
-                <Icon name="award" className="h-5 w-5 text-brand-primary group-hover:scale-110 transition-transform" />
+                <Award className="h-5 w-5 text-brand-primary group-hover:scale-110 transition-transform" />
               </div>
             </div>
 
@@ -292,9 +349,10 @@ const CourseLearnPage: React.FC = () => {
             <button
               className="xl:hidden flex items-center gap-2 px-4 py-2 rounded-full bg-brand-primary text-white shadow-lg shadow-brand-primary/25 hover:bg-brand-secondary active:scale-95 transition-all"
               onClick={() => setIsPlaylistOpen(true)}
+              aria-label="Open Course Curriculum"
             >
               <div className="flex items-center justify-center p-0.5 rounded-full bg-white/20">
-                <Icon name="play" className="h-3 w-3 fill-current" />
+                <Play className="h-3 w-3 fill-current" />
               </div>
               <span className="font-bold text-sm tracking-wide">Lessons</span>
             </button>
@@ -302,7 +360,7 @@ const CourseLearnPage: React.FC = () => {
         </header>
 
         {/* Main Content Info */}
-        <div className="flex flex-col xl:flex-row gap-8 items-start">
+        <div className="flex flex-col xl:flex-row gap-6 items-start">
 
           {/* Left Column: Video & Tabs */}
           <div className="w-full flex-1 min-w-0 space-y-6">
@@ -331,7 +389,7 @@ const CourseLearnPage: React.FC = () => {
                   </h1>
                   <div className="mt-2 flex items-center gap-4 text-sm text-slate-500 dark:text-white/50">
                     <span className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/5 border border-white/10">
-                      <Icon name="clock" className="h-3.5 w-3.5" />
+                      <Clock className="h-3.5 w-3.5" />
                       {displayedLecture.duration}
                     </span>
                     <span className="hidden sm:inline-block">•</span>
@@ -340,191 +398,49 @@ const CourseLearnPage: React.FC = () => {
                 </div>
 
                 <div className="flex gap-2">
-                  <GlassButton className="p-3 rounded-full" title="Previous Lecture">
-                    <Icon name="chevronLeft" className="h-5 w-5" />
+                  <GlassButton
+                    onClick={markAsCompleted}
+                    className={`px-4 py-2 rounded-full font-medium text-sm flex items-center gap-2 ${(user.progress?.[course.id] || []).includes(displayedLecture.id)
+                      ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30'
+                      : 'text-brand-primary'
+                      }`}
+                    disabled={isCompleting}
+                  >
+                    {(user.progress?.[course.id] || []).includes(displayedLecture.id) ? (
+                      <>
+                        <CheckCircle className="h-4 w-4" />
+                        <span>Completed</span>
+                      </>
+                    ) : (
+                      <>
+                        <CheckCircle className="h-4 w-4 opacity-50" />
+                        <span>Mark Complete</span>
+                      </>
+                    )}
                   </GlassButton>
-                  <GlassButton className="p-3 rounded-full" title="Next Lecture">
-                    <Icon name="chevronRight" className="h-5 w-5" />
+
+                  <GlassButton
+                    className="p-3 rounded-full"
+                    title="Previous Lecture"
+                    aria-label="Previous Lecture"
+                    onClick={goToPrevLecture}
+                    disabled={allLectures.findIndex(l => l.id === displayedLecture.id) <= 0}
+                  >
+                    <ChevronLeft className="h-5 w-5" />
+                  </GlassButton>
+                  <GlassButton
+                    className="p-3 rounded-full"
+                    title="Next Lecture"
+                    aria-label="Next Lecture"
+                    onClick={goToNextLecture}
+                    disabled={allLectures.findIndex(l => l.id === displayedLecture.id) >= allLectures.length - 1}
+                  >
+                    <ChevronRight className="h-5 w-5" />
                   </GlassButton>
                 </div>
               </div>
             </div>
 
-            {/* Tabs & Content Area */}
-            <GlassPanel className="min-h-[400px]">
-              {/* Tab Navigation */}
-              <div className="flex overflow-x-auto border-b border-white/10 p-2 scrollbar-none snap-x">
-                {navigationSections.map((item) => (
-                  <button
-                    key={item.label}
-                    onClick={() => setActiveSection(item.label)}
-                    className={`
-                      snap-start shrink-0 relative px-6 py-3 rounded-xl text-sm font-medium transition-all duration-300
-                      ${activeSection === item.label
-                        ? 'text-brand-primary bg-brand-primary/10 shadow-[inner_0_0_10px_rgba(var(--brand-primary-rgb),0.1)]'
-                        : 'text-slate-500 dark:text-white/60 hover:text-slate-800 dark:hover:text-white hover:bg-white/5'
-                      }
-                    `}
-                  >
-                    <div className="flex items-center gap-2">
-                      <Icon name={item.icon} className="h-4 w-4" />
-                      {item.label}
-                    </div>
-                  </button>
-                ))}
-              </div>
-
-              {/* Tab Content */}
-              <div className="p-6 sm:p-8 animate-fade-in">
-                {activeSection === 'Overview' && (
-                  <div className="space-y-8 max-w-3xl">
-                    <div>
-                      <h3 className="text-xl font-bold mb-4 text-slate-800 dark:text-white">About this Topic</h3>
-                      <p className="text-lg leading-relaxed text-slate-600 dark:text-white/70 font-light">
-                        {course.longDescription || course.description}
-                      </p>
-                    </div>
-
-                    {course.learningOutcomes && (
-                      <div className="p-6 rounded-2xl bg-white/5 border border-white/10">
-                        <h4 className="font-semibold text-slate-800 dark:text-white mb-4 flex items-center gap-2">
-                          <Icon name="star" className="h-4 w-4 text-amber-400" />
-                          Key Takeaways
-                        </h4>
-                        <ul className="grid sm:grid-cols-2 gap-4">
-                          {course.learningOutcomes.map((item, i) => (
-                            <li key={i} className="flex gap-3 text-slate-600 dark:text-white/70 text-sm">
-                              <Icon name="check" className="h-5 w-5 text-emerald-500 shrink-0 mt-0.5" />
-                              {item}
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-                    )}
-                  </div>
-                )}
-
-                {activeSection === 'Resources' && (
-                  <div className="space-y-6">
-                    <div className="flex items-center justify-between">
-                      <h3 className="text-lg font-bold">Downloadable Materials</h3>
-                      <span className="text-xs font-semibold px-2 py-1 rounded bg-white/10 text-slate-500 dark:text-white/50">{resourcesCount} Files</span>
-                    </div>
-
-                    {course.resources && course.resources.length > 0 ? (
-                      <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                        {course.resources.map(res => (
-                          <div key={res.id} className="interactive-card p-4 rounded-2xl bg-white/5 border border-white/10 hover:border-brand-primary/30 hover:bg-white/10 cursor-pointer">
-                            <div className="flex items-start gap-4">
-                              <div className="p-3 rounded-xl bg-teal-500/10 text-teal-500 group-hover:scale-110 transition-transform">
-                                <Icon name="file" className="h-6 w-6" />
-                              </div>
-                              <div className="flex-1 min-w-0">
-                                <p className="font-medium truncate text-slate-800 dark:text-white group-hover:text-brand-primary transition-colors">{res.name}</p>
-                                <p className="text-xs text-slate-500 dark:text-white/40 mt-1">PDF Document</p>
-                              </div>
-                              <Icon name="download" className="h-5 w-5 text-slate-400 opacity-0 group-hover:opacity-100 transition-all -translate-x-2 group-hover:translate-x-0" />
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    ) : (
-                      <div className="flex flex-col items-center justify-center py-12 text-slate-400 border border-dashed border-white/10 rounded-2xl bg-white/5">
-                        <Icon name="inbox" className="h-12 w-12 opacity-50 mb-3" />
-                        <p>No resources available just yet.</p>
-                      </div>
-                    )}
-                  </div>
-                )}
-
-                {activeSection === 'Add task' && (
-                  <div className="max-w-2xl mx-auto">
-                    <div className="relative mb-8 group">
-                      <input
-                        type="text"
-                        value={taskInput}
-                        onChange={(e) => setTaskInput(e.target.value)}
-                        onKeyDown={(e) => e.key === 'Enter' && handleAddTask()}
-                        placeholder="What's your next goal?"
-                        className="w-full pl-6 pr-32 py-4 rounded-2xl bg-white/5 border border-white/10 focus:border-brand-primary/50 focus:bg-white/10 focus:ring-4 focus:ring-brand-primary/10 outline-none transition-all placeholder:text-slate-400 dark:placeholder:text-white/30"
-                      />
-                      <button
-                        onClick={handleAddTask}
-                        className="absolute right-2 top-2 bottom-2 px-6 rounded-xl bg-brand-primary text-white font-medium hover:bg-brand-secondary transition-all shadow-lg shadow-brand-primary/25"
-                      >
-                        Add
-                      </button>
-                    </div>
-
-                    <div className="space-y-3">
-                      {tasks.map(task => (
-                        <div key={task.id} className="flex items-center gap-4 p-4 rounded-2xl bg-white/5 border border-white/5 hover:border-white/20 transition-all group">
-                          <button className={`h-6 w-6 rounded-full border-2 flex items-center justify-center transition-all ${task.status === 'Completed' ? 'bg-emerald-500 border-emerald-500' : 'border-slate-400 dark:border-white/30 group-hover:border-brand-primary'}`}>
-                            {task.status === 'Completed' && <Icon name="check" className="h-3.5 w-3.5 text-white" />}
-                          </button>
-                          <span className={`text-lg transition-all ${task.status === 'Completed' ? 'line-through text-slate-400 dark:text-white/30' : 'text-slate-800 dark:text-white'}`}>
-                            {task.title}
-                          </span>
-                        </div>
-                      ))}
-                      {tasks.length === 0 && <p className="text-center text-slate-500 dark:text-white/40 italic">Start by adding a task above.</p>}
-                    </div>
-                  </div>
-                )}
-
-                {activeSection === 'My doubts' && (
-                  <div className="max-w-2xl mx-auto space-y-4">
-                    <textarea
-                      className="w-full p-6 rounded-3xl bg-white/5 border border-white/10 focus:border-brand-primary/50 focus:ring-4 focus:ring-brand-primary/10 outline-none transition-all resize-none min-h-[160px] text-lg placeholder:text-slate-400 dark:placeholder:text-white/30"
-                      placeholder="Ask a question about this lecture..."
-                    />
-                    <div className="flex justify-end">
-                      <GlassButton className="px-8 py-3 rounded-xl bg-brand-primary/80 hover:bg-brand-primary text-white font-semibold shadow-lg shadow-brand-primary/20">
-                        Post Question
-                      </GlassButton>
-                    </div>
-                  </div>
-                )}
-
-                {activeSection === 'Simulations' && (
-                  <div className="space-y-6">
-                    {course.simulations && course.simulations.length > 0 ? (
-                      <div className="grid gap-6 sm:grid-cols-2">
-                        {course.simulations.map((sim) => (
-                          <div key={sim.id} className="interactive-card group relative overflow-hidden rounded-3xl bg-gradient-to-br from-indigo-900/80 to-purple-900/80 p-8 text-white shadow-2xl">
-                            <div className="relative z-10">
-                              <h4 className="text-2xl font-bold mb-2">{sim.title}</h4>
-                              <p className="text-indigo-100 mb-6">{sim.description}</p>
-                              <a
-                                href={sim.launchUrl}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="inline-block px-6 py-2.5 bg-white/20 backdrop-blur-md rounded-xl font-semibold hover:bg-white/30 transition-all border border-white/10 text-white"
-                              >
-                                Launch Simulation
-                              </a>
-                            </div>
-                            <img
-                              src={sim.thumbnail}
-                              alt=""
-                              className="absolute inset-0 h-full w-full object-cover opacity-30 mix-blend-overlay transition-transform duration-700 group-hover:scale-110"
-                            />
-                            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
-                            <Icon name="cpu" className="absolute -bottom-4 -right-4 h-40 w-40 text-white/5 rotate-12 group-hover:rotate-6 transition-all duration-500" />
-                          </div>
-                        ))}
-                      </div>
-                    ) : (
-                      <div className="flex flex-col items-center justify-center py-16 text-slate-400 border border-dashed border-white/10 rounded-2xl bg-white/5">
-                        <Icon name="cpu" className="h-16 w-16 opacity-30 mb-4" />
-                        <h4 className="text-lg font-medium text-slate-600 dark:text-slate-300">No simulations active</h4>
-                        <p className="text-sm text-slate-500 dark:text-slate-500 mt-2">Interactive labs for this course are coming soon.</p>
-                      </div>
-                    )}
-                  </div>
-                )}
-              </div>
-            </GlassPanel>
           </div>
 
           {/* RIGHT COLUMN: Playlist Sidebar (Desktop Sticky / Mobile Drawer) */}
@@ -540,16 +456,16 @@ const CourseLearnPage: React.FC = () => {
             <aside className={`
                 fixed inset-y-0 right-0 z-50 w-full max-w-sm bg-slate-50/90 dark:bg-[#0f172a]/95 backdrop-blur-xl shadow-2xl 
                 transition-all duration-300 ease-out 
-                xl:transform-none xl:static xl:w-[400px] xl:bg-transparent xl:shadow-none xl:backdrop-blur-none xl:z-auto xl:translate-x-0 xl:opacity-100 xl:visible
+                xl:transform-none xl:static xl:w-[300px] xl:bg-transparent xl:shadow-none xl:backdrop-blur-none xl:z-auto xl:translate-x-0 xl:opacity-100 xl:visible
                 ${isPlaylistOpen ? 'translate-x-0 opacity-100 visible' : 'translate-x-full opacity-0 invisible'}
              `}>
-              <div className="h-full flex flex-col xl:h-auto xl:sticky xl:top-6">
+              <div className="h-full flex flex-col xl:h-auto xl:sticky xl:top-0">
 
                 {/* Mobile Header */}
                 <div className="flex items-center justify-between p-5 xl:hidden border-b border-white/5">
                   <h2 className="text-lg font-bold">Course Content</h2>
-                  <button onClick={() => setIsPlaylistOpen(false)} className="p-2 rounded-full hover:bg-white/10">
-                    <Icon name="x" className="h-6 w-6" />
+                  <button onClick={() => setIsPlaylistOpen(false)} className="p-2 rounded-full hover:bg-white/10" aria-label="Close Menu">
+                    <X className="h-6 w-6" />
                   </button>
                 </div>
 
@@ -576,6 +492,182 @@ const CourseLearnPage: React.FC = () => {
           </>
 
         </div>
+        {/* Bottom Content: Full Width */}
+        <GlassPanel className="min-h-[400px] mt-8">
+          {/* Tab Navigation */}
+          <div className="flex overflow-x-auto border-b border-white/10 p-2 scrollbar-none snap-x">
+            {navigationSections.map((item) => (
+              <button
+                key={item.label}
+                onClick={() => setActiveSection(item.label)}
+                className={`
+                      flex-1 relative px-4 py-3 rounded-xl text-sm font-medium transition-all duration-300
+                      ${activeSection === item.label
+                    ? 'text-brand-primary bg-brand-primary/10 shadow-[inner_0_0_10px_rgba(var(--brand-primary-rgb),0.1)]'
+                    : 'text-slate-500 dark:text-white/60 hover:text-slate-800 dark:hover:text-white hover:bg-white/5'
+                  }
+                    `}
+              >
+                <div className="flex items-center justify-center gap-2">
+                  <item.icon className="h-4 w-4" />
+                  <span className="hidden sm:inline">{item.label}</span>
+                  <span className="sm:hidden">{item.label.split(' ')[0]}</span>
+                </div>
+              </button>
+            ))}
+          </div>
+
+          {/* Tab Content */}
+          <div className="p-6 sm:p-8 animate-fade-in">
+            {activeSection === 'Overview' && (
+              <div className="space-y-8 w-full">
+                <div>
+                  <h3 className="text-xl font-bold mb-4 text-slate-800 dark:text-white">About this Topic</h3>
+                  <p className="text-lg leading-relaxed text-slate-600 dark:text-white/70 font-light">
+                    {course.longDescription || course.description}
+                  </p>
+                </div>
+
+                {course.learningOutcomes && (
+                  <div className="p-6 rounded-2xl bg-white/5 border border-white/10">
+                    <h4 className="font-semibold text-slate-800 dark:text-white mb-4 flex items-center gap-2">
+                      <Star className="h-4 w-4 text-amber-400" />
+                      Key Takeaways
+                    </h4>
+                    <ul className="grid sm:grid-cols-2 gap-4">
+                      {course.learningOutcomes.map((item, i) => (
+                        <li key={i} className="flex gap-3 text-slate-600 dark:text-white/70 text-sm">
+                          <Check className="h-5 w-5 text-emerald-500 shrink-0 mt-0.5" />
+                          {item}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {activeSection === 'Resources' && (
+              <div className="space-y-6">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-lg font-bold">Downloadable Materials</h3>
+                  <span className="text-xs font-semibold px-2 py-1 rounded bg-white/10 text-slate-500 dark:text-white/50">{resourcesCount} Files</span>
+                </div>
+
+                {course.resources && course.resources.length > 0 ? (
+                  <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {course.resources.map(res => (
+                      <div key={res.id} className="interactive-card p-4 rounded-2xl bg-white/5 border border-white/10 hover:border-brand-primary/30 hover:bg-white/10 cursor-pointer">
+                        <div className="flex items-start gap-4">
+                          <div className="p-3 rounded-xl bg-teal-500/10 text-teal-500 group-hover:scale-110 transition-transform">
+                            <File className="h-6 w-6" />
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <p className="font-medium truncate text-slate-800 dark:text-white group-hover:text-brand-primary transition-colors">{res.name}</p>
+                            <p className="text-xs text-slate-500 dark:text-white/40 mt-1">PDF Document</p>
+                          </div>
+                          <Download className="h-5 w-5 text-slate-400 opacity-0 group-hover:opacity-100 transition-all -translate-x-2 group-hover:translate-x-0" />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="flex flex-col items-center justify-center py-12 text-slate-400 border border-dashed border-white/10 rounded-2xl bg-white/5">
+                    <Inbox className="h-12 w-12 opacity-50 mb-3" />
+                    <p>No resources available just yet.</p>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {activeSection === 'Add task' && (
+              <div className="w-full">
+                <div className="relative mb-8 group">
+                  <input
+                    type="text"
+                    value={taskInput}
+                    onChange={(e) => setTaskInput(e.target.value)}
+                    onKeyDown={(e) => e.key === 'Enter' && handleAddTask()}
+                    placeholder="What's your next goal?"
+                    className="w-full pl-6 pr-32 py-4 rounded-2xl bg-white/5 border border-white/10 focus:border-brand-primary/50 focus:bg-white/10 focus:ring-4 focus:ring-brand-primary/10 outline-none transition-all placeholder:text-slate-400 dark:placeholder:text-white/30"
+                  />
+                  <button
+                    onClick={handleAddTask}
+                    className="absolute right-2 top-2 bottom-2 px-6 rounded-xl bg-brand-primary text-white font-medium hover:bg-brand-secondary transition-all shadow-lg shadow-brand-primary/25"
+                  >
+                    Add
+                  </button>
+                </div>
+
+                <div className="space-y-3">
+                  {tasks.map(task => (
+                    <div key={task.id} className="flex items-center gap-4 p-4 rounded-2xl bg-white/5 border border-white/5 hover:border-white/20 transition-all group">
+                      <button className={`h-6 w-6 rounded-full border-2 flex items-center justify-center transition-all ${task.status === 'Completed' ? 'bg-emerald-500 border-emerald-500' : 'border-slate-400 dark:border-white/30 group-hover:border-brand-primary'}`} aria-label="Toggle task status">
+                        {task.status === 'Completed' && <Check className="h-3.5 w-3.5 text-white" />}
+                      </button>
+                      <span className={`text-lg transition-all ${task.status === 'Completed' ? 'line-through text-slate-400 dark:text-white/30' : 'text-slate-800 dark:text-white'}`}>
+                        {task.title}
+                      </span>
+                    </div>
+                  ))}
+                  {tasks.length === 0 && <p className="text-center text-slate-500 dark:text-white/40 italic">Start by adding a task above.</p>}
+                </div>
+              </div>
+            )}
+
+            {activeSection === 'My doubts' && (
+              <div className="w-full space-y-4">
+                <textarea
+                  className="w-full p-6 rounded-3xl bg-white/5 border border-white/10 focus:border-brand-primary/50 focus:ring-4 focus:ring-brand-primary/10 outline-none transition-all resize-none min-h-[160px] text-lg placeholder:text-slate-400 dark:placeholder:text-white/30"
+                  placeholder="Ask a question about this lecture..."
+                />
+                <div className="flex justify-end">
+                  <GlassButton className="px-8 py-3 rounded-xl bg-brand-primary/80 hover:bg-brand-primary text-white font-semibold shadow-lg shadow-brand-primary/20">
+                    Post Question
+                  </GlassButton>
+                </div>
+              </div>
+            )}
+
+            {activeSection === 'Simulations' && (
+              <div className="space-y-6">
+                {course.simulations && course.simulations.length > 0 ? (
+                  <div className="grid gap-6 sm:grid-cols-2">
+                    {course.simulations.map((sim) => (
+                      <div key={sim.id} className="interactive-card group relative overflow-hidden rounded-3xl bg-gradient-to-br from-indigo-900/80 to-purple-900/80 p-8 text-white shadow-2xl">
+                        <div className="relative z-10">
+                          <h4 className="text-2xl font-bold mb-2">{sim.title}</h4>
+                          <p className="text-indigo-100 mb-6">{sim.description}</p>
+                          <a
+                            href={sim.launchUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-block px-6 py-2.5 bg-white/20 backdrop-blur-md rounded-xl font-semibold hover:bg-white/30 transition-all border border-white/10 text-white"
+                          >
+                            Launch Simulation
+                          </a>
+                        </div>
+                        <img
+                          src={sim.thumbnail}
+                          alt=""
+                          className="absolute inset-0 h-full w-full object-cover opacity-30 mix-blend-overlay transition-transform duration-700 group-hover:scale-110"
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
+                        <Cpu className="absolute -bottom-4 -right-4 h-40 w-40 text-white/5 rotate-12 group-hover:rotate-6 transition-all duration-500" />
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="flex flex-col items-center justify-center py-16 text-slate-400 border border-dashed border-white/10 rounded-2xl bg-white/5">
+                    <Cpu className="h-16 w-16 opacity-30 mb-4" />
+                    <h4 className="text-lg font-medium text-slate-600 dark:text-slate-300">No simulations active</h4>
+                    <p className="text-sm text-slate-500 dark:text-slate-500 mt-2">Interactive labs for this course are coming soon.</p>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        </GlassPanel>
       </main>
     </div>
   );

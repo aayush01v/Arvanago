@@ -1,6 +1,7 @@
 import React, { memo, useMemo } from 'react';
 import { User, Course } from '../types.ts';
 import Icon from './common/Icon.tsx';
+import StudentAnalytics from './StudentAnalytics.tsx';
 import { useScrollAnimation } from '../hooks/useScrollAnimation.ts';
 
 interface DashboardProps {
@@ -171,9 +172,12 @@ const Dashboard: React.FC<DashboardProps> = ({ user, courses, navigateToFiltered
       {/* Stats */}
       <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
         <StatCard icon="star" value={user.points.toLocaleString()} label="Points Earned" color="bg-yellow-400" />
-        <StatCard icon="flame" value={`${user.streak} Days`} label="Learning Streak" color="bg-red-500" delay={100} />
+        <StatCard icon="zap" value={`${user.streak} Days`} label="Learning Streak" color="bg-amber-500" delay={100} />
         <StatCard icon="check" value="8" label="Courses Completed" color="bg-green-500" delay={200} />
       </div>
+
+      {/* Analytics Section */}
+      <StudentAnalytics user={user} courses={courses} />
 
       {/* Ongoing Courses */}
       <section ref={continueLearningRef} className="scroll-animate space-y-6">

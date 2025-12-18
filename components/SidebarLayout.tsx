@@ -184,13 +184,13 @@ const SidebarLayout: React.FC<SidebarLayoutProps> = ({
               isDarkMode={isDarkMode}
               onThemeToggle={onThemeToggle}
             />
-            <main className="relative z-10 flex-1 px-4 pb-10 pt-6 sm:px-6 lg:px-10">
+            <main className="relative z-10 flex-1 px-2 pb-6 pt-4 sm:px-6 lg:px-10">
               <div className="relative mx-auto max-w-6xl">
-                <div className="glass-panel relative overflow-hidden rounded-3xl border border-white/50 bg-white/90 shadow-xl transition-colors duration-500 dark:border-white/10 dark:bg-slate-900/90 dark:shadow-[0_4px_20px_rgba(0,0,0,0.4)]">
+                <div className="glass-panel relative overflow-hidden rounded-[2rem] border border-white/50 bg-white/90 shadow-xl transition-colors duration-500 dark:border-white/10 dark:bg-slate-900/90 dark:shadow-[0_4px_20px_rgba(0,0,0,0.4)]">
                   <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(255,255,255,0.25),_transparent_65%)] dark:bg-[radial-gradient(circle_at_top,_rgba(148,163,184,0.2),_transparent_70%)]" />
                   <div className="pointer-events-none absolute -top-20 -left-10 h-40 w-40 rounded-full bg-brand-primary/30 blur-3xl opacity-70" style={{ animation: 'pulseGlow 16s ease-in-out infinite' }} />
                   <div className="pointer-events-none absolute bottom-[-3rem] right-[-2rem] h-48 w-48 rounded-full bg-sky-500/40 blur-3xl opacity-80" style={{ animation: 'pulseGlow 20s ease-in-out infinite alternate' }} />
-                  <div className="relative z-10 p-4 sm:p-6 lg:p-10">
+                  <div className="relative z-10 p-3 sm:p-6 lg:p-10">
                     <div className="animate-fade-in-up">
                       <Outlet
                         context={{
