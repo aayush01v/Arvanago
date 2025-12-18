@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { ArrowLeft, Plus, Trash2, Video, Save, ChevronDown, ChevronRight, GripVertical } from 'lucide-react';
+import { ArrowLeft, Plus, Trash2, Video, Save, GripVertical, FileText, Cpu } from 'lucide-react';
 import { createCourse, updateCourse, getCourses } from '../../services/firestoreService';
-import { Course, CourseSection, Lecture } from '../../types';
+import { Course, CourseSection, Lecture, Simulation, DownloadableResource } from '../../types';
 
 interface CourseEditorProps {
     onBack: () => void;
@@ -16,8 +16,17 @@ const CourseEditor: React.FC<CourseEditorProps> = ({ onBack, courseId }) => {
     const [thumbnail, setThumbnail] = useState('');
     const [learningOutcomes, setLearningOutcomes] = useState<string[]>(['']);
 
+    // New States
+    const [simulations, setSimulations] = useState<Simulation[]>([]);
+    const [resources, setResources] = useState<DownloadableResource[]>([]);
+
     // State for loading
     const [saving, setSaving] = useState(false);
+
+    // State for curriculum
+    const [sections, setSections] = useState<CourseSection[]>([
+        { title: 'Introduction', lectures: [] }
+    ]);
 
     useEffect(() => {
         if (courseId) {
@@ -26,8 +35,6 @@ const CourseEditor: React.FC<CourseEditorProps> = ({ onBack, courseId }) => {
     }, [courseId]);
 
     const loadCourseData = async () => {
-        // In a real app, you might want a getCourseById function
-        // For now we'll fetch all and find (not efficient but checking logic)
         try {
             const courses = await getCourses();
             const course = courses.find(c => c.id === courseId);
@@ -37,16 +44,18 @@ const CourseEditor: React.FC<CourseEditorProps> = ({ onBack, courseId }) => {
                 setLongDescription(course.longDescription || '');
                 setThumbnail(course.thumbnail || '');
                 setLearningOutcomes(course.learningOutcomes || ['']);
+
+                if (course.sections && course.sections.length > 0) {
+                    setSections(course.sections);
+                }
+
+                if (course.simulations) setSimulations(course.simulations);
+                if (course.resources) setResources(course.resources);
             }
         } catch (error) {
             console.error("Failed to load course", error);
         }
     };
-
-    // State for curriculum
-    const [sections, setSections] = useState<CourseSection[]>([
-        { title: 'Introduction', lectures: [] }
-    ]);
 
     const addSection = () => {
         setSections([...sections, { title: 'New Section', lectures: [] }]);
@@ -73,7 +82,6 @@ const CourseEditor: React.FC<CourseEditorProps> = ({ onBack, courseId }) => {
             isPreview: false,
             summary: ''
         };
-        // Initialize lectures array if undefined
         if (!newSections[sectionIndex].lectures) {
             newSections[sectionIndex].lectures = [];
         }
@@ -105,6 +113,49 @@ const CourseEditor: React.FC<CourseEditorProps> = ({ onBack, courseId }) => {
     const addOutcome = () => setLearningOutcomes([...learningOutcomes, '']);
     const removeOutcome = (index: number) => setLearningOutcomes(learningOutcomes.filter((_, i) => i !== index));
 
+    // Simulation Handlers
+    const addSimulation = () => {
+        setSimulations([...simulations, {
+            id: `sim-${Date.now()}`,
+            title: 'New Simulation',
+            description: '',
+            thumbnail: '',
+            launchUrl: '',
+            type: 'Lab'
+        }]);
+    };
+
+    const updateSimulation = (index: number, field: keyof Simulation, value: any) => {
+        const newSims = [...simulations];
+        newSims[index] = { ...newSims[index], [field]: value };
+        setSimulations(newSims);
+    };
+
+    const removeSimulation = (index: number) => {
+        setSimulations(simulations.filter((_, i) => i !== index));
+    };
+
+    // Resource Handlers
+    const addResource = () => {
+        setResources([...resources, {
+            id: `res-${Date.now()}`,
+            name: 'New Resource',
+            type: 'PDF',
+            size: '1MB',
+            url: ''
+        }]);
+    };
+
+    const updateResource = (index: number, field: keyof DownloadableResource, value: any) => {
+        const newRes = [...resources];
+        newRes[index] = { ...newRes[index], [field]: value };
+        setResources(newRes);
+    };
+
+    const removeResource = (index: number) => {
+        setResources(resources.filter((_, i) => i !== index));
+    };
+
     const handleSave = async () => {
         if (!title) {
             alert('Title is required');
@@ -115,11 +166,13 @@ const CourseEditor: React.FC<CourseEditorProps> = ({ onBack, courseId }) => {
         try {
             const courseData: Partial<Course> = {
                 title,
-                description, // Maps to short description
+                description,
                 longDescription,
                 thumbnail,
                 learningOutcomes: learningOutcomes.filter(o => o.trim() !== ''),
                 sections,
+                simulations,
+                resources
             };
 
             if (courseId) {
@@ -328,6 +381,120 @@ const CourseEditor: React.FC<CourseEditorProps> = ({ onBack, courseId }) => {
                                     )}
                                 </div>
                             ))}
+                        </div>
+                    </div>
+
+                    {/* Resources Section */}
+                    <div className="bg-white/5 border border-white/10 rounded-2xl p-6 backdrop-blur-sm">
+                        <div className="flex justify-between items-center mb-4">
+                            <h3 className="text-lg font-bold text-white">Resources</h3>
+                            <button onClick={addResource} className="text-blue-400 hover:text-blue-300">
+                                <Plus className="w-4 h-4" />
+                            </button>
+                        </div>
+                        <div className="space-y-4">
+                            {resources.map((res, index) => (
+                                <div key={res.id} className="p-3 bg-black/20 rounded-lg border border-white/5">
+                                    <div className="flex justify-between items-start mb-2">
+                                        <div className="flex items-center gap-2">
+                                            <FileText className="w-4 h-4 text-gray-400" />
+                                            <span className="text-xs text-gray-500 font-mono">{res.id.slice(-4)}</span>
+                                        </div>
+                                        <button onClick={() => removeResource(index)} className="text-gray-500 hover:text-red-400">
+                                            <Trash2 className="w-3.5 h-3.5" />
+                                        </button>
+                                    </div>
+                                    <input
+                                        type="text"
+                                        value={res.name}
+                                        onChange={(e) => updateResource(index, 'name', e.target.value)}
+                                        className="w-full bg-black/40 border border-white/10 rounded px-2 py-1 text-sm text-white mb-2"
+                                        placeholder="Resource Name"
+                                    />
+                                    <div className="grid grid-cols-2 gap-2 mb-2">
+                                        <select
+                                            value={res.type}
+                                            onChange={(e) => updateResource(index, 'type', e.target.value)}
+                                            className="bg-black/40 border border-white/10 rounded px-2 py-1 text-xs text-white"
+                                        >
+                                            <option value="PDF">PDF</option>
+                                            <option value="ZIP">ZIP</option>
+                                            <option value="Blend File">Blend File</option>
+                                        </select>
+                                        <input
+                                            type="text"
+                                            value={res.size}
+                                            onChange={(e) => updateResource(index, 'size', e.target.value)}
+                                            className="bg-black/40 border border-white/10 rounded px-2 py-1 text-xs text-white"
+                                            placeholder="Size"
+                                        />
+                                    </div>
+                                    <input
+                                        type="text"
+                                        value={res.url || ''}
+                                        onChange={(e) => updateResource(index, 'url', e.target.value)}
+                                        className="w-full bg-black/40 border border-white/10 rounded px-2 py-1 text-xs text-white"
+                                        placeholder="Download URL"
+                                    />
+                                </div>
+                            ))}
+                            {resources.length === 0 && <p className="text-xs text-gray-500 text-center py-2">No resources added</p>}
+                        </div>
+                    </div>
+
+                    {/* Simulations Section */}
+                    <div className="bg-white/5 border border-white/10 rounded-2xl p-6 backdrop-blur-sm">
+                        <div className="flex justify-between items-center mb-4">
+                            <h3 className="text-lg font-bold text-white">Simulations</h3>
+                            <button onClick={addSimulation} className="text-blue-400 hover:text-blue-300">
+                                <Plus className="w-4 h-4" />
+                            </button>
+                        </div>
+                        <div className="space-y-4">
+                            {simulations.map((sim, index) => (
+                                <div key={sim.id} className="p-3 bg-black/20 rounded-lg border border-white/5">
+                                    <div className="flex justify-between items-start mb-2">
+                                        <div className="flex items-center gap-2">
+                                            <Cpu className="w-4 h-4 text-purple-400" />
+                                            <span className="text-xs text-gray-500 font-mono">{sim.id.slice(-4)}</span>
+                                        </div>
+                                        <button onClick={() => removeSimulation(index)} className="text-gray-500 hover:text-red-400">
+                                            <Trash2 className="w-3.5 h-3.5" />
+                                        </button>
+                                    </div>
+                                    <input
+                                        type="text"
+                                        value={sim.title}
+                                        onChange={(e) => updateSimulation(index, 'title', e.target.value)}
+                                        className="w-full bg-black/40 border border-white/10 rounded px-2 py-1 text-sm text-white mb-2"
+                                        placeholder="Sim Title"
+                                    />
+                                    <select
+                                        value={sim.type}
+                                        onChange={(e) => updateSimulation(index, 'type', e.target.value)}
+                                        className="w-full bg-black/40 border border-white/10 rounded px-2 py-1 text-xs text-white mb-2"
+                                    >
+                                        <option value="Lab">Lab</option>
+                                        <option value="3D">3D Model</option>
+                                        <option value="Quiz">Quiz</option>
+                                    </select>
+                                    <input
+                                        type="text"
+                                        value={sim.launchUrl}
+                                        onChange={(e) => updateSimulation(index, 'launchUrl', e.target.value)}
+                                        className="w-full bg-black/40 border border-white/10 rounded px-2 py-1 text-xs text-white mb-2"
+                                        placeholder="Launch URL"
+                                    />
+                                    <input
+                                        type="text"
+                                        value={sim.thumbnail}
+                                        onChange={(e) => updateSimulation(index, 'thumbnail', e.target.value)}
+                                        className="w-full bg-black/40 border border-white/10 rounded px-2 py-1 text-xs text-white"
+                                        placeholder="Thumbnail URL"
+                                    />
+                                </div>
+                            ))}
+                            {simulations.length === 0 && <p className="text-xs text-gray-500 text-center py-2">No simulations added</p>}
                         </div>
                     </div>
                 </div>

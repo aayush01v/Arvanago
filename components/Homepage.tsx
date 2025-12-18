@@ -172,9 +172,10 @@ const Homepage: React.FC<HomepageProps> = ({ onNavigateToLogin, onCourseSelect, 
     <>
       <div className="bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-white font-sans overflow-x-hidden relative">
         {/* Decorative background blobs */}
-        <div className="fixed top-0 -left-4 w-72 h-72 bg-purple-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob dark:opacity-30"></div>
-        <div className="fixed top-0 -right-4 w-72 h-72 bg-indigo-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob dark:opacity-30" style={{ animationDelay: '2s' }}></div>
-        <div className="fixed -bottom-8 left-20 w-72 h-72 bg-pink-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob dark:opacity-30" style={{ animationDelay: '4s' }}></div>
+        {/* Decorative background blobs - Optimized */}
+        <div className="fixed top-0 -left-20 w-80 h-80 rounded-full opacity-60 dark:opacity-20 animate-blob mix-blend-multiply dark:mix-blend-normal transform-gpu blur-3xl pointer-events-none" style={{ background: 'radial-gradient(circle, rgba(216, 180, 254, 0.8) 0%, transparent 70%)' }}></div>
+        <div className="fixed top-0 -right-20 w-80 h-80 rounded-full opacity-60 dark:opacity-20 animate-blob mix-blend-multiply dark:mix-blend-normal transform-gpu blur-3xl pointer-events-none" style={{ animationDelay: '2s', background: 'radial-gradient(circle, rgba(199, 210, 254, 0.8) 0%, transparent 70%)' }}></div>
+        <div className="fixed -bottom-20 left-10 w-80 h-80 rounded-full opacity-60 dark:opacity-20 animate-blob mix-blend-multiply dark:mix-blend-normal transform-gpu blur-3xl pointer-events-none" style={{ animationDelay: '4s', background: 'radial-gradient(circle, rgba(253, 164, 175, 0.8) 0%, transparent 70%)' }}></div>
 
         <header className="absolute top-0 left-0 right-0 z-30 bg-transparent">
           <div className="container mx-auto px-6 py-4 flex justify-between items-center">

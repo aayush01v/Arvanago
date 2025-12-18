@@ -79,7 +79,7 @@ const Leaderboard: React.FC = () => {
           Celebrate the top learners making waves in the community.
         </p>
 
-        <div className="inline-flex items-center gap-1 p-1 rounded-full bg-white/50 dark:bg-slate-800/50 backdrop-blur-md border border-slate-200 dark:border-slate-700 mx-auto mt-6">
+        <div className="inline-flex items-center gap-1 p-1 rounded-full bg-white/80 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 mx-auto mt-6">
           <button
             onClick={() => setActiveTab('daily')}
             className={`px-6 py-2 rounded-full text-sm font-bold transition-all ${activeTab === 'daily' ? 'bg-white dark:bg-slate-700 text-brand-primary shadow-lg' : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'}`}
@@ -100,7 +100,7 @@ const Leaderboard: React.FC = () => {
         {/* Rank 2 */}
         <div className="md:order-1 order-2 transform hover:-translate-y-2 transition-transform duration-500">
           {spotlight[1] && (
-            <div className="interactive-card neon-border relative flex flex-col items-center p-6 bg-white/60 dark:bg-slate-900/60 rounded-[32px] border border-white/50">
+            <div className="interactive-card neon-border relative flex flex-col items-center p-6 bg-white/80 dark:bg-slate-900/80 rounded-[32px] border border-white/50">
               <div className="absolute -top-6">
                 <RankMedal rank={2} />
               </div>
@@ -137,7 +137,7 @@ const Leaderboard: React.FC = () => {
         {/* Rank 3 */}
         <div className="md:order-3 order-3 transform hover:-translate-y-2 transition-transform duration-500">
           {spotlight[2] && (
-            <div className="interactive-card neon-border relative flex flex-col items-center p-6 bg-white/60 dark:bg-slate-900/60 rounded-[32px] border border-white/50">
+            <div className="interactive-card neon-border relative flex flex-col items-center p-6 bg-white/80 dark:bg-slate-900/80 rounded-[32px] border border-white/50">
               <div className="absolute -top-6">
                 <RankMedal rank={3} />
               </div>
@@ -152,7 +152,7 @@ const Leaderboard: React.FC = () => {
       </div>
 
       {/* The Rest */}
-      <div className="bg-white/30 dark:bg-slate-900/30 rounded-3xl p-6 backdrop-blur-md">
+      <div className="bg-white/40 dark:bg-slate-900/40 rounded-3xl p-6">
         {others.map(entry => (
           <LeaderboardRow key={entry.rank} entry={entry} />
         ))}

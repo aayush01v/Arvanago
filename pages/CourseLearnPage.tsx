@@ -4,6 +4,7 @@ import Icon from '@/components/common/Icon.tsx';
 import { SidebarLayoutContext } from '@/components/SidebarLayout.tsx';
 import { updateUserProfile } from '@/services/firestoreService.ts';
 import { CourseSection, Lecture } from '@/types.ts';
+import GlassPreviewPlayer from '@/components/media/GlassPreviewPlayer.tsx';
 
 // --- Glass UI Components ---
 
@@ -121,7 +122,13 @@ const CourseLearnPage: React.FC = () => {
   const [isPlaylistOpen, setIsPlaylistOpen] = useState(false); // Mobile drawer state
 
   const course = useMemo(() => courses.find((c) => c.id === courseId), [courses, courseId]);
-  const lectures = course?.lectures ?? [];
+  const lectures = useMemo(() => {
+    if (!course) return [];
+    if (course.sections && course.sections.length > 0) {
+      return course.sections.flatMap((section) => section.lectures);
+    }
+    return course.lectures ?? [];
+  }, [course]);
   const isEnrolled = useMemo(
     () => Boolean(course && (user.enrolledCourses.includes(course.id) || user.ongoingCourses.includes(course.id))),
     [course, user.enrolledCourses, user.ongoingCourses],
@@ -174,6 +181,9 @@ const CourseLearnPage: React.FC = () => {
     }),
     [],
   );
+
+
+
 
   const displayedLecture = isLectureDataReady ? (currentLecture as Lecture) : placeholderLecture;
   const isSyncingLectures = !isLectureDataReady;
@@ -298,25 +308,17 @@ const CourseLearnPage: React.FC = () => {
           <div className="w-full flex-1 min-w-0 space-y-6">
 
             {/* Video Player Container - Glass Glow Effect */}
+
             {/* Video Player Container */}
-            <div className="relative group rounded-3xl p-1 neon-border bg-black/40 backdrop-blur-xl shadow-2xl overflow-hidden hover:scale-[1.01] transition-transform duration-500">
+            <div className="relative group rounded-3xl p-1 neon-border bg-black/40 backdrop-blur-xl shadow-2xl overflow-hidden">
               <div className="absolute inset-0 bg-brand-primary/10 blur-3xl opacity-20 group-hover:opacity-40 transition-opacity duration-700 pointer-events-none" />
 
-              <div className="relative aspect-video w-full overflow-hidden rounded-[20px] bg-black shadow-inner z-10">
-                {displayedLecture.videoUrl ? (
-                  <iframe
-                    src={displayedLecture.videoUrl}
-                    title={displayedLecture.title}
-                    className="absolute inset-0 h-full w-full object-cover"
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                    allowFullScreen
-                  />
-                ) : (
-                  <div className="absolute inset-0 flex flex-col items-center justify-center text-slate-400">
-                    <div className="h-10 w-10 animate-spin rounded-full border-2 border-white/20 border-t-brand-primary mb-4" />
-                    <p className="font-light tracking-wide animate-pulse">Loading Lecture...</p>
-                  </div>
-                )}
+              <div className="relative w-full overflow-hidden rounded-[20px] bg-black shadow-inner z-10">
+                <GlassPreviewPlayer
+                  videoUrl={displayedLecture.videoUrl}
+                  title={displayedLecture.title}
+                  poster={course.thumbnail}
+                />
               </div>
             </div>
 

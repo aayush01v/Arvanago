@@ -181,11 +181,11 @@ const AboutPage: React.FC = () => {
     return (
         <div className="min-h-screen bg-slate-50 dark:bg-[#0B1120] text-slate-900 dark:text-white font-sans overflow-x-hidden transition-colors duration-300">
 
-            {/* Premium Background Ambience */}
+            {/* Premium Background Ambience - Optimized */}
             <div className="fixed inset-0 pointer-events-none overflow-hidden">
-                <div className="absolute top-[-10%] left-[-10%] w-[60%] h-[60%] bg-blue-600/20 rounded-full blur-[150px] animate-blob" />
-                <div className="absolute bottom-[-10%] right-[-10%] w-[60%] h-[60%] bg-purple-600/20 rounded-full blur-[150px] animate-blob" style={{ animationDelay: '5s' }} />
-                <div className="absolute top-[40%] left-[40%] w-[40%] h-[40%] bg-cyan-600/10 rounded-full blur-[150px] animate-blob" style={{ animationDelay: '10s' }} />
+                <div className="absolute top-[-10%] left-[-10%] w-[60%] h-[60%] rounded-full opacity-30 dark:opacity-20 animate-blob pointer-events-none" style={{ background: 'radial-gradient(circle, rgba(37, 99, 235, 0.4) 0%, transparent 60%)' }} />
+                <div className="absolute bottom-[-10%] right-[-10%] w-[60%] h-[60%] rounded-full opacity-30 dark:opacity-20 animate-blob pointer-events-none" style={{ animationDelay: '5s', background: 'radial-gradient(circle, rgba(147, 51, 234, 0.4) 0%, transparent 60%)' }} />
+                <div className="absolute top-[40%] left-[40%] w-[40%] h-[40%] rounded-full opacity-20 dark:opacity-10 animate-blob pointer-events-none" style={{ animationDelay: '10s', background: 'radial-gradient(circle, rgba(8, 145, 178, 0.4) 0%, transparent 60%)' }} />
             </div>
 
             <div className="relative z-10 pt-24 pb-20">

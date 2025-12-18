@@ -16,7 +16,7 @@ type Tab = 'in_progress' | 'completed' | 'wishlist' | 'tasks';
 const CourseCard: React.FC<{ course: Course; onClick: () => void }> = ({ course, onClick }) => (
     <div
         onClick={onClick}
-        className="interactive-card flex flex-col rounded-3xl bg-white/60 dark:bg-slate-900/60 backdrop-blur-xl border border-white/40 dark:border-white/10 shadow-lg overflow-hidden cursor-pointer group hover:shadow-2xl hover:border-brand-primary/30 transition-all duration-300"
+        className="interactive-card flex flex-col rounded-3xl bg-white/80 dark:bg-slate-900/80 border border-white/40 dark:border-white/10 shadow-lg overflow-hidden cursor-pointer group hover:shadow-2xl hover:border-brand-primary/30 transition-all duration-300"
     >
         <div className="relative h-44 overflow-hidden">
             <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent z-10 opacity-70 group-hover:opacity-50 transition-opacity" />
@@ -58,7 +58,7 @@ const CourseCard: React.FC<{ course: Course; onClick: () => void }> = ({ course,
 );
 
 const TaskItem: React.FC<{ task: Task; onClick: () => void }> = ({ task, onClick }) => (
-    <div onClick={onClick} className="interactive-card bg-white/60 dark:bg-slate-900/60 backdrop-blur-md rounded-2xl p-5 flex items-center justify-between border border-white/50 dark:border-white/10 cursor-pointer hover:border-brand-primary/40 group transition-all">
+    <div onClick={onClick} className="interactive-card bg-white/80 dark:bg-slate-900/80 rounded-2xl p-5 flex items-center justify-between border border-white/50 dark:border-white/10 cursor-pointer hover:border-brand-primary/40 group transition-all">
         <div className="flex items-center gap-4">
             <div className="w-10 h-10 rounded-full bg-brand-primary/10 flex items-center justify-center text-brand-primary group-hover:bg-brand-primary group-hover:text-white transition-colors">
                 <Icon name="check-circle" className="w-5 h-5" />
@@ -198,13 +198,13 @@ const MyLearnings: React.FC<MyLearningsProps> = ({ user, courses, navigateToCour
         <div className="p-4 sm:p-6 lg:p-8 space-y-8 animate-fade-in">
             {/* Header Area */}
             <div className="flex flex-col gap-2 relative">
-                <div className="absolute top-0 right-0 w-64 h-64 bg-brand-secondary/10 rounded-full blur-[100px] pointer-events-none" />
+                <div className="absolute top-0 right-0 w-64 h-64 rounded-full pointer-events-none opacity-20" style={{ background: 'radial-gradient(circle, rgba(14, 165, 233, 0.4) 0%, transparent 70%)' }} />
                 <h1 className="text-4xl font-black text-slate-900 dark:text-white">My Learnings</h1>
                 <p className="text-lg text-slate-500 dark:text-slate-400 max-w-2xl">Track your progress, manage tasks, and revisit your achievements.</p>
             </div>
 
             {/* Controls Bar */}
-            <div className="glass-ambient p-2 rounded-[24px] shadow-xl border border-white/50 dark:border-white/5 flex flex-col xl:flex-row items-center justify-between gap-4">
+            <div className="bg-white/60 dark:bg-slate-800/60 p-2 rounded-[24px] shadow-xl border border-white/50 dark:border-white/5 flex flex-col xl:flex-row items-center justify-between gap-4">
                 <div className="flex items-center gap-1 p-1 overflow-x-auto w-full xl:w-auto scrollbar-none">
                     <TabButton tabId="in_progress" label="In Progress" />
                     <TabButton tabId="completed" label="Completed" />

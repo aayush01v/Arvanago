@@ -23,7 +23,7 @@ const StatCardComponent: React.FC<StatCardProps> = ({ icon, value, label, color,
   return (
     <div
       ref={ref}
-      className="interactive-card bg-white/40 dark:bg-slate-800/40 backdrop-blur-md rounded-2xl p-6 flex items-center shadow-lg dark:shadow-dark-glow border border-white/50 dark:border-white/10 transition-all duration-300 hover:border-brand-primary/30 scroll-animate will-change-transform group"
+      className="interactive-card bg-white/40 dark:bg-slate-800/40 backdrop-blur-sm rounded-2xl p-6 flex items-center shadow-lg dark:shadow-dark-glow border border-white/50 dark:border-white/10 transition-all duration-300 hover:border-brand-primary/30 scroll-animate will-change-transform group"
       style={{ transitionDelay: `${delay}ms` }}
     >
       <div className={`p-4 rounded-full mr-5 ${color} bg-opacity-10 group-hover:scale-110 transition-transform duration-300`}>
@@ -49,7 +49,7 @@ const DashboardCourseCardComponent: React.FC<DashboardCourseCardProps> = ({ cour
   return (
     <div
       ref={ref}
-      className="interactive-card group relative flex flex-col rounded-3xl bg-white/60 dark:bg-slate-900/60 backdrop-blur-xl border border-white/40 dark:border-white/10 shadow-xl overflow-hidden scroll-animate will-change-transform hover:shadow-2xl hover:shadow-brand-primary/10"
+      className="interactive-card group relative flex flex-col rounded-3xl bg-white/60 dark:bg-slate-900/60 backdrop-blur-md border border-white/40 dark:border-white/10 shadow-xl overflow-hidden scroll-animate will-change-transform hover:shadow-2xl hover:shadow-brand-primary/10"
     >
       <div className="relative h-48 overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent z-10 opacity-60 group-hover:opacity-40 transition-opacity" />
@@ -108,7 +108,7 @@ const CategoryCardComponent: React.FC<CategoryCardProps> = ({ category, navigate
     <button
       ref={ref}
       onClick={() => navigateToFilteredCourses(category.name)}
-      className="scroll-animate group flex flex-col items-center justify-center p-6 rounded-3xl bg-white/40 dark:bg-slate-800/40 backdrop-blur-md border border-white/50 dark:border-white/10 shadow-lg hover:shadow-xl hover:border-brand-primary/30 hover:-translate-y-1 transition-all duration-300"
+      className="scroll-animate group flex flex-col items-center justify-center p-6 rounded-3xl bg-white/40 dark:bg-slate-800/40 backdrop-blur-sm border border-white/50 dark:border-white/10 shadow-lg hover:shadow-xl hover:border-brand-primary/30 hover:-translate-y-1 transition-all duration-300"
     >
       <div className={`
         p-4 rounded-2xl mb-4 transition-all duration-300
@@ -151,7 +151,11 @@ const Dashboard: React.FC<DashboardProps> = ({ user, courses, navigateToFiltered
     <div className="p-4 sm:p-6 lg:p-8 animate-fade-in space-y-12">
       {/* Header */}
       <div ref={welcomeRef} className="scroll-animate relative">
-        <div className="absolute -top-20 -left-20 w-64 h-64 bg-brand-primary/20 rounded-full blur-[100px] pointer-events-none" />
+        {/* Optimized glow using radial gradient instead of heavy blur filter */}
+        <div
+          className="absolute -top-20 -left-20 w-64 h-64 rounded-full pointer-events-none opacity-40"
+          style={{ background: 'radial-gradient(circle, rgba(124, 58, 237, 0.4) 0%, transparent 70%)' }}
+        />
         <h1 className="relative text-3xl md:text-5xl font-black text-slate-900 dark:text-white tracking-tight">
           Welcome back, <br className="hidden sm:block" />
           <span className="bg-gradient-to-r from-brand-primary to-brand-secondary bg-clip-text text-transparent drop-shadow-sm">

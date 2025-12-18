@@ -43,6 +43,7 @@ export interface DownloadableResource {
   name: string;
   type: 'PDF' | 'ZIP' | 'Blend File';
   size: string;
+  url?: string;
 }
 
 export interface CourseSocialLink {

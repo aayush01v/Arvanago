@@ -5,11 +5,11 @@ import Icon from './common/Icon.tsx';
 import AiAssistant from './AiAssistant.tsx';
 
 interface LectureViewProps {
-  user: User;
-  course: Course;
-  lecture: Lecture;
-  onBack: () => void;
-  onExit: () => void;
+    user: User;
+    course: Course;
+    lecture: Lecture;
+    onBack: () => void;
+    onExit: () => void;
 }
 
 const LectureHeader: React.FC<{ user: User, onExit: () => void }> = ({ user, onExit }) => (
@@ -50,48 +50,49 @@ const CurriculumSidebar: React.FC<{
         // if (lecture.id === currentLecture.id) return 'play'; // Could add this for more dynamic state
         return 'circle';
     };
-    
+
     return (
         <aside className="w-[340px] flex-shrink-0 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 overflow-y-auto">
             {course.sections?.map((section) => {
                 // FIX: Check if all lectures in a section are completed to determine section's completed status.
                 const isSectionCompleted = section.lectures.length > 0 && section.lectures.every(l => l.isCompleted);
                 return (
-                <div key={section.title} className="border-b border-slate-200 dark:border-slate-800">
-                    <button onClick={() => setOpenSection(openSection === section.title ? null : section.title)} className="w-full p-4 flex items-center justify-between text-left hover:bg-slate-50 dark:hover:bg-slate-800/50">
-                        <div className="flex items-center space-x-3">
-                            <div className="w-10 h-10 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center font-bold text-sm text-brand-primary">
-                                {section.progress || 0}%
+                    <div key={section.title} className="border-b border-slate-200 dark:border-slate-800">
+                        <button onClick={() => setOpenSection(openSection === section.title ? null : section.title)} className="w-full p-4 flex items-center justify-between text-left hover:bg-slate-50 dark:hover:bg-slate-800/50">
+                            <div className="flex items-center space-x-3">
+                                <div className="w-10 h-10 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center font-bold text-sm text-brand-primary">
+                                    {section.progress || 0}%
+                                </div>
+                                <div>
+                                    <h3 className="font-semibold text-slate-800 dark:text-white">{section.title}</h3>
+                                    {isSectionCompleted && <p className="text-xs text-green-500">Completed</p>}
+                                </div>
                             </div>
-                            <div>
-                                <h3 className="font-semibold text-slate-800 dark:text-white">{section.title}</h3>
-                                {isSectionCompleted && <p className="text-xs text-green-500">Completed</p>}
+                            <Icon name={openSection === section.title ? 'chevronUp' : 'chevronDown'} className="w-5 h-5 text-slate-400" />
+                        </button>
+                        {openSection === section.title && (
+                            <div className="p-4 relative">
+                                <div className="absolute left-[30px] top-0 bottom-0 w-px bg-slate-200 dark:bg-slate-700"></div>
+                                <ul className="space-y-2">
+                                    {section.lectures.map(lecture => (
+                                        <li key={lecture.id}>
+                                            <a href="#" onClick={(e) => { e.preventDefault(); onSelectLecture(lecture) }} className={`flex items-start space-x-3 p-3 rounded-lg transition-colors ${currentLecture.id === lecture.id ? 'bg-brand-light dark:bg-brand-primary/20' : 'hover:bg-slate-100 dark:hover:bg-slate-800/50'}`}>
+                                                <div className="relative z-10 mt-1">
+                                                    <Icon name={getLectureIcon(lecture)} className={`w-5 h-5 ${lecture.isCompleted ? 'text-orange-500' : 'text-slate-400'} ${currentLecture.id === lecture.id ? 'text-orange-500' : ''}`} />
+                                                </div>
+                                                <div className="flex-1">
+                                                    <p className={`font-medium text-sm ${currentLecture.id === lecture.id ? 'text-slate-900 dark:text-white' : 'text-slate-700 dark:text-slate-300'}`}>{lecture.title}</p>
+                                                    <p className="text-xs text-slate-500">{lecture.duration}</p>
+                                                </div>
+                                            </a>
+                                        </li>
+                                    ))}
+                                </ul>
                             </div>
-                        </div>
-                        <Icon name={openSection === section.title ? 'chevronUp' : 'chevronDown'} className="w-5 h-5 text-slate-400" />
-                    </button>
-                    {openSection === section.title && (
-                        <div className="p-4 relative">
-                           <div className="absolute left-[30px] top-0 bottom-0 w-px bg-slate-200 dark:bg-slate-700"></div>
-                           <ul className="space-y-2">
-                               {section.lectures.map(lecture => (
-                                   <li key={lecture.id}>
-                                       <a href="#" onClick={(e) => {e.preventDefault(); onSelectLecture(lecture)}} className={`flex items-start space-x-3 p-3 rounded-lg transition-colors ${currentLecture.id === lecture.id ? 'bg-brand-light dark:bg-brand-primary/20' : 'hover:bg-slate-100 dark:hover:bg-slate-800/50'}`}>
-                                           <div className="relative z-10 mt-1">
-                                               <Icon name={getLectureIcon(lecture)} className={`w-5 h-5 ${lecture.isCompleted ? 'text-orange-500' : 'text-slate-400'} ${currentLecture.id === lecture.id ? 'text-orange-500' : ''}`} />
-                                           </div>
-                                           <div className="flex-1">
-                                                <p className={`font-medium text-sm ${currentLecture.id === lecture.id ? 'text-slate-900 dark:text-white' : 'text-slate-700 dark:text-slate-300'}`}>{lecture.title}</p>
-                                                <p className="text-xs text-slate-500">{lecture.duration}</p>
-                                           </div>
-                                       </a>
-                                   </li>
-                               ))}
-                           </ul>
-                        </div>
-                    )}
-                </div>
-            )})}
+                        )}
+                    </div>
+                )
+            })}
         </aside>
     );
 };
@@ -146,14 +147,14 @@ const CommentItem: React.FC<{ comment: Comment }> = ({ comment }) => (
             </div>
             {comment.replies?.map(reply => (
                 <div key={reply.id} className="mt-4 flex items-start space-x-4">
-                     <img src={reply.user.avatar} alt={reply.user.name} className="w-8 h-8 rounded-full" />
-                     <div className="flex-1">
+                    <img src={reply.user.avatar} alt={reply.user.name} className="w-8 h-8 rounded-full" />
+                    <div className="flex-1">
                         <div className="flex items-baseline space-x-2">
                             <p className="font-semibold text-sm text-slate-800 dark:text-white">{reply.user.name}</p>
                             <p className="text-xs text-slate-500">{reply.timestamp}</p>
                         </div>
                         <p className="text-sm text-slate-600 dark:text-slate-300 mt-1">{reply.text}</p>
-                     </div>
+                    </div>
                 </div>
             ))}
         </div>
@@ -164,8 +165,15 @@ const LectureView: React.FC<LectureViewProps> = ({ user, course, lecture, onBack
     const [currentLecture, setCurrentLecture] = useState(lecture);
     const [activeTab, setActiveTab] = useState<'comments' | 'downloads'>('comments');
     const [isAssistantOpen, setAssistantOpen] = useState(false);
-    
+
     const sectionTitle = course.sections?.find(s => s.lectures.some(l => l.id === currentLecture.id))?.title || 'Lesson';
+
+    const getEmbedUrl = (url: string) => {
+        if (!url) return '';
+        const youtubeRegex = /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/i;
+        const match = url.match(youtubeRegex);
+        return (match && match[1]) ? `https://www.youtube.com/embed/${match[1]}?autoplay=0&rel=0` : url;
+    };
 
     return (
         <div className="flex flex-col h-screen bg-slate-100 dark:bg-slate-900/50 font-sans">
@@ -177,7 +185,7 @@ const LectureView: React.FC<LectureViewProps> = ({ user, course, lecture, onBack
                         <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-2 shadow-sm">
                             <div className="aspect-w-16 aspect-h-9 relative" style={{ paddingBottom: '56.25%' }}>
                                 <iframe
-                                    src={currentLecture.videoUrl}
+                                    src={getEmbedUrl(currentLecture.videoUrl)}
                                     title={currentLecture.title}
                                     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                                     allowFullScreen
@@ -192,12 +200,12 @@ const LectureView: React.FC<LectureViewProps> = ({ user, course, lecture, onBack
                             <p className="text-sm font-semibold text-slate-500 dark:text-slate-400">{sectionTitle}</p>
                             <h2 className="text-2xl font-bold mt-1 text-slate-900 dark:text-white">{currentLecture.title}</h2>
                         </div>
-                        
+
                         <div className="flex border-b border-slate-200 dark:border-slate-700">
-                             <button onClick={() => setActiveTab('comments')} className={`px-4 py-2 text-sm font-semibold transition-colors ${activeTab === 'comments' ? 'border-b-2 border-slate-800 dark:border-white text-slate-800 dark:text-white' : 'text-slate-500 hover:text-slate-800 dark:hover:text-white'}`}>
+                            <button onClick={() => setActiveTab('comments')} className={`px-4 py-2 text-sm font-semibold transition-colors ${activeTab === 'comments' ? 'border-b-2 border-slate-800 dark:border-white text-slate-800 dark:text-white' : 'text-slate-500 hover:text-slate-800 dark:hover:text-white'}`}>
                                 <Icon name="message-circle" className="w-4 h-4 mr-2 inline-block" /> Comments ({course.comments?.length || 0})
                             </button>
-                             <button onClick={() => setActiveTab('downloads')} className={`px-4 py-2 text-sm font-semibold transition-colors ${activeTab === 'downloads' ? 'border-b-2 border-slate-800 dark:border-white text-slate-800 dark:text-white' : 'text-slate-500 hover:text-slate-800 dark:hover:text-white'}`}>
+                            <button onClick={() => setActiveTab('downloads')} className={`px-4 py-2 text-sm font-semibold transition-colors ${activeTab === 'downloads' ? 'border-b-2 border-slate-800 dark:border-white text-slate-800 dark:text-white' : 'text-slate-500 hover:text-slate-800 dark:hover:text-white'}`}>
                                 <Icon name="download" className="w-4 h-4 mr-2 inline-block" /> Downloads ({course.resources?.length || 0})
                             </button>
                         </div>
@@ -228,19 +236,19 @@ const LectureView: React.FC<LectureViewProps> = ({ user, course, lecture, onBack
                         </div>
                     </div>
                     <div className="w-80 flex-shrink-0">
-                         <div className="sticky top-6">
+                        <div className="sticky top-6">
                             <InfoSidebar course={course} />
-                         </div>
+                        </div>
                     </div>
                 </main>
             </div>
             <button
-              type="button"
-              aria-label="Open AI Assistant"
-              onClick={() => setAssistantOpen(true)}
-              className="fixed bottom-6 right-6 w-16 h-16 rounded-full flex items-center justify-center text-white transition-all duration-300 transform hover:scale-110 active:scale-95 z-20 bg-brand-primary/80 dark:bg-brand-primary/70 backdrop-blur-md border border-white/20 shadow-lg shadow-brand-primary/50 dark:shadow-brand-primary/40 animate-glow hover:shadow-brand-primary/60"
+                type="button"
+                aria-label="Open AI Assistant"
+                onClick={() => setAssistantOpen(true)}
+                className="fixed bottom-6 right-6 w-16 h-16 rounded-full flex items-center justify-center text-white transition-all duration-300 transform hover:scale-110 active:scale-95 z-20 bg-brand-primary/80 dark:bg-brand-primary/70 backdrop-blur-md border border-white/20 shadow-lg shadow-brand-primary/50 dark:shadow-brand-primary/40 animate-glow hover:shadow-brand-primary/60"
             >
-              <Icon name="bot" className="w-8 h-8" />
+                <Icon name="bot" className="w-8 h-8" />
             </button>
             {isAssistantOpen && (
                 <AiAssistant

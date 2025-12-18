@@ -1374,6 +1374,24 @@ export const clearCoursesCache = (): void => {
 
 import { addDoc, collection, deleteDoc, doc, updateDoc } from 'firebase/firestore';
 
+// Helper to remove undefined fields which Firestore doesn't allow
+const sanitizeFirestoreData = (data: any): any => {
+  if (Array.isArray(data)) {
+    return data.map(item => sanitizeFirestoreData(item)).filter(item => item !== undefined);
+  }
+  if (data !== null && typeof data === 'object') {
+    // If it's a Date, return it as is (or ISO string if preferred, but Firestore supports Dates)
+    if (data instanceof Date) return data;
+
+    return Object.fromEntries(
+      Object.entries(data)
+        .filter(([_, v]) => v !== undefined)
+        .map(([k, v]) => [k, sanitizeFirestoreData(v)])
+    );
+  }
+  return data;
+};
+
 export const createCourse = async (courseData: Partial<Course>): Promise<string> => {
   try {
     // Basic validation
@@ -1389,12 +1407,15 @@ export const createCourse = async (courseData: Partial<Course>): Promise<string>
       reviewCount: 0,
       sections: courseData.sections || [],
       simulations: courseData.simulations || [],
+      resources: courseData.resources || [],
       isPublished: courseData.isPublished ?? false,
       isFree: courseData.isFree ?? false,
       isPaid: courseData.isPaid ?? true,
     };
 
-    const docRef = await addDoc(collection(db, 'courses'), newCourseData);
+    const sanitizedData = sanitizeFirestoreData(newCourseData);
+    const docRef = await addDoc(collection(db, 'courses'), sanitizedData);
+    clearCoursesCache();
     return docRef.id;
   } catch (error) {
     console.error('Error creating course:', error);
@@ -1405,10 +1426,13 @@ export const createCourse = async (courseData: Partial<Course>): Promise<string>
 export const updateCourse = async (courseId: string, updates: Partial<Course>): Promise<void> => {
   try {
     const docRef = doc(db, 'courses', courseId);
-    await updateDoc(docRef, {
+    const sanitizedUpdates = sanitizeFirestoreData({
       ...updates,
       updatedAt: new Date().toISOString(),
     });
+
+    await updateDoc(docRef, sanitizedUpdates);
+    clearCoursesCache();
   } catch (error) {
     console.error('Error updating course:', error);
     throw error;
@@ -1418,6 +1442,7 @@ export const updateCourse = async (courseId: string, updates: Partial<Course>): 
 export const deleteCourse = async (courseId: string): Promise<void> => {
   try {
     await deleteDoc(doc(db, 'courses', courseId));
+    clearCoursesCache();
   } catch (error) {
     console.error('Error deleting course:', error);
     throw error;

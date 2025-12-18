@@ -15,7 +15,9 @@
   --neon-secondary: #22d3ee;
 }
 
-*, *::before, *::after {
+*,
+*::before,
+*::after {
   box-sizing: border-box;
 }
 
@@ -73,6 +75,12 @@ body {
   backdrop-filter: blur(18px);
 }
 
+@media (max-width: 768px) {
+  .glass-ambient {
+    backdrop-filter: blur(10px);
+  }
+}
+
 .glass-ambient::before,
 .glass-ambient::after {
   content: '';
@@ -116,6 +124,7 @@ body {
   opacity: 0;
   transition: opacity 400ms ease, transform 600ms ease;
   transform: rotate(0deg);
+  pointer-events: none;
 }
 
 .interactive-card:hover {
