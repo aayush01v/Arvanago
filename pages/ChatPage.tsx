@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { GlassPanel } from '@/components/common/GlassPanel';
+
 import Icon from '@/components/common/Icon';
 import SidebarLayout from '@/components/SidebarLayout';
 import { chatService, Chat, ChatMessage } from '../services/chatService';
@@ -183,7 +183,7 @@ const ChatPage: React.FC = () => {
                                         <p className="text-sm font-bold">{u.name}</p>
                                         <p className="text-xs text-slate-500">@{u.username || 'user'}</p>
                                     </div>
-                                    {creatingChat && <Icon name="loader" className="w-4 h-4 animate-spin text-brand-primary" />}
+                                    {creatingChat && <Icon name="spinner" className="w-4 h-4 animate-spin text-brand-primary" />}
                                 </div>
                             ))}
                         </div>
@@ -222,7 +222,7 @@ const ChatPage: React.FC = () => {
                                     onClick={() => setShowChatOnMobile(false)}
                                     className="md:hidden p-2 -ml-2 rounded-full hover:bg-white/20 dark:hover:bg-slate-700/50"
                                 >
-                                    <Icon name="arrow-left" className="w-5 h-5" />
+                                    <Icon name="arrowLeft" className="w-5 h-5" />
                                 </button>
 
                                 <div className="relative">

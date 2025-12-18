@@ -31,14 +31,14 @@ const ChatWidget: React.FC<ChatWidgetProps> = ({
     // Drag State
     const [position, setPosition] = useState({ x: 0, y: 0 });
     const [isDragging, setIsDragging] = useState(false);
-    const [isMaximized, setIsMaximized] = useState(false); // New state for maximize toggle
+    const [isMaximized, setIsMaximized] = useState(false);
+    const [isMinimized, setIsMinimized] = useState(false); // New local minimize state
     const dragStartPos = useRef({ x: 0, y: 0 });
 
     const messagesEndRef = useRef<HTMLDivElement>(null);
 
     // DRAG LOGIC
     const handleMouseDown = (e: React.MouseEvent) => {
-        // Removed window width check to allow dragging on mobile
         setIsDragging(true);
         dragStartPos.current = {
             x: e.clientX - position.x,
@@ -93,8 +93,10 @@ const ChatWidget: React.FC<ChatWidgetProps> = ({
     }, [selectedChatId, currentUser]);
 
     useEffect(() => {
-        messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-    }, [messages]);
+        if (!isMinimized) {
+            messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+        }
+    }, [messages, isMinimized]);
 
     // Search logic
     useEffect(() => {
@@ -183,10 +185,21 @@ const ChatWidget: React.FC<ChatWidgetProps> = ({
 
     if (!isOpen) return null;
 
+    // determine dimensions classes
+    // Modified for mobile: smaller size and allow dragging (no fixed full width)
+    let dimensionClasses = 'w-[350px] max-w-[95vw] h-[550px] max-h-[85vh] bottom-20 right-4 rounded-2xl md:w-[400px] md:h-[600px] md:bottom-20 md:right-6';
+
+    if (isMaximized) {
+        dimensionClasses = 'inset-0 w-full h-full rounded-none';
+    } else if (isMinimized) {
+        // When minimized, shrink to just the header height (approx 60px)
+        dimensionClasses = 'w-[200px] h-[60px] bottom-20 right-4 rounded-2xl';
+    }
+
     return (
         <div
             className={`fixed z-50 flex flex-col shadow-2xl overflow-hidden animate-fade-in-up transition-all duration-200 
-                   ${isMaximized ? 'inset-0 w-full h-full rounded-none' : 'w-[90vw] h-[70vh] bottom-20 right-4 rounded-2xl md:w-[400px] md:h-[600px] md:bottom-20 md:right-6'}
+                   ${dimensionClasses}
                    border border-slate-200 dark:border-slate-800`}
             style={{
                 transform: isMaximized ? 'none' : `translate(${position.x}px, ${position.y}px)`
@@ -196,7 +209,6 @@ const ChatWidget: React.FC<ChatWidgetProps> = ({
             <div
                 onMouseDown={handleMouseDown}
                 onTouchStart={(e) => {
-                    // Simple touch drag start
                     const touch = e.touches[0];
                     setIsDragging(true);
                     dragStartPos.current = {
@@ -207,37 +219,40 @@ const ChatWidget: React.FC<ChatWidgetProps> = ({
                 className="p-3 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between 
                        bg-white/95 dark:bg-slate-900/95 backdrop-blur-md z-10 select-none 
                        cursor-move"
+                style={{ touchAction: 'none' }} // Prevent scrolling while dragging on mobile
             >
                 <div className="flex items-center gap-3">
-                    {/* Window Controls (Visible on all screens now) */}
+                    {/* Window Controls (Red/Green dots only) */}
                     <div className="flex items-center gap-1.5 mr-2">
                         <button
-                            onClick={(e) => { e.stopPropagation(); onClose(); }}
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                if (isMaximized) setIsMaximized(false);
+                                setIsMinimized(!isMinimized);
+                            }}
                             className="w-3.5 h-3.5 rounded-full bg-red-500 hover:scale-110 transition-transform shadow-sm flex items-center justify-center group"
-                            title="Close"
+                            title={isMinimized ? "Expand" : "Minimize"}
                         >
-                            {/* Optional: Add X icon on hover */}
-                            <Icon name="x" className="w-2 h-2 text-red-900 opacity-0 group-hover:opacity-100" />
                         </button>
                         <button
                             onClick={(e) => {
                                 e.stopPropagation();
+                                if (isMinimized) setIsMinimized(false);
                                 setIsMaximized(!isMaximized);
                             }}
                             className="w-3.5 h-3.5 rounded-full bg-green-500 hover:scale-110 transition-transform shadow-sm flex items-center justify-center group"
                             title={isMaximized ? "Restore" : "Maximize"}
                         >
-                            <Icon name={isMaximized ? "minimize" : "maximize"} className="w-2 h-2 text-green-900 opacity-0 group-hover:opacity-100" />
                         </button>
                     </div>
 
-                    {selectedChatId ? (
+                    {selectedChatId && !isMinimized ? (
                         <div className="flex items-center gap-2">
                             <button
                                 onClick={(e) => { e.stopPropagation(); setSelectedChatId(null); }}
                                 className="p-1.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-full transition-colors z-20 flex-shrink-0"
                             >
-                                <Icon name="arrow-left" className="w-4 h-4 text-slate-900 dark:text-white" />
+                                <Icon name="arrowLeft" className="w-4 h-4 text-slate-900 dark:text-white" />
                             </button>
                             <div className="flex items-center gap-2 overflow-hidden">
                                 <img src={activeChatUser?.avatar || 'https://i.pravatar.cc/150'} className="w-8 h-8 rounded-full border border-slate-200 dark:border-slate-700" />
@@ -253,8 +268,9 @@ const ChatWidget: React.FC<ChatWidgetProps> = ({
                 </div>
             </div>
 
-            {/* Content Container */}
-            <div className="flex-1 bg-white dark:bg-slate-900 w-full h-full overflow-hidden flex flex-col relative">
+            {/* Content Container - hidden if minimized */}
+            {/* Added logic to hide content when minimized to just show header */}
+            <div className={`flex-1 bg-white dark:bg-slate-900 w-full h-full overflow-hidden flex flex-col relative ${isMinimized ? 'hidden' : ''}`}>
 
                 {/* List View */}
                 {!selectedChatId && (
@@ -277,7 +293,7 @@ const ChatWidget: React.FC<ChatWidgetProps> = ({
                                         <div key={u.uid} onClick={() => !creatingChat && handleUserSelect(u)} className="p-3 hover:bg-slate-50 dark:hover:bg-slate-800 cursor-pointer flex items-center gap-3">
                                             <img src={u.avatar || 'https://i.pravatar.cc/150'} className="w-8 h-8 rounded-full" />
                                             <p className="text-sm font-bold flex-1 text-slate-900 dark:text-white">{u.name}</p>
-                                            {creatingChat && <Icon name="loader" className="w-4 h-4 animate-spin" />}
+                                            {creatingChat && <Icon name="spinner" className="w-4 h-4 animate-spin" />}
                                         </div>
                                     ))}
                                 </div>

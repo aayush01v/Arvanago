@@ -229,9 +229,6 @@ const App: React.FC = () => {
       // Just clean up if pendingCourseId existed but course wasn't found
       safeLocalStorage.removeItem(PENDING_COURSE_STORAGE_KEY);
       safeLocalStorage.removeItem(PENDING_ACTION_STORAGE_KEY);
-      if (!location.pathname.startsWith('/courses')) {
-        navigate('/dashboard', { replace: true });
-      }
     }
   }, [authReady, user, coursesLoading, courses, navigate]); // Removed location.pathname from dependency to avoid loops
 
