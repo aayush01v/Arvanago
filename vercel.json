@@ -1,6 +1,10 @@
 {
   "rewrites": [
     {
+      "source": "/__/auth/(.*)",
+      "destination": "https://forward-alchemy-418702.firebaseapp.com/__/auth/$1"
+    },
+    {
       "source": "/(.*)",
       "destination": "/index.html"
     }
