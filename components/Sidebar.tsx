@@ -35,21 +35,21 @@ const Sidebar: React.FC<SidebarProps> = ({ isSidebarOpen, setSidebarOpen, isDark
         onClick={() => setSidebarOpen(false)}
       />
       <aside
-        className={`fixed inset-y-0 left-0 z-40 flex w-72 max-w-[18rem] flex-col overflow-hidden border-r border-slate-200 bg-white text-slate-800 transition-transform duration-300 dark:border-slate-800 dark:bg-slate-900 dark:text-white ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'
-          } md:static md:w-64 md:max-w-none md:translate-x-0`}
+        className={`fixed inset-y-0 left-0 z-40 flex w-56 flex-col overflow-hidden border-r border-slate-200 bg-white text-slate-800 transition-transform duration-300 dark:border-slate-800 dark:bg-slate-900 dark:text-white ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'
+          } md:translate-x-0`}
       >
-        <div className="relative flex h-16 items-center border-b border-slate-100 px-6 dark:border-slate-800/50 md:h-20">
-          <img src={LOGO_URL} alt="Edusimulate Logo" className="mr-3 h-7 w-auto" />
-          <span className="text-lg font-bold tracking-tight text-slate-900 dark:text-white">Edusimulate</span>
+        <div className="relative flex h-14 items-center border-b border-slate-100 px-4 dark:border-slate-800/50 md:h-16">
+          <img src={LOGO_URL} alt="Edusimulate Logo" className="mr-2 h-6 w-auto" />
+          <span className="text-base font-bold tracking-tight text-slate-900 dark:text-white">Edusimulate</span>
         </div>
 
-        <nav className="flex-1 overflow-y-auto py-6">
-          <div className="px-4 mb-2">
-            <p className="text-xs font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500 pl-4 mb-2">Menu</p>
+        <nav className="flex-1 overflow-y-auto py-4 max-h-[calc(100vh-12rem)]">
+          <div className="px-3 mb-2">
+            <p className="text-xs font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500 pl-3 mb-2">Menu</p>
           </div>
           <ul className="space-y-1">
             {navItems.map((item) => (
-              <li key={item.to} className="px-3">
+              <li key={item.to} className="px-2">
                 <NavLink
                   to={item.to}
                   onClick={async () => {
@@ -84,20 +84,26 @@ const Sidebar: React.FC<SidebarProps> = ({ isSidebarOpen, setSidebarOpen, isDark
           </ul>
         </nav>
 
-        <div className="border-t border-slate-100 p-4 dark:border-slate-800">
+        <div className="border-t border-slate-100 p-3 dark:border-slate-800">
           <div className="space-y-1">
-            <button
-              onClick={() => setDarkMode(!isDarkMode)}
-              className="group flex w-full items-center justify-between rounded-lg px-4 py-2.5 text-sm font-medium text-slate-600 hover:bg-slate-50 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-slate-200 transition-colors"
+
+
+            {/* Settings Link */}
+            <NavLink
+              to="/settings"
+              onClick={handleNavigate}
+              className={({ isActive }) =>
+                `group flex w-full items-center gap-3 rounded-lg px-4 py-2.5 text-sm font-medium transition-colors ${isActive
+                  ? 'bg-brand-primary/10 text-brand-primary'
+                  : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-slate-200'
+                }`
+              }
             >
-              <div className="flex items-center gap-3">
-                <Icon name={isDarkMode ? 'moon' : 'sun'} className="h-5 w-5 text-slate-400 group-hover:text-slate-600 dark:text-slate-500 dark:group-hover:text-slate-300" />
-                <span>Theme</span>
-              </div>
-              <div className={`relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${isDarkMode ? 'bg-slate-700' : 'bg-slate-200'}`}>
-                <span className={`pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${isDarkMode ? 'translate-x-4' : 'translate-x-0'}`} />
-              </div>
-            </button>
+              <Icon name="settings" className="h-5 w-5 text-slate-400 group-hover:text-slate-600 dark:text-slate-500 dark:group-hover:text-slate-300" />
+              <span>Settings</span>
+            </NavLink>
+
+            <div className="h-px bg-slate-100 dark:bg-slate-800 my-2" />
 
             <button
               onClick={() => {

@@ -35,10 +35,14 @@ export interface User {
   jobTitle?: string;
   coverPhoto?: string;
   socialLinks?: { platform: string; url: string }[];
+  website?: string;
+  publicEmail?: string;
   followers: number;
   following: number;
   postsCount: number;
   gallery?: string[];
+  deletionRequested?: boolean;
+  deletionRequestedAt?: Timestamp | null;
 }
 
 export interface Comment {

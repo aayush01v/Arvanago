@@ -121,7 +121,6 @@ body {
   position: relative;
   overflow: hidden;
   transition: transform 300ms ease, box-shadow 300ms ease, border-color 300ms ease;
-  will-change: transform;
 }
 
 .interactive-card::after {

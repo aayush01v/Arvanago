@@ -9,13 +9,16 @@ import ImageCropper from './ImageCropper.tsx';
 interface EditProfileModalProps {
     user: User;
     onClose: () => void;
-    onSave: (updatedData: { name: string; bio: string; avatar?: string }) => void;
+    onSave: (updatedData: Partial<User>) => void;
 }
 
 const EditProfileModal: React.FC<EditProfileModalProps> = ({ user, onClose, onSave }) => {
     const [name, setName] = useState(user.name);
     const [username, setUsername] = useState(user.username || '');
+    const [jobTitle, setJobTitle] = useState(user.jobTitle || '');
     const [bio, setBio] = useState(user.bio || '');
+    const [website, setWebsite] = useState(user.website || '');
+    const [publicEmail, setPublicEmail] = useState(user.publicEmail || '');
     const [isPublic, setIsPublic] = useState(user.isPublic ?? true);
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState('');
@@ -85,7 +88,10 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({ user, onClose, onSa
             const updatedData: any = {
                 name,
                 username,
+                jobTitle,
                 bio,
+                website,
+                publicEmail,
                 isPublic,
                 avatar: avatar !== user.avatar ? avatar : undefined
             };
@@ -163,6 +169,18 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({ user, onClose, onSa
                     </div>
 
                     <div>
+                        <label htmlFor="jobTitle" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Job Title / Headline</label>
+                        <input
+                            type="text"
+                            id="jobTitle"
+                            value={jobTitle}
+                            onChange={(e) => setJobTitle(e.target.value)}
+                            placeholder="e.g. Student, Software Engineer"
+                            className="w-full px-4 py-3 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/20 rounded-xl outline-none transition dark:text-white"
+                        />
+                    </div>
+
+                    <div>
                         <label htmlFor="username" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Username (Chat Handle)</label>
                         <div className="relative">
                             <span className="absolute left-4 top-3.5 text-gray-500 dark:text-gray-400">@</span>
@@ -186,6 +204,35 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({ user, onClose, onSa
                             placeholder="Tell us a little about yourself"
                             className="w-full px-4 py-3 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/20 rounded-xl outline-none transition resize-none dark:text-white"
                         />
+                    </div>
+
+                    <div>
+                        <label htmlFor="publicEmail" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Public Email</label>
+                        <input
+                            type="email"
+                            id="publicEmail"
+                            value={publicEmail}
+                            onChange={(e) => setPublicEmail(e.target.value)}
+                            placeholder="e.g. contact@example.com"
+                            className="w-full px-4 py-3 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/20 rounded-xl outline-none transition dark:text-white"
+                        />
+                    </div>
+
+                    <div>
+                        <label htmlFor="website" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Website</label>
+                        <div className="relative">
+                            <span className="absolute left-4 top-3.5 text-gray-500 dark:text-gray-400">
+                                <Icon name="globe" className="w-5 h-5" />
+                            </span>
+                            <input
+                                type="url"
+                                id="website"
+                                value={website}
+                                onChange={(e) => setWebsite(e.target.value)}
+                                placeholder="https://your-website.com"
+                                className="w-full pl-12 pr-4 py-3 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/20 rounded-xl outline-none transition dark:text-white"
+                            />
+                        </div>
                     </div>
 
                     {/* Public Profile Toggle */}

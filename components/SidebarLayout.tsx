@@ -11,6 +11,8 @@ export interface SidebarLayoutContext {
   coursesLoading: boolean;
   coursesError: string | null;
   refreshCourses: (options?: { forceRefresh?: boolean }) => Promise<void>;
+  isDarkMode: boolean;
+  onThemeToggle: (isDark: boolean) => void;
 }
 
 interface SidebarLayoutProps {
@@ -197,7 +199,7 @@ const SidebarLayout: React.FC<SidebarLayoutProps> = ({
           />
           <div
             ref={mainPanelRef}
-            className="relative flex flex-1 flex-col overflow-y-auto"
+            className="relative flex flex-1 flex-col overflow-y-auto md:ml-56"
             onMouseMove={handlePanelPointerMove}
             onMouseLeave={handlePanelPointerLeave}
           >
@@ -235,6 +237,8 @@ const SidebarLayout: React.FC<SidebarLayoutProps> = ({
                           coursesLoading,
                           coursesError,
                           refreshCourses: onRefreshCourses,
+                          isDarkMode,
+                          onThemeToggle,
                         }}
                       />
                     </div>

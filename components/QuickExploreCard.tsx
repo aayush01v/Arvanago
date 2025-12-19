@@ -14,7 +14,7 @@ interface QuickExploreCardProps {
 }
 
 const formatPrice = (course: Course): { label: string; tone: 'free' | 'paid' } => {
-  const isPaid = course.isPaid ?? !course.isFree;
+  const isPaid = course.isPaid || (typeof course.price === 'number' && course.price > 0);
   if (!isPaid) {
     return { label: 'Free Course', tone: 'free' };
   }
@@ -23,20 +23,20 @@ const formatPrice = (course: Course): { label: string; tone: 'free' | 'paid' } =
     return { label: 'Premium Access', tone: 'paid' };
   }
 
-  const currency = course.currency ?? 'USD';
+  const currency = 'INR';
 
   try {
-    const formatted = new Intl.NumberFormat('en-US', {
+    const formatted = new Intl.NumberFormat('en-IN', {
       style: 'currency',
       currency,
       currencyDisplay: 'symbol',
-      maximumFractionDigits: 2,
+      maximumFractionDigits: 0,
     }).format(course.price);
 
     return { label: formatted, tone: 'paid' };
   } catch (error) {
     console.warn('Unable to format course price in quick explore card', error);
-    return { label: `${course.currency ?? '$'}${course.price}`, tone: 'paid' };
+    return { label: `₹${course.price}`, tone: 'paid' };
   }
 };
 
@@ -256,11 +256,10 @@ const QuickExploreCard: React.FC<QuickExploreCardProps> = ({
                   key={course.id}
                   type="button"
                   onClick={() => setActiveIndex(index)}
-                  className={`group relative flex min-w-[180px] items-center gap-3 rounded-2xl border px-3 py-2 text-left text-sm transition-all duration-300 ${
-                    index === activeIndex
-                      ? 'border-transparent bg-gradient-to-r from-brand-primary/90 to-brand-secondary/90 text-white shadow-lg shadow-brand-primary/40'
-                      : 'border-white/50 bg-white/85 text-slate-600 hover:-translate-y-0.5 hover:border-brand-primary/40 hover:text-brand-primary dark:border-white/10 dark:bg-white/10 dark:text-slate-300'
-                  }`}
+                  className={`group relative flex min-w-[180px] items-center gap-3 rounded-2xl border px-3 py-2 text-left text-sm transition-all duration-300 ${index === activeIndex
+                    ? 'border-transparent bg-gradient-to-r from-brand-primary/90 to-brand-secondary/90 text-white shadow-lg shadow-brand-primary/40'
+                    : 'border-white/50 bg-white/85 text-slate-600 hover:-translate-y-0.5 hover:border-brand-primary/40 hover:text-brand-primary dark:border-white/10 dark:bg-white/10 dark:text-slate-300'
+                    }`}
                 >
                   <span className="relative inline-flex h-12 w-12 flex-shrink-0 overflow-hidden rounded-xl">
                     <img

@@ -4,7 +4,7 @@ import Profile from '@/components/Profile.tsx';
 import { SidebarLayoutContext } from '@/components/SidebarLayout.tsx';
 
 const ProfilePage: React.FC = () => {
-  const { user, onProfileUpdate, coursesLoading } = useOutletContext<SidebarLayoutContext>();
+  const { user, onProfileUpdate, coursesLoading, isDarkMode, onThemeToggle } = useOutletContext<SidebarLayoutContext>();
 
   if (coursesLoading) {
     return (
@@ -14,7 +14,7 @@ const ProfilePage: React.FC = () => {
     );
   }
 
-  return <Profile user={user} onProfileUpdate={onProfileUpdate} />;
+  return <Profile user={user} onProfileUpdate={onProfileUpdate} isDarkMode={isDarkMode} onThemeToggle={onThemeToggle} />;
 };
 
 export default ProfilePage;

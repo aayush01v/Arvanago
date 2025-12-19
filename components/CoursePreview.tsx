@@ -1,7 +1,10 @@
 
 import React, { useState, useEffect, useMemo } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { Course, Lecture, User } from '../types.ts';
+import { useRazorpayEnrollment } from '@/hooks/useRazorpayEnrollment';
+import { Course } from '@/types';
+import { Lecture, User } from '../types.ts';
+import { SidebarLayoutContext } from './SidebarLayout.tsx';
 import Icon from './common/Icon.tsx';
 import GlassPreviewPlayer from './media/GlassPreviewPlayer.tsx';
 import { LOGO_URL, PENDING_ACTION_STORAGE_KEY, PENDING_COURSE_STORAGE_KEY } from '../constants.ts';
@@ -9,48 +12,47 @@ import { safeLocalStorage } from '@/utils/safeStorage';
 import { updateUserProfile } from '@/services/firestoreService.ts';
 
 interface CoursePreviewProps {
-  course: Course;
-  onLoginClick: () => void;
-  onBack: () => void;
-  isDarkMode: boolean;
-  setDarkMode: (isDark: boolean) => void;
-  user: User | null;
-  onProfileUpdate: (updates: Partial<User>) => void;
+    course: Course;
+    onLoginClick: () => void;
+    onBack: () => void;
+    isDarkMode: boolean;
+    setDarkMode: (isDark: boolean) => void;
+    user: User | null;
+    onProfileUpdate: (updates: Partial<User>) => void;
 }
 
 const Toast: React.FC<{ message: string; isVisible: boolean; onClose: () => void }> = ({ message, isVisible, onClose }) => {
-  useEffect(() => {
-    if (isVisible) {
-      const timer = setTimeout(onClose, 4000);
-      return () => clearTimeout(timer);
-    }
-  }, [isVisible, onClose]);
+    useEffect(() => {
+        if (isVisible) {
+            const timer = setTimeout(onClose, 4000);
+            return () => clearTimeout(timer);
+        }
+    }, [isVisible, onClose]);
 
-  return (
-    <div className={`fixed top-6 left-1/2 transform -translate-x-1/2 z-[100] transition-all duration-500 ease-out ${isVisible ? 'translate-y-0 opacity-100' : '-translate-y-10 opacity-0 pointer-events-none'}`}>
-      <div className="glass-reflection flex items-center gap-3 px-6 py-3 rounded-full bg-white/90 dark:bg-slate-800/90 border border-white/40 dark:border-slate-700 shadow-2xl backdrop-blur-md text-slate-800 dark:text-white">
-        <span className="flex items-center justify-center w-6 h-6 rounded-full bg-gradient-to-br from-green-400 to-green-600 text-white shadow-md">
-          <Icon name="check" className="w-3.5 h-3.5" />
-        </span>
-        <span className="text-sm font-semibold tracking-wide">{message}</span>
-      </div>
-    </div>
-  );
+    return (
+        <div className={`fixed top-6 left-1/2 transform -translate-x-1/2 z-[100] transition-all duration-500 ease-out ${isVisible ? 'translate-y-0 opacity-100' : '-translate-y-10 opacity-0 pointer-events-none'}`}>
+            <div className="glass-reflection flex items-center gap-3 px-6 py-3 rounded-full bg-white/90 dark:bg-slate-800/90 border border-white/40 dark:border-slate-700 shadow-2xl backdrop-blur-md text-slate-800 dark:text-white">
+                <span className="flex items-center justify-center w-6 h-6 rounded-full bg-gradient-to-br from-green-400 to-green-600 text-white shadow-md">
+                    <Icon name="check" className="w-3.5 h-3.5" />
+                </span>
+                <span className="text-sm font-semibold tracking-wide">{message}</span>
+            </div>
+        </div>
+    );
 };
 
-const TabButton: React.FC<{ 
-    active: boolean; 
-    onClick: () => void; 
-    icon: string; 
-    label: string 
+const TabButton: React.FC<{
+    active: boolean;
+    onClick: () => void;
+    icon: string;
+    label: string
 }> = ({ active, onClick, icon, label }) => (
     <button
         onClick={onClick}
-        className={`relative flex items-center gap-2 px-5 py-3 text-sm font-semibold transition-all duration-300 rounded-full ${
-            active 
-                ? 'text-white bg-gradient-to-r from-brand-primary to-brand-secondary shadow-lg shadow-brand-primary/30 scale-105' 
+        className={`relative flex items-center gap-2 px-5 py-3 text-sm font-semibold transition-all duration-300 rounded-full ${active
+                ? 'text-white bg-gradient-to-r from-brand-primary to-brand-secondary shadow-lg shadow-brand-primary/30 scale-105'
                 : 'text-slate-600 dark:text-slate-300 hover:bg-white/10 dark:hover:bg-white/5 hover:text-brand-primary dark:hover:text-white'
-        }`}
+            }`}
     >
         <Icon name={icon} className={`w-4 h-4 ${active ? 'text-white' : ''}`} />
         {label}
@@ -62,24 +64,24 @@ const SectionItem: React.FC<{ section: any; index: number }> = ({ section, index
 
     return (
         <div className="border border-slate-200/60 dark:border-slate-700/50 bg-white/50 dark:bg-slate-800/40 rounded-2xl overflow-hidden backdrop-blur-sm transition-all duration-300 hover:shadow-md dark:hover:bg-slate-800/60 mb-4">
-            <button 
-                onClick={() => setIsOpen(!isOpen)} 
+            <button
+                onClick={() => setIsOpen(!isOpen)}
                 className="w-full flex justify-between items-center p-5 text-left transition-colors hover:bg-white/40 dark:hover:bg-white/5"
             >
                 <div className="flex items-center gap-4">
-                   <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-sm font-bold transition-all duration-300 ${isOpen ? 'bg-brand-primary text-white shadow-lg shadow-brand-primary/20' : 'bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-400'}`}>
-                      {String(index + 1).padStart(2, '0')}
-                   </div>
-                   <div>
+                    <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-sm font-bold transition-all duration-300 ${isOpen ? 'bg-brand-primary text-white shadow-lg shadow-brand-primary/20' : 'bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-400'}`}>
+                        {String(index + 1).padStart(2, '0')}
+                    </div>
+                    <div>
                         <span className="block text-base font-bold text-slate-900 dark:text-slate-100">{section.title}</span>
                         <span className="text-xs font-medium text-slate-500 dark:text-slate-400">{section.lectures.length} lectures</span>
-                   </div>
+                    </div>
                 </div>
                 <div className={`p-2 rounded-full transition-transform duration-300 ${isOpen ? 'rotate-180 bg-slate-100 dark:bg-slate-700' : ''}`}>
                     <Icon name="chevronDown" className="w-4 h-4 text-slate-500 dark:text-slate-400" />
                 </div>
             </button>
-            
+
             <div className={`transition-all duration-500 ease-in-out overflow-hidden ${isOpen ? 'max-h-[800px] opacity-100' : 'max-h-0 opacity-0'}`}>
                 <ul className="p-2 pb-4 space-y-1">
                     {section.lectures.map((lecture: Lecture, idx: number) => (
@@ -107,14 +109,23 @@ const SectionItem: React.FC<{ section: any; index: number }> = ({ section, index
 const CoursePreview: React.FC<CoursePreviewProps> = ({ course, onLoginClick, onBack, isDarkMode, setDarkMode, user, onProfileUpdate }) => {
     const location = useLocation();
     const navigate = useNavigate();
-    
+
     const [isWishlisted, setIsWishlisted] = useState(false);
-    const [toastMessage, setToastMessage] = useState('');
-    const [showToast, setShowToast] = useState(false);
+    // const [toastMessage, setToastMessage] = useState(''); // Removed, using hook's toast
+    // const [showToast, setShowToast] = useState(false); // Removed, using hook's toast
     const [activeTab, setActiveTab] = useState<'overview' | 'curriculum' | 'instructor'>('overview');
-    
+
     const [showCouponInput, setShowCouponInput] = useState(false);
     const [couponCode, setCouponCode] = useState('');
+
+    const { handleEnroll, isLoading, toastMessage, showToast, setShowToast, setToastMessage } = useRazorpayEnrollment({
+        user,
+        onProfileUpdate
+    });
+
+    const onEnrollClick = async () => {
+        await handleEnroll(course);
+    };
 
     const handleApplyCoupon = () => {
         if (!couponCode.trim()) return;
@@ -125,14 +136,14 @@ const CoursePreview: React.FC<CoursePreviewProps> = ({ course, onLoginClick, onB
     };
 
     // Handle post-login toast
-  useEffect(() => {
-    if (location.state && (location.state as any).showWishlistToast) {
-      setToastMessage(`(${course.title}) added to wishlist`);
-      setShowToast(true);
-      setIsWishlisted(true); // Optimistically set true
-      // Clear state to prevent showing on reload
-      window.history.replaceState({}, document.title);
-    }
+    useEffect(() => {
+        if (location.state && (location.state as any).showWishlistToast) {
+            setToastMessage(`(${course.title}) added to wishlist`);
+            setShowToast(true);
+            setIsWishlisted(true); // Optimistically set true
+            // Clear state to prevent showing on reload
+            window.history.replaceState({}, document.title);
+        }
     }, [location, course.title]);
 
     // Check wishlist status on mount
@@ -161,61 +172,27 @@ const CoursePreview: React.FC<CoursePreviewProps> = ({ course, onLoginClick, onB
                 message = 'Removed from Wishlist';
                 setIsWishlisted(false);
             } else {
-        updatedWishlist = [...user.wishlist, course.id];
-        message = `(${course.title}) added to wishlist`;
-        setIsWishlisted(true);
-      }
+                updatedWishlist = [...user.wishlist, course.id];
+                message = `(${course.title}) added to wishlist`;
+                setIsWishlisted(true);
+            }
 
-            setToastMessage(message);
+            setToastMessage(message); // Ensure toastMessage is set
             setShowToast(true);
-            
+
             // Optimistic update handled by local state, sync DB in background
             await updateUserProfile(user.uid, { wishlist: updatedWishlist });
-            
+
             if (onProfileUpdate) {
                 onProfileUpdate({ wishlist: updatedWishlist });
             }
-            
+
         } catch (error) {
             console.error("Wishlist update failed", error);
             setToastMessage('Something went wrong');
             setShowToast(true);
             setIsWishlisted(!isWishlisted); // Revert on error
         }
-    };
-
-    const handleEnroll = async () => {
-        if (!user) {
-            safeLocalStorage.setItem(PENDING_COURSE_STORAGE_KEY, course.id);
-            onLoginClick();
-            return;
-        }
-
-        const alreadyEnrolled = user.enrolledCourses.includes(course.id) || user.ongoingCourses.includes(course.id);
-
-        if (!alreadyEnrolled) {
-            const updatedOngoingCourses = [...user.ongoingCourses, course.id];
-            const updatedEnrolledCourses = [...user.enrolledCourses, course.id];
-
-            try {
-                await updateUserProfile(user.uid, {
-                    ongoingCourses: updatedOngoingCourses,
-                    enrolledCourses: updatedEnrolledCourses,
-                });
-
-                onProfileUpdate({
-                    ongoingCourses: updatedOngoingCourses,
-                    enrolledCourses: updatedEnrolledCourses,
-                });
-
-                setToastMessage(`Enrolled in ${course.title}`);
-                setShowToast(true);
-            } catch (error) {
-                console.error('Failed to enroll user', error);
-            }
-        }
-
-        navigate(`/courses/${course.id}`);
     };
 
     const handleShare = async () => {
@@ -245,8 +222,11 @@ const CoursePreview: React.FC<CoursePreviewProps> = ({ course, onLoginClick, onB
 
     const previewVideoSource = course.previewVideoUrl || course.lectures[0]?.videoUrl;
     const previewPoster = course.previewImageUrl ?? course.thumbnailUrl ?? course.thumbnail;
-    const price = course.isFree ? 'Free' : course.price ? `${course.currency || '$'}${course.price}` : 'Premium';
+    const priceText = course.isFree ? 'Free' : course.price ? (course.currency === 'INR' || !course.currency ? `₹${course.price}` : `${course.currency}${course.price}`) : 'Premium';
+    const price = priceText;
+
     const discount = course.originalPrice && course.price ? Math.round(100 - (course.price / course.originalPrice) * 100) : 0;
+
     const isEnrolled = user?.enrolledCourses.includes(course.id) ?? false;
 
     return (
@@ -279,7 +259,7 @@ const CoursePreview: React.FC<CoursePreviewProps> = ({ course, onLoginClick, onB
                                 <div className="flex items-center gap-3">
                                     {!isEnrolled && (
                                         <button
-                                            onClick={handleEnroll}
+                                            onClick={onEnrollClick}
                                             className="px-5 py-2 rounded-full bg-gradient-to-r from-brand-primary to-brand-secondary text-white font-semibold text-sm hover:scale-105 transition-transform shadow-lg shadow-brand-primary/20"
                                         >
                                             Enroll Now
@@ -323,7 +303,7 @@ const CoursePreview: React.FC<CoursePreviewProps> = ({ course, onLoginClick, onB
                             <p className="text-lg text-slate-600 dark:text-slate-300 leading-relaxed">
                                 {course.headline || course.subtitle || course.description.slice(0, 150) + '...'}
                             </p>
-                            
+
                             <div className="flex flex-wrap items-center gap-4 mt-4 text-sm font-medium">
                                 <div className="flex items-center gap-1 bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 px-3 py-1 rounded-full">
                                     <Icon name="star-filled" className="w-4 h-4" />
@@ -412,9 +392,9 @@ const CoursePreview: React.FC<CoursePreviewProps> = ({ course, onLoginClick, onB
                             {activeTab === 'instructor' && (
                                 <div className="animate-fade-in">
                                     <div className="bg-white/60 dark:bg-slate-800/60 rounded-3xl p-8 border border-slate-200/60 dark:border-slate-700/50 backdrop-blur-sm flex flex-col sm:flex-row gap-6 items-start">
-                                        <img 
-                                            src={course.author.avatar} 
-                                            alt={course.author.name} 
+                                        <img
+                                            src={course.author.avatar}
+                                            alt={course.author.name}
                                             className="w-24 h-24 rounded-full object-cover border-4 border-white dark:border-slate-700 shadow-lg"
                                         />
                                         <div className="flex-1 space-y-3">
@@ -475,24 +455,35 @@ const CoursePreview: React.FC<CoursePreviewProps> = ({ course, onLoginClick, onB
 
                                     <div className="flex flex-col gap-3">
                                         <button
-                                            onClick={handleEnroll}
-                                            className="w-full py-4 rounded-xl bg-gradient-to-r from-brand-primary to-brand-secondary text-white font-bold text-lg shadow-lg shadow-brand-primary/30 hover:shadow-brand-primary/50 hover:scale-[1.02] active:scale-[0.98] transition-all flex justify-center items-center gap-2 group"
+                                            onClick={onEnrollClick}
+                                            disabled={isLoading}
+                                            className={`
+                                                w-full py-4 rounded-xl font-bold text-lg shadow-xl shadow-brand-primary/25 transition-all active:scale-95
+                                                ${isLoading ? 'bg-slate-400 cursor-not-allowed' : 'bg-gradient-to-r from-brand-primary via-brand-secondary to-brand-primary hover:shadow-brand-primary/40'}
+                                                text-white
+                                            `}
                                         >
-                                            {user ? 'Enroll Now' : 'Join to Enroll'}
-                                            <Icon name="arrowRight" className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                                            {isLoading ? (
+                                                <div className="flex items-center justify-center gap-2">
+                                                    <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                                                    <span>Processing...</span>
+                                                </div>
+                                            ) : (
+                                                'Enroll Now'
+                                            )}
                                         </button>
-                                        
                                         <div className="grid grid-cols-5 gap-3">
-                                            <button 
+                                            <button
                                                 onClick={handleWishlist}
-                                                className={`col-span-4 py-3 rounded-xl border font-semibold transition-all flex items-center justify-center gap-2 ${isWishlisted 
-                                                    ? 'border-red-200 bg-red-50 text-red-500 dark:bg-red-900/20 dark:border-red-800' 
-                                                    : 'border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200'}`}
+                                                className={`col-span-4 py-3 rounded-xl border font-semibold transition-all flex items-center justify-center gap-2 ${isWishlisted
+                                                        ? 'border-red-200 bg-red-50 text-red-500 dark:bg-red-900/20 dark:border-red-800'
+                                                        : 'border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200'
+                                                    }`}
                                             >
                                                 <Icon name={isWishlisted ? 'heart-filled' : 'heart'} className={`w-5 h-5 ${isWishlisted ? 'animate-scale-in' : ''}`} />
                                                 {isWishlisted ? 'Wishlisted' : 'Add to Wishlist'}
                                             </button>
-                                            <button 
+                                            <button
                                                 onClick={handleShare}
                                                 className="col-span-1 flex items-center justify-center rounded-xl border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors text-slate-600 dark:text-slate-300"
                                             >
@@ -503,7 +494,7 @@ const CoursePreview: React.FC<CoursePreviewProps> = ({ course, onLoginClick, onB
                                         {/* Coupon Code Section */}
                                         <div className="pt-2">
                                             {!showCouponInput ? (
-                                                <button 
+                                                <button
                                                     onClick={() => setShowCouponInput(true)}
                                                     className="w-full py-2.5 border-2 border-dashed border-slate-300 dark:border-slate-600 rounded-xl text-slate-500 dark:text-slate-400 text-sm font-semibold hover:border-brand-primary hover:text-brand-primary dark:hover:border-brand-primary dark:hover:text-brand-primary transition-all duration-300 flex justify-center items-center gap-2 group"
                                                 >
@@ -513,8 +504,8 @@ const CoursePreview: React.FC<CoursePreviewProps> = ({ course, onLoginClick, onB
                                             ) : (
                                                 <div className="flex items-center gap-2 animate-fade-in">
                                                     <div className="relative flex-1">
-                                                        <input 
-                                                            type="text" 
+                                                        <input
+                                                            type="text"
                                                             value={couponCode}
                                                             onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
                                                             placeholder="Enter code"
@@ -523,14 +514,14 @@ const CoursePreview: React.FC<CoursePreviewProps> = ({ course, onLoginClick, onB
                                                         />
                                                         <Icon name="ticket" className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
                                                     </div>
-                                                    <button 
+                                                    <button
                                                         onClick={handleApplyCoupon}
                                                         className="p-2.5 bg-brand-primary text-white rounded-xl shadow-lg hover:shadow-brand-primary/30 hover:scale-105 active:scale-95 transition-all disabled:opacity-50 disabled:hover:scale-100"
                                                         disabled={!couponCode.trim()}
                                                     >
                                                         <Icon name="check" className="w-4 h-4" />
                                                     </button>
-                                                    <button 
+                                                    <button
                                                         onClick={() => setShowCouponInput(false)}
                                                         className="p-2.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors"
                                                     >

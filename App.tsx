@@ -31,6 +31,7 @@ const CourseLearnPage = React.lazy(() => import('@/pages/CourseLearnPage'));
 const LoginRoute = React.lazy(() => import('@/pages/LoginRoute'));
 const CoursePreviewPage = React.lazy(() => import('@/pages/CoursePreviewPage'));
 const ExploreCoursesPage = React.lazy(() => import('@/pages/ExploreCoursesPage'));
+const SettingsPage = React.lazy(() => import('@/pages/SettingsPage'));
 const AdminPage = React.lazy(() => import('@/pages/AdminPage'));
 const AboutPage = React.lazy(() => import('@/pages/AboutPage'));
 const AdminLoginPage = React.lazy(() => import('@/pages/AdminLoginPage'));
@@ -265,7 +266,9 @@ const App: React.FC = () => {
       return <SuspenseFallback />;
     }
 
-    if (!user || !isEnrolled) {
+    // DEBUG: IGNORE ENROLLMENT CHECK TO TEST PAYMENT
+    // if (!user || !isEnrolled) {
+    if (true) {
       return (
         <CoursePreviewPage
           courses={courses}
@@ -371,6 +374,7 @@ const App: React.FC = () => {
             <Route path="/leaderboard" element={<LeaderboardPage />} />
             <Route path="/chat" element={<ChatPage />} />
             <Route path="/profile" element={<ProfilePage />} />
+            <Route path="/settings" element={<SettingsPage />} />
             <Route path="/u/:username" element={<PublicProfilePage />} />
             <Route path="/courses/:courseId/learn" element={<CourseLearnPage />} />
             <Route

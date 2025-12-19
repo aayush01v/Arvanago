@@ -34,7 +34,7 @@ const CourseCardComponent: React.FC<CourseCardProps> = ({
   isEnrolled = false,
 }) => {
   const coverImage = course.thumbnailUrl ?? course.thumbnail;
-  const isPaid = course.isPaid ?? !course.isFree;
+  const isPaid = course.isPaid || (typeof course.price === 'number' && course.price > 0);
   const wishlisted = isWishlisted;
 
   const handleWishlistClick = (event: React.MouseEvent) => {
@@ -50,18 +50,18 @@ const CourseCardComponent: React.FC<CourseCardProps> = ({
       return 'Premium';
     }
 
-    const currency = course.currency ?? 'USD';
+    const currency = 'INR';
 
     try {
-      return new Intl.NumberFormat('en-US', {
+      return new Intl.NumberFormat('en-IN', {
         style: 'currency',
         currency,
         currencyDisplay: 'symbol',
-        maximumFractionDigits: 2,
+        maximumFractionDigits: 0,
       }).format(course.price);
     } catch (error) {
       console.warn('Unable to format course price', error);
-      return `${course.currency ?? '$'}${course.price}`;
+      return `₹${course.price}`;
     }
   })();
 

@@ -79,18 +79,18 @@ const formatCurrency = (price?: number, currency?: string): string | null => {
     return null;
   }
 
-  const currencyCode = currency ?? 'USD';
+  const currencyCode = 'INR';
 
   try {
-    return new Intl.NumberFormat('en-US', {
+    return new Intl.NumberFormat('en-IN', {
       style: 'currency',
       currency: currencyCode,
       currencyDisplay: 'symbol',
-      maximumFractionDigits: 2,
+      maximumFractionDigits: 0,
     }).format(price);
   } catch (error) {
     console.warn('Unable to format currency value', error);
-    return `${currency ?? '$'}${price}`;
+    return `₹${price}`;
   }
 };
 
@@ -146,11 +146,11 @@ const getLectureSections = (course: Course) =>
   course.sections?.length
     ? course.sections
     : [
-        {
-          title: 'Course curriculum',
-          lectures: course.lectures,
-        },
-      ];
+      {
+        title: 'Course curriculum',
+        lectures: course.lectures,
+      },
+    ];
 
 const CourseMetaItem: React.FC<{ icon: string; label: string }> = ({ icon, label }) => (
   <span className="inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1 text-sm font-medium text-white/80">
@@ -209,7 +209,7 @@ const CourseContentSection: React.FC<{
           <Icon name={isOpen ? 'chevronUp' : 'chevronDown'} className="h-4 w-4" />
         </span>
       </button>
-      <div className={`${isOpen ? 'max-h-[999px] opacity-100' : 'max-h-0 opacity-0'} space-y-2 px-5 pb-5 transition-all duration-500 ease-in-out`}> 
+      <div className={`${isOpen ? 'max-h-[999px] opacity-100' : 'max-h-0 opacity-0'} space-y-2 px-5 pb-5 transition-all duration-500 ease-in-out`}>
         {lectures.map((lecture, index) => (
           <button
             key={lecture.id}
@@ -344,9 +344,8 @@ const CourseDetail: React.FC<CourseDetailProps> = ({ course, navigateToLecture, 
       ? Math.max(0, Math.round(100 - (course.price / course.originalPrice) * 100))
       : null;
 
-  const courseSummary = `${lectureSections.length} section${lectureSections.length === 1 ? '' : 's'} • ${totalLectures} lecture${
-    totalLectures === 1 ? '' : 's'
-  } • ${computedDuration || 'Self-paced'} total length`;
+  const courseSummary = `${lectureSections.length} section${lectureSections.length === 1 ? '' : 's'} • ${totalLectures} lecture${totalLectures === 1 ? '' : 's'
+    } • ${computedDuration || 'Self-paced'} total length`;
 
   const suggestedCourses = course.suggestedCourseDetails ?? [];
 
@@ -449,11 +448,10 @@ const CourseDetail: React.FC<CourseDetailProps> = ({ course, navigateToLecture, 
                   type="button"
                   disabled={!primaryLecture}
                   onClick={handleStartLearning}
-                  className={`inline-flex items-center justify-center gap-2 rounded-2xl px-5 py-3 text-sm font-semibold text-white shadow-lg shadow-brand-primary/40 transition-all duration-300 ${
-                    primaryLecture
-                      ? 'bg-gradient-to-r from-brand-primary via-brand-secondary to-brand-primary hover:-translate-y-0.5 hover:shadow-brand-primary/60'
-                      : 'cursor-not-allowed bg-white/20 text-white/60 shadow-none'
-                  }`}
+                  className={`inline-flex items-center justify-center gap-2 rounded-2xl px-5 py-3 text-sm font-semibold text-white shadow-lg shadow-brand-primary/40 transition-all duration-300 ${primaryLecture
+                    ? 'bg-gradient-to-r from-brand-primary via-brand-secondary to-brand-primary hover:-translate-y-0.5 hover:shadow-brand-primary/60'
+                    : 'cursor-not-allowed bg-white/20 text-white/60 shadow-none'
+                    }`}
                 >
                   <Icon name="play" className="h-5 w-5" /> Start learning
                 </button>
@@ -616,26 +614,26 @@ const CourseDetail: React.FC<CourseDetailProps> = ({ course, navigateToLecture, 
                 {(course.faqs?.length
                   ? course.faqs
                   : [
-                      {
-                        question: 'How long do I have access to the course?',
-                        answer: 'Enjoy lifetime access and revisit lessons whenever you need a refresher.',
-                      },
-                      {
-                        question: 'Is the course beginner-friendly?',
-                        answer: 'Yes! We start with the basics and layer in advanced workflows step by step.',
-                      },
-                    ]).map((faq) => (
-                  <details
-                    key={faq.question}
-                    className="group rounded-2xl border border-slate-200/70 bg-white/90 p-4 transition-colors duration-300 open:border-brand-primary/40 open:shadow-lg dark:border-white/10 dark:bg-white/5"
-                  >
-                    <summary className="flex cursor-pointer items-center justify-between gap-3 text-base font-semibold text-slate-900 transition-colors duration-300 marker:hidden group-open:text-brand-primary dark:text-white">
-                      {faq.question}
-                      <Icon name="chevronDown" className="h-4 w-4 transition-transform duration-300 group-open:rotate-180" />
-                    </summary>
-                    <p className="mt-3 text-sm text-slate-600 dark:text-slate-300">{faq.answer}</p>
-                  </details>
-                ))}
+                    {
+                      question: 'How long do I have access to the course?',
+                      answer: 'Enjoy lifetime access and revisit lessons whenever you need a refresher.',
+                    },
+                    {
+                      question: 'Is the course beginner-friendly?',
+                      answer: 'Yes! We start with the basics and layer in advanced workflows step by step.',
+                    },
+                  ]).map((faq) => (
+                    <details
+                      key={faq.question}
+                      className="group rounded-2xl border border-slate-200/70 bg-white/90 p-4 transition-colors duration-300 open:border-brand-primary/40 open:shadow-lg dark:border-white/10 dark:bg-white/5"
+                    >
+                      <summary className="flex cursor-pointer items-center justify-between gap-3 text-base font-semibold text-slate-900 transition-colors duration-300 marker:hidden group-open:text-brand-primary dark:text-white">
+                        {faq.question}
+                        <Icon name="chevronDown" className="h-4 w-4 transition-transform duration-300 group-open:rotate-180" />
+                      </summary>
+                      <p className="mt-3 text-sm text-slate-600 dark:text-slate-300">{faq.answer}</p>
+                    </details>
+                  ))}
               </div>
             </InfoCard>
           </div>

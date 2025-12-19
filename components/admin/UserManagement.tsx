@@ -120,10 +120,13 @@ const UserManagement: React.FC = () => {
         }
     };
 
+    const [showDeletionRequests, setShowDeletionRequests] = useState(false);
+
     const filteredUsers = users.filter(user =>
         (user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
             user.email?.toLowerCase().includes(searchTerm.toLowerCase())) &&
-        !user.isDeleted // FILTER OUT DELETED USERS
+        !user.isDeleted && // FILTER OUT DELETED USERS
+        (!showDeletionRequests || user.deletionRequested)
     );
 
     if (loading) {
@@ -147,8 +150,17 @@ const UserManagement: React.FC = () => {
                         className="w-full bg-black/20 border border-white/10 rounded-lg py-2 pl-10 pr-4 text-sm text-white focus:outline-none focus:border-blue-500/50"
                     />
                 </div>
-                <div className="text-sm text-slate-400">
-                    Total Users: <span className="text-white font-bold">{users.length}</span>
+                <div className="text-sm text-slate-400 flex items-center gap-4">
+                    <label className="flex items-center gap-2 cursor-pointer">
+                        <input
+                            type="checkbox"
+                            checked={showDeletionRequests}
+                            onChange={(e) => setShowDeletionRequests(e.target.checked)}
+                            className="form-checkbox rounded bg-slate-700 border-slate-600 text-red-500 focus:ring-red-500"
+                        />
+                        <span className={showDeletionRequests ? "text-red-400 font-medium" : "text-slate-400"}>Show Deletion Requests</span>
+                    </label>
+                    <span>Total Users: <span className="text-white font-bold">{users.length}</span></span>
                 </div>
             </div>
 
@@ -168,18 +180,26 @@ const UserManagement: React.FC = () => {
                             <tr key={user.uid} className={`hover:bg-white/5 transition-colors ${user.isDisabled ? 'opacity-50 grayscale' : ''}`}>
                                 <td className="px-6 py-4">
                                     <div className="flex items-center gap-3">
-                                        <img
-                                            src={user.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name)}&background=random`}
-                                            alt=""
-                                            onError={(e) => {
-                                                const target = e.target as HTMLImageElement;
-                                                target.onerror = null; // Prevent infinite loop
-                                                target.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name)}&background=random`;
-                                            }}
-                                            className="w-10 h-10 rounded-full bg-slate-700 object-cover"
-                                        />
+                                        <div className="relative">
+                                            <img
+                                                src={user.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name)}&background=random`}
+                                                alt=""
+                                                onError={(e) => {
+                                                    const target = e.target as HTMLImageElement;
+                                                    target.onerror = null; // Prevent infinite loop
+                                                    target.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name)}&background=random`;
+                                                }}
+                                                className={`w-10 h-10 rounded-full bg-slate-700 object-cover ${user.deletionRequested ? 'ring-2 ring-red-500' : ''}`}
+                                            />
+                                            {user.deletionRequested && (
+                                                <div className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full border-2 border-[#1e293b]" title="Requested Deletion"></div>
+                                            )}
+                                        </div>
                                         <div>
-                                            <div className="font-medium text-white">{user.name}</div>
+                                            <div className="font-medium text-white flex items-center gap-2">
+                                                {user.name}
+                                                {user.deletionRequested && <span className="text-[10px] bg-red-500/20 text-red-400 px-1.5 py-0.5 rounded uppercase tracking-wider font-bold">Deletion Req</span>}
+                                            </div>
                                             <div className="text-xs text-slate-500">{user.email}</div>
                                         </div>
                                     </div>

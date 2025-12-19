@@ -33,6 +33,9 @@ const defaultAuthor: User = {
   pendingTasks: [],
   bio: 'Instructor profiles will appear here once connected to Firestore.',
   coursesAuthored: 3,
+  followers: 120,
+  following: 15,
+  postsCount: 5,
 };
 
 const FALLBACK_COURSE_SEEDS: ReadonlyArray<Course> = [
@@ -409,6 +412,19 @@ const FALLBACK_COURSE_SEEDS: ReadonlyArray<Course> = [
     rating: 4.9,
     studentCount: 3420,
     isPublished: true,
+    author: {
+      ...defaultAuthor,
+      uid: 'mentor-angela',
+      name: 'Angela Yu',
+      avatar: 'https://i.pravatar.cc/150?u=mentor-angela',
+      bio: 'Lead Instructor',
+    },
+    tags: ['Web Development', 'Full Stack', 'MERN'],
+    lectures: [], // Populated from sections if needed, but required by type
+    isPaid: true,
+    isFree: false,
+    price: 4999,
+    currency: 'INR',
     resources: [
       {
         id: "r_wd_1",
@@ -427,7 +443,6 @@ const FALLBACK_COURSE_SEEDS: ReadonlyArray<Course> = [
     ],
     sections: [
       {
-        id: "wd_ph1",
         title: "Phase 1: Beginner – Core Frontend",
         lectures: [
           {
@@ -459,7 +474,6 @@ const FALLBACK_COURSE_SEEDS: ReadonlyArray<Course> = [
         ],
       },
       {
-        id: "wd_ph2",
         title: "Phase 2: Intermediate – Dynamic Frontend (React)",
         lectures: [
           {
@@ -481,7 +495,6 @@ const FALLBACK_COURSE_SEEDS: ReadonlyArray<Course> = [
         ],
       },
       {
-        id: "wd_ph3",
         title: "Phase 3: Advanced – Backend and Full-Stack",
         lectures: [
           {
@@ -1442,6 +1455,14 @@ export const updateUserThemePreference = async (uid: string, theme: 'light' | 'd
 export const updateUserProfile = async (uid: string, updates: Partial<User>): Promise<void> => {
   const userRef = db.collection('users').doc(uid);
   await userRef.update(updates);
+};
+
+export const requestAccountDeletion = async (uid: string): Promise<void> => {
+  const userRef = db.collection('users').doc(uid);
+  await userRef.update({
+    deletionRequested: true,
+    deletionRequestedAt: firebase.firestore.FieldValue.serverTimestamp()
+  });
 };
 
 // --- Follow System ---

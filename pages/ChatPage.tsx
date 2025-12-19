@@ -5,12 +5,13 @@ import SidebarLayout from '@/components/SidebarLayout';
 import { chatService, Chat, ChatMessage } from '../services/chatService';
 import { auth } from '../services/firebase';
 import { User } from '../types';
-import { useOutletContext, useLocation } from 'react-router-dom';
+import { useOutletContext, useLocation, useNavigate } from 'react-router-dom';
 
 const ChatPage: React.FC = () => {
     // Context from SidebarLayout (User)
     const { user: currentUser } = useOutletContext<{ user: User }>();
     const location = useLocation();
+    const navigate = useNavigate();
 
     const [chats, setChats] = useState<Chat[]>([]);
     const [messages, setMessages] = useState<ChatMessage[]>([]);
@@ -253,12 +254,17 @@ const ChatPage: React.FC = () => {
                                     <Icon name="arrowLeft" className="w-5 h-5" />
                                 </button>
 
-                                <div className="relative">
-                                    <img src={activeChatUser?.avatar || 'https://i.pravatar.cc/150'} className="w-8 h-8 md:w-10 md:h-10 rounded-full object-cover shadow-sm" />
-                                </div>
-                                <div>
-                                    <h3 className="font-bold text-base md:text-lg leading-tight">{activeChatUser?.name || 'User'}</h3>
-                                    <span className="text-[10px] md:text-xs text-brand-primary font-medium">@{activeChatUser?.username || 'user'}</span>
+                                <div
+                                    className="flex items-center gap-3 md:gap-4 cursor-pointer hover:opacity-80 transition-opacity"
+                                    onClick={() => activeChatUser?.username && navigate(`/u/${activeChatUser.username}`)}
+                                >
+                                    <div className="relative">
+                                        <img src={activeChatUser?.avatar || 'https://i.pravatar.cc/150'} alt={activeChatUser?.name || 'User'} className="w-8 h-8 md:w-10 md:h-10 rounded-full object-cover shadow-sm text-slate-400" />
+                                    </div>
+                                    <div>
+                                        <h3 className="font-bold text-base md:text-lg leading-tight">{activeChatUser?.name || 'User'}</h3>
+                                        <span className="text-[10px] md:text-xs text-brand-primary font-medium">@{activeChatUser?.username || 'user'}</span>
+                                    </div>
                                 </div>
                             </div>
                         </div>
