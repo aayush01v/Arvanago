@@ -132,16 +132,16 @@ const StudentAnalytics: React.FC<StudentAnalyticsProps> = ({ user, courses }) =>
     };
 
     return (
-        <div ref={chartRef} className="grid grid-cols-1 lg:grid-cols-2 gap-6 scroll-animate">
+        <div ref={chartRef} className="grid grid-cols-1 xl:grid-cols-2 gap-6 scroll-animate">
 
             {/* Activity Chart */}
             <div className="bg-white/60 dark:bg-slate-900/60 backdrop-blur-md border border-white/50 dark:border-white/10 rounded-3xl p-6 shadow-xl">
-                <div className="flex items-center justify-between mb-6">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-6 gap-4">
                     <div>
                         <h3 className="text-xl font-bold text-slate-900 dark:text-white">Learning Activity</h3>
                         <p className="text-sm text-slate-500 dark:text-slate-400">Hours spent this week</p>
                     </div>
-                    <div className="px-3 py-1 rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 text-xs font-bold font-mono">
+                    <div className="px-3 py-1 rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 text-xs font-bold font-mono whitespace-nowrap self-start sm:self-auto">
                         +12% vs last week
                     </div>
                 </div>
@@ -152,12 +152,12 @@ const StudentAnalytics: React.FC<StudentAnalyticsProps> = ({ user, courses }) =>
 
             {/* Skills Radar */}
             <div className="bg-white/60 dark:bg-slate-900/60 backdrop-blur-md border border-white/50 dark:border-white/10 rounded-3xl p-6 shadow-xl">
-                <div className="flex items-center justify-between mb-6">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-6 gap-4">
                     <div>
                         <h3 className="text-xl font-bold text-slate-900 dark:text-white">Skill Proficiency</h3>
                         <p className="text-sm text-slate-500 dark:text-slate-400">Based on course completion</p>
                     </div>
-                    <div className="px-3 py-1 rounded-full bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400 text-xs font-bold font-mono">
+                    <div className="px-3 py-1 rounded-full bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400 text-xs font-bold font-mono whitespace-nowrap self-start sm:self-auto">
                         Level {user.level} Scholar
                     </div>
                 </div>

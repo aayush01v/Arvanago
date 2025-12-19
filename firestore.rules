@@ -2,26 +2,95 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
     
-    // User Profiles:
-    // - Any authenticated user can read profiles (for search/chat).
-    // - Users can only write their own profile.
+    // --- HELPERS ---
+    function isAuthenticated() { return request.auth != null; }
+    function isOwner(userId) { return request.auth.uid == userId; }
+    function isAdmin() { return isAuthenticated() && exists(/databases/$(database)/documents/admins/$(request.auth.uid)); }
+
+    // 1. USERS
     match /users/{userId} {
-      allow read: if request.auth != null;
-      allow write: if request.auth != null && request.auth.uid == userId;
+      allow read: if isAuthenticated();
+      allow create: if isOwner(userId);
+      // Allow update:
+      // 1. Own profile (except role)
+      // 2. Admin
+      // 3. ANY logged in user can update 'followers' count (needed for Follow feature)
+      allow update: if 
+        (isOwner(userId) && request.resource.data.role == resource.data.role) || 
+        isAdmin() ||
+        (isAuthenticated() && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['followers']));
+      allow delete: if isAdmin();
+
+      // Follow System Subcollections (Nested)
+      match /following/{followingId} {
+        allow read: if isAuthenticated();
+        allow write: if isOwner(userId);
+      }
+      match /followers/{followerId} {
+        allow read: if isAuthenticated();
+        // Allow write if the authenticated user is adding specifically THEMSELVES as a follower.
+        allow write: if isAuthenticated() && request.auth.uid == followerId;
+      }
     }
 
-    // Chats:
-    // - Users can create a chat if they are a participant.
-    // - Users can read/update chats where they are a participant.
-    match /chats/{chatId} {
-      allow create: if request.auth != null;
-      allow read, update: if request.auth != null && request.auth.uid in resource.data.participants;
+    // 2. ADMINS
+    match /admins/{adminId} {
+      allow read: if request.auth.uid == adminId || isAdmin();
+      allow write: if isAdmin();
+    }
+
+    // 3. SETTINGS
+    match /settings/{docId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // 4. COURSES (Original Rules Preserved)
+    match /courses/{courseId} {
+      allow read: if true;
+      allow create, update, delete: if isAdmin();
       
-      // Messages Subcollection:
-      // - Users can read/write messages if they are a participant of the parent chat.
-      match /messages/{messageId} {
-        allow read, write: if request.auth != null && request.auth.uid in get(/databases/$(database)/documents/chats/$(chatId)).data.participants;
+      match /lectures/{lectureId} {
+        allow read: if true;
+        allow write: if isAdmin();
       }
+      match /doubts/{doubtId} {
+        allow read: if isAuthenticated();
+        allow create: if isAuthenticated();
+        allow update, delete: if isOwner(resource.data.userId) || isAdmin();
+      }
+    }
+
+    // 5. CHATS
+    match /chats/{chatId} {
+      allow read, write: if isAuthenticated();
+      
+      match /messages/{messageId} {
+         allow read, write: if isAuthenticated();
+      }
+    }
+
+    // 6. POSTS (New Feature)
+    match /posts/{postId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated() && request.resource.data.userId == request.auth.uid;
+      allow update, delete: if isAuthenticated() && resource.data.userId == request.auth.uid;
+    }
+
+    // 7. NOTIFICATIONS
+    match /notifications/{notificationId} {
+      allow read, write: if isAuthenticated() && resource.data.userId == request.auth.uid;
+      allow create: if isAuthenticated();
+    }
+
+    // 8. LEADERBOARD
+     match /leaderboard/{docId} {
+      allow read: if isAuthenticated();
+    }
+    
+    // Default deny
+    match /{document=**} {
+      allow read, write: if false;
     }
   }
 }

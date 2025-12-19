@@ -5,11 +5,12 @@ import SidebarLayout from '@/components/SidebarLayout';
 import { chatService, Chat, ChatMessage } from '../services/chatService';
 import { auth } from '../services/firebase';
 import { User } from '../types';
-import { useOutletContext } from 'react-router-dom';
+import { useOutletContext, useLocation } from 'react-router-dom';
 
 const ChatPage: React.FC = () => {
     // Context from SidebarLayout (User)
     const { user: currentUser } = useOutletContext<{ user: User }>();
+    const location = useLocation();
 
     const [chats, setChats] = useState<Chat[]>([]);
     const [messages, setMessages] = useState<ChatMessage[]>([]);
@@ -42,12 +43,21 @@ const ChatPage: React.FC = () => {
         return () => unsubscribe();
     }, [selectedChatId]);
 
-    // Initial Selection (First Chat)
+    // Initial Selection (First Chat or State)
     useEffect(() => {
-        if (!selectedChatId && chats.length > 0 && !showChatOnMobile && window.innerWidth >= 768) {
+        // Check for navigation state first
+        if (location.state?.chatId) {
+            setSelectedChatId(location.state.chatId);
+            setShowChatOnMobile(true);
+            if (location.state.recipientUser) {
+                setActiveChatUser(location.state.recipientUser);
+            }
+        }
+        // Fallback to first chat if no state and desktop
+        else if (!selectedChatId && chats.length > 0 && !showChatOnMobile && window.innerWidth >= 768) {
             handleChatSelect(chats[0]);
         }
-    }, [chats, selectedChatId]);
+    }, [chats, selectedChatId, location.state]);
 
     // Search Users
     useEffect(() => {
@@ -69,6 +79,11 @@ const ChatPage: React.FC = () => {
         setSelectedChatId(chat.id);
         setShowChatOnMobile(true);
 
+        // Mark as read
+        if (currentUser && chat.unreadCounts?.[currentUser.uid] > 0) {
+            chatService.markChatRead(chat.id, currentUser.uid);
+        }
+
         // Find other participant ID
         const otherId = chat.participants.find(p => p !== currentUser.uid);
         if (otherId) {
@@ -82,6 +97,10 @@ const ChatPage: React.FC = () => {
         const chatId = await chatService.getOrCreateChat(currentUser.uid, otherUser.uid);
         setSearchTerm(''); // Clear search
         setSearchResults([]);
+
+        // Mark as read immediately on creation/selection via search
+        // (Though new chat unread is 0, logic is safe)
+        chatService.markChatRead(chatId, currentUser.uid);
 
         // Optimistic UI updates could go here, but for now wait for subscription
         setSelectedChatId(chatId);
@@ -115,11 +134,13 @@ const ChatPage: React.FC = () => {
 
         if (!otherUser) return <div className="p-4 animate-pulse bg-slate-100 dark:bg-slate-800 rounded-2xl h-20 mb-2"></div>;
 
+        const unreadCount = chat.unreadCounts?.[currentUser.uid] || 0;
+
         return (
             <div
                 onClick={() => handleChatSelect(chat)}
                 className={`
-                    group p-4 rounded-2xl cursor-pointer transition-all border border-transparent
+                    group p-4 rounded-2xl cursor-pointer transition-all border border-transparent relative
                     ${selectedChatId === chat.id
                         ? 'bg-brand-primary/10 border-brand-primary/20 shadow-md'
                         : 'bg-white/40 dark:bg-slate-800/40 hover:bg-white/60 dark:hover:bg-slate-700/60 border-white/40 dark:border-white/5'
@@ -137,11 +158,18 @@ const ChatPage: React.FC = () => {
                                 {otherUser.name}
                             </h4>
                             {/* Time formatting */}
-                            <span className="text-[10px] text-slate-400 font-medium">
-                                {chat.updatedAt?.seconds ? new Date(chat.updatedAt.seconds * 1000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'New'}
-                            </span>
+                            <div className="flex flex-col items-end gap-1">
+                                <span className="text-[10px] text-slate-400 font-medium">
+                                    {chat.updatedAt?.seconds ? new Date(chat.updatedAt.seconds * 1000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'New'}
+                                </span>
+                                {unreadCount > 0 && (
+                                    <span className="flex items-center justify-center min-w-[20px] h-5 px-1.5 bg-brand-primary text-white text-[10px] font-bold rounded-full shadow-sm animate-scale-in">
+                                        {unreadCount > 99 ? '99+' : unreadCount}
+                                    </span>
+                                )}
+                            </div>
                         </div>
-                        <p className="text-xs text-slate-500 dark:text-slate-400 truncate mt-0.5">
+                        <p className={`text-xs truncate mt-0.5 pr-6 ${unreadCount > 0 ? 'font-bold text-slate-800 dark:text-white' : 'text-slate-500 dark:text-slate-400'}`}>
                             {chat.lastMessage?.text || 'Start a conversation'}
                         </p>
                     </div>

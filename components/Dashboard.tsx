@@ -15,24 +15,21 @@ interface StatCardProps {
   icon: string;
   value: string;
   label: string;
-  color: string;
-  delay?: number;
+  trend?: string;
 }
 
-const StatCardComponent: React.FC<StatCardProps> = ({ icon, value, label, color, delay = 0 }) => {
-  const ref = useScrollAnimation();
+const StatCardComponent: React.FC<StatCardProps> = ({ icon, value, label, trend }) => {
   return (
-    <div
-      ref={ref}
-      className="interactive-card bg-white/40 dark:bg-slate-800/40 backdrop-blur-sm rounded-2xl p-6 flex items-center shadow-lg dark:shadow-dark-glow border border-white/50 dark:border-white/10 transition-all duration-300 hover:border-brand-primary/30 scroll-animate will-change-transform group"
-      style={{ transitionDelay: `${delay}ms` }}
-    >
-      <div className={`p-4 rounded-full mr-5 ${color} bg-opacity-10 group-hover:scale-110 transition-transform duration-300`}>
-        <Icon name={icon} className={`w-7 h-7 text-${color.replace('bg-', '')}`} />
+    <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-6 shadow-sm transition-all hover:shadow-md">
+      <div className="flex items-center justify-between mb-4">
+        <div className="p-2.5 rounded-lg bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-400">
+          <Icon name={icon} className="w-5 h-5" />
+        </div>
+        {trend && <span className="text-xs font-medium text-green-600 bg-green-50 px-2 py-1 rounded-full dark:bg-green-900/20 dark:text-green-400">{trend}</span>}
       </div>
       <div>
-        <p className="text-3xl font-bold text-slate-800 dark:text-white drop-shadow-sm">{value}</p>
-        <p className="text-sm font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">{label}</p>
+        <p className="text-2xl font-bold text-slate-900 dark:text-white tracking-tight">{value}</p>
+        <p className="text-sm font-medium text-slate-500 dark:text-slate-400 mt-1">{label}</p>
       </div>
     </div>
   );
@@ -46,50 +43,47 @@ interface DashboardCourseCardProps {
 }
 
 const DashboardCourseCardComponent: React.FC<DashboardCourseCardProps> = ({ course, navigateToCourse }) => {
-  const ref = useScrollAnimation();
   return (
-    <div
-      ref={ref}
-      className="interactive-card group relative flex flex-col rounded-3xl bg-white/60 dark:bg-slate-900/60 backdrop-blur-md border border-white/40 dark:border-white/10 shadow-xl overflow-hidden scroll-animate will-change-transform hover:shadow-2xl hover:shadow-brand-primary/10"
-    >
-      <div className="relative h-48 overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent z-10 opacity-60 group-hover:opacity-40 transition-opacity" />
-        <img
-          src={course.thumbnailUrl ?? course.thumbnail}
-          alt={course.title}
-          className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-        />
-        <div className="absolute bottom-4 left-4 z-20">
-          <span className="inline-block px-3 py-1 rounded-full bg-black/60 backdrop-blur-md border border-white/10 text-xs font-semibold text-white mb-2">
-            {course.category}
-          </span>
-        </div>
-      </div>
-
-      <div className="p-6 flex flex-col flex-grow relative">
-        <h3 className="font-bold text-xl text-slate-900 dark:text-white mb-2 line-clamp-1">{course.title}</h3>
-
-        <div className="mt-auto space-y-4">
-          <div>
-            <div className="flex justify-between items-center mb-2">
-              <span className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide">Progress</span>
-              <span className="text-xs font-bold text-brand-primary drop-shadow-sm">{course.progress}%</span>
-            </div>
-            <div className="w-full bg-slate-200 dark:bg-slate-700/50 rounded-full h-2 overflow-hidden">
-              <div
-                className="bg-gradient-to-r from-brand-primary to-brand-secondary h-full rounded-full shadow-[0_0_10px_rgba(56,189,248,0.5)]"
-                style={{ width: `${course.progress}%` }}
-              />
-            </div>
+    <div className="group bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 overflow-hidden shadow-sm hover:shadow-md hover:border-brand-primary/20 transition-all duration-300">
+      <div className="flex flex-col h-full">
+        <div className="relative h-40 overflow-hidden">
+          <img
+            src={course.thumbnailUrl ?? course.thumbnail}
+            alt={course.title}
+            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+          />
+          <div className="absolute top-3 left-3">
+            <span className="px-2.5 py-1 rounded-md bg-white/90 dark:bg-slate-900/90 backdrop-blur text-xs font-semibold text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 shadow-sm">
+              {course.category}
+            </span>
           </div>
+        </div>
 
-          <button
-            onClick={() => navigateToCourse(course)}
-            className="w-full py-3 rounded-xl bg-brand-primary/10 hover:bg-brand-primary/20 text-brand-primary dark:text-brand-light font-bold border border-brand-primary/20 transition-all active:scale-95 flex items-center justify-center gap-2"
-          >
-            <Icon name="play" className="w-4 h-4" />
-            Continue Learning
-          </button>
+        <div className="p-5 flex flex-col flex-grow">
+          <h3 className="font-semibold text-lg text-slate-900 dark:text-white mb-2 line-clamp-1">{course.title}</h3>
+
+          <div className="mt-auto pt-4 space-y-4">
+            <div>
+              <div className="flex justify-between text-xs font-medium text-slate-500 dark:text-slate-400 mb-1.5">
+                <span>Progress</span>
+                <span>{course.progress}%</span>
+              </div>
+              <div className="w-full bg-slate-100 dark:bg-slate-800 rounded-full h-1.5 overflow-hidden">
+                <div
+                  className="bg-brand-primary h-full rounded-full transition-all duration-500"
+                  style={{ width: `${course.progress}%` }}
+                />
+              </div>
+            </div>
+
+            <button
+              onClick={() => navigateToCourse(course)}
+              className="w-full py-2.5 px-4 rounded-lg bg-slate-900 dark:bg-white text-white dark:text-slate-900 text-sm font-medium hover:bg-slate-800 dark:hover:bg-slate-100 transition-colors flex items-center justify-center gap-2"
+            >
+              <span>Continue</span>
+              <Icon name="arrowRight" className="w-4 h-4" />
+            </button>
+          </div>
         </div>
       </div>
     </div>
@@ -104,21 +98,18 @@ interface CategoryCardProps {
 }
 
 const CategoryCardComponent: React.FC<CategoryCardProps> = ({ category, navigateToFilteredCourses }) => {
-  const ref = useScrollAnimation();
+  // Parsing color to use standard borders instead of bg opacity
+  const activeColorClass = category.color.replace('bg-', 'text-');
+
   return (
     <button
-      ref={ref}
       onClick={() => navigateToFilteredCourses(category.name)}
-      className="scroll-animate group flex flex-col items-center justify-center p-6 rounded-3xl bg-white/40 dark:bg-slate-800/40 backdrop-blur-sm border border-white/50 dark:border-white/10 shadow-lg hover:shadow-xl hover:border-brand-primary/30 hover:-translate-y-1 transition-all duration-300"
+      className="flex items-center gap-3 p-4 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:border-brand-primary/30 hover:shadow-md transition-all text-left group"
     >
-      <div className={`
-        p-4 rounded-2xl mb-4 transition-all duration-300
-        ${category.color} bg-opacity-10 dark:bg-opacity-20 
-        group-hover:scale-110 group-hover:bg-opacity-20 dark:group-hover:bg-opacity-30
-      `}>
-        <Icon name={category.icon} className={`w-8 h-8 text-${category.color.replace('bg-', '')}-600 dark:text-${category.color.replace('bg-', '')}-400`} />
+      <div className={`p-2 rounded-lg bg-slate-50 dark:bg-slate-800 text-slate-500 group-hover:${activeColorClass}-600 transition-colors`}>
+        <Icon name={category.icon} className="w-6 h-6" />
       </div>
-      <span className="font-bold text-sm text-slate-700 dark:text-slate-200 group-hover:text-slate-900 dark:group-hover:text-white transition-colors">
+      <span className="font-medium text-sm text-slate-700 dark:text-slate-200 group-hover:text-slate-900 dark:group-hover:text-white">
         {category.name}
       </span>
     </button>
@@ -137,10 +128,6 @@ const CATEGORY_DETAILS = [
 ] as const;
 
 const Dashboard: React.FC<DashboardProps> = ({ user, courses, navigateToFilteredCourses, navigateToCourse }) => {
-  const welcomeRef = useScrollAnimation();
-  const continueLearningRef = useScrollAnimation();
-  const exploreRef = useScrollAnimation();
-
   const ongoingCourses = useMemo(() =>
     user.ongoingCourses
       .map(courseId => courses.find(c => c.id === courseId))
@@ -148,75 +135,68 @@ const Dashboard: React.FC<DashboardProps> = ({ user, courses, navigateToFiltered
     [user.ongoingCourses, courses]
   );
 
+  const currentDate = new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
+
   return (
-    <div className="p-4 sm:p-6 lg:p-8 animate-fade-in space-y-12">
-      {/* Header */}
-      <div ref={welcomeRef} className="scroll-animate relative">
-        {/* Optimized glow using radial gradient instead of heavy blur filter */}
-        <div
-          className="absolute -top-20 -left-20 w-64 h-64 rounded-full pointer-events-none opacity-40"
-          style={{ background: 'radial-gradient(circle, rgba(124, 58, 237, 0.4) 0%, transparent 70%)' }}
-        />
-        <h1 className="relative text-3xl md:text-5xl font-black text-slate-900 dark:text-white tracking-tight">
-          Welcome back, <br className="hidden sm:block" />
-          <span className="bg-gradient-to-r from-brand-primary to-brand-secondary bg-clip-text text-transparent drop-shadow-sm">
-            {user.name.split(' ')[0]}
-          </span>
-          <span className="text-3xl md:text-5xl ml-2">👋</span>
-        </h1>
-        <p className="mt-3 text-lg text-slate-600 dark:text-slate-300 font-medium max-w-xl">
-          Your learning streak is on fire! Let's keep the momentum going.
-        </p>
-      </div>
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8 animate-fade-in">
 
-      {/* Stats */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
-        <StatCard icon="star" value={user.points.toLocaleString()} label="Points Earned" color="bg-yellow-400" />
-        <StatCard icon="zap" value={`${user.streak} Days`} label="Learning Streak" color="bg-amber-500" delay={100} />
-        <StatCard icon="check" value="8" label="Courses Completed" color="bg-green-500" delay={200} />
-      </div>
-
-      {/* Analytics Section */}
-      <StudentAnalytics user={user} courses={courses} />
-
-      {/* Ongoing Courses */}
-      <section ref={continueLearningRef} className="scroll-animate space-y-6">
-        <div className="flex items-center justify-between">
-          <h2 className="text-2xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
-            <Icon name="play" className="w-6 h-6 text-brand-primary" />
-            Continue Learning
-          </h2>
+      {/* Header Section */}
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
+        <div>
+          <h2 className="text-2xl font-bold text-slate-900 dark:text-white tracking-tight">Overview</h2>
+          <p className="text-slate-500 dark:text-slate-400 mt-1">
+            Welcome back, {user.name.split(' ')[0]}. Here's what's happening today.
+          </p>
         </div>
+        <div className="text-sm font-medium text-slate-500 dark:text-slate-400 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 px-4 py-2 rounded-lg shadow-sm">
+          {currentDate}
+        </div>
+      </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
-          {ongoingCourses.length > 0 ? (
-            ongoingCourses.map((course) => (
-              <DashboardCourseCard key={course.id} course={course} navigateToCourse={navigateToCourse} />
-            ))
-          ) : (
-            <div className="col-span-full py-16 text-center rounded-3xl bg-white/30 dark:bg-slate-800/30 border border-dashed border-slate-300 dark:border-slate-700 backdrop-blur-sm">
-              <div className="w-16 h-16 bg-slate-100 dark:bg-slate-700 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Icon name="book" className="w-8 h-8 text-slate-400" />
-              </div>
-              <p className="text-lg font-semibold text-slate-700 dark:text-slate-200">No active courses</p>
-              <p className="text-slate-500 dark:text-slate-400">Pick a category below to start your journey!</p>
+      {/* Stats Grid */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <StatCard icon="star" value={user.points.toLocaleString()} label="Total Points" trend="+12% this week" />
+        <StatCard icon="zap" value={`${user.streak} Days`} label="Current Streak" trend="Keep it up!" />
+        <StatCard icon="check" value="8" label="Completed Courses" />
+      </div>
+
+      {/* Main Content Area: Analytics + Ongoing */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+
+        {/* Left Column: Analytics (2/3 width) */}
+        <div className="lg:col-span-2 space-y-8">
+          <StudentAnalytics user={user} courses={courses} />
+
+          <section>
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="text-lg font-bold text-slate-900 dark:text-white">Continue Learning</h3>
             </div>
-          )}
-        </div>
-      </section>
 
-      {/* Explore Categories */}
-      <section ref={exploreRef} className="scroll-animate space-y-6">
-        <h2 className="text-2xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
-          <Icon name="search" className="w-6 h-6 text-brand-secondary" />
-          Explore Categories
-        </h2>
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-          {CATEGORY_DETAILS.map(cat => (
-            <CategoryCard key={cat.name} category={cat} navigateToFilteredCourses={navigateToFilteredCourses} />
-          ))}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {ongoingCourses.length > 0 ? (
+                ongoingCourses.map((course) => (
+                  <DashboardCourseCard key={course.id} course={course} navigateToCourse={navigateToCourse} />
+                ))
+              ) : (
+                <div className="col-span-full py-12 text-center rounded-xl border-2 border-dashed border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50">
+                  <p className="text-slate-500 font-medium">No active courses yet.</p>
+                  <button onClick={() => navigateToFilteredCourses('all')} className="text-brand-primary text-sm font-semibold mt-2 hover:underline">Browse Catalog</button>
+                </div>
+              )}
+            </div>
+          </section>
         </div>
-      </section>
+
+        {/* Right Column: Discover (1/3 width) */}
+        <div className="space-y-6">
+          <h3 className="text-lg font-bold text-slate-900 dark:text-white">Explore Items</h3>
+          <div className="grid grid-cols-1 gap-3">
+            {CATEGORY_DETAILS.map(cat => (
+              <CategoryCard key={cat.name} category={cat} navigateToFilteredCourses={navigateToFilteredCourses} />
+            ))}
+          </div>
+        </div>
+      </div>
     </div>
   );
 };

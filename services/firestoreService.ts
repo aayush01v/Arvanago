@@ -1444,6 +1444,155 @@ export const updateUserProfile = async (uid: string, updates: Partial<User>): Pr
   await userRef.update(updates);
 };
 
+// --- Follow System ---
+
+export const isFollowingUser = async (currentUserId: string, targetUserId: string): Promise<boolean> => {
+  try {
+    const doc = await db.collection('users').doc(currentUserId).collection('following').doc(targetUserId).get();
+    return doc.exists;
+  } catch (error) {
+    console.error("Error checking follow status:", error);
+    return false;
+  }
+};
+
+export const followUser = async (currentUserId: string, targetUserId: string): Promise<void> => {
+  const batch = db.batch();
+
+  // 1. Add target to my 'following'
+  const followingRef = db.collection('users').doc(currentUserId).collection('following').doc(targetUserId);
+  batch.set(followingRef, { timestamp: firebase.firestore.FieldValue.serverTimestamp() });
+
+  // 2. Add me to target's 'followers'
+  const followerRef = db.collection('users').doc(targetUserId).collection('followers').doc(currentUserId);
+  batch.set(followerRef, { timestamp: firebase.firestore.FieldValue.serverTimestamp() });
+
+  // 3. Increment my 'following' count
+  const currentUserRef = db.collection('users').doc(currentUserId);
+  batch.update(currentUserRef, { following: firebase.firestore.FieldValue.increment(1) });
+
+  // 4. Increment target's 'followers' count
+  const targetUserRef = db.collection('users').doc(targetUserId);
+  batch.update(targetUserRef, { followers: firebase.firestore.FieldValue.increment(1) });
+
+  await batch.commit();
+};
+
+export const unfollowUser = async (currentUserId: string, targetUserId: string): Promise<void> => {
+  const batch = db.batch();
+
+  // 1. Remove target from my 'following'
+  const followingRef = db.collection('users').doc(currentUserId).collection('following').doc(targetUserId);
+  batch.delete(followingRef);
+
+  // 2. Remove me from target's 'followers'
+  const followerRef = db.collection('users').doc(targetUserId).collection('followers').doc(currentUserId);
+  batch.delete(followerRef);
+
+  // 3. Decrement my 'following' count
+  const currentUserRef = db.collection('users').doc(currentUserId);
+  batch.update(currentUserRef, { following: firebase.firestore.FieldValue.increment(-1) });
+
+  // 4. Decrement target's 'followers' count
+  const targetUserRef = db.collection('users').doc(targetUserId);
+  batch.update(targetUserRef, { followers: firebase.firestore.FieldValue.increment(-1) });
+
+  await batch.commit();
+};
+
+// --- Post System ---
+
+export const createPost = async (userId: string, user: { name: string, username: string, avatar: string }, content: string, imageUrl?: string): Promise<string> => {
+  const postRef = db.collection('posts').doc();
+  const timestamp = firebase.firestore.FieldValue.serverTimestamp();
+
+  await postRef.set({
+    id: postRef.id,
+    userId,
+    user,
+    content,
+    imageUrl: imageUrl || null,
+    likes: 0,
+    commentsCount: 0,
+    createdAt: timestamp,
+    updatedAt: timestamp
+  });
+
+  // Increment user's post count
+  await db.collection('users').doc(userId).update({
+    postsCount: firebase.firestore.FieldValue.increment(1)
+  });
+
+  return postRef.id;
+};
+
+export const updatePost = async (postId: string, content: string, imageUrl?: string): Promise<void> => {
+  await db.collection('posts').doc(postId).update({
+    content,
+    imageUrl: imageUrl || null,
+    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+  });
+};
+
+export const deletePost = async (postId: string, userId: string): Promise<void> => {
+  await db.collection('posts').doc(postId).delete();
+  // Decrement user's post count
+  await db.collection('users').doc(userId).update({
+    postsCount: firebase.firestore.FieldValue.increment(-1)
+  });
+};
+
+export const getUserPosts = async (userId: string): Promise<import('../types').Post[]> => {
+  const snapshot = await db.collection('posts')
+    .where('userId', '==', userId)
+    .orderBy('createdAt', 'desc')
+    .get();
+
+  return snapshot.docs.map(doc => doc.data() as import('../types').Post);
+};
+
+export const getFollowers = async (userId: string): Promise<User[]> => {
+  const snapshot = await db.collection('users').doc(userId).collection('followers').get();
+  const followerIds = snapshot.docs.map(doc => doc.id);
+  return getUsersByIds(followerIds);
+};
+
+export const getFollowing = async (userId: string): Promise<User[]> => {
+  const snapshot = await db.collection('users').doc(userId).collection('following').get();
+  const followingIds = snapshot.docs.map(doc => doc.id);
+  return getUsersByIds(followingIds);
+};
+
+export const getUsersByIds = async (userIds: string[]): Promise<User[]> => {
+  if (userIds.length === 0) return [];
+  // Firestore 'in' query supports up to 10 items. For simplicity/robustness, we'll promise.all here for now or chunk it.
+  // Given the constraints and likely small scale, fetching individually or in chunks is safer than 'in' limits.
+  // However, to be efficient for small numbers:
+  const users: User[] = [];
+  const chunks = [];
+  for (let i = 0; i < userIds.length; i += 10) {
+    chunks.push(userIds.slice(i, i + 10));
+  }
+
+  for (const chunk of chunks) {
+    const snapshot = await db.collection('users').where(firebase.firestore.FieldPath.documentId(), 'in', chunk).get();
+    snapshot.docs.forEach(doc => users.push(doc.data() as User));
+  }
+  return users;
+};
+
+export const getUserByUsername = async (username: string): Promise<User | null> => {
+  try {
+    const snapshot = await db.collection('users').where('username', '==', username).limit(1).get();
+    if (snapshot.empty) return null;
+    const doc = snapshot.docs[0];
+    return { uid: doc.id, ...doc.data() } as User;
+  } catch (error) {
+    console.error("Error fetching user by username:", error);
+    return null;
+  }
+};
+
 export const getCourses = async ({ forceRefresh = false }: { forceRefresh?: boolean } = {}): Promise<Course[]> => {
   const now = Date.now();
 

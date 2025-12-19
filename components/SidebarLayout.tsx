@@ -173,23 +173,8 @@ const SidebarLayout: React.FC<SidebarLayoutProps> = ({
   const unreadCount = useMemo(() => {
     if (!user?.uid) return 0;
     return chats.reduce((count, chat) => {
-      const lastRead = chat.lastRead?.[user.uid];
-      const lastMsg = chat.lastMessage;
-
-      // If no last message, no unread
-      if (!lastMsg) return count;
-
-      // If I sent the last message, it's read
-      if (lastMsg.senderId === user.uid) return count;
-
-      // If I haven't read it yet (timestamp check)
-      // If no lastRead entry, it's unread
-      if (!lastRead) return count + 1;
-
-      // If message allows > lastRead
-      if (lastMsg.timestamp.seconds > lastRead.seconds) return count + 1;
-
-      return count;
+      const chatUnread = chat.unreadCounts?.[user.uid] || 0;
+      return count + chatUnread;
     }, 0);
   }, [chats, user?.uid]);
 

@@ -30,6 +30,8 @@ export interface User {
   progress?: Record<string, string[]>; // Map courseId -> completedLectureIds
   // New Profile Fields
   username?: string;
+  isPublic?: boolean; // Visibility setting
+  lastHandleChangeDate?: Timestamp | null; // Track last handle change
   jobTitle?: string;
   coverPhoto?: string;
   socialLinks?: { platform: string; url: string }[];
@@ -187,6 +189,24 @@ export interface Task {
 export type AppView = 'dashboard' | 'courses' | 'leaderboard' | 'profile' | 'courseDetail' | 'lecture' | 'myLearnings';
 export type PageView = 'homepage' | 'login' | 'coursePreview' | AppView;
 
+
+// ... (existing content)
+
+export interface Post {
+  id: string;
+  userId: string;
+  user: {
+    name: string;
+    username: string;
+    avatar: string;
+  };
+  content: string;
+  imageUrl?: string;
+  likes: number;
+  commentsCount: number;
+  createdAt: Timestamp;
+  updatedAt?: Timestamp; // Track edits
+}
 
 export interface ChatMessage {
   sender: 'user' | 'ai';

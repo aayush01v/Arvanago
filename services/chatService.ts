@@ -21,6 +21,9 @@ export interface Chat {
   participantDetails?: { // Populated client-side or via separate query
     [uid: string]: Partial<User>;
   };
+  unreadCounts?: {
+    [uid: string]: number;
+  };
 }
 
 export const chatService = {
@@ -37,7 +40,10 @@ export const chatService = {
       await chatRef.set({
         participants,
         updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
-        // We can add participant info snapshot here if needed, but keeping it relational is cleaner
+        unreadCounts: {
+          [currentUserId]: 0,
+          [otherUserId]: 0
+        }
       });
     }
 
@@ -57,7 +63,13 @@ export const chatService = {
       timestamp,
     });
 
-    await chatRef.update({
+    // Get current chat to know participants
+    const chatDoc = await chatRef.get();
+    const chatData = chatDoc.data() as Chat;
+    const participants = chatData?.participants || [];
+    const otherUserId = participants.find(p => p !== senderId);
+
+    const updates: any = {
       lastMessage: {
         text,
         senderId,
@@ -65,14 +77,21 @@ export const chatService = {
       },
       updatedAt: timestamp,
       [`lastRead.${senderId}`]: timestamp // Sender has read their own message
-    });
+    };
+
+    if (otherUserId) {
+      updates[`unreadCounts.${otherUserId}`] = firebase.firestore.FieldValue.increment(1);
+    }
+
+    await chatRef.update(updates);
   },
 
   // Mark chat as read
   async markChatRead(chatId: string, userId: string): Promise<void> {
     const chatRef = db.collection('chats').doc(chatId);
     await chatRef.update({
-      [`lastRead.${userId}`]: firebase.firestore.FieldValue.serverTimestamp()
+      [`lastRead.${userId}`]: firebase.firestore.FieldValue.serverTimestamp(),
+      [`unreadCounts.${userId}`]: 0
     });
   },
 

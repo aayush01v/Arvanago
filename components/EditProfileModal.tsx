@@ -1,5 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { createPortal } from 'react-dom';
+import firebase from 'firebase/compat/app';
 import { User } from '../types.ts';
 import Icon from './common/Icon.tsx';
 import { updateUserProfile } from '../services/firestoreService.ts';
@@ -15,6 +16,7 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({ user, onClose, onSa
     const [name, setName] = useState(user.name);
     const [username, setUsername] = useState(user.username || '');
     const [bio, setBio] = useState(user.bio || '');
+    const [isPublic, setIsPublic] = useState(user.isPublic ?? true);
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState('');
     const [avatar, setAvatar] = useState(user.avatar);
@@ -23,6 +25,7 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({ user, onClose, onSa
     const [selectedImage, setSelectedImage] = useState<string | null>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
 
+    // Hydration check
     if (typeof document === 'undefined') return null;
 
     const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -47,12 +50,51 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({ user, onClose, onSa
             return;
         }
 
+        // Weekly Handle Limit Check
+        if (username !== user.username) {
+            if (user.lastHandleChangeDate) {
+                const lastChange = user.lastHandleChangeDate.toMillis();
+                const now = Date.now();
+                const diffTime = Math.abs(now - lastChange);
+                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                const cooldownDays = 7;
+
+                if (diffDays < cooldownDays) {
+                    setError(`You can only change your handle once every 7 days. Try again in ${cooldownDays - diffDays} days.`);
+                    return;
+                }
+            }
+        }
+
         setError('');
         setIsLoading(true);
 
         try {
+            // Check if username is taken
+            if (username !== user.username) {
+                const { getUserByUsername } = await import('../services/firestoreService');
+                const existingUser = await getUserByUsername(username);
+                if (existingUser) {
+                    setError('Username is already taken. Please choose another one.');
+                    setIsLoading(false);
+                    return;
+                }
+            }
+
             // Include avatar in the update if it changed
-            const updatedData: any = { name, username, bio, avatar: avatar !== user.avatar ? avatar : undefined };
+            const updatedData: any = {
+                name,
+                username,
+                bio,
+                isPublic,
+                avatar: avatar !== user.avatar ? avatar : undefined
+            };
+
+            // If username changed, update the timestamp
+            if (username !== user.username) {
+                updatedData.lastHandleChangeDate = firebase.firestore.FieldValue.serverTimestamp();
+            }
+
             if (!updatedData.avatar) delete updatedData.avatar;
 
             await updateUserProfile(user.uid, updatedData);
@@ -143,6 +185,26 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({ user, onClose, onSa
                             className="w-full px-4 py-3 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/20 rounded-xl outline-none transition resize-none dark:text-white"
                         />
                     </div>
+
+                    {/* Public Profile Toggle */}
+                    <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-white/5 rounded-xl border border-gray-100 dark:border-white/5">
+                        <div className="flex items-center gap-3">
+                            <div className={`p-2 rounded-lg ${isPublic ? 'bg-green-100 text-green-600 dark:bg-green-500/20 dark:text-green-400' : 'bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-400'}`}>
+                                <Icon name={isPublic ? 'users' : 'lock'} className="w-5 h-5" />
+                            </div>
+                            <div>
+                                <p className="text-sm font-semibold text-gray-900 dark:text-white">Public Profile</p>
+                                <p className="text-xs text-slate-500 dark:text-slate-400">
+                                    {isPublic ? 'Anyone on the internet can see your profile' : 'Only you can see your profile'}
+                                </p>
+                            </div>
+                        </div>
+                        <label className="relative inline-flex items-center cursor-pointer">
+                            <input type="checkbox" checked={isPublic} onChange={(e) => setIsPublic(e.target.checked)} className="sr-only peer" />
+                            <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-brand-primary/20 dark:peer-focus:ring-brand-primary/40 rounded-full peer dark:bg-slate-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-brand-primary"></div>
+                        </label>
+                    </div>
+
                 </div>
 
                 {error && <p className="text-red-500 text-sm mt-4 text-center bg-red-50 dark:bg-red-500/10 py-2 rounded-lg">{error}</p>}

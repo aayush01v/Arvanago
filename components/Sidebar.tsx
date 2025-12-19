@@ -35,20 +35,21 @@ const Sidebar: React.FC<SidebarProps> = ({ isSidebarOpen, setSidebarOpen, isDark
         onClick={() => setSidebarOpen(false)}
       />
       <aside
-        className={`glass-reflection fixed inset-y-0 left-0 z-40 flex w-72 max-w-[18rem] flex-col overflow-hidden border-r border-white/30 bg-white/80 text-slate-800 shadow-[0_28px_80px_rgba(43,131,198,0.16)] backdrop-blur-2xl transition-transform duration-500 dark:border-slate-800/80 dark:bg-gradient-to-br dark:from-slate-950/95 dark:via-slate-950/88 dark:to-slate-900/90 dark:text-white dark:shadow-[0_28px_80px_rgba(2,6,23,0.85)] ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'
+        className={`fixed inset-y-0 left-0 z-40 flex w-72 max-w-[18rem] flex-col overflow-hidden border-r border-slate-200 bg-white text-slate-800 transition-transform duration-300 dark:border-slate-800 dark:bg-slate-900 dark:text-white ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'
           } md:static md:w-64 md:max-w-none md:translate-x-0`}
       >
-        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(255,255,255,0.6),_transparent_75%)] dark:bg-[radial-gradient(circle_at_top,_rgba(148,163,184,0.25),_transparent_80%)]" />
-        <div className="pointer-events-none absolute -top-28 left-1/2 h-48 w-48 -translate-x-1/2 rounded-full bg-brand-primary/25 blur-3xl dark:bg-brand-primary/12" style={{ animation: 'pulseGlow 18s ease-in-out infinite alternate' }} />
-        <div className="pointer-events-none absolute bottom-[-5rem] right-[-4rem] h-56 w-56 rounded-full bg-sky-500/20 blur-[110px] dark:bg-sky-500/12" style={{ animation: 'driftGlow 26s ease-in-out infinite' }} />
-        <div className="relative flex h-20 items-center border-b border-white/60 px-6 dark:border-white/10">
-          <img src={LOGO_URL} alt="Edusimulate Logo" className="mr-3 h-8" />
-          <span className="text-xl font-extrabold tracking-tight text-slate-800 dark:text-white">Edusimulate</span>
+        <div className="relative flex h-16 items-center border-b border-slate-100 px-6 dark:border-slate-800/50 md:h-20">
+          <img src={LOGO_URL} alt="Edusimulate Logo" className="mr-3 h-7 w-auto" />
+          <span className="text-lg font-bold tracking-tight text-slate-900 dark:text-white">Edusimulate</span>
         </div>
-        <nav className="relative flex-1 overflow-y-auto px-5 py-6">
-          <ul className="space-y-2.5">
+
+        <nav className="flex-1 overflow-y-auto py-6">
+          <div className="px-4 mb-2">
+            <p className="text-xs font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500 pl-4 mb-2">Menu</p>
+          </div>
+          <ul className="space-y-1">
             {navItems.map((item) => (
-              <li key={item.to}>
+              <li key={item.to} className="px-3">
                 <NavLink
                   to={item.to}
                   onClick={async () => {
@@ -62,23 +63,19 @@ const Sidebar: React.FC<SidebarProps> = ({ isSidebarOpen, setSidebarOpen, isDark
                     handleNavigate();
                   }}
                   className={({ isActive }) =>
-                    `group relative flex items-center gap-4 rounded-2xl border border-transparent px-4 py-3 text-sm font-semibold tracking-wide transition-all duration-300 ease-out ${isActive
-                      ? 'border-white/40 bg-white/90 text-brand-primary shadow-[0_12px_36px_rgba(43,131,198,0.25)] backdrop-blur'
-                      : 'text-slate-600 hover:border-white/50 hover:bg-white/60 hover:text-brand-primary dark:text-slate-300 dark:hover:border-white/10 dark:hover:bg-white/10'
+                    `group flex items-center gap-3 rounded-lg px-4 py-2.5 text-sm font-medium transition-all duration-200 ${isActive
+                      ? 'bg-brand-primary/10 text-brand-primary'
+                      : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-slate-200'
                     }`
                   }
                 >
                   {({ isActive }) => (
                     <>
-                      <span
-                        className={`relative flex h-10 w-10 items-center justify-center rounded-xl shadow-inner transition-all duration-300 ${isActive
-                          ? 'bg-brand-primary/20 text-brand-primary shadow-white/50'
-                          : 'bg-white/70 text-slate-500 shadow-white/50 group-hover:bg-brand-primary/20 group-hover:text-brand-primary dark:bg-white/10 dark:text-slate-300'
-                          }`}
-                      >
-                        <Icon name={item.icon} className="h-5 w-5" />
-                      </span>
-                      <span className="relative z-10">{item.label}</span>
+                      <Icon
+                        name={item.icon}
+                        className={`h-5 w-5 transition-colors ${isActive ? 'text-brand-primary' : 'text-slate-400 group-hover:text-slate-600 dark:text-slate-500 dark:group-hover:text-slate-300'}`}
+                      />
+                      <span>{item.label}</span>
                     </>
                   )}
                 </NavLink>
@@ -86,38 +83,33 @@ const Sidebar: React.FC<SidebarProps> = ({ isSidebarOpen, setSidebarOpen, isDark
             ))}
           </ul>
         </nav>
-        <div className="relative space-y-4 border-t border-white/30 px-5 py-6 dark:border-slate-800/80">
-          <div className="flex items-center justify-between rounded-2xl border border-white/60 bg-white/70 p-3 text-slate-600 shadow-inner shadow-white/50 backdrop-blur-md transition-colors dark:border-slate-800/80 dark:bg-slate-900/60 dark:text-slate-200">
-            <div className="flex items-center space-x-3">
-              <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-white/80 text-brand-primary shadow-md shadow-white/50 dark:bg-slate-800/70 dark:text-brand-secondary">
-                <Icon name={isDarkMode ? 'moon' : 'sun'} className="h-5 w-5" />
-              </span>
-              <span className="font-semibold">Theme</span>
-            </div>
+
+        <div className="border-t border-slate-100 p-4 dark:border-slate-800">
+          <div className="space-y-1">
             <button
-              aria-label={`Switch to ${isDarkMode ? 'light' : 'dark'} mode`}
               onClick={() => setDarkMode(!isDarkMode)}
-              className={`relative inline-flex h-7 w-14 items-center rounded-full border border-white/60 bg-white/70 p-1 transition-colors focus:outline-none focus:ring-2 focus:ring-brand-primary/60 focus:ring-offset-2 focus:ring-offset-white dark:border-slate-800/80 dark:bg-slate-800/60 dark:focus:ring-offset-slate-900 ${isDarkMode ? 'justify-end' : 'justify-start'
-                }`}
+              className="group flex w-full items-center justify-between rounded-lg px-4 py-2.5 text-sm font-medium text-slate-600 hover:bg-slate-50 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-slate-200 transition-colors"
             >
-              <span className="flex h-5 w-5 items-center justify-center rounded-full bg-brand-primary text-white shadow-md shadow-brand-primary/30 transition-transform duration-300" />
+              <div className="flex items-center gap-3">
+                <Icon name={isDarkMode ? 'moon' : 'sun'} className="h-5 w-5 text-slate-400 group-hover:text-slate-600 dark:text-slate-500 dark:group-hover:text-slate-300" />
+                <span>Theme</span>
+              </div>
+              <div className={`relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${isDarkMode ? 'bg-slate-700' : 'bg-slate-200'}`}>
+                <span className={`pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${isDarkMode ? 'translate-x-4' : 'translate-x-0'}`} />
+              </div>
+            </button>
+
+            <button
+              onClick={() => {
+                signOutUser();
+                handleNavigate();
+              }}
+              className="group flex w-full items-center gap-3 rounded-lg px-4 py-2.5 text-sm font-medium text-slate-600 hover:bg-red-50 hover:text-red-600 dark:text-slate-400 dark:hover:bg-red-900/10 dark:hover:text-red-400 transition-colors"
+            >
+              <Icon name="logout" className="h-5 w-5 text-slate-400 group-hover:text-red-500 dark:text-slate-500 dark:group-hover:text-red-400" />
+              <span>Logout</span>
             </button>
           </div>
-          <button
-            onClick={() => {
-              signOutUser();
-              handleNavigate();
-            }}
-            className="glass-reflection group flex w-full items-center justify-between rounded-2xl border border-white/60 bg-white/70 px-4 py-3 text-slate-600 transition-all duration-300 hover:-translate-y-0.5 hover:border-white/80 hover:bg-white/90 hover:text-brand-primary hover:shadow-[0_16px_40px_rgba(43,131,198,0.25)] dark:border-slate-800/80 dark:bg-slate-900/60 dark:text-slate-200 dark:hover:bg-slate-800/60"
-          >
-            <div className="flex items-center space-x-3">
-              <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-white/80 text-brand-primary shadow-md shadow-white/50 transition-transform duration-300 group-hover:scale-110 dark:bg-slate-800/70 dark:text-brand-secondary">
-                <Icon name="logout" className="h-5 w-5" />
-              </span>
-              <span className="font-semibold">Logout</span>
-            </div>
-            <Icon name="chevronRight" className="h-5 w-5 text-current transition-transform duration-300 group-hover:translate-x-1" />
-          </button>
         </div>
       </aside>
     </>

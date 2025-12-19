@@ -117,6 +117,12 @@ const ChatWidget: React.FC<ChatWidgetProps> = ({
 
     const handleChatSelect = async (chat: Chat) => {
         if (selectedChatId === chat.id) return;
+
+        // Mark as read
+        if (currentUser && chat.unreadCounts?.[currentUser.uid] > 0) {
+            chatService.markChatRead(chat.id, currentUser.uid);
+        }
+
         setSearchTerm('');
         setSearchResults([]);
         const otherId = chat.participants.find(p => p !== currentUser.uid);
@@ -162,10 +168,7 @@ const ChatWidget: React.FC<ChatWidgetProps> = ({
 
         if (!otherUser) return <div className="h-16 bg-slate-100 dark:bg-slate-800 rounded animate-pulse mb-2"></div>;
 
-        const lastRead = chat.lastRead?.[currentUser.uid];
-        const isUnreadMsg = lastRead && chat.lastMessage?.timestamp &&
-            chat.lastMessage.timestamp.seconds > lastRead.seconds &&
-            chat.lastMessage.senderId !== currentUser.uid;
+        const unreadCount = chat.unreadCounts?.[currentUser.uid] || 0;
 
         return (
             <div
@@ -175,10 +178,14 @@ const ChatWidget: React.FC<ChatWidgetProps> = ({
                 <img src={otherUser.avatar || 'https://i.pravatar.cc/150'} className="w-10 h-10 rounded-full" />
                 <div className="flex-1 min-w-0">
                     <div className="flex justify-between items-baseline">
-                        <h4 className={`font-bold text-sm truncate ${isUnreadMsg ? 'text-black dark:text-white' : 'text-slate-700 dark:text-slate-300'}`}>{otherUser.name}</h4>
-                        {isUnreadMsg && <div className="w-2 h-2 rounded-full bg-brand-primary"></div>}
+                        <h4 className={`font-bold text-sm truncate ${unreadCount > 0 ? 'text-black dark:text-white' : 'text-slate-700 dark:text-slate-300'}`}>{otherUser.name}</h4>
+                        {unreadCount > 0 && (
+                            <span className="flex items-center justify-center min-w-[18px] h-[18px] px-1 bg-brand-primary text-white text-[10px] font-bold rounded-full shadow-sm">
+                                {unreadCount > 99 ? '99+' : unreadCount}
+                            </span>
+                        )}
                     </div>
-                    <p className={`text-xs truncate ${isUnreadMsg ? 'font-bold text-slate-900 dark:text-white' : 'text-slate-500'}`}>
+                    <p className={`text-xs truncate ${unreadCount > 0 ? 'font-bold text-slate-900 dark:text-white' : 'text-slate-500'}`}>
                         {chat.lastMessage?.text || 'Start chatting...'}
                     </p>
                 </div>

@@ -1,5 +1,5 @@
 // utils/uploadToImgBB.js
-const IMGBB_KEY = import.meta.env.VITE_IMGBB_KEY;
+const IMGBB_KEY = "9dad115cc5d046905201e16e6b20f4ab";
 
 export async function uploadToImgBB(file) {
   if (!IMGBB_KEY) {

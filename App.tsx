@@ -24,6 +24,7 @@ const PublicExplorePage = React.lazy(() => import('@/pages/PublicExplorePage'));
 const LeaderboardPage = React.lazy(() => import('@/pages/LeaderboardPage'));
 const ChatPage = React.lazy(() => import('./pages/ChatPage'));
 const ProfilePage = React.lazy(() => import('@/pages/ProfilePage'));
+const PublicProfilePage = React.lazy(() => import('@/pages/PublicProfilePage'));
 const CourseDetailPage = React.lazy(() => import('@/pages/CourseDetailPage'));
 const CourseLecturePage = React.lazy(() => import('@/pages/CourseLecturePage'));
 const CourseLearnPage = React.lazy(() => import('@/pages/CourseLearnPage'));
@@ -370,6 +371,7 @@ const App: React.FC = () => {
             <Route path="/leaderboard" element={<LeaderboardPage />} />
             <Route path="/chat" element={<ChatPage />} />
             <Route path="/profile" element={<ProfilePage />} />
+            <Route path="/u/:username" element={<PublicProfilePage />} />
             <Route path="/courses/:courseId/learn" element={<CourseLearnPage />} />
             <Route
               path="/courses/:courseId/lectures/:lectureId"

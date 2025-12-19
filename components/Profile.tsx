@@ -13,8 +13,22 @@ interface ProfileProps {
   onProfileUpdate: (updatedData: Partial<User>) => void;
 }
 
-const ProfileStat: React.FC<{ icon: string; value: string; label: string; color: string; }> = ({ icon, value, label, color }) => (
-  <div className="flex flex-col items-center justify-center p-4">
+import UserListModal from './UserListModal.tsx';
+import { getFollowers, getFollowing } from '../services/firestoreService.ts';
+
+interface ProfileStatProps {
+  icon: string;
+  value: string;
+  label: string;
+  color: string;
+  onClick?: () => void;
+}
+
+const ProfileStat: React.FC<ProfileStatProps> = ({ icon, value, label, color, onClick }) => (
+  <div
+    onClick={onClick}
+    className={`flex flex-col items-center justify-center p-4 ${onClick ? 'cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-700/50 rounded-xl transition-colors' : ''}`}
+  >
     <span className="text-xl font-bold text-slate-900 dark:text-white">{value}</span>
     <span className="text-sm text-slate-500 font-medium">{label}</span>
   </div>
@@ -23,6 +37,12 @@ const ProfileStat: React.FC<{ icon: string; value: string; label: string; color:
 const Profile: React.FC<ProfileProps> = ({ user, onProfileUpdate }) => {
   const [isEditModalOpen, setEditModalOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<'Profile' | 'Followers' | 'Friends' | 'Gallery'>('Profile');
+
+  // Modal State
+  const [modalOpen, setModalOpen] = useState(false);
+  const [modalTitle, setModalTitle] = useState('');
+  const [modalUsers, setModalUsers] = useState<User[]>([]);
+  const [modalLoading, setModalLoading] = useState(false);
 
   // Image Upload State
   const [avatarUrl, setAvatarUrl] = useState(user.avatar);
@@ -38,11 +58,56 @@ const Profile: React.FC<ProfileProps> = ({ user, onProfileUpdate }) => {
   const openFilePicker = () => fileInputRef.current?.click();
   const openCoverPicker = () => coverInputRef.current?.click();
 
+  const handleOpenFollowers = async () => {
+    setModalTitle('Followers');
+    setModalOpen(true);
+    setModalLoading(true);
+    try {
+      const users = await getFollowers(user.uid);
+      setModalUsers(users);
+    } catch (e) { console.error(e); }
+    finally { setModalLoading(false); }
+  };
+
+  const handleOpenFollowing = async () => {
+    setModalTitle('Following');
+    setModalOpen(true);
+    setModalLoading(true);
+    try {
+      const users = await getFollowing(user.uid);
+      setModalUsers(users);
+    } catch (e) { console.error(e); }
+    finally { setModalLoading(false); }
+  };
+
   useEffect(() => {
     if (!showToast) return;
     const timer = setTimeout(() => setShowToast(false), 3500);
     return () => clearTimeout(timer);
   }, [showToast]);
+
+  // Auto-assign username if missing
+  useEffect(() => {
+    const assignHandle = async () => {
+      if (!user.username && auth.currentUser) {
+        const cleanName = user.name.split(' ')[0].replace(/[^a-zA-Z0-9]/g, '') || 'User';
+        const randomSuffix = Math.floor(1000 + Math.random() * 9000);
+        const newHandle = `${cleanName}_${randomSuffix}`;
+
+        try {
+          const userRef = doc(db, "users", auth.currentUser.uid);
+          await updateDoc(userRef, { username: newHandle });
+          onProfileUpdate({ username: newHandle });
+          // Optional: Notify user
+          setToastMessage(`Your handle has been set to @${newHandle}`);
+          setShowToast(true);
+        } catch (error) {
+          console.error("Failed to auto-assign handle:", error);
+        }
+      }
+    };
+    assignHandle();
+  }, [user.username, user.name, onProfileUpdate]);
 
   const handleAvatarChange: React.ChangeEventHandler<HTMLInputElement> = (e) => {
     const file = e.target.files?.[0];
@@ -150,15 +215,11 @@ const Profile: React.FC<ProfileProps> = ({ user, onProfileUpdate }) => {
       <div className="flex flex-col md:flex-row justify-between items-center bg-white dark:bg-slate-800 rounded-2xl shadow-sm p-4 md:p-6 mb-6 border border-slate-100 dark:border-slate-700">
         <div className="flex flex-wrap justify-center gap-6 md:gap-12 mx-auto dark:text-gray-200">
           <ProfileStat icon="" value={user.postsCount?.toLocaleString() || "0"} label="Posts" color="" />
-          <ProfileStat icon="" value={user.followers?.toLocaleString() || "0"} label="Followers" color="" />
-          <ProfileStat icon="" value={user.following?.toLocaleString() || "0"} label="Following" color="" />
+          <ProfileStat icon="" value={user.followers?.toLocaleString() || "0"} label="Followers" color="" onClick={handleOpenFollowers} />
+          <ProfileStat icon="" value={user.following?.toLocaleString() || "0"} label="Following" color="" onClick={handleOpenFollowing} />
         </div>
         <div className="flex gap-3 mt-4 md:mt-0">
-          <Link to="/chat">
-            <button className="px-5 py-2.5 rounded-xl bg-brand-primary text-white font-semibold shadow-lg shadow-brand-primary/25 hover:bg-brand-secondary transition-all text-sm md:text-base">
-              Message
-            </button>
-          </Link>
+
           <button onClick={() => setEditModalOpen(true)} className="px-5 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-white font-semibold hover:bg-slate-200 dark:hover:bg-slate-600 transition-all text-sm md:text-base">
             Edit Profile
           </button>
@@ -319,6 +380,13 @@ const Profile: React.FC<ProfileProps> = ({ user, onProfileUpdate }) => {
           onSave={onProfileUpdate}
         />
       )}
+      <UserListModal
+        isOpen={modalOpen}
+        onClose={() => setModalOpen(false)}
+        title={modalTitle}
+        users={modalUsers}
+        loading={modalLoading}
+      />
     </div>
   );
 };
