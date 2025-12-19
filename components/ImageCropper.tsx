@@ -53,7 +53,7 @@ const ImageCropper: React.FC<ImageCropperProps> = ({ imageSrc, onCropComplete, o
 
     return (
         <div className="fixed inset-0 z-[10000] flex items-center justify-center bg-black/80 backdrop-blur-md animate-fade-in p-4">
-            <div className="relative w-full max-w-lg overflow-hidden rounded-3xl border border-white/20 bg-slate-900/90 shadow-2xl backdrop-blur-xl flex flex-col max-h-[90vh]">
+            <div className="relative w-full max-w-lg overflow-hidden rounded-3xl border border-white/20 bg-slate-900/90 shadow-2xl backdrop-blur-xl flex flex-col max-h-[90dvh]">
 
                 {/* Header */}
                 <div className="flex items-center justify-between border-b border-white/10 bg-white/5 px-6 py-4 shrink-0">
@@ -71,9 +71,9 @@ const ImageCropper: React.FC<ImageCropperProps> = ({ imageSrc, onCropComplete, o
                     </button>
                 </div>
 
-                <div className="p-6 space-y-6 overflow-y-auto custom-scrollbar">
+                <div className="p-6 space-y-6 overflow-y-auto custom-scrollbar flex-1 min-h-0">
                     {/* Cropper Container */}
-                    <div className="relative h-[300px] sm:h-[400px] w-full overflow-hidden rounded-2xl border border-white/10 bg-black/40 shadow-inner ring-1 ring-white/5">
+                    <div className="relative h-[40dvh] min-h-[250px] w-full overflow-hidden rounded-2xl border border-white/10 bg-black/40 shadow-inner ring-1 ring-white/5 mx-auto">
                         <Cropper
                             image={imageSrc}
                             crop={crop}

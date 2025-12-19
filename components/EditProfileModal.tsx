@@ -111,21 +111,23 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({ user, onClose, onSa
 
     return createPortal(
         <div
-            className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-start sm:items-center justify-center z-[2000] animate-fade-in overflow-y-auto p-4 sm:p-8"
+            className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-[2000] p-4 transition-all"
             onClick={onClose}
         >
             <div
-                className="bg-white dark:bg-slate-900 rounded-3xl shadow-2xl p-8 w-full max-w-md m-4 animate-scale-in border border-slate-200 dark:border-white/10"
+                className="bg-white dark:bg-slate-900 rounded-3xl shadow-2xl w-full max-w-md flex flex-col max-h-[90dvh] animate-scale-in border border-slate-200 dark:border-white/10 overflow-hidden"
                 onClick={(e) => e.stopPropagation()}
             >
-                <div className="flex justify-between items-center mb-8">
-                    <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Edit Profile</h2>
+                {/* Header - Sticky */}
+                <div className="flex justify-between items-center p-6 border-b border-slate-100 dark:border-white/5 shrink-0 bg-white dark:bg-slate-900 z-10">
+                    <h2 className="text-xl font-bold text-gray-900 dark:text-white">Edit Profile</h2>
                     <button onClick={onClose} className="p-2 -mr-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 rounded-full hover:bg-gray-100 dark:hover:bg-white/5 transition">
-                        <Icon name="x" className="w-6 h-6" />
+                        <Icon name="x" className="w-5 h-5" />
                     </button>
                 </div>
 
-                <div className="space-y-6">
+                {/* Scrollable Content */}
+                <div className="overflow-y-auto p-6 space-y-6 scrollbar-hide flex-1">
                     {/* Avatar Section */}
                     <div className="flex flex-col items-center gap-4">
                         <div className="relative group cursor-pointer" onClick={() => fileInputRef.current?.click()}>
@@ -207,19 +209,20 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({ user, onClose, onSa
 
                 </div>
 
-                {error && <p className="text-red-500 text-sm mt-4 text-center bg-red-50 dark:bg-red-500/10 py-2 rounded-lg">{error}</p>}
+                {/* Footer - Sticky */}
+                <div className="p-6 border-t border-slate-100 dark:border-white/5 shrink-0 bg-white dark:bg-slate-900 z-10 flex justify-end gap-3">
+                    {error && <p className="text-red-500 text-sm absolute left-6 bottom-20 max-w-[200px] truncate">{error}</p>}
 
-                <div className="mt-8 flex justify-end gap-3">
                     <button
                         onClick={onClose}
-                        className="px-6 py-2.5 bg-gray-100 dark:bg-white/5 text-gray-700 dark:text-gray-300 font-semibold rounded-xl hover:bg-gray-200 dark:hover:bg-white/10 transition-colors"
+                        className="px-5 py-2.5 bg-gray-100 dark:bg-white/5 text-gray-700 dark:text-gray-300 font-semibold rounded-xl hover:bg-gray-200 dark:hover:bg-white/10 transition-colors"
                     >
                         Cancel
                     </button>
                     <button
                         onClick={handleSave}
                         disabled={isLoading}
-                        className="px-6 py-2.5 bg-brand-primary text-white font-bold rounded-xl hover:bg-brand-secondary transition-all duration-300 shadow-lg shadow-brand-primary/25 transform hover:scale-[1.02] active:scale-95 disabled:bg-gray-400 disabled:scale-100 disabled:shadow-none min-w-[100px] flex items-center justify-center"
+                        className="px-6 py-2.5 bg-brand-primary text-white font-bold rounded-xl hover:bg-brand-secondary transition-all duration-300 shadow-lg shadow-brand-primary/25 active:scale-95 disabled:bg-gray-400 disabled:scale-100 disabled:shadow-none min-w-[100px] flex items-center justify-center"
                     >
                         {isLoading ? <Icon name="loader" className="w-5 h-5 animate-spin" /> : 'Save Changes'}
                     </button>
