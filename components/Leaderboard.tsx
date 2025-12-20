@@ -37,36 +37,38 @@ const LeaderboardRow: React.FC<{ entry: LeaderboardEntry; isMe?: boolean }> = ({
   const isTop = entry.rank <= 3;
 
   return (
-    <div className={`group flex items-center p-4 rounded-2xl mb-3 transition-all duration-300 hover:scale-[1.01] hover:shadow-lg ${isMe
+    <div className={`group flex items-center p-3 sm:p-4 rounded-2xl mb-3 transition-all duration-300 hover:scale-[1.01] hover:shadow-lg ${isMe
       ? 'bg-brand-primary/10 border-2 border-brand-primary'
       : isTop
         ? 'bg-white/60 dark:bg-slate-800/60 border border-brand-primary/20'
         : 'bg-white/40 dark:bg-slate-900/40 border border-white/10'
       }`}>
-      <div className="flex-shrink-0 w-16 text-center">
+      <div className="flex-shrink-0 w-8 sm:w-16 text-center">
         <RankMedal rank={entry.rank} />
       </div>
 
-      <div className="flex items-center gap-4 flex-grow ml-4">
-        <div className="relative h-12 w-12 sm:h-14 sm:w-14 overflow-hidden rounded-full border-2 border-white dark:border-slate-700 shadow-md">
+      <div className="flex items-center gap-2 sm:gap-4 flex-grow ml-2 sm:ml-4 overflow-hidden">
+        <div className="relative h-10 w-10 sm:h-14 sm:w-14 overflow-hidden rounded-full border-2 border-white dark:border-slate-700 shadow-md flex-shrink-0">
           <img src={entry.user.avatar} alt={entry.user.name} className="h-full w-full object-cover" />
         </div>
 
-        <div className="flex-grow">
-          <p className={`font-bold text-lg flex items-center gap-2 ${isMe ? 'text-brand-primary' : 'text-slate-900 dark:text-white'}`}>
-            {entry.user.name}
-            {isMe && <span className="text-xs bg-brand-primary/20 text-brand-primary px-2 py-0.5 rounded-full ml-2">YOU</span>}
-            {isTop && <Icon name="sparkle" className="w-4 h-4 text-yellow-400" />}
-          </p>
-          <p className="text-xs uppercase tracking-wider font-semibold text-slate-500 dark:text-slate-400">{entry.user.title ?? 'Learner'}</p>
+        <div className="flex-grow min-w-0">
+          <div className="flex items-center gap-2 flex-wrap">
+            <p className={`font-bold text-base sm:text-lg truncate ${isMe ? 'text-brand-primary' : 'text-slate-900 dark:text-white'}`}>
+              {entry.user.name}
+            </p>
+            {isMe && <span className="text-[10px] bg-brand-primary/20 text-brand-primary px-1.5 py-0.5 rounded-full font-bold">YOU</span>}
+            {isTop && <Icon name="sparkle" className="w-3 h-3 sm:w-4 sm:h-4 text-yellow-400" />}
+          </div>
+          <p className="text-[10px] sm:text-xs uppercase tracking-wider font-semibold text-slate-500 dark:text-slate-400 truncate">{entry.user.title ?? 'Learner'}</p>
         </div>
       </div>
 
-      <div className="flex flex-col items-end pr-4">
-        <span className="text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-brand-primary to-brand-secondary">
+      <div className="flex flex-col items-end pl-2 sm:pr-4 flex-shrink-0">
+        <span className="text-lg sm:text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-brand-primary to-brand-secondary">
           {entry.points.toLocaleString()}
         </span>
-        <span className="text-xs font-semibold text-slate-400">POINTS</span>
+        <span className="text-[10px] sm:text-xs font-semibold text-slate-400">POINTS</span>
       </div>
     </div>
   );
