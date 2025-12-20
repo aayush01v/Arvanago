@@ -270,7 +270,7 @@ const PublicProfilePage: React.FC = () => {
 
                 {/* Action Buttons (Desktop & Mobile) */}
                 {!isOwner && (
-                    <div className="absolute -bottom-16 right-0 left-0 md:left-auto md:right-8 flex justify-center md:justify-start gap-3 px-4 md:px-0">
+                    <div className="absolute -bottom-20 ml-28 md:ml-0 left-4 right-4 md:static md:mt-0 flex justify-center md:absolute md:-bottom-16 md:left-auto md:right-8 md:justify-start gap-3 px-0">
                         <button
                             onClick={handleFollowToggle}
                             disabled={followLoading}
@@ -304,27 +304,7 @@ const PublicProfilePage: React.FC = () => {
                             </div>
 
                             {/* Mobile Action Buttons */}
-                            {!isOwner && (
-                                <div className="flex md:hidden gap-2 mt-1">
-                                    <button
-                                        onClick={handleFollowToggle}
-                                        disabled={followLoading}
-                                        className={`flex items-center justify-center p-2.5 rounded-xl font-bold shadow-md transition-all active:scale-95
-                                         ${isFollowing
-                                                ? 'bg-white dark:bg-slate-800 text-slate-700 dark:text-white border border-slate-200 dark:border-slate-700'
-                                                : 'bg-slate-900 dark:bg-white text-white dark:text-slate-900'
-                                            }`}
-                                    >
-                                        <Icon name={isFollowing ? "check" : "user-plus"} className="w-5 h-5" />
-                                    </button>
-                                    <button
-                                        onClick={handleMessage}
-                                        className="flex items-center justify-center p-2.5 bg-brand-primary text-white rounded-xl shadow-md shadow-brand-primary/25 active:scale-95"
-                                    >
-                                        <Icon name="message-circle" className="w-5 h-5" />
-                                    </button>
-                                </div>
-                            )}
+
                         </div>
                         {profileUser.jobTitle && <p className="text-slate-500 dark:text-slate-400 mt-1 flex items-center gap-2"><Icon name="briefcase" className="w-4 h-4" /> {profileUser.jobTitle}</p>}
                     </div>

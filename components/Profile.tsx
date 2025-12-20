@@ -468,7 +468,7 @@ const Profile: React.FC<ProfileProps> = ({ user, onProfileUpdate, isDarkMode, on
               ) : friends.length > 0 ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                   {friends.map(friend => (
-                    <Link to={`/profile/${friend.username}`} key={friend.uid} className="flex items-center gap-4 p-4 rounded-2xl bg-slate-50 dark:bg-slate-700/50 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors">
+                    <Link to={`/u/${friend.username}`} key={friend.uid} className="flex items-center gap-4 p-4 rounded-2xl bg-slate-50 dark:bg-slate-700/50 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors">
                       <img src={friend.avatar} alt={friend.name} className="w-12 h-12 rounded-full object-cover" />
                       <div className="overflow-hidden">
                         <h4 className="font-bold text-slate-900 dark:text-white truncate">{friend.name}</h4>
