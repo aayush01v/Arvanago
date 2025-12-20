@@ -7,6 +7,7 @@ import Icon from '../components/common/Icon';
 import UserListModal from '../components/UserListModal';
 import PostList from '../components/PostList';
 import { SidebarLayoutContext } from '../components/SidebarLayout';
+import SEO from '@/components/SEO';
 
 const PublicProfilePage: React.FC = () => {
     const { username } = useParams<{ username: string }>();
@@ -47,7 +48,11 @@ const PublicProfilePage: React.FC = () => {
     }, [username, currentUser]);
 
     const handleMessage = async () => {
-        if (!currentUser || !profileUser) return;
+        if (!currentUser) {
+            navigate('/login');
+            return;
+        }
+        if (!profileUser) return;
         try {
             const chatId = await chatService.getOrCreateChat(currentUser.uid, profileUser.uid);
             navigate('/chat', { state: { chatId, recipientUser: profileUser } });
@@ -128,7 +133,11 @@ const PublicProfilePage: React.FC = () => {
     }, [currentUser, profileUser, isOwner]);
 
     const handleFollowToggle = async () => {
-        if (!currentUser || !profileUser || followLoading) return;
+        if (!currentUser) {
+            navigate('/login');
+            return;
+        }
+        if (!profileUser || followLoading) return;
         setFollowLoading(true);
 
         const newStatus = !isFollowing;
@@ -250,6 +259,23 @@ const PublicProfilePage: React.FC = () => {
 
     return (
         <div className="max-w-5xl mx-auto pb-12 animate-fade-in">
+            <SEO
+                title={`${profileUser.name} (@${profileUser.username})`}
+                description={profileUser.bio || `Check out ${profileUser.name}'s profile on Edusimulate.`}
+                image={profileUser.avatar}
+                url={typeof window !== 'undefined' ? window.location.href : `https://edusimulate.vercel.app/u/${profileUser.username}`}
+                type="profile"
+                structuredData={{
+                    '@type': 'ProfilePage',
+                    mainEntity: {
+                        '@type': 'Person',
+                        name: profileUser.name,
+                        alternateName: profileUser.username,
+                        image: profileUser.avatar,
+                        description: profileUser.bio
+                    }
+                }}
+            />
             {/* Header / Cover */}
             <div className="relative group">
                 {/* 1. Cover Image */}

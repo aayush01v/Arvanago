@@ -332,20 +332,7 @@ const App: React.FC = () => {
                 )
               }
             />
-            {!user && (
-              <Route
-                path="/explore"
-                element={
-                  <PublicExplorePage
-                    courses={courses}
-                    isLoading={coursesLoading}
-                    error={coursesError}
-                    onCourseSelect={handleExploreCourseNavigate}
-                    onRefreshCourses={() => fetchCourseData({ forceRefresh: true })}
-                  />
-                }
-              />
-            )}
+
 
             <Route path="/about" element={<AboutPage />} />
 
@@ -353,6 +340,24 @@ const App: React.FC = () => {
 
             <Route element={<CourseRouteWrapper />}>
               <Route path="/courses/:courseId" element={<CourseDetailPage />} />
+            </Route>
+
+            {/* PUBLIC PROFILE (Shared Layout, No Auth Required) */}
+            <Route
+              element={
+                <SidebarLayout
+                  user={user}
+                  courses={courses}
+                  isDarkMode={isDarkMode}
+                  onThemeToggle={handleThemeToggle}
+                  onProfileUpdate={handleProfileUpdate}
+                  coursesLoading={coursesLoading}
+                  coursesError={coursesError}
+                  onRefreshCourses={fetchCourseData}
+                />
+              }
+            >
+              <Route path="/u/:username" element={<PublicProfilePage />} />
             </Route>
 
             {/* PRIVATE ROUTES (AUTH REQUIRED) */}
@@ -378,7 +383,7 @@ const App: React.FC = () => {
                 <Route path="/chat" element={<ChatPage />} />
                 <Route path="/profile" element={<ProfilePage />} />
                 <Route path="/settings" element={<SettingsPage />} />
-                <Route path="/u/:username" element={<PublicProfilePage />} />
+                {/* Public Profile moved out to allow guest access */}
                 <Route path="/courses/:courseId/learn" element={<CourseLearnPage />} />
                 <Route
                   path="/courses/:courseId/lectures/:lectureId"

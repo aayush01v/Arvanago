@@ -43,6 +43,10 @@ export const chatService = {
         unreadCounts: {
           [currentUserId]: 0,
           [otherUserId]: 0
+        },
+        lastRead: {
+          [currentUserId]: firebase.firestore.FieldValue.serverTimestamp(),
+          [otherUserId]: firebase.firestore.FieldValue.serverTimestamp()
         }
       });
     }
@@ -142,32 +146,30 @@ export const chatService = {
     // For this demo/scale, we will fetch users and filter client side or do a prefix match.
     // Prefix match:
     // Prefix match on Name
-    const nameSnapshotPromise = db.collection('users')
-      .where('name', '>=', nameQuery)
-      .where('name', '<=', nameQuery + '\uf8ff')
-      .limit(10)
-      .get();
+    // Prefix match on Name (Original)
+    const queries = [
+      db.collection('users').where('name', '>=', nameQuery).where('name', '<=', nameQuery + '\uf8ff').limit(10).get(),
+      db.collection('users').where('username', '>=', nameQuery).where('username', '<=', nameQuery + '\uf8ff').limit(10).get()
+    ];
 
-    // Prefix match on Username
-    const usernameSnapshotPromise = db.collection('users')
-      .where('username', '>=', nameQuery)
-      .where('username', '<=', nameQuery + '\uf8ff')
-      .limit(10)
-      .get();
+    // Attempt to handle case-sensitivity for "First letter capitalized" names (common convention)
+    // If the query is all lowercase, also search for the Capitalized version.
+    if (nameQuery && /^[a-z]/.test(nameQuery)) {
+      const capitalized = nameQuery.charAt(0).toUpperCase() + nameQuery.slice(1);
+      queries.push(db.collection('users').where('name', '>=', capitalized).where('name', '<=', capitalized + '\uf8ff').limit(10).get());
+      queries.push(db.collection('users').where('username', '>=', capitalized).where('username', '<=', capitalized + '\uf8ff').limit(10).get());
+    }
 
     try {
-      const [nameSnapshot, usernameSnapshot] = await Promise.all([nameSnapshotPromise, usernameSnapshotPromise]);
+      const snapshots = await Promise.all(queries);
 
       const usersMap = new Map<string, User>();
 
-      nameSnapshot.docs.forEach(doc => {
-        const data = doc.data() as User;
-        usersMap.set(data.uid, data);
-      });
-
-      usernameSnapshot.docs.forEach(doc => {
-        const data = doc.data() as User;
-        usersMap.set(data.uid, data);
+      snapshots.forEach(snapshot => {
+        snapshot.docs.forEach(doc => {
+          const data = doc.data() as User;
+          usersMap.set(data.uid, data);
+        });
       });
 
       return Array.from(usersMap.values());

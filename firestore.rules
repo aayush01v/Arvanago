@@ -9,7 +9,7 @@ service cloud.firestore {
 
     // 1. USERS
     match /users/{userId} {
-      allow read: if isAuthenticated();
+      allow read: if true;
       allow create: if isOwner(userId);
       // Allow update:
       // 1. Own profile (except role)
@@ -23,11 +23,11 @@ service cloud.firestore {
 
       // Follow System Subcollections (Nested)
       match /following/{followingId} {
-        allow read: if isAuthenticated();
+        allow read: if true;
         allow write: if isOwner(userId);
       }
       match /followers/{followerId} {
-        allow read: if isAuthenticated();
+        allow read: if true;
         // Allow write if the authenticated user is adding specifically THEMSELVES as a follower.
         allow write: if isAuthenticated() && request.auth.uid == followerId;
       }
@@ -73,7 +73,7 @@ service cloud.firestore {
 
     // 6. POSTS
     match /posts/{postId} {
-      allow read: if isAuthenticated();
+      allow read: if true;
       allow create: if isAuthenticated() && request.resource.data.userId == request.auth.uid;
       
       // Owner can update/delete full document
@@ -86,12 +86,12 @@ service cloud.firestore {
       );
 
       match /likes/{userId} {
-         allow read: if isAuthenticated();
+         allow read: if true;
          allow write: if isAuthenticated() && request.auth.uid == userId;
       }
       
       match /comments/{commentId} {
-         allow read: if isAuthenticated();
+         allow read: if true;
          allow create: if isAuthenticated() && request.resource.data.userId == request.auth.uid;
          // Allow delete by comment author OR post author
          allow delete: if isAuthenticated() && (

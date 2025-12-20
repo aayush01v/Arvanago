@@ -8,7 +8,7 @@ import { Link, useNavigate } from 'react-router-dom';
 interface ChatWidgetProps {
     isOpen: boolean;
     onClose: () => void;
-    currentUser: User;
+    currentUser: User | null;
     chats: Chat[];
     isLoadingChats: boolean;
 }
@@ -193,7 +193,7 @@ const ChatWidget: React.FC<ChatWidgetProps> = ({
         );
     };
 
-    if (!isOpen) return null;
+    if (!isOpen || !currentUser) return null;
 
     // --- RENDER LOGIC ---
 
@@ -263,7 +263,7 @@ const ChatWidget: React.FC<ChatWidgetProps> = ({
                                 onClick={(e) => { e.stopPropagation(); setSelectedChatId(null); }}
                                 className="p-1.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-full transition-colors z-20"
                             >
-                                <Icon name="arrow-left" className="w-5 h-5 text-slate-900 dark:text-white" />
+                                <Icon name="arrowLeft" className="w-5 h-5 text-slate-900 dark:text-white" />
                             </button>
                             <div className="flex items-center gap-2">
                                 <img src={activeChatUser?.avatar || 'https://i.pravatar.cc/150'} className="w-8 h-8 rounded-full border border-slate-200 dark:border-slate-700" />
@@ -307,7 +307,7 @@ const ChatWidget: React.FC<ChatWidgetProps> = ({
                                         <div key={u.uid} onClick={() => !creatingChat && handleUserSelect(u)} className="p-3 hover:bg-slate-50 dark:hover:bg-slate-800 cursor-pointer flex items-center gap-3">
                                             <img src={u.avatar || 'https://i.pravatar.cc/150'} className="w-8 h-8 rounded-full" />
                                             <p className="text-sm font-bold flex-1 text-slate-900 dark:text-white">{u.name}</p>
-                                            {creatingChat && <Icon name="loader" className="w-4 h-4 animate-spin" />}
+                                            {creatingChat && <Icon name="spinner" className="w-4 h-4 animate-spin" />}
                                         </div>
                                     ))}
                                 </div>

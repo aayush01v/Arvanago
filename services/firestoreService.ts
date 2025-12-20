@@ -1604,7 +1604,18 @@ export const getUsersByIds = async (userIds: string[]): Promise<User[]> => {
 
 export const getUserByUsername = async (username: string): Promise<User | null> => {
   try {
-    const snapshot = await db.collection('users').where('username', '==', username).limit(1).get();
+    const variations = [username];
+    // If starts with lowercase, try Capitalized (e.g. jeulix -> Jeulix)
+    if (/^[a-z]/.test(username)) {
+      variations.push(username.charAt(0).toUpperCase() + username.slice(1));
+    }
+    // If has uppercase, try all lowercase (e.g. Jeulix -> jeulix)
+    if (/[A-Z]/.test(username)) {
+      variations.push(username.toLowerCase());
+    }
+    const uniqueVars = Array.from(new Set(variations));
+
+    const snapshot = await db.collection('users').where('username', 'in', uniqueVars).limit(1).get();
     if (snapshot.empty) return null;
     const doc = snapshot.docs[0];
     return { uid: doc.id, ...doc.data() } as User;

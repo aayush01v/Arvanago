@@ -12,7 +12,7 @@ interface SEOProps {
     publishedTime?: string;
 }
 
-const SEO: React.FC<SEOProps> = ({
+const SEO: React.FC<SEOProps & { structuredData?: object }> = ({
     title = 'Edusimulate – Smart Learning Reimagined',
     description = 'A new era of interactive and smart learning. Join Edusimulate to explore courses, track your progress, and climb the leaderboard.',
     keywords = ['education', 'learning', 'online courses', 'edtech', 'interactive learning', 'smart education'],
@@ -21,12 +21,13 @@ const SEO: React.FC<SEOProps> = ({
     type = 'website',
     author = 'Edusimulate Team',
     publishedTime,
+    structuredData,
 }) => {
     const siteTitle = title === 'Edusimulate – Smart Learning Reimagined' ? title : `${title} | Edusimulate`;
     const currentUrl = url;
 
     // JSON-LD Structured Data
-    const jsonLd = {
+    const defaultJsonLd = {
         '@context': 'https://schema.org',
         '@type': type === 'profile' ? 'ProfilePage' : 'WebSite',
         name: siteTitle,
@@ -43,6 +44,8 @@ const SEO: React.FC<SEOProps> = ({
             'query-input': 'required name=search_term_string',
         },
     };
+
+    const finalJsonLd = structuredData ? { ...defaultJsonLd, ...structuredData } : defaultJsonLd;
 
     return (
         <Helmet>
@@ -71,7 +74,7 @@ const SEO: React.FC<SEOProps> = ({
             <meta name="twitter:image" content={image} />
 
             {/* Structured Data */}
-            <script type="application/ld+json">{JSON.stringify(jsonLd)}</script>
+            <script type="application/ld+json">{JSON.stringify(finalJsonLd)}</script>
         </Helmet>
     );
 };

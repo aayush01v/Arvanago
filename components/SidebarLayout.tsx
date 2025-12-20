@@ -5,7 +5,7 @@ import Header from './Header.tsx';
 import { Course, User } from '@/types';
 
 export interface SidebarLayoutContext {
-  user: User;
+  user: User | null;
   courses: Course[];
   onProfileUpdate: (updates: Partial<User>) => void;
   coursesLoading: boolean;
@@ -16,7 +16,7 @@ export interface SidebarLayoutContext {
 }
 
 interface SidebarLayoutProps {
-  user: User;
+  user: User | null;
   courses: Course[];
   isDarkMode: boolean;
   onThemeToggle: (isDark: boolean) => void;
@@ -217,6 +217,7 @@ const SidebarLayout: React.FC<SidebarLayoutProps> = ({
             setSidebarOpen={setSidebarOpen}
             isDarkMode={isDarkMode}
             setDarkMode={onThemeToggle}
+            user={user}
           />
           <div
             ref={mainPanelRef}
@@ -273,7 +274,7 @@ const SidebarLayout: React.FC<SidebarLayoutProps> = ({
         {/* Global Chat Widget */}
         <React.Suspense fallback={null}>
           <ChatWidget
-            isOpen={isChatOpen && !isMobile}
+            isOpen={isChatOpen && !isMobile && !!user}
             onClose={() => setChatOpen(false)}
             currentUser={user}
             chats={chats}

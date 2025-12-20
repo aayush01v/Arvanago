@@ -3,6 +3,7 @@ import { Navigate, useNavigate, useOutletContext, useParams } from 'react-router
 import CourseDetail from '@/components/CourseDetail.tsx';
 import { Lecture } from '@/types';
 import { SidebarLayoutContext } from '@/components/SidebarLayout.tsx';
+import SEO from '@/components/SEO';
 
 const CourseDetailPage: React.FC = () => {
   const { courseId } = useParams<{ courseId: string }>();
@@ -30,14 +31,39 @@ const CourseDetailPage: React.FC = () => {
   }
 
   return (
-    <CourseDetail
-      course={course}
-      navigateToLecture={(selectedCourse, lecture: Lecture) =>
-        navigate(`/courses/${selectedCourse.id}/lectures/${lecture.id}`)
-      }
-      onStartLearning={(selectedCourse) => navigate(`/courses/${selectedCourse.id}/learn`)}
-      onNavigateToCourse={(targetCourseId) => navigate(`/courses/${targetCourseId}`)}
-    />
+    <>
+      <SEO
+        title={course.title}
+        description={course.description}
+        image={course.previewImageUrl ?? course.thumbnailUrl ?? course.thumbnail}
+        url={typeof window !== 'undefined' ? window.location.href : `https://edusimulate.vercel.app/courses/${course.id}`}
+        type="article"
+        structuredData={{
+          '@type': 'Course',
+          name: course.title,
+          description: course.description,
+          provider: {
+            '@type': 'Organization',
+            name: 'Edusimulate',
+            sameAs: 'https://edusimulate.vercel.app/'
+          },
+          offers: {
+            '@type': 'Offer',
+            price: course.price ?? 0,
+            priceCurrency: course.currency ?? 'INR',
+            availability: 'https://schema.org/InStock',
+          }
+        }}
+      />
+      <CourseDetail
+        course={course}
+        navigateToLecture={(selectedCourse, lecture: Lecture) =>
+          navigate(`/courses/${selectedCourse.id}/lectures/${lecture.id}`)
+        }
+        onStartLearning={(selectedCourse) => navigate(`/courses/${selectedCourse.id}/learn`)}
+        onNavigateToCourse={(targetCourseId) => navigate(`/courses/${targetCourseId}`)}
+      />
+    </>
   );
 };
 

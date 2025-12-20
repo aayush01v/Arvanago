@@ -6,7 +6,7 @@ import { User } from '../types.ts';
 import { LOGO_URL } from '../constants.ts';
 
 interface HeaderProps {
-  user: User;
+  user: User | null;
   onMenuClick: () => void;
   isScrolled: boolean;
   pageTitle: string;
@@ -50,7 +50,13 @@ const Header: React.FC<HeaderProps> = ({
           <div className="flex items-center gap-4 flex-1">
             {isSubPage ? (
               <button
-                onClick={() => navigate(-1)}
+                onClick={() => {
+                  if (window.history.state && window.history.state.idx > 0) {
+                    navigate(-1);
+                  } else {
+                    navigate('/dashboard');
+                  }
+                }}
                 className="flex h-9 w-9 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-500 shadow-sm transition-colors hover:bg-slate-50 hover:text-slate-700 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-400 dark:hover:bg-slate-700 dark:hover:text-slate-200 md:hidden"
                 aria-label="Go Back"
               >
@@ -92,28 +98,41 @@ const Header: React.FC<HeaderProps> = ({
             </div>
 
             {/* Chat Button */}
-            <button
-              onClick={onChatClick}
-              className="relative flex h-9 w-9 items-center justify-center rounded-full text-slate-500 hover:bg-slate-100 hover:text-brand-primary dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-white transition-colors"
-              aria-label="Chat"
-            >
-              <Icon name="message-circle" className="h-5 w-5" />
-              {unreadChatCount > 0 && (
-                <span className="absolute top-2 right-2 h-2 w-2 rounded-full bg-red-500 ring-2 ring-white dark:ring-slate-900"></span>
-              )}
-            </button>
+            {user && (
+              <button
+                onClick={onChatClick}
+                className="relative flex h-9 w-9 items-center justify-center rounded-full text-slate-500 hover:bg-slate-100 hover:text-brand-primary dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-white transition-colors"
+                aria-label="Chat"
+              >
+                <Icon name="message-circle" className="h-5 w-5" />
+                {unreadChatCount > 0 && (
+                  <span className="absolute top-2 right-2 h-2 w-2 rounded-full bg-red-500 ring-2 ring-white dark:ring-slate-900"></span>
+                )}
+              </button>
+            )}
 
             {/* Profile Dropdown / Info */}
             <div className="flex items-center gap-3 pl-3 border-l border-slate-200 dark:border-slate-700">
-              <div className="hidden text-right md:block">
-                <p className="text-sm font-medium text-slate-900 dark:text-white leading-none">{user.name}</p>
-                {/* Removed 'Learner' subtext for cleaner look */}
-              </div>
-              <img
-                src={user.avatar}
-                alt={user.name}
-                className="h-9 w-9 rounded-full bg-slate-100 object-cover ring-2 ring-white dark:ring-slate-800"
-              />
+              {user ? (
+                <>
+                  <div className="hidden text-right md:block">
+                    <p className="text-sm font-medium text-slate-900 dark:text-white leading-none">{user.name}</p>
+                    {/* Removed 'Learner' subtext for cleaner look */}
+                  </div>
+                  <img
+                    src={user.avatar}
+                    alt={user.name}
+                    className="h-9 w-9 rounded-full bg-slate-100 object-cover ring-2 ring-white dark:ring-slate-800"
+                  />
+                </>
+              ) : (
+                <Link
+                  to="/login"
+                  className="px-4 py-2 bg-brand-primary text-white text-sm font-bold rounded-full hover:bg-brand-secondary transition-colors"
+                >
+                  Login
+                </Link>
+              )}
             </div>
           </div>
         </div>

@@ -75,9 +75,8 @@ export const useRazorpayEnrollment = ({ user, onProfileUpdate }: UseRazorpayEnro
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
-                        amount: priceValue,
-                        currency: 'INR',
-                        courseId: course.id
+                        courseId: course.id,
+                        currency: 'INR'
                     }),
                 });
 

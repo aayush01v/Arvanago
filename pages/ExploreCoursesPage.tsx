@@ -6,6 +6,7 @@ import { SidebarLayoutContext } from '@/components/SidebarLayout.tsx';
 import { updateUserProfile } from '@/services/firestoreService.ts';
 import { useRazorpayEnrollment } from '@/hooks/useRazorpayEnrollment';
 import Icon from '@/components/common/Icon';
+import SEO from '@/components/SEO';
 
 const Toast: React.FC<{ message: string; isVisible: boolean; onClose: () => void }> = ({ message, isVisible, onClose }) => {
   useEffect(() => {
@@ -65,6 +66,12 @@ const ExploreCoursesPage: React.FC = () => {
 
   return (
     <>
+      <SEO
+        title="Explore Courses"
+        description="Browse our comprehensive catalog of interactive courses designed to help you master new skills."
+        url={typeof window !== 'undefined' ? `${window.location.origin}/explore` : 'https://edusimulate.vercel.app/explore'}
+        type="website"
+      />
       <Toast message={toastMessage} isVisible={showToast} onClose={() => setShowToast(false)} />
       <CourseList
         courses={courses}

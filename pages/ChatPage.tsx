@@ -95,18 +95,25 @@ const ChatPage: React.FC = () => {
 
     const handleUserSelect = async (otherUser: User) => {
         if (!currentUser) return;
-        const chatId = await chatService.getOrCreateChat(currentUser.uid, otherUser.uid);
-        setSearchTerm(''); // Clear search
-        setSearchResults([]);
+        setCreatingChat(true);
+        try {
+            const chatId = await chatService.getOrCreateChat(currentUser.uid, otherUser.uid);
+            setSearchTerm(''); // Clear search
+            setSearchResults([]);
 
-        // Mark as read immediately on creation/selection via search
-        // (Though new chat unread is 0, logic is safe)
-        chatService.markChatRead(chatId, currentUser.uid);
+            // Mark as read immediately on creation/selection via search
+            // (Though new chat unread is 0, logic is safe)
+            chatService.markChatRead(chatId, currentUser.uid);
 
-        // Optimistic UI updates could go here, but for now wait for subscription
-        setSelectedChatId(chatId);
-        setActiveChatUser(otherUser);
-        setShowChatOnMobile(true);
+            // Optimistic UI updates could go here, but for now wait for subscription
+            setSelectedChatId(chatId);
+            setActiveChatUser(otherUser);
+            setShowChatOnMobile(true);
+        } catch (error) {
+            console.error("Failed to create chat:", error);
+        } finally {
+            setCreatingChat(false);
+        }
     };
 
     const handleSend = async () => {
@@ -201,20 +208,25 @@ const ChatPage: React.FC = () => {
                     {/* Search Results Dropdown */}
                     {searchResults.length > 0 && (
                         <div className="absolute top-full left-0 right-0 mt-2 bg-white dark:bg-slate-900 rounded-2xl shadow-xl border border-slate-100 dark:border-slate-800 overflow-hidden max-h-60 overflow-y-auto">
-                            {searchResults.map(u => (
-                                <div
-                                    key={u.uid}
-                                    onClick={() => !creatingChat && handleUserSelect(u)}
-                                    className={`p-3 hover:bg-slate-50 dark:hover:bg-slate-800 cursor-pointer flex items-center gap-3 ${creatingChat ? 'opacity-50 cursor-wait' : ''}`}
-                                >
-                                    <img src={u.avatar || 'https://i.pravatar.cc/150'} className="w-8 h-8 rounded-full" />
-                                    <div className="flex-1">
-                                        <p className="text-sm font-bold">{u.name}</p>
-                                        <p className="text-xs text-slate-500">@{u.username || 'user'}</p>
+                            {searchResults.map(u => {
+                                const isExistingContact = chats.some(chat => chat.participants.includes(u.uid));
+                                return (
+                                    <div
+                                        key={u.uid}
+                                        onClick={() => !creatingChat && handleUserSelect(u)}
+                                        className={`p-3 hover:bg-slate-50 dark:hover:bg-slate-800 cursor-pointer flex items-center gap-3 ${creatingChat ? 'opacity-50 cursor-wait' : ''}`}
+                                    >
+                                        <img src={u.avatar || 'https://i.pravatar.cc/150'} className="w-8 h-8 rounded-full" />
+                                        <div className="flex-1">
+                                            <p className={`text-sm font-bold ${isExistingContact ? 'text-green-600 dark:text-green-400' : ''}`}>
+                                                {u.name}
+                                            </p>
+                                            <p className="text-xs text-slate-500">@{u.username || 'user'}</p>
+                                        </div>
+                                        {creatingChat && <Icon name="spinner" className="w-4 h-4 animate-spin text-brand-primary" />}
                                     </div>
-                                    {creatingChat && <Icon name="spinner" className="w-4 h-4 animate-spin text-brand-primary" />}
-                                </div>
-                            ))}
+                                )
+                            })}
                         </div>
                     )}
                 </div>

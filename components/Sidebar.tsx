@@ -10,6 +10,7 @@ interface SidebarProps {
   isDarkMode: boolean;
   setDarkMode: (isDark: boolean) => void;
   onExploreClick?: () => Promise<void> | void;
+  user: import('../types').User | null;
 }
 
 const navItems = [
@@ -20,7 +21,7 @@ const navItems = [
   { to: '/profile', icon: 'profile', label: 'Profile' },
 ];
 
-const Sidebar: React.FC<SidebarProps> = ({ isSidebarOpen, setSidebarOpen, isDarkMode, setDarkMode, onExploreClick }) => {
+const Sidebar: React.FC<SidebarProps> = ({ isSidebarOpen, setSidebarOpen, isDarkMode, setDarkMode, onExploreClick, user }) => {
   const handleNavigate = () => {
     if (typeof window === 'undefined' || window.innerWidth < 768) {
       setSidebarOpen(false);
@@ -105,16 +106,27 @@ const Sidebar: React.FC<SidebarProps> = ({ isSidebarOpen, setSidebarOpen, isDark
 
             <div className="h-px bg-slate-100 dark:bg-slate-800 my-2" />
 
-            <button
-              onClick={() => {
-                signOutUser();
-                handleNavigate();
-              }}
-              className="group flex w-full items-center gap-3 rounded-lg px-4 py-2.5 text-sm font-medium text-slate-600 hover:bg-red-50 hover:text-red-600 dark:text-slate-400 dark:hover:bg-red-900/10 dark:hover:text-red-400 transition-colors"
-            >
-              <Icon name="logout" className="h-5 w-5 text-slate-400 group-hover:text-red-500 dark:text-slate-500 dark:group-hover:text-red-400" />
-              <span>Logout</span>
-            </button>
+            {user ? (
+              <button
+                onClick={() => {
+                  signOutUser();
+                  handleNavigate();
+                }}
+                className="group flex w-full items-center gap-3 rounded-lg px-4 py-2.5 text-sm font-medium text-slate-600 hover:bg-red-50 hover:text-red-600 dark:text-slate-400 dark:hover:bg-red-900/10 dark:hover:text-red-400 transition-colors"
+              >
+                <Icon name="logout" className="h-5 w-5 text-slate-400 group-hover:text-red-500 dark:text-slate-500 dark:group-hover:text-red-400" />
+                <span>Logout</span>
+              </button>
+            ) : (
+              <NavLink
+                to="/login"
+                onClick={handleNavigate}
+                className="group flex w-full items-center gap-3 rounded-lg px-4 py-2.5 text-sm font-medium text-slate-600 hover:bg-brand-primary/10 hover:text-brand-primary dark:text-slate-400 dark:hover:bg-brand-primary/20 dark:hover:text-brand-primary transition-colors"
+              >
+                <Icon name="login" className="h-5 w-5 text-slate-400 group-hover:text-brand-primary dark:text-slate-500" />
+                <span>Login</span>
+              </NavLink>
+            )}
           </div>
         </div>
       </aside>
