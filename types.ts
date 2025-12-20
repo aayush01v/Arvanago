@@ -176,6 +176,7 @@ export interface CourseSection {
 export interface LeaderboardEntry {
   rank: number;
   user: {
+    uid: string;
     name: string;
     avatar: string;
     title?: string;

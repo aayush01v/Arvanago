@@ -87,7 +87,7 @@ const Leaderboard: React.FC = () => {
           if (users.length > 0) {
             const mapped = users.map((u, i) => ({
               rank: i + 1,
-              user: { name: u.name, avatar: u.avatar, title: u.jobTitle },
+              user: { uid: u.uid, name: u.name, avatar: u.avatar, title: u.jobTitle },
               points: u.points
             }));
             setRealData(mapped);
@@ -115,9 +115,9 @@ const Leaderboard: React.FC = () => {
   // Find current user rank
   const userRankEntry = useMemo(() => {
     if (!user) return null;
-    return realData.find(e => e.user.name === user.name) || {
+    return realData.find(e => e.user.uid === user.uid) || {
       rank: 999, // Fallback rank if not in list
-      user: { name: user.name, avatar: user.avatar, title: user.jobTitle },
+      user: { uid: user.uid, name: user.name, avatar: user.avatar, title: user.jobTitle },
       points: user.points
     };
   }, [realData, user]);
@@ -222,7 +222,7 @@ const Leaderboard: React.FC = () => {
           {/* The Rest */}
           <div className="bg-white/40 dark:bg-slate-900/40 rounded-3xl p-6">
             {others.map(entry => (
-              <LeaderboardRow key={entry.rank} entry={entry} isMe={user && entry.user.name === user.name} />
+              <LeaderboardRow key={entry.rank} entry={entry} isMe={user && entry.user.uid === user.uid} />
             ))}
           </div>
         </>
@@ -230,7 +230,7 @@ const Leaderboard: React.FC = () => {
 
       {/* Sticky User Rank Bar */}
       {showStickyBar && (
-        <div className="fixed bottom-24 sm:bottom-6 left-1/2 transform -translate-x-1/2 w-full max-w-2xl px-4 z-40 animate-slide-up-fade">
+        <div className="fixed bottom-6 left-1/2 transform -translate-x-1/2 w-full max-w-2xl px-4 z-40 animate-slide-up-fade">
           <div className="bg-slate-900/90 dark:bg-white/90 backdrop-blur-md text-white dark:text-slate-900 p-4 rounded-2xl shadow-2xl border border-white/20 flex items-center justify-between">
             <div className="flex items-center gap-4">
               <div className="w-12 text-center font-black text-xl">#{userRankEntry.rank}</div>
