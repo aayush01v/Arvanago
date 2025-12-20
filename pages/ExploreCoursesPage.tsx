@@ -17,7 +17,7 @@ const Toast: React.FC<{ message: string; isVisible: boolean; onClose: () => void
   }, [isVisible, onClose]);
 
   return (
-    <div className={`fixed top-6 left-1/2 transform -translate-x-1/2 z-[100] transition-all duration-500 ease-out ${isVisible ? 'translate-y-0 opacity-100' : '-translate-y-10 opacity-0 pointer-events-none'}`}>
+    <div className={`fixed bottom-6 right-6 z-[9999] transition-all duration-500 ease-out ${isVisible ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0 pointer-events-none'}`}>
       <div className="glass-reflection flex items-center gap-3 px-6 py-3 rounded-full bg-white/90 dark:bg-slate-800/90 border border-white/40 dark:border-slate-700 shadow-2xl backdrop-blur-md text-slate-800 dark:text-white">
         <span className="flex items-center justify-center w-6 h-6 rounded-full bg-gradient-to-br from-green-400 to-green-600 text-white shadow-md">
           <Icon name="check" className="w-3.5 h-3.5" />
@@ -35,7 +35,7 @@ const ExploreCoursesPage: React.FC = () => {
 
   const initialCategory = searchParams.get('category') ?? 'All';
 
-  const { handleEnroll, isLoading: isEnrollmentLoading, toastMessage, showToast, setShowToast } = useRazorpayEnrollment({
+  const { handleEnroll, enrollingCourseId, toastMessage, showToast, setShowToast } = useRazorpayEnrollment({
     user,
     onProfileUpdate
   });
@@ -76,6 +76,7 @@ const ExploreCoursesPage: React.FC = () => {
       <CourseList
         courses={courses}
         navigateToCourse={handleEnroll} // Use handleEnroll instead of direct navigation
+        enrollingCourseId={enrollingCourseId}
         onPreviewCourse={handlePreviewCourse}
         onToggleWishlist={handleWishlistToggle}
         wishlistCourseIds={user?.wishlist}

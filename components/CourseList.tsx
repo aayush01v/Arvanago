@@ -14,6 +14,7 @@ interface CourseListProps {
   initialCategory?: string;
   isLoading?: boolean;
   errorMessage?: string | null;
+  enrollingCourseId?: string | null;
 }
 
 interface CourseCardProps {
@@ -23,6 +24,7 @@ interface CourseCardProps {
   onToggleWishlist?: (course: Course) => void;
   isWishlisted?: boolean;
   isEnrolled?: boolean;
+  isEnrolling?: boolean;
 }
 
 const CourseCardComponent: React.FC<CourseCardProps> = ({
@@ -32,6 +34,7 @@ const CourseCardComponent: React.FC<CourseCardProps> = ({
   onToggleWishlist,
   isWishlisted = false,
   isEnrolled = false,
+  isEnrolling = false,
 }) => {
   const coverImage = course.thumbnailUrl ?? course.thumbnail;
   const isPaid = course.isPaid || (typeof course.price === 'number' && course.price > 0);
@@ -157,9 +160,20 @@ const CourseCardComponent: React.FC<CourseCardProps> = ({
               </button>
               <button
                 onClick={() => onEnrollCourse(course)}
-                className="py-2.5 rounded-xl bg-brand-primary/10 text-brand-primary font-bold hover:bg-brand-primary hover:text-white transition-all flex items-center justify-center gap-2"
+                disabled={isEnrolling}
+                className={`py-2.5 rounded-xl font-bold transition-all flex items-center justify-center gap-2
+                  ${isEnrolling
+                    ? 'bg-slate-100 dark:bg-slate-800 text-slate-400 cursor-not-allowed opacity-80'
+                    : 'bg-brand-primary/10 text-brand-primary hover:bg-brand-primary hover:text-white'
+                  }`}
               >
-                {isPaid ? 'Enroll' : 'Start Free'}
+                {isEnrolling ? (
+                  <>
+                    <Icon name="spinner" className="w-4 h-4 animate-spin" /> Processing...
+                  </>
+                ) : (
+                  <>{isPaid ? 'Enroll' : 'Start Free'}</>
+                )}
               </button>
             </div>
           )}
@@ -182,6 +196,7 @@ const CourseList: React.FC<CourseListProps> = ({
   initialCategory = 'All',
   isLoading = false,
   errorMessage,
+  enrollingCourseId,
 }) => {
   const [selectedCategory, setSelectedCategory] = useState(initialCategory);
 
@@ -277,6 +292,7 @@ const CourseList: React.FC<CourseListProps> = ({
               isEnrolled={
                 enrolledCourseIds?.includes(course.id) || ongoingCourseIds?.includes(course.id)
               }
+              isEnrolling={enrollingCourseId === course.id}
             />
           ))
         ) : (

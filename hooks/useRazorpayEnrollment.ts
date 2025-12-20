@@ -14,7 +14,7 @@ interface UseRazorpayEnrollmentProps {
 
 export const useRazorpayEnrollment = ({ user, onProfileUpdate }: UseRazorpayEnrollmentProps) => {
     const navigate = useNavigate();
-    const [isLoading, setIsLoading] = useState(false);
+    const [enrollingCourseId, setEnrollingCourseId] = useState<string | null>(null);
     const [toastMessage, setToastMessage] = useState('');
     const [showToast, setShowToast] = useState(false);
 
@@ -68,7 +68,7 @@ export const useRazorpayEnrollment = ({ user, onProfileUpdate }: UseRazorpayEnro
         if (isPaidCourse) {
             setToastMessage('Processing Payment...');
             setShowToast(true);
-            setIsLoading(true);
+            setEnrollingCourseId(course.id);
             try {
                 // 1. Create Order
                 const res = await fetch('/api/create-order', {
@@ -150,7 +150,7 @@ export const useRazorpayEnrollment = ({ user, onProfileUpdate }: UseRazorpayEnro
                             setToastMessage('Payment verification error');
                             setShowToast(true);
                         } finally {
-                            setIsLoading(false);
+                            setEnrollingCourseId(null);
                         }
                     },
                     prefill: {
@@ -163,9 +163,10 @@ export const useRazorpayEnrollment = ({ user, onProfileUpdate }: UseRazorpayEnro
                     },
                     modal: {
                         ondismiss: function () {
-                            setIsLoading(false);
+                            setEnrollingCourseId(null);
                             setToastMessage('Payment Cancelled');
                             setShowToast(true);
+                            document.body.style.overflow = 'auto';
                         }
                     }
                 };
@@ -174,7 +175,8 @@ export const useRazorpayEnrollment = ({ user, onProfileUpdate }: UseRazorpayEnro
                 rzp1.on('payment.failed', function (response: any) {
                     setToastMessage('Payment Failed: ' + response.error.description);
                     setShowToast(true);
-                    setIsLoading(false);
+                    setEnrollingCourseId(null);
+                    document.body.style.overflow = 'auto';
                 });
                 rzp1.open();
 
@@ -182,19 +184,19 @@ export const useRazorpayEnrollment = ({ user, onProfileUpdate }: UseRazorpayEnro
                 console.error('Payment initialization failed', error);
                 setToastMessage('Failed to initialize payment');
                 setShowToast(true);
-                setIsLoading(false);
+                setEnrollingCourseId(null);
             }
         } else {
             // Free course flow
-            setIsLoading(true);
+            setEnrollingCourseId(course.id);
             await completeEnrollment(course);
-            setIsLoading(false);
+            setEnrollingCourseId(null);
         }
     }, [user, navigate, completeEnrollment]);
 
     return {
         handleEnroll,
-        isLoading,
+        enrollingCourseId,
         toastMessage,
         showToast,
         setShowToast,

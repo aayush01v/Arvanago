@@ -30,7 +30,7 @@ const Toast: React.FC<{ message: string; isVisible: boolean; onClose: () => void
     }, [isVisible, onClose]);
 
     return (
-        <div className={`fixed top-6 left-1/2 transform -translate-x-1/2 z-[100] transition-all duration-500 ease-out ${isVisible ? 'translate-y-0 opacity-100' : '-translate-y-10 opacity-0 pointer-events-none'}`}>
+        <div className={`fixed bottom-6 right-6 z-[9999] transition-all duration-500 ease-out ${isVisible ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0 pointer-events-none'}`}>
             <div className="glass-reflection flex items-center gap-3 px-6 py-3 rounded-full bg-white/90 dark:bg-slate-800/90 border border-white/40 dark:border-slate-700 shadow-2xl backdrop-blur-md text-slate-800 dark:text-white">
                 <span className="flex items-center justify-center w-6 h-6 rounded-full bg-gradient-to-br from-green-400 to-green-600 text-white shadow-md">
                     <Icon name="check" className="w-3.5 h-3.5" />
@@ -50,8 +50,8 @@ const TabButton: React.FC<{
     <button
         onClick={onClick}
         className={`relative flex items-center gap-2 px-5 py-3 text-sm font-semibold transition-all duration-300 rounded-full ${active
-                ? 'text-white bg-gradient-to-r from-brand-primary to-brand-secondary shadow-lg shadow-brand-primary/30 scale-105'
-                : 'text-slate-600 dark:text-slate-300 hover:bg-white/10 dark:hover:bg-white/5 hover:text-brand-primary dark:hover:text-white'
+            ? 'text-white bg-gradient-to-r from-brand-primary to-brand-secondary shadow-lg shadow-brand-primary/30 scale-105'
+            : 'text-slate-600 dark:text-slate-300 hover:bg-white/10 dark:hover:bg-white/5 hover:text-brand-primary dark:hover:text-white'
             }`}
     >
         <Icon name={icon} className={`w-4 h-4 ${active ? 'text-white' : ''}`} />
@@ -118,10 +118,13 @@ const CoursePreview: React.FC<CoursePreviewProps> = ({ course, onLoginClick, onB
     const [showCouponInput, setShowCouponInput] = useState(false);
     const [couponCode, setCouponCode] = useState('');
 
-    const { handleEnroll, isLoading, toastMessage, showToast, setShowToast, setToastMessage } = useRazorpayEnrollment({
+    const { handleEnroll, enrollingCourseId, toastMessage, showToast, setShowToast, setToastMessage } = useRazorpayEnrollment({
         user,
         onProfileUpdate
     });
+
+    // Derived state for back-compat with the component code
+    const isLoading = enrollingCourseId === course.id;
 
     const onEnrollClick = async () => {
         await handleEnroll(course);
@@ -476,8 +479,8 @@ const CoursePreview: React.FC<CoursePreviewProps> = ({ course, onLoginClick, onB
                                             <button
                                                 onClick={handleWishlist}
                                                 className={`col-span-4 py-3 rounded-xl border font-semibold transition-all flex items-center justify-center gap-2 ${isWishlisted
-                                                        ? 'border-red-200 bg-red-50 text-red-500 dark:bg-red-900/20 dark:border-red-800'
-                                                        : 'border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200'
+                                                    ? 'border-red-200 bg-red-50 text-red-500 dark:bg-red-900/20 dark:border-red-800'
+                                                    : 'border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200'
                                                     }`}
                                             >
                                                 <Icon name={isWishlisted ? 'heart-filled' : 'heart'} className={`w-5 h-5 ${isWishlisted ? 'animate-scale-in' : ''}`} />
