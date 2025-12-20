@@ -293,6 +293,11 @@ const Profile: React.FC<ProfileProps> = ({ user, onProfileUpdate, isDarkMode, on
         </div>
 
         <p className="text-sm md:text-base text-slate-500 dark:text-slate-400 font-medium mt-2">{user.jobTitle || 'Learner'}</p>
+
+        {/* Render Bio in Header */}
+        <p className="text-slate-600 dark:text-slate-300 text-sm md:text-base mt-3 max-w-xl mx-auto leading-relaxed px-4">
+          {user.bio || "Hello! I love learning and building new things."}
+        </p>
       </div>
 
       {/* Stats Bar */}
@@ -333,43 +338,33 @@ const Profile: React.FC<ProfileProps> = ({ user, onProfileUpdate, isDarkMode, on
 
         {/* Left Column: Intro */}
         <div className="lg:col-span-1 space-y-6">
-          <div className="bg-white dark:bg-slate-800 rounded-3xl p-6 shadow-sm border border-slate-100 dark:border-slate-700 section-transition">
-            <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-4">Bio</h3>
-            <p className="text-slate-600 dark:text-slate-400 text-sm leading-relaxed mb-6">
-              {user.bio || "Hello! I love learning and building new things."}
-            </p>
+          {(user.publicEmail || user.website) && (
+            <div className="bg-white dark:bg-slate-800 rounded-3xl p-6 shadow-sm border border-slate-100 dark:border-slate-700 section-transition">
+              <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-4">About</h3>
 
-            <div className="space-y-4">
-              {user.jobTitle && (
-                <div className="flex items-center gap-3 text-sm text-slate-700 dark:text-slate-300">
-                  <div className="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-700 flex items-center justify-center shrink-0">
-                    <Icon name="briefcase" className="w-4 h-4 text-slate-500" />
+              <div className="space-y-4">
+                {user.publicEmail && (
+                  <div className="flex items-center gap-3 text-sm text-slate-700 dark:text-slate-300">
+                    <div className="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-700 flex items-center justify-center shrink-0">
+                      <Icon name="mail" className="w-4 h-4 text-slate-500" />
+                    </div>
+                    <span>{user.publicEmail}</span>
                   </div>
-                  <span>{user.jobTitle}</span>
-                </div>
-              )}
+                )}
 
-              {user.publicEmail && (
-                <div className="flex items-center gap-3 text-sm text-slate-700 dark:text-slate-300">
-                  <div className="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-700 flex items-center justify-center shrink-0">
-                    <Icon name="mail" className="w-4 h-4 text-slate-500" />
+                {user.website && (
+                  <div className="flex items-center gap-3 text-sm text-slate-700 dark:text-slate-300">
+                    <div className="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-700 flex items-center justify-center shrink-0">
+                      <Icon name="globe" className="w-4 h-4 text-slate-500" />
+                    </div>
+                    <a href={user.website} target="_blank" rel="noopener noreferrer" className="hover:text-brand-primary transition-colors truncate">
+                      {user.website.replace(/^https?:\/\//, '')}
+                    </a>
                   </div>
-                  <span>{user.publicEmail}</span>
-                </div>
-              )}
-
-              {user.website && (
-                <div className="flex items-center gap-3 text-sm text-slate-700 dark:text-slate-300">
-                  <div className="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-700 flex items-center justify-center shrink-0">
-                    <Icon name="globe" className="w-4 h-4 text-slate-500" />
-                  </div>
-                  <a href={user.website} target="_blank" rel="noopener noreferrer" className="hover:text-brand-primary transition-colors truncate">
-                    {user.website.replace(/^https?:\/\//, '')}
-                  </a>
-                </div>
-              )}
+                )}
+              </div>
             </div>
-          </div>
+          )}
 
           {/* Photos Widget (Mock) */}
           <div className="bg-white dark:bg-slate-800 rounded-3xl p-6 shadow-sm border border-slate-100 dark:border-slate-700 section-transition">

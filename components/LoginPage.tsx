@@ -1,5 +1,5 @@
-
 import React, { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import Icon from './common/Icon.tsx';
 import { signInWithGoogle, signInWithEmail, signUpWithEmail } from '../services/authService.ts';
 import { LOGO_URL } from '../constants.ts';
@@ -10,29 +10,11 @@ interface LoginPageProps {
 
 type AuthTab = 'signin' | 'signup';
 
-const floatingOrbs = [
-    { id: 1, className: 'top-[12%] left-[12%]', size: 'w-28 h-28', gradient: 'from-cyan-400/50 via-blue-500/35 to-purple-500/30', animation: 'animate-float-1', delay: '0s' },
-    { id: 2, className: 'bottom-[18%] right-[14%]', size: 'w-36 h-36', gradient: 'from-indigo-400/45 via-purple-500/35 to-pink-500/30', animation: 'animate-float-2', delay: '-6s' },
-    { id: 3, className: 'top-[55%] right-[32%]', size: 'w-24 h-24', gradient: 'from-sky-400/45 via-cyan-400/35 to-emerald-400/25', animation: 'animate-blob', delay: '-3s' },
-];
-
-const floatingGlyphs = [
-    { id: 'spark', icon: 'sparkles', className: 'top-10 right-10 text-white/30', duration: '26s' },
-    { id: 'atom', icon: 'atom', className: 'bottom-12 left-10 text-white/25', duration: '32s' },
-    { id: 'orb', icon: 'brain-circuit', className: 'top-1/2 left-1/3 text-white/20', duration: '30s' },
-];
-
-const highlightTiles = [
-    { id: 'mentors', icon: 'live', title: 'Live mentors', subtitle: 'Interactive sessions everyday' },
-    { id: 'immersive', icon: 'cube', title: 'Immersive labs', subtitle: 'Hands-on 3D practice sets' },
-    { id: 'support', icon: 'doubt', title: '24/7 support', subtitle: 'Instant doubt resolution' },
-];
-
 const strengthConfig = {
-    0: { width: '0%', colorClass: 'bg-transparent', shadowColor: 'transparent', label: '' },
-    1: { width: '33%', colorClass: 'bg-red-500', shadowColor: '#ef4444', label: 'Weak' },
-    2: { width: '66%', colorClass: 'bg-yellow-500', shadowColor: '#f59e0b', label: 'Okay' },
-    3: { width: '100%', colorClass: 'bg-green-500', shadowColor: '#22c55e', label: 'Strong' },
+    0: { width: '0%', color: 'bg-transparent', label: '' },
+    1: { width: '33%', color: 'bg-rose-500', label: 'Weak' },
+    2: { width: '66%', color: 'bg-amber-400', label: 'Medium' },
+    3: { width: '100%', color: 'bg-emerald-500', label: 'Strong' },
 };
 
 const LoginPage: React.FC<LoginPageProps> = ({ onNavigateHome }) => {
@@ -42,88 +24,38 @@ const LoginPage: React.FC<LoginPageProps> = ({ onNavigateHome }) => {
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
-    const [passwordStrength, setPasswordStrength] = useState(0); // 0: none, 1: weak, 2: medium, 3: strong
+    const [passwordStrength, setPasswordStrength] = useState(0);
 
     const currentStrength = strengthConfig[passwordStrength as keyof typeof strengthConfig];
-
-    const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const value = e.target.value;
-        // Allow only alphabets and spaces, and limit to 15 characters.
-        const filteredValue = value.replace(/[^a-zA-Z\s]/g, '').slice(0, 15);
-        setName(filteredValue);
-    };
 
     const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const newPassword = e.target.value;
         setPassword(newPassword);
-
         if (activeTab === 'signup') {
-            if (newPassword.length === 0) {
-                setPasswordStrength(0);
-                return;
-            }
-
             let score = 0;
             if (newPassword.length >= 8) score++;
-            if (/[a-z]/.test(newPassword)) score++;
             if (/[A-Z]/.test(newPassword)) score++;
             if (/[0-9]/.test(newPassword)) score++;
-            if (/[\W_]/.test(newPassword)) score++; // Special character
-
-            if (score <= 2) {
-                setPasswordStrength(1); // Weak
-            } else if (score <= 4) {
-                setPasswordStrength(2); // Medium
-            } else {
-                setPasswordStrength(3); // Strong
-            }
+            if (/[^A-Za-z0-9]/.test(newPassword)) score++;
+            setPasswordStrength(score === 0 ? 0 : score <= 2 ? 1 : score <= 3 ? 2 : 3);
         }
     };
 
     const handleFormSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setError('');
-
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        if (!email.trim() || !emailRegex.test(email)) {
-            setError("Please use a valid email format (e.g., user@example.com).");
-            return;
-        }
+        if (!email.trim()) return setError("Please enter your email.");
+        if (activeTab === 'signup' && !name.trim()) return setError("Please enter your name.");
 
         setLoading(true);
-
         try {
             if (activeTab === 'signup') {
-                if (!name) throw { code: 'auth/missing-name' };
                 await signUpWithEmail(name, email, password);
             } else {
                 await signInWithEmail(email, password);
             }
         } catch (err: any) {
-            let message;
-            switch (err.code) {
-                case 'auth/invalid-email':
-                    message = "Please use a valid email format (e.g., user@example.com).";
-                    break;
-                case 'auth/email-already-in-use':
-                    message = "This email is already registered. Please Sign In.";
-                    break;
-                case 'auth/weak-password':
-                    message = "Password should be at least 6 characters long.";
-                    break;
-                case 'auth/invalid-credential':
-                case 'auth/user-not-found':
-                case 'auth/wrong-password':
-                    message = "Invalid email or password. Please try again.";
-                    break;
-                case 'auth/missing-name':
-                    message = "Please enter your full name.";
-                    break;
-                default:
-                    message = err.message.replace('Firebase: ', '');
-                    break;
-            }
-            setError(message || "An unknown error occurred.");
+            setError(err.message.replace('Firebase: ', '') || "An error occurred.");
         } finally {
             setLoading(false);
         }
@@ -134,18 +66,7 @@ const LoginPage: React.FC<LoginPageProps> = ({ onNavigateHome }) => {
         try {
             await signInWithGoogle();
         } catch (err: any) {
-            setError(err.message || "Could not sign in with Google.");
-        }
-    }
-
-    const welcomeContent = {
-        signin: {
-            title: 'Welcome Back!',
-            subtitle: 'Sign in to continue your learning journey and unlock your full potential.',
-        },
-        signup: {
-            title: 'Start Your Journey',
-            subtitle: 'Create an account to access interactive courses, track progress, and join a community of learners.',
+            setError(err.message || "Google Sign In failed.");
         }
     };
 
@@ -153,166 +74,236 @@ const LoginPage: React.FC<LoginPageProps> = ({ onNavigateHome }) => {
         setActiveTab(tab);
         setError('');
         setPassword('');
-        setEmail('');
-        setName('');
         setPasswordStrength(0);
     };
 
     return (
-        <div className="min-h-screen bg-slate-50 dark:bg-slate-900 flex items-center justify-center p-4 md:p-8 font-sans text-slate-800 dark:text-white relative overflow-hidden">
-            {/* Background Blobs */}
-            <div className="absolute -top-1/4 -left-1/4 w-96 h-96 bg-purple-300 rounded-full mix-blend-multiply filter blur-xl opacity-40 animate-blob dark:opacity-20"></div>
-            <div className="absolute -bottom-1/4 -right-1/4 w-96 h-96 bg-indigo-300 rounded-full mix-blend-multiply filter blur-xl opacity-40 animate-blob dark:opacity-20" style={{ animationDelay: '2s' }}></div>
+        <div className="min-h-screen w-full flex bg-slate-50 text-slate-900 overflow-hidden relative font-sans selection:bg-brand-primary/20">
 
-            <div className="w-full max-w-6xl bg-white/55 dark:bg-slate-800/60 backdrop-blur-2xl rounded-[2rem] shadow-2xl flex flex-col md:flex-row overflow-hidden border border-white/40 dark:border-slate-700/50 relative z-10">
-                {/* Left Panel - Welcome/Info */}
-                <div className="w-full md:w-1/2 p-6 md:p-12 text-white flex flex-col justify-center items-center md:items-start text-center md:text-left relative overflow-hidden min-h-[300px] md:min-h-full">
-                    <div className="absolute inset-0 z-0">
-                        <div className="absolute inset-0 bg-gradient-to-br from-brand-primary/75 via-indigo-700/70 to-purple-800/70" />
-                        <div className="absolute inset-0 bg-white/15 mix-blend-screen" />
-                        <div className="absolute inset-0 backdrop-blur-[6px]" />
-                        {/* Hide floating elements on small screens to prevent clutter/overlap */}
-                        <div className="hidden md:block">
-                            {floatingOrbs.map(orb => (
-                                <div
-                                    key={orb.id}
-                                    className={`absolute ${orb.className} ${orb.animation}`}
-                                    style={{
-                                        animationDuration: '26s',
-                                        animationDelay: orb.delay,
-                                    }}
-                                >
-                                    <div className={`relative ${orb.size}`}>
-                                        <div className={`absolute inset-0 rounded-full bg-gradient-to-br ${orb.gradient} blur-[60px] opacity-80`} />
-                                        <div className="absolute inset-0 rounded-full border border-white/30" />
-                                    </div>
-                                </div>
-                            ))}
-                            {floatingGlyphs.map((glyph) => (
-                                <Icon
-                                    key={glyph.id}
-                                    name={glyph.icon}
-                                    className={`absolute ${glyph.className} w-12 h-12 opacity-70 animate-float-1`}
-                                    style={{ animationDuration: glyph.duration }}
-                                />
-                            ))}
-                        </div>
+            {/* Cinematic Ambient Background (Matches Homepage) */}
+            <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
+                <div className="absolute top-[-20%] left-[-10%] w-[70vw] h-[70vw] rounded-full opacity-40 animate-blob mix-blend-multiply filter blur-[80px]" style={{ background: 'radial-gradient(circle, rgba(56, 189, 248, 0.8) 0%, transparent 60%)' }} />
+                <div className="absolute bottom-[-20%] right-[-10%] w-[60vw] h-[60vw] rounded-full opacity-40 animate-blob mix-blend-multiply filter blur-[80px]" style={{ animationDelay: '5s', background: 'radial-gradient(circle, rgba(139, 92, 246, 0.8) 0%, transparent 60%)' }} />
+            </div>
+
+            {/* Mesh Texture Overlay (Subtle) */}
+            <div className="absolute inset-0 z-0 opacity-[0.4] bg-[url('https://grainy-gradients.vercel.app/noise.svg')] mix-blend-soft-light pointer-events-none"></div>
+
+            {/* Left Panel (Brand Hero) - Hidden on Mobile */}
+            <div className="hidden lg:flex w-1/2 relative z-10 flex-col justify-between p-16">
+                <motion.div
+                    initial={{ opacity: 0, y: -20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.8 }}
+                    className="flex items-center gap-3"
+                >
+                    <div className="relative">
+                        <div className="absolute inset-0 bg-brand-primary/20 blur-lg rounded-full"></div>
+                        <img src={LOGO_URL} alt="Logo" className="h-10 w-auto object-contain relative z-10" />
                     </div>
+                    <span className="text-2xl font-bold tracking-tight text-slate-900">Edusimulate</span>
+                </motion.div>
 
-                    {/* Content */}
-                    <div className="relative z-10 w-full space-y-6 sm:space-y-8 py-8 md:py-0">
-                        <div key={activeTab} className="animate-fade-in space-y-4 sm:space-y-5">
-                            <div className="flex items-center justify-center md:justify-start">
-                                <img src={LOGO_URL} alt="Edusimulate Logo" className="h-10 w-auto mr-3 object-contain" />
-                                <span className="text-3xl font-extrabold text-shadow text-white">Edusimulate</span>
-                            </div>
-                            <h1 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-shadow md:tracking-tight">{welcomeContent[activeTab].title}</h1>
-                            <p className="text-sm sm:text-base md:text-lg opacity-90 max-w-sm mx-auto md:mx-0">{welcomeContent[activeTab].subtitle}</p>
-                        </div>
+                <div className="space-y-8 max-w-lg">
+                    <motion.div
+                        initial={{ opacity: 0, x: -30 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: 0.2, duration: 0.8 }}
+                    >
+                        <h1 className="text-5xl lg:text-7xl font-black leading-tight tracking-tight mb-6 text-slate-900">
+                            Master your <span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-primary via-purple-600 to-blue-600 animate-shimmer bg-[length:200%_auto]">Future.</span>
+                        </h1>
+                        <p className="text-lg text-slate-600 leading-relaxed font-medium">
+                            Join thousands of learners mastering new skills with our interactive, mentorship-driven platform.
+                        </p>
+                    </motion.div>
 
-                        <div className="mx-auto md:mx-0 mt-6 sm:mt-8 w-full max-w-md sm:max-w-none hidden sm:block">
-                            <div className="flex gap-3 overflow-x-auto pb-2 -mx-1 px-1 snap-x snap-mandatory sm:mx-0 sm:px-0 sm:grid sm:grid-cols-3 md:grid-cols-1 lg:grid-cols-1 xl:grid-cols-3 sm:gap-3 sm:overflow-visible sm:pb-0 sm:snap-none lg:gap-4">
-                                {highlightTiles.map(tile => (
-                                    <div
-                                        key={tile.id}
-                                        className="glass-reflection rounded-2xl border border-white/40 bg-white/20 p-4 text-left shadow-[0_18px_48px_rgba(15,23,42,0.28)] backdrop-blur-xl flex-shrink-0 min-w-[11rem] sm:min-w-0"
-                                    >
-                                        <div className="flex items-center gap-3">
-                                            <span className="flex h-12 w-12 items-center justify-center rounded-xl bg-white/20 text-white shadow-inner shadow-white/40">
-                                                <Icon name={tile.icon} className="h-6 w-6" />
-                                            </span>
-                                            <div>
-                                                <p className="font-semibold leading-tight">{tile.title}</p>
-                                                <p className="text-xs text-white/70">{tile.subtitle}</p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
+                    <div className="flex gap-4">
+                        {[
+                            { icon: "live", label: "Live Mentorship" },
+                            { icon: "cube", label: "3D Labs" },
+                            { icon: "doubt", label: "24/7 Support" }
+                        ].map((item, i) => (
+                            <motion.div
+                                key={item.label}
+                                initial={{ opacity: 0, y: 20 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ delay: 0.4 + (i * 0.1) }}
+                                whileHover={{ scale: 1.05, backgroundColor: "rgba(255,255,255,0.8)" }}
+                                className="flex items-center gap-2 px-5 py-2.5 rounded-full bg-white/40 border border-white/60 backdrop-blur-md shadow-sm transition-colors cursor-default"
+                            >
+                                <Icon name={item.icon} className="w-4 h-4 text-brand-primary" />
+                                <span className="text-sm font-semibold text-slate-700">{item.label}</span>
+                            </motion.div>
+                        ))}
                     </div>
                 </div>
 
-                {/* Right Panel - Auth Form */}
-                <div className="w-full md:w-1/2 p-8 md:p-12 flex flex-col justify-center">
-                    <button
-                        onClick={onNavigateHome}
-                        className="absolute top-4 right-4 rounded-full bg-white/70 p-1.5 text-slate-600 shadow-sm transition hover:bg-white/80 hover:text-slate-800 dark:bg-slate-900/70 dark:text-slate-200 dark:shadow-[0_12px_24px_rgba(2,6,23,0.35)] dark:hover:bg-slate-800/70 dark:hover:text-white"
-                    >
-                        <Icon name="x" className="w-5 h-5" />
-                    </button>
-                    <div className="w-full max-w-md mx-auto">
-                        <div className="relative flex border-b border-slate-200 dark:border-slate-600 mb-6">
-                            <button onClick={() => switchTab('signin')} className={`w-1/2 pb-3 font-semibold text-lg transition-colors duration-300 ${activeTab === 'signin' ? 'text-brand-primary' : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'}`}>Sign In</button>
-                            <button onClick={() => switchTab('signup')} className={`w-1/2 pb-3 font-semibold text-lg transition-colors duration-300 ${activeTab === 'signup' ? 'text-brand-primary' : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'}`}>Sign Up</button>
-                            <div
-                                className="absolute bottom-[-1px] h-0.5 bg-brand-primary transition-transform duration-300 ease-in-out"
-                                style={{
-                                    width: '50%',
-                                    transform: activeTab === 'signin' ? 'translateX(0%)' : 'translateX(100%)'
-                                }}
-                            />
+                <div className="text-sm text-slate-500 font-medium">
+                    © 2024 Edusimulate Inc.
+                </div>
+            </div>
+
+            {/* Right Panel (Form) */}
+            <div className="w-full lg:w-1/2 relative z-10 flex items-center justify-center p-4 sm:p-8">
+                <motion.div
+                    initial={{ opacity: 0, scale: 0.98 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ duration: 0.6, ease: "easeOut" }}
+                    className="w-full max-w-md"
+                >
+                    {/* Mobile Logo */}
+                    <div className="lg:hidden flex justify-center items-center gap-3 mb-10">
+                        <div className="relative">
+                            <div className="absolute inset-0 bg-brand-primary/20 blur-lg rounded-full"></div>
+                            <img src={LOGO_URL} alt="Logo" className="h-10 w-auto object-contain relative z-10" />
+                        </div>
+                        <span className="text-2xl font-bold text-slate-900">Edusimulate</span>
+                    </div>
+
+                    <div className="bg-white/70 backdrop-blur-xl border border-white/40 rounded-[2rem] p-8 shadow-2xl shadow-brand-primary/5 relative overflow-hidden group">
+
+                        {/* Tabs */}
+                        <div className="flex p-1 bg-slate-100/80 rounded-2xl mb-8 relative">
+                            {(['signin', 'signup'] as const).map((tab) => (
+                                <button
+                                    key={tab}
+                                    onClick={() => switchTab(tab)}
+                                    className={`relative z-10 flex-1 py-3 text-sm font-bold rounded-xl transition-all duration-300 ${activeTab === tab
+                                            ? 'text-brand-primary'
+                                            : 'text-slate-500 hover:text-slate-700'
+                                        }`}
+                                >
+                                    {tab === 'signin' ? 'Sign In' : 'Sign Up'}
+                                    {activeTab === tab && (
+                                        <motion.div
+                                            layoutId="activeTab"
+                                            className="absolute inset-0 bg-white rounded-xl shadow-md border border-slate-100"
+                                            style={{ zIndex: -1 }}
+                                            transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
+                                        />
+                                    )}
+                                </button>
+                            ))}
                         </div>
 
-                        <form onSubmit={handleFormSubmit} noValidate>
-                            <div className={`transition-all duration-500 ease-in-out overflow-hidden transform ${activeTab === 'signup' ? 'max-h-20 opacity-100 translate-y-0' : 'max-h-0 opacity-0 -translate-y-4 pointer-events-none'}`}>
-                                <div className="mb-4">
-                                    <input type="text" placeholder="Full Name" aria-label="Full Name" value={name} onChange={handleNameChange} required={activeTab === 'signup'} tabIndex={activeTab === 'signup' ? 0 : -1} className="w-full px-4 py-3 bg-white/70 dark:bg-slate-800/70 border border-slate-200/70 dark:border-slate-700 rounded-lg focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/30 outline-none transition" />
-                                </div>
-                            </div>
-                            <div className="mb-4">
-                                <input type="email" placeholder="Email Address" aria-label="Email Address" value={email} onChange={e => setEmail(e.target.value)} required className="w-full px-4 py-3 bg-white/70 dark:bg-slate-800/70 border border-slate-200/70 dark:border-slate-700 rounded-lg focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/30 outline-none transition" />
-                            </div>
-                            <div className="mb-4">
-                                <input type="password" placeholder="Password" aria-label="Password" value={password} onChange={handlePasswordChange} required className="w-full px-4 py-3 bg-white/70 dark:bg-slate-800/70 border border-slate-200/70 dark:border-slate-700 rounded-lg focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/30 outline-none transition" />
+                        <div className="text-center mb-8 space-y-2">
+                            <h2 className="text-3xl font-bold tracking-tight text-slate-900">
+                                {activeTab === 'signin' ? 'Welcome Back' : 'Create Account'}
+                            </h2>
+                            <p className="text-slate-500 text-sm font-medium">
+                                {activeTab === 'signin'
+                                    ? 'Enter your details to access your account'
+                                    : 'Start your learning journey today'}
+                            </p>
+                        </div>
+
+                        <form onSubmit={handleFormSubmit} className="space-y-5">
+                            <AnimatePresence mode="wait">
+                                {activeTab === 'signup' && (
+                                    <motion.div
+                                        initial={{ height: 0, opacity: 0 }}
+                                        animate={{ height: 'auto', opacity: 1 }}
+                                        exit={{ height: 0, opacity: 0 }}
+                                        className="overflow-hidden"
+                                    >
+                                        <div className="relative group/input">
+                                            <Icon name="user" className="absolute left-4 top-3.5 w-5 h-5 text-slate-400 group-focus-within/input:text-brand-primary transition-colors" />
+                                            <input
+                                                type="text"
+                                                placeholder="Full Name"
+                                                value={name}
+                                                onChange={(e) => setName(e.target.value.replace(/[^a-zA-Z\s]/g, '').slice(0, 20))}
+                                                className="w-full bg-white border border-slate-200 rounded-xl py-3.5 pl-12 pr-4 text-slate-900 placeholder-slate-400 focus:outline-none focus:border-brand-primary focus:ring-4 focus:ring-brand-primary/10 transition-all font-medium"
+                                            />
+                                        </div>
+                                    </motion.div>
+                                )}
+                            </AnimatePresence>
+
+                            <div className="relative group/input">
+                                <Icon name="mail" className="absolute left-4 top-3.5 w-5 h-5 text-slate-400 group-focus-within/input:text-brand-primary transition-colors" />
+                                <input
+                                    type="email"
+                                    placeholder="Email Address"
+                                    value={email}
+                                    onChange={(e) => setEmail(e.target.value)}
+                                    className="w-full bg-white border border-slate-200 rounded-xl py-3.5 pl-12 pr-4 text-slate-900 placeholder-slate-400 focus:outline-none focus:border-brand-primary focus:ring-4 focus:ring-brand-primary/10 transition-all font-medium"
+                                />
                             </div>
 
-                            <div className={`transition-all duration-500 ease-in-out overflow-hidden transform ${activeTab === 'signup' ? 'max-h-24 opacity-100 translate-y-0' : 'max-h-0 opacity-0 -translate-y-4 pointer-events-none'}`}>
-                                <div className="pt-1 mb-2">
-                                    <div className="w-full bg-slate-200 dark:bg-slate-600 rounded-full h-2 my-1 overflow-hidden">
-                                        <div
-                                            className={`h-full rounded-full transition-all duration-300 ${currentStrength.colorClass}`}
-                                            style={{
-                                                width: currentStrength.width,
-                                                boxShadow: passwordStrength > 0 ? `0 0 8px 1px ${currentStrength.shadowColor}` : 'none'
-                                            }}
-                                        />
-                                    </div>
-                                    <p className={`text-xs h-4 text-right transition-colors duration-300 ${passwordStrength === 1 ? 'text-red-500' :
-                                        passwordStrength === 2 ? 'text-yellow-500' :
-                                            passwordStrength === 3 ? 'text-green-500' : 'text-transparent'
-                                        }`}>
-                                        {currentStrength.label}
-                                    </p>
-                                </div>
+                            <div className="relative group/input">
+                                <Icon name="lock" className="absolute left-4 top-3.5 w-5 h-5 text-slate-400 group-focus-within/input:text-brand-primary transition-colors" />
+                                <input
+                                    type="password"
+                                    placeholder="Password"
+                                    value={password}
+                                    onChange={handlePasswordChange}
+                                    className="w-full bg-white border border-slate-200 rounded-xl py-3.5 pl-12 pr-4 text-slate-900 placeholder-slate-400 focus:outline-none focus:border-brand-primary focus:ring-4 focus:ring-brand-primary/10 transition-all font-medium"
+                                />
                             </div>
 
-                            {error && <p className="text-red-500 text-sm text-center py-2 animate-fade-in">{error}</p>}
+                            <AnimatePresence>
+                                {activeTab === 'signup' && password.length > 0 && (
+                                    <motion.div
+                                        initial={{ opacity: 0, height: 0 }}
+                                        animate={{ opacity: 1, height: 'auto' }}
+                                        exit={{ opacity: 0, height: 0 }}
+                                        className="space-y-2 pt-1"
+                                    >
+                                        <div className="flex gap-1.5 h-1.5">
+                                            {[1, 2, 3].map((level) => (
+                                                <div
+                                                    key={level}
+                                                    className={`flex-1 rounded-full transition-all duration-500 ${passwordStrength >= level ? currentStrength.color : 'bg-slate-200'}`}
+                                                />
+                                            ))}
+                                        </div>
+                                        <p className="text-xs text-right text-slate-500 pr-1">{currentStrength.label}</p>
+                                    </motion.div>
+                                )}
+                            </AnimatePresence>
 
-                            <button type="submit" disabled={loading || (activeTab === 'signup' && passwordStrength < 2)} className="w-full mt-2 bg-brand-primary text-white font-bold py-3 px-6 rounded-lg hover:bg-brand-secondary transition-all duration-300 shadow-lg transform hover:scale-105 active:scale-95 hover:shadow-brand-primary/50 disabled:bg-slate-400 disabled:scale-100 disabled:shadow-none disabled:cursor-not-allowed dark:disabled:bg-slate-600">
-                                {loading ? (
-                                    <Icon name="spinner" className="w-6 h-6 animate-spin mx-auto" />
-                                ) : (activeTab === 'signin' ? 'Sign In' : 'Create Account')}
+                            {error && (
+                                <motion.div
+                                    initial={{ opacity: 0, y: -10 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    className="p-3 rounded-lg bg-red-50 border border-red-100 text-red-600 text-sm text-center font-bold"
+                                >
+                                    {error}
+                                </motion.div>
+                            )}
+
+                            <button
+                                type="submit"
+                                disabled={loading}
+                                className="w-full bg-slate-900 hover:bg-slate-800 text-white font-bold py-4 rounded-xl transition-all shadow-xl hover:shadow-2xl hover:-translate-y-0.5 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 mt-4"
+                            >
+                                {loading && <Icon name="spinner" className="w-5 h-5 animate-spin" />}
+                                {activeTab === 'signin' ? 'Sign In' : 'Create Account'}
                             </button>
                         </form>
 
-                        <div className="flex items-center my-6">
-                            <hr className="flex-grow border-slate-200 dark:border-slate-600" />
-                            <span className="mx-4 text-sm text-slate-500">OR</span>
-                            <hr className="flex-grow border-slate-200 dark:border-slate-600" />
+                        <div className="relative my-8">
+                            <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-slate-200"></div></div>
+                            <div className="relative flex justify-center text-xs uppercase tracking-widest"><span className="px-4 bg-white/50 backdrop-blur-sm text-slate-400 font-bold">Or continue with</span></div>
                         </div>
 
-                        <button onClick={handleGoogleSignIn} className="w-full flex items-center justify-center py-3 px-4 border border-slate-300 dark:border-slate-600 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700 transition-all transform active:scale-95">
-                            <svg className="w-6 h-6 mr-3" viewBox="0 0 24 24">
-                                <path fill="#4285F4" d="M21.35 11.1H12.18V13.83H18.67C18.36 15.53 17.27 16.92 15.68 17.84V20.14H18.3C20.44 18.23 21.62 15.22 21.62 12.24C21.62 11.83 21.5 11.46 21.35 11.1Z" />
-                                <path fill="#34A853" d="M11.99 21.89C14.77 21.89 17.06 21.03 18.7 19.43L15.93 17.38C15.01 18.03 13.62 18.52 11.99 18.52C9.43 18.52 7.23 16.89 6.43 14.69H3.6V16.94C5.23 20.07 8.35 21.89 11.99 21.89Z" />
-                                <path fill="#FBBC05" d="M6.43 14.69C6.2 14.04 6.09 13.35 6.09 12.64C6.09 11.93 6.2 11.24 6.43 10.59V8.34H3.6C2.82 9.87 2.37 11.24 2.37 12.64C2.37 14.04 2.82 15.41 3.6 16.94L6.43 14.69Z" />
-                                <path fill="#EA4335" d="M11.99 6.48C13.29 6.48 14.39 6.94 15.21 7.72L17.9 5.02C16.32 3.51 14.28 2.61 11.99 2.61C8.75 2.61 5.8 4.4 4.18 6.98L6.96 9.03C7.76 6.83 9.68 5.48 11.99 5.48Z" />
-                            </svg>
-                            <span className="font-semibold text-slate-700 dark:text-slate-200">Continue with Google</span>
+                        <button
+                            onClick={handleGoogleSignIn}
+                            className="w-full bg-white text-slate-900 border border-slate-200 hover:bg-slate-50 font-bold py-3.5 rounded-xl transition-all flex items-center justify-center gap-3 active:scale-[0.98]"
+                        >
+                            <img src="https://www.google.com/favicon.ico" alt="Google" className="w-5 h-5" />
+                            <span>Google</span>
                         </button>
                     </div>
-                </div>
+
+                    <div className="mt-10 text-center">
+                        <button onClick={onNavigateHome} className="text-slate-500 hover:text-slate-800 transition-colors text-sm font-bold flex items-center gap-2 mx-auto group">
+                            <span className="group-hover:-translate-x-1 transition-transform">←</span> Return to Home
+                        </button>
+                    </div>
+                </motion.div>
             </div>
         </div>
     );
