@@ -166,48 +166,51 @@ const LoginPage: React.FC<LoginPageProps> = ({ onNavigateHome }) => {
 
             <div className="w-full max-w-6xl bg-white/55 dark:bg-slate-800/60 backdrop-blur-2xl rounded-[2rem] shadow-2xl flex flex-col md:flex-row overflow-hidden border border-white/40 dark:border-slate-700/50 relative z-10">
                 {/* Left Panel - Welcome/Info */}
-                <div className="w-full md:w-1/2 p-8 md:p-12 text-white flex flex-col justify-center items-center md:items-start text-center md:text-left relative overflow-hidden">
+                <div className="w-full md:w-1/2 p-6 md:p-12 text-white flex flex-col justify-center items-center md:items-start text-center md:text-left relative overflow-hidden min-h-[300px] md:min-h-full">
                     <div className="absolute inset-0 z-0">
                         <div className="absolute inset-0 bg-gradient-to-br from-brand-primary/75 via-indigo-700/70 to-purple-800/70" />
                         <div className="absolute inset-0 bg-white/15 mix-blend-screen" />
                         <div className="absolute inset-0 backdrop-blur-[6px]" />
-                        {floatingOrbs.map(orb => (
-                            <div
-                                key={orb.id}
-                                className={`absolute ${orb.className} ${orb.animation}`}
-                                style={{
-                                    animationDuration: '26s',
-                                    animationDelay: orb.delay,
-                                }}
-                            >
-                                <div className={`relative ${orb.size}`}>
-                                    <div className={`absolute inset-0 rounded-full bg-gradient-to-br ${orb.gradient} blur-[60px] opacity-80`} />
-                                    <div className="absolute inset-0 rounded-full border border-white/30" />
+                        {/* Hide floating elements on small screens to prevent clutter/overlap */}
+                        <div className="hidden md:block">
+                            {floatingOrbs.map(orb => (
+                                <div
+                                    key={orb.id}
+                                    className={`absolute ${orb.className} ${orb.animation}`}
+                                    style={{
+                                        animationDuration: '26s',
+                                        animationDelay: orb.delay,
+                                    }}
+                                >
+                                    <div className={`relative ${orb.size}`}>
+                                        <div className={`absolute inset-0 rounded-full bg-gradient-to-br ${orb.gradient} blur-[60px] opacity-80`} />
+                                        <div className="absolute inset-0 rounded-full border border-white/30" />
+                                    </div>
                                 </div>
-                            </div>
-                        ))}
-                        {floatingGlyphs.map((glyph) => (
-                            <Icon
-                                key={glyph.id}
-                                name={glyph.icon}
-                                className={`absolute ${glyph.className} w-12 h-12 opacity-70 animate-float-1`}
-                                style={{ animationDuration: glyph.duration }}
-                            />
-                        ))}
+                            ))}
+                            {floatingGlyphs.map((glyph) => (
+                                <Icon
+                                    key={glyph.id}
+                                    name={glyph.icon}
+                                    className={`absolute ${glyph.className} w-12 h-12 opacity-70 animate-float-1`}
+                                    style={{ animationDuration: glyph.duration }}
+                                />
+                            ))}
+                        </div>
                     </div>
 
                     {/* Content */}
-                    <div className="relative z-10 w-full space-y-6 sm:space-y-8">
+                    <div className="relative z-10 w-full space-y-6 sm:space-y-8 py-8 md:py-0">
                         <div key={activeTab} className="animate-fade-in space-y-4 sm:space-y-5">
-                            <div className="flex items-center justify-center">
-                                <img src={LOGO_URL} alt="Edusimulate Logo" className="h-10 mr-3" />
+                            <div className="flex items-center justify-center md:justify-start">
+                                <img src={LOGO_URL} alt="Edusimulate Logo" className="h-10 w-auto mr-3 object-contain" />
                                 <span className="text-3xl font-extrabold text-shadow text-white">Edusimulate</span>
                             </div>
                             <h1 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-shadow md:tracking-tight">{welcomeContent[activeTab].title}</h1>
                             <p className="text-sm sm:text-base md:text-lg opacity-90 max-w-sm mx-auto md:mx-0">{welcomeContent[activeTab].subtitle}</p>
                         </div>
 
-                        <div className="mx-auto md:mx-0 mt-6 sm:mt-8 w-full max-w-md sm:max-w-none">
+                        <div className="mx-auto md:mx-0 mt-6 sm:mt-8 w-full max-w-md sm:max-w-none hidden sm:block">
                             <div className="flex gap-3 overflow-x-auto pb-2 -mx-1 px-1 snap-x snap-mandatory sm:mx-0 sm:px-0 sm:grid sm:grid-cols-3 md:grid-cols-1 lg:grid-cols-1 xl:grid-cols-3 sm:gap-3 sm:overflow-visible sm:pb-0 sm:snap-none lg:gap-4">
                                 {highlightTiles.map(tile => (
                                     <div
@@ -276,8 +279,8 @@ const LoginPage: React.FC<LoginPageProps> = ({ onNavigateHome }) => {
                                         />
                                     </div>
                                     <p className={`text-xs h-4 text-right transition-colors duration-300 ${passwordStrength === 1 ? 'text-red-500' :
-                                            passwordStrength === 2 ? 'text-yellow-500' :
-                                                passwordStrength === 3 ? 'text-green-500' : 'text-transparent'
+                                        passwordStrength === 2 ? 'text-yellow-500' :
+                                            passwordStrength === 3 ? 'text-green-500' : 'text-transparent'
                                         }`}>
                                         {currentStrength.label}
                                     </p>
