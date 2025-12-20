@@ -178,6 +178,7 @@ export interface LeaderboardEntry {
   user: {
     name: string;
     avatar: string;
+    title?: string;
   };
   points: number;
 }

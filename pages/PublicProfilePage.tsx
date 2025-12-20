@@ -1,31 +1,32 @@
 import React, { useEffect, useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useOutletContext } from 'react-router-dom';
 import { User, Course } from '../types';
 import { getUserByUsername } from '../services/firestoreService';
 import { chatService } from '../services/chatService';
 import Icon from '../components/common/Icon';
-import { auth } from '../services/firebase';
 import UserListModal from '../components/UserListModal';
 import PostList from '../components/PostList';
+import { SidebarLayoutContext } from '../components/SidebarLayout';
 
 const PublicProfilePage: React.FC = () => {
     const { username } = useParams<{ username: string }>();
     const navigate = useNavigate();
+    const { user: currentUser } = useOutletContext<SidebarLayoutContext>();
+
     const [profileUser, setProfileUser] = useState<User | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
-    const [currentUserUid, setCurrentUserUid] = useState<string | null>(null);
-
-    useEffect(() => {
-        const unsubscribe = auth.onAuthStateChanged(user => {
-            setCurrentUserUid(user ? user.uid : null);
-        });
-        return () => unsubscribe();
-    }, []);
 
     useEffect(() => {
         const fetchUser = async () => {
             if (!username) return;
+            // If viewing own profile via public link, use context to save a read
+            if (currentUser && currentUser.username === username) {
+                setProfileUser(currentUser);
+                setLoading(false);
+                return;
+            }
+
             setLoading(true);
             try {
                 const user = await getUserByUsername(username);
@@ -43,19 +44,19 @@ const PublicProfilePage: React.FC = () => {
         };
 
         fetchUser();
-    }, [username]);
+    }, [username, currentUser]);
 
     const handleMessage = async () => {
-        if (!currentUserUid || !profileUser) return;
+        if (!currentUser || !profileUser) return;
         try {
-            const chatId = await chatService.getOrCreateChat(currentUserUid, profileUser.uid);
+            const chatId = await chatService.getOrCreateChat(currentUser.uid, profileUser.uid);
             navigate('/chat', { state: { chatId, recipientUser: profileUser } });
         } catch (err) {
             console.error("Failed to start chat", err);
         }
     };
 
-    const isOwner = currentUserUid && profileUser ? currentUserUid === profileUser.uid : false;
+    const isOwner = currentUser && profileUser ? currentUser.uid === profileUser.uid : false;
     const isPrivate = profileUser?.isPublic === false;
 
     const [posts, setPosts] = useState<import('../types').Post[]>([]);
@@ -63,7 +64,6 @@ const PublicProfilePage: React.FC = () => {
     const [newPostContent, setNewPostContent] = useState('');
     const [newPostImage, setNewPostImage] = useState<File | null>(null);
     const [postCreating, setPostCreating] = useState(false);
-    const [editingPost, setEditingPost] = useState<import('../types').Post | null>(null);
 
     useEffect(() => {
         if (profileUser?.uid) {
@@ -77,7 +77,7 @@ const PublicProfilePage: React.FC = () => {
     }, [profileUser?.uid]);
 
     const handleCreatePost = async () => {
-        if (!currentUserUid || !profileUser) return;
+        if (!currentUser || !profileUser) return;
         setPostCreating(true);
         try {
             const { createPost } = await import('../services/firestoreService');
@@ -88,16 +88,16 @@ const PublicProfilePage: React.FC = () => {
                 imageUrl = await uploadToImgBB(newPostImage);
             }
 
-            const postId = await createPost(currentUserUid, {
+            const postId = await createPost(currentUser.uid, {
                 name: profileUser.name,
                 username: profileUser.username || '',
                 avatar: profileUser.avatar
             }, newPostContent, imageUrl);
 
-            // Optimistic Add (simplified, real app should allow server time)
+            // Optimistic Add
             const newPost: any = {
                 id: postId,
-                userId: currentUserUid,
+                userId: currentUser.uid,
                 user: { name: profileUser.name, username: profileUser.username, avatar: profileUser.avatar },
                 content: newPostContent,
                 imageUrl,
@@ -116,24 +116,21 @@ const PublicProfilePage: React.FC = () => {
         }
     };
 
-    // handleDeletePost and handleUpdatePost removed (handled by PostList)
-
     const [isFollowing, setIsFollowing] = useState(false);
     const [followLoading, setFollowLoading] = useState(false);
 
     useEffect(() => {
-        if (currentUserUid && profileUser && !isOwner) {
+        if (currentUser && profileUser && !isOwner) {
             import('../services/firestoreService').then(service => {
-                service.isFollowingUser(currentUserUid, profileUser.uid).then(setIsFollowing);
+                service.isFollowingUser(currentUser.uid, profileUser.uid).then(setIsFollowing);
             });
         }
-    }, [currentUserUid, profileUser, isOwner]);
+    }, [currentUser, profileUser, isOwner]);
 
     const handleFollowToggle = async () => {
-        if (!currentUserUid || !profileUser || followLoading) return;
+        if (!currentUser || !profileUser || followLoading) return;
         setFollowLoading(true);
 
-        // Optimistic Update
         const newStatus = !isFollowing;
         setIsFollowing(newStatus);
         setProfileUser(prev => prev ? ({
@@ -144,13 +141,12 @@ const PublicProfilePage: React.FC = () => {
         try {
             const { followUser, unfollowUser } = await import('../services/firestoreService');
             if (newStatus) {
-                await followUser(currentUserUid, profileUser.uid);
+                await followUser(currentUser.uid, profileUser.uid);
             } else {
-                await unfollowUser(currentUserUid, profileUser.uid);
+                await unfollowUser(currentUser.uid, profileUser.uid);
             }
         } catch (error) {
             console.error("Follow action failed:", error);
-            // Revert on failure
             setIsFollowing(!newStatus);
             setProfileUser(prev => prev ? ({
                 ...prev,
@@ -212,8 +208,6 @@ const PublicProfilePage: React.FC = () => {
         );
     }
 
-
-
     if (isPrivate && !isOwner) {
         return (
             <div className="flex flex-col items-center justify-center min-h-[60vh] text-center animate-fade-in">
@@ -254,8 +248,6 @@ const PublicProfilePage: React.FC = () => {
         );
     }
 
-
-
     return (
         <div className="max-w-5xl mx-auto pb-12 animate-fade-in">
             {/* Header / Cover */}
@@ -276,9 +268,9 @@ const PublicProfilePage: React.FC = () => {
                     </div>
                 </div>
 
-                {/* Action Buttons (Desktop) */}
+                {/* Action Buttons (Desktop & Mobile) */}
                 {!isOwner && (
-                    <div className="absolute -bottom-16 right-8 hidden md:flex gap-3">
+                    <div className="absolute -bottom-16 right-0 left-0 md:left-auto md:right-8 flex justify-center md:justify-start gap-3 px-4 md:px-0">
                         <button
                             onClick={handleFollowToggle}
                             disabled={followLoading}
@@ -413,7 +405,8 @@ const PublicProfilePage: React.FC = () => {
                             <PostList
                                 posts={posts}
                                 isOwner={isOwner}
-                                currentUserUid={currentUserUid}
+                                currentUserUid={currentUser ? currentUser.uid : null}
+                                currentUserData={currentUser ? { name: currentUser.name, avatar: currentUser.avatar } : undefined}
                                 onPostUpdate={(updated) => setPosts(posts.map(p => p.id === updated.id ? updated : p))}
                                 onPostDelete={(id) => setPosts(posts.filter(p => p.id !== id))}
                                 loading={postsLoading}

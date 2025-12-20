@@ -35,7 +35,7 @@ export const useAdminStats = () => {
                 return;
             }
 
-            console.log("Current User UID (Add this to 'admins' collection):", user.uid);
+
 
             try {
                 // Fetch Counts

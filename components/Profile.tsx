@@ -59,6 +59,25 @@ const Profile: React.FC<ProfileProps> = ({ user, onProfileUpdate, isDarkMode, on
   const [newPostImage, setNewPostImage] = useState<File | null>(null);
   const [postCreating, setPostCreating] = useState(false);
 
+  // Friends State
+  const [friends, setFriends] = useState<User[]>([]);
+  const [friendsLoading, setFriendsLoading] = useState(false);
+
+  useEffect(() => {
+    if (activeTab === 'Friends' && user.uid) {
+      setFriendsLoading(true);
+      Promise.all([
+        getFollowers(user.uid),
+        getFollowing(user.uid)
+      ]).then(([followers, following]) => {
+        // Mutuals: intersection
+        const mutuals = following.filter(f1 => followers.some(f2 => f2.uid === f1.uid));
+        setFriends(mutuals);
+      }).catch(console.error)
+        .finally(() => setFriendsLoading(false));
+    }
+  }, [activeTab, user.uid]);
+
   const postImageInputRef = useRef<HTMLInputElement | null>(null);
 
   // Close settings on click outside
@@ -277,8 +296,8 @@ const Profile: React.FC<ProfileProps> = ({ user, onProfileUpdate, isDarkMode, on
       </div>
 
       {/* Stats Bar */}
-      <div className="flex flex-col md:flex-row justify-between items-center bg-white dark:bg-slate-800 rounded-2xl shadow-sm p-4 md:p-6 mb-6 border border-slate-100 dark:border-slate-700">
-        <div className="flex flex-wrap justify-center gap-6 md:gap-12 mx-auto dark:text-gray-200">
+      <div className="flex flex-row justify-between items-center bg-white dark:bg-slate-800 rounded-2xl shadow-sm p-4 md:p-6 mb-6 border border-slate-100 dark:border-slate-700">
+        <div className="flex flex-row w-full md:w-auto justify-around gap-2 md:gap-12 mx-auto dark:text-gray-200">
           <ProfileStat icon="" value={user.postsCount?.toLocaleString() || "0"} label="Posts" color="" />
           <ProfileStat icon="" value={user.followers?.toLocaleString() || "0"} label="Followers" color="" onClick={handleOpenFollowers} />
           <ProfileStat icon="" value={user.following?.toLocaleString() || "0"} label="Following" color="" onClick={handleOpenFollowing} />
@@ -356,15 +375,31 @@ const Profile: React.FC<ProfileProps> = ({ user, onProfileUpdate, isDarkMode, on
           <div className="bg-white dark:bg-slate-800 rounded-3xl p-6 shadow-sm border border-slate-100 dark:border-slate-700 section-transition">
             <div className="flex justify-between items-center mb-4">
               <h3 className="text-lg font-bold text-slate-900 dark:text-white">Photos</h3>
-              <button className="text-brand-primary text-sm font-semibold">View All</button>
+              <button onClick={() => setActiveTab('Gallery')} className="text-brand-primary text-sm font-semibold hover:underline">View All</button>
             </div>
-            <div className="grid grid-cols-3 gap-2">
-              {[1, 2, 3, 4, 5, 6].map(i => (
-                <div key={i} className="aspect-square rounded-xl bg-slate-100 dark:bg-slate-700 overflow-hidden">
-                  <img src={`https://picsum.photos/seed/${i + user.uid}/200`} className="w-full h-full object-cover hover:scale-110 transition-transform cursor-pointer" alt="Gallery" />
-                </div>
-              ))}
-            </div>
+
+            {posts.filter(p => p.imageUrl).length > 0 ? (
+              <div className="grid grid-cols-3 gap-2">
+                {posts.filter(p => p.imageUrl).slice(0, 6).map(post => (
+                  <div
+                    key={post.id}
+                    onClick={() => setActiveTab('Gallery')}
+                    className="aspect-square rounded-xl bg-slate-100 dark:bg-slate-700 overflow-hidden cursor-pointer"
+                  >
+                    <img
+                      src={post.imageUrl}
+                      className="w-full h-full object-cover hover:scale-110 transition-transform duration-300"
+                      alt="Gallery"
+                    />
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-8 text-slate-400">
+                <Icon name="image" className="w-8 h-8 mx-auto mb-2 opacity-50" />
+                <p className="text-xs">No photos yet</p>
+              </div>
+            )}
           </div>
         </div>
 
@@ -409,6 +444,7 @@ const Profile: React.FC<ProfileProps> = ({ user, onProfileUpdate, isDarkMode, on
                 posts={posts}
                 isOwner={true}
                 currentUserUid={user.uid}
+                currentUserData={{ name: user.name, avatar: user.avatar }}
                 onPostUpdate={(updated) => setPosts(posts.map(p => p.id === updated.id ? updated : p))}
                 onPostDelete={(id) => setPosts(posts.filter(p => p.id !== id))}
                 loading={postsLoading}
@@ -417,7 +453,7 @@ const Profile: React.FC<ProfileProps> = ({ user, onProfileUpdate, isDarkMode, on
             </>
           )}
 
-          {(activeTab === 'Friends' || activeTab === 'Followers') && (
+          {(activeTab === 'Friends' || activeTab === 'Followers') && activeTab === 'Followers' ? (
             <div className="bg-white dark:bg-slate-800 rounded-3xl p-8 shadow-sm border border-slate-100 dark:border-slate-700 text-center">
               <Icon name="users" className="w-16 h-16 text-slate-300 mx-auto mb-4" />
               <h3 className="text-xl font-bold text-slate-400">Connections</h3>
@@ -427,7 +463,34 @@ const Profile: React.FC<ProfileProps> = ({ user, onProfileUpdate, isDarkMode, on
                 <button onClick={handleOpenFollowing} className="px-6 py-2 bg-slate-100 dark:bg-slate-700 rounded-xl font-semibold hover:bg-slate-200 dark:hover:bg-slate-600">View Following</button>
               </div>
             </div>
-          )}
+          ) : activeTab === 'Friends' ? (
+            <div className="bg-white dark:bg-slate-800 rounded-3xl p-6 shadow-sm border border-slate-100 dark:border-slate-700">
+              <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-6">Friends (Mutuals)</h3>
+              {friendsLoading ? (
+                <div className="flex justify-center py-12">
+                  <div className="w-8 h-8 border-4 border-dashed rounded-full animate-spin border-brand-primary"></div>
+                </div>
+              ) : friends.length > 0 ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {friends.map(friend => (
+                    <Link to={`/profile/${friend.username}`} key={friend.uid} className="flex items-center gap-4 p-4 rounded-2xl bg-slate-50 dark:bg-slate-700/50 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors">
+                      <img src={friend.avatar} alt={friend.name} className="w-12 h-12 rounded-full object-cover" />
+                      <div className="overflow-hidden">
+                        <h4 className="font-bold text-slate-900 dark:text-white truncate">{friend.name}</h4>
+                        <p className="text-xs text-slate-500 dark:text-slate-400 truncate">@{friend.username}</p>
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center py-12 text-slate-400">
+                  <Icon name="users" className="w-12 h-12 mx-auto mb-3 opacity-50" />
+                  <p>No mutual friends yet.</p>
+                  <p className="text-sm mt-1">Follow people who follow you back!</p>
+                </div>
+              )}
+            </div>
+          ) : null}
 
           {activeTab === 'Gallery' && (
             <div className="bg-white dark:bg-slate-800 rounded-3xl p-6 shadow-sm border border-slate-100 dark:border-slate-700">

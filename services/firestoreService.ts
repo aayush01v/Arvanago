@@ -1614,6 +1614,20 @@ export const getUserByUsername = async (username: string): Promise<User | null> 
   }
 };
 
+export const getLeaderboard = async (limit = 50): Promise<User[]> => {
+  try {
+    const snapshot = await db.collection('users')
+      .orderBy('points', 'desc')
+      .limit(limit)
+      .get();
+
+    return snapshot.docs.map(doc => doc.data() as User);
+  } catch (error) {
+    console.error('Error fetching leaderboard:', error);
+    return [];
+  }
+};
+
 export const getCourses = async ({ forceRefresh = false }: { forceRefresh?: boolean } = {}): Promise<Course[]> => {
   const now = Date.now();
 
@@ -1790,5 +1804,98 @@ export const deleteCourse = async (courseId: string): Promise<void> => {
     console.error('Error deleting course:', error);
     throw error;
   }
+};
+
+// ==========================================
+// POST INTERACTION FUNCTIONS
+// ==========================================
+
+export const toggleLikePost = async (postId: string, userId: string): Promise<boolean> => {
+  const postRef = db.collection('posts').doc(postId);
+  const likeRef = postRef.collection('likes').doc(userId);
+
+  let isLiked = false;
+
+  await db.runTransaction(async (transaction) => {
+    const likeDoc = await transaction.get(likeRef);
+
+    if (likeDoc.exists) {
+      // Unlike
+      transaction.delete(likeRef);
+      transaction.update(postRef, { likes: firebase.firestore.FieldValue.increment(-1) });
+      isLiked = false;
+    } else {
+      // Like
+      transaction.set(likeRef, { createdAt: firebase.firestore.FieldValue.serverTimestamp() });
+      transaction.update(postRef, { likes: firebase.firestore.FieldValue.increment(1) });
+      isLiked = true;
+    }
+  });
+
+  return isLiked;
+};
+
+export const hasUserLikedPost = async (postId: string, userId: string): Promise<boolean> => {
+  const likeDoc = await db.collection('posts').doc(postId).collection('likes').doc(userId).get();
+  return likeDoc.exists;
+};
+
+export interface PostComment {
+  id: string;
+  postId: string;
+  userId: string;
+  user: {
+    name: string;
+    avatar: string;
+  };
+  text: string;
+  createdAt: any; // Timestamp
+}
+
+export const addComment = async (postId: string, userId: string, user: { name: string, avatar: string }, text: string): Promise<PostComment> => {
+  const postRef = db.collection('posts').doc(postId);
+  const commentsRef = postRef.collection('comments');
+
+  const newCommentRef = commentsRef.doc();
+  const timestamp = firebase.firestore.FieldValue.serverTimestamp();
+
+  const newComment = {
+    id: newCommentRef.id,
+    postId,
+    userId,
+    user,
+    text,
+    createdAt: timestamp
+  };
+
+  await db.runTransaction(async (transaction) => {
+    transaction.set(newCommentRef, newComment);
+    transaction.update(postRef, { commentsCount: firebase.firestore.FieldValue.increment(1) });
+  });
+
+  return newComment as PostComment;
+};
+
+export const getComments = async (postId: string): Promise<PostComment[]> => {
+  const snapshot = await db.collection('posts').doc(postId).collection('comments')
+    .orderBy('createdAt', 'asc')
+    .get();
+
+  return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as PostComment));
+};
+
+export const deleteComment = async (postId: string, commentId: string): Promise<void> => {
+  const postRef = db.collection('posts').doc(postId);
+  const commentRef = postRef.collection('comments').doc(commentId);
+
+  await db.runTransaction(async (transaction) => {
+    const commentDoc = await transaction.get(commentRef);
+    if (!commentDoc.exists) {
+      throw new Error("Comment does not exist");
+    }
+
+    transaction.delete(commentRef);
+    transaction.update(postRef, { commentsCount: firebase.firestore.FieldValue.increment(-1) });
+  });
 };
 

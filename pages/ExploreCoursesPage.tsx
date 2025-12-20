@@ -61,9 +61,7 @@ const ExploreCoursesPage: React.FC = () => {
     [onProfileUpdate, user],
   );
 
-  useEffect(() => {
-    void refreshCourses();
-  }, [refreshCourses]);
+
 
   return (
     <>

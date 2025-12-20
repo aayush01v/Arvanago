@@ -180,7 +180,7 @@ const ChatPage: React.FC = () => {
     };
 
     return (
-        <div className="h-[calc(100vh-8rem)] md:h-[calc(100vh-6rem)] flex gap-6 animate-fade-in text-slate-800 dark:text-white relative">
+        <div className={`flex gap-6 animate-fade-in text-slate-800 dark:text-white relative ${window.innerWidth < 768 ? 'h-[calc(100dvh-5rem)]' : 'h-[calc(100vh-8rem)] md:h-[calc(100vh-6rem)]'}`}>
 
             {/* Sidebar */}
             <div className={`
@@ -238,9 +238,13 @@ const ChatPage: React.FC = () => {
                 flex-1 flex-col rounded-3xl bg-white/60 dark:bg-slate-800/60 backdrop-blur-md border border-white/40 dark:border-white/10 shadow-xl overflow-hidden relative
             `}>
                 {!selectedChatId ? (
-                    <div className="flex-1 flex flex-col items-center justify-center text-slate-400">
-                        <Icon name="message-circle" className="w-16 h-16 mb-4 opacity-20" />
-                        <p>Select a chat to start messaging</p>
+                    <div className="flex-1 flex flex-col items-center justify-center text-slate-400 p-8 text-center animate-fade-in">
+                        <div className="w-32 h-32 bg-slate-100 dark:bg-slate-700/50 rounded-full flex items-center justify-center mb-6 relative">
+                            <Icon name="message-circle" className="w-16 h-16 text-slate-300 dark:text-slate-500" />
+                            <div className="absolute top-0 right-0 w-8 h-8 bg-brand-primary rounded-full animate-bounce delay-75" />
+                        </div>
+                        <h3 className="text-xl font-bold text-slate-700 dark:text-slate-200 mb-2">Your Messages</h3>
+                        <p className="max-w-xs text-sm">Select a conversation from the left or search for a user to start chatting.</p>
                     </div>
                 ) : (
                     <>
@@ -282,12 +286,12 @@ const ChatPage: React.FC = () => {
                                             <div className={`max-w-[85%] md:max-w-[70%] relative group`}>
                                                 <div
                                                     className={`
-                                                        px-4 md:px-5 py-3 md:py-3.5 rounded-2xl text-sm leading-relaxed shadow-sm
-                                                        ${isMe
+                                                            px-4 md:px-5 py-3 md:py-3.5 rounded-xl md:rounded-2xl text-sm leading-relaxed shadow-sm animate-fade-in-up
+                                                            ${isMe
                                                             ? 'bg-brand-primary text-white rounded-br-none shadow-brand-primary/20'
                                                             : 'bg-white dark:bg-slate-700 text-slate-700 dark:text-slate-200 rounded-bl-none shadow-sm'
                                                         }
-                                                    `}
+                                                        `}
                                                 >
                                                     {msg.text}
                                                 </div>

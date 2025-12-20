@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Outlet, useLocation } from 'react-router-dom';
+import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 import Sidebar from './Sidebar.tsx';
 import Header from './Header.tsx';
 import { Course, User } from '@/types';
@@ -40,8 +40,14 @@ const SidebarLayout: React.FC<SidebarLayoutProps> = ({
   const [isScrolled, setIsScrolled] = useState(false);
   const mainPanelRef = useRef<HTMLDivElement>(null);
   const animationFrameRef = useRef<number | null>(null);
+
   const backgroundRef = useRef<HTMLDivElement>(null);
   const location = useLocation();
+  const navigate = useNavigate();
+
+
+
+
   useEffect(() => {
     if (typeof window !== 'undefined' && window.innerWidth < 768) {
       setSidebarOpen(false);
@@ -155,6 +161,17 @@ const SidebarLayout: React.FC<SidebarLayoutProps> = ({
   const [chats, setChats] = useState<import('../services/chatService').Chat[]>([]);
   const [chatsLoading, setChatsLoading] = useState(true);
 
+  // Detect mobile
+  const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
+
+  const handleChatClick = useCallback(() => {
+    if (window.innerWidth < 768) {
+      navigate('/chat');
+    } else {
+      setChatOpen(!isChatOpen);
+    }
+  }, [isChatOpen, navigate]);
+
   // Subscribe to chats for global unread count
   useEffect(() => {
     if (!user?.uid) return;
@@ -183,9 +200,13 @@ const SidebarLayout: React.FC<SidebarLayoutProps> = ({
   // Lazy load ChatWidget
   const ChatWidget = React.lazy(() => import('./ChatWidget'));
 
+
+
+
   return (
     <>
       <div className="relative min-h-screen overflow-hidden bg-gradient-to-br from-slate-100 via-white to-slate-200 text-slate-800 dark:from-slate-950 dark:via-slate-950 dark:to-slate-900 dark:text-gray-200">
+
         <div className="pointer-events-none fixed -top-24 -left-24 h-72 w-72 rounded-full opacity-70 dark:opacity-40 will-change-transform" style={{ background: 'radial-gradient(circle, rgba(124, 58, 237, 0.4) 0%, transparent 70%)', animation: 'pulseGlow 14s ease-in-out infinite' }} />
         <div className="pointer-events-none fixed bottom-[-6rem] left-1/2 h-80 w-80 -translate-x-1/2 rounded-full opacity-70 dark:opacity-40 will-change-transform" style={{ background: 'radial-gradient(circle, rgba(56, 189, 248, 0.25) 0%, transparent 70%)', animation: 'pulseGlow 18s ease-in-out infinite reverse' }} />
         <div className="pointer-events-none fixed top-1/3 right-[-8rem] h-96 w-96 rounded-full opacity-60 dark:opacity-30 will-change-transform" style={{ background: 'radial-gradient(circle, rgba(168, 85, 247, 0.35) 0%, transparent 70%)', animation: 'driftGlow 22s ease-in-out infinite' }} />
@@ -199,7 +220,7 @@ const SidebarLayout: React.FC<SidebarLayoutProps> = ({
           />
           <div
             ref={mainPanelRef}
-            className="relative flex flex-1 flex-col overflow-y-auto md:ml-56"
+            className={`relative flex flex-1 flex-col md:ml-56 ${location.pathname === '/chat' && isMobile ? 'overflow-hidden' : 'overflow-y-auto'}`}
             onMouseMove={handlePanelPointerMove}
             onMouseLeave={handlePanelPointerLeave}
           >
@@ -219,9 +240,9 @@ const SidebarLayout: React.FC<SidebarLayoutProps> = ({
               isDarkMode={isDarkMode}
               onThemeToggle={onThemeToggle}
               unreadChatCount={unreadCount}
-              onChatClick={() => setChatOpen(!isChatOpen)}
+              onChatClick={handleChatClick}
             />
-            <main className="relative z-10 flex-1 px-2 pb-6 pt-4 sm:px-6 lg:px-10">
+            <main className={`relative z-10 flex-1 ${location.pathname === '/chat' && isMobile ? 'p-0 pb-20' : 'px-2 pb-24 pt-4 sm:px-6 sm:pb-6 lg:px-10'}`}>
               <div className="relative mx-auto max-w-6xl">
                 <div className="glass-panel relative overflow-hidden rounded-[2rem] border border-white/50 bg-white/90 shadow-xl transition-colors duration-500 dark:border-white/10 dark:bg-slate-900/90 dark:shadow-[0_4px_20px_rgba(0,0,0,0.4)]">
                   <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(255,255,255,0.25),_transparent_65%)] dark:bg-[radial-gradient(circle_at_top,_rgba(148,163,184,0.2),_transparent_70%)]" />
@@ -252,13 +273,16 @@ const SidebarLayout: React.FC<SidebarLayoutProps> = ({
         {/* Global Chat Widget */}
         <React.Suspense fallback={null}>
           <ChatWidget
-            isOpen={isChatOpen}
+            isOpen={isChatOpen && !isMobile}
             onClose={() => setChatOpen(false)}
             currentUser={user}
             chats={chats}
             isLoadingChats={chatsLoading}
           />
         </React.Suspense>
+
+        {/* Mobile Bottom Navigation */}
+
       </div>
     </>
   );
