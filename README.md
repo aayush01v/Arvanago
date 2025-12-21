@@ -3,7 +3,7 @@
 
 
 
-<img width="1024" height="2231" alt="GHBanner" src="[https://i.ibb.co/v6m3Cbwd/69175f0ee3411a78ac218877.jpg](https://pikwy.com/web/694852ec06185d6487218519)" />
+<img width="1024" height="2231" alt="GHBanner" src="https://api.pikwy.com/web/694852ec06185d6487218519.jpg" />
 
       
 </div>
