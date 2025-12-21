@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import Icon from '@/components/common/Icon';
 import SidebarLayout from '@/components/SidebarLayout';
 import { chatService, Chat, ChatMessage } from '../services/chatService';
+import { uploadToImgBB } from '../services/imgbbService';
 import { auth } from '../services/firebase';
 import { User } from '../types';
 import { useOutletContext, useLocation, useNavigate } from 'react-router-dom';
@@ -21,6 +22,8 @@ const ChatPage: React.FC = () => {
     const [searchResults, setSearchResults] = useState<User[]>([]);
     const [showChatOnMobile, setShowChatOnMobile] = useState(false);
     const [activeChatUser, setActiveChatUser] = useState<Partial<User> | null>(null);
+    const [chatImageUrl, setChatImageUrl] = useState('');
+    const [isUploading, setIsUploading] = useState(false);
     const [creatingChat, setCreatingChat] = useState(false);
 
     // Subscribe to My Chats
@@ -116,11 +119,27 @@ const ChatPage: React.FC = () => {
         }
     };
 
-    const handleSend = async () => {
-        if (!input.trim() || !selectedChatId || !currentUser) return;
+    const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
         try {
-            await chatService.sendMessage(selectedChatId, currentUser.uid, input);
+            setIsUploading(true);
+            const url = await uploadToImgBB(file);
+            setChatImageUrl(url);
+        } catch (error) {
+            console.error("Chat upload failed", error);
+        } finally {
+            setIsUploading(false);
+        }
+    };
+
+    const handleSend = async () => {
+        if ((!input.trim() && !chatImageUrl) || !selectedChatId || !currentUser) return;
+        try {
+            await chatService.sendMessage(selectedChatId, currentUser.uid, input, chatImageUrl || undefined);
             setInput('');
+            setChatImageUrl('');
         } catch (e) {
             console.error("Failed to send", e);
         }
@@ -178,7 +197,7 @@ const ChatPage: React.FC = () => {
                             </div>
                         </div>
                         <p className={`text-xs truncate mt-0.5 pr-6 ${unreadCount > 0 ? 'font-bold text-slate-800 dark:text-white' : 'text-slate-500 dark:text-slate-400'}`}>
-                            {chat.lastMessage?.text || 'Start a conversation'}
+                            {chat.lastMessage?.text || (chat.lastMessage?.imageUrl ? '📷 Photo' : 'Start a conversation')}
                         </p>
                     </div>
                 </div>
@@ -303,9 +322,12 @@ const ChatPage: React.FC = () => {
                                                             ? 'bg-brand-primary text-white rounded-br-none shadow-brand-primary/20'
                                                             : 'bg-white dark:bg-slate-700 text-slate-700 dark:text-slate-200 rounded-bl-none shadow-sm'
                                                         }
-                                                        `}
+                                                    `}
                                                 >
-                                                    {msg.text}
+                                                    {msg.imageUrl && (
+                                                        <img src={msg.imageUrl} alt="Attachment" className="mb-2 rounded-lg max-h-60 object-cover" />
+                                                    )}
+                                                    {msg.text && <p>{msg.text}</p>}
                                                 </div>
                                                 <span className={`text-[10px] text-slate-400 font-medium absolute -bottom-5 ${isMe ? 'right-0' : 'left-0'} opacity-0 group-hover:opacity-100 transition-opacity`}>
                                                     {msg.timestamp?.seconds ? new Date(msg.timestamp.seconds * 1000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'Sending...'}
@@ -320,18 +342,37 @@ const ChatPage: React.FC = () => {
 
                         {/* Input Area */}
                         <div className="p-3 md:p-4 border-t border-white/10 bg-white/40 dark:bg-slate-900/40 backdrop-blur-md">
-                            <div className="relative flex items-center gap-2">
-                                <input
-                                    type="text"
-                                    value={input}
-                                    onChange={(e) => setInput(e.target.value)}
-                                    onKeyDown={(e) => e.key === 'Enter' && handleSend()}
-                                    placeholder="Type a message..."
-                                    className="flex-1 px-4 md:px-5 py-3 md:py-3.5 rounded-full bg-white dark:bg-slate-800 border-none focus:ring-2 focus:ring-brand-primary/50 outline-none shadow-inner placeholder:text-slate-400 transition-all text-sm md:text-base"
-                                />
+                            <div className="relative flex items-end gap-2">
+                                <label className="cursor-pointer p-3 md:p-3.5 hover:bg-white/50 dark:hover:bg-slate-700/50 rounded-full transition-colors text-slate-500 mb-[2px]">
+                                    <Icon name="image" className={`w-5 h-5 ${isUploading ? 'animate-pulse opacity-50' : ''}`} />
+                                    <input type="file" accept="image/*" className="hidden" onChange={handleImageUpload} disabled={isUploading} />
+                                </label>
+                                <div className="flex-1 relative">
+                                    <input
+                                        type="text"
+                                        value={input}
+                                        onChange={(e) => setInput(e.target.value)}
+                                        onKeyDown={(e) => e.key === 'Enter' && handleSend()}
+                                        placeholder="Type a message..."
+                                        className="w-full px-4 md:px-5 py-3 md:py-3.5 rounded-full bg-white dark:bg-slate-800 border-none focus:ring-2 focus:ring-brand-primary/50 outline-none shadow-inner placeholder:text-slate-400 transition-all text-sm md:text-base pr-12"
+                                    />
+                                    {chatImageUrl && (
+                                        <div className="absolute bottom-full left-0 mb-3 p-2 bg-white dark:bg-slate-800 rounded-xl shadow-xl border border-slate-200 dark:border-slate-700 z-20">
+                                            <div className="relative group">
+                                                <img src={chatImageUrl} className="h-24 w-24 object-cover rounded-lg" />
+                                                <button
+                                                    onClick={() => setChatImageUrl('')}
+                                                    className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center shadow-md hover:bg-red-600 transition-colors"
+                                                >
+                                                    <Icon name="x" className="w-3 h-3" />
+                                                </button>
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
                                 <button
                                     onClick={handleSend}
-                                    disabled={!input.trim()}
+                                    disabled={(!input.trim() && !chatImageUrl) || isUploading}
                                     className="p-3 md:p-3.5 rounded-full bg-brand-primary text-white hover:bg-brand-secondary disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-lg shadow-brand-primary/25 hover:scale-105 active:scale-95"
                                 >
                                     <Icon name="send" className="w-4 h-4 md:w-5 md:h-5 ml-0.5" />

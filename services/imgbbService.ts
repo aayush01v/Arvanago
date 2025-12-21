@@ -3,9 +3,14 @@ export const uploadToImgBB = async (file: File): Promise<string> => {
     const formData = new FormData();
     formData.append('image', file);
 
-    // Note: In a real app, you should use an environment variable for the API Key
-    // VITE_IMGBB_API_KEY. For now, we'll try to use a provided one or throw an error.
-    const API_KEY = import.meta.env.VITE_IMGBB_API_KEY || 'b86e0625f617a26ba677a2af52538183'; // Fallback demo key (often revocable)
+    // Note: The environment variable name used in utils/uploadToImgBB.js is VITE_IMGBB_KEY
+    // We check both just in case, prioritizing the one we know works for Profile.
+    const API_KEY = import.meta.env.VITE_IMGBB_KEY || import.meta.env.VITE_IMGBB_API_KEY || 'b86e0625f617a26ba677a2af52538183';
+
+    if (!API_KEY || API_KEY === 'b86e0625f617a26ba677a2af52538183') {
+        // Warn if likely using the dead fallback or missing key completely
+        console.warn("Using potentially invalid or missing ImgBB API Key. Please set VITE_IMGBB_KEY in .env");
+    }
 
     try {
         const response = await fetch(`https://api.imgbb.com/1/upload?key=${API_KEY}`, {
