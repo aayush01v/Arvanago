@@ -140,7 +140,7 @@ const LoginPage: React.FC<LoginPageProps> = ({ onNavigateHome }) => {
                 </div>
 
                 <div className="text-sm text-slate-500 font-medium">
-                    © 2024 Edusimulate Inc.
+                    © 2025 Edusimulate Inc.
                 </div>
             </div>
 
