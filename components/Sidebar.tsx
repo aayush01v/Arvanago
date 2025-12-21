@@ -18,7 +18,7 @@ const navItems = [
   { to: '/my-learnings', icon: 'bookmark', label: 'My Learnings' },
   { to: '/explore', icon: 'courses', label: 'Explore Courses' },
   { to: '/leaderboard', icon: 'leaderboard', label: 'Leaderboard' },
-  { to: '/profile', icon: 'profile', label: 'Profile' },
+  { to: '/chat', icon: 'message-circle', label: 'Chat' },
 ];
 
 const Sidebar: React.FC<SidebarProps> = ({ isSidebarOpen, setSidebarOpen, isDarkMode, setDarkMode, onExploreClick, user }) => {

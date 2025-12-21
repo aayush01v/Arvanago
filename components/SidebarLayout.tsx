@@ -156,49 +156,17 @@ const SidebarLayout: React.FC<SidebarLayoutProps> = ({
     return staticPages.get('dashboard')!;
   }, [courses, location.pathname]);
 
-  // Chat State
-  const [isChatOpen, setChatOpen] = useState(false);
-  const [chats, setChats] = useState<import('../services/chatService').Chat[]>([]);
-  const [chatsLoading, setChatsLoading] = useState(true);
+  const [isSearchModalOpen, setIsSearchModalOpen] = useState(false);
 
   // Detect mobile
   const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
 
-  const handleChatClick = useCallback(() => {
-    if (window.innerWidth < 768) {
-      navigate('/chat');
-    } else {
-      setChatOpen(!isChatOpen);
-    }
-  }, [isChatOpen, navigate]);
 
-  // Subscribe to chats for global unread count
-  useEffect(() => {
-    if (!user?.uid) return;
-    setChatsLoading(true);
-    const unsubscribe = import('../services/chatService').then(({ chatService }) => {
-      return chatService.subscribeToChats(user.uid, (updatedChats) => {
-        setChats(updatedChats);
-        setChatsLoading(false);
-      });
-    });
 
-    return () => {
-      unsubscribe.then(unsub => unsub && unsub());
-    };
-  }, [user?.uid]);
+  // Calculate unread count (Deprecated, chat moved to separate page)
+  const unreadCount = 0;
 
-  // Calculate unread count
-  const unreadCount = useMemo(() => {
-    if (!user?.uid) return 0;
-    return chats.reduce((count, chat) => {
-      const chatUnread = chat.unreadCounts?.[user.uid] || 0;
-      return count + chatUnread;
-    }, 0);
-  }, [chats, user?.uid]);
-
-  // Lazy load ChatWidget
-  const ChatWidget = React.lazy(() => import('./ChatWidget'));
+  const UserSearchModal = React.lazy(() => import('./UserSearchModal'));
 
 
 
@@ -241,44 +209,59 @@ const SidebarLayout: React.FC<SidebarLayoutProps> = ({
               isDarkMode={isDarkMode}
               onThemeToggle={onThemeToggle}
               unreadChatCount={unreadCount}
-              onChatClick={handleChatClick}
+              onSearchClick={() => setIsSearchModalOpen(true)}
             />
-            <main className={`relative z-10 flex-1 ${location.pathname === '/chat' && isMobile ? 'p-0 pb-20' : 'px-2 pb-24 pt-4 sm:px-6 sm:pb-6 lg:px-10'}`}>
-              <div className="relative mx-auto max-w-6xl">
-                <div className="glass-panel relative overflow-hidden rounded-[2rem] border border-white/50 bg-white/90 shadow-xl transition-colors duration-500 dark:border-white/10 dark:bg-slate-900/90 dark:shadow-[0_4px_20px_rgba(0,0,0,0.4)]">
-                  <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(255,255,255,0.25),_transparent_65%)] dark:bg-[radial-gradient(circle_at_top,_rgba(148,163,184,0.2),_transparent_70%)]" />
-                  <div className="pointer-events-none absolute -top-20 -left-10 h-40 w-40 rounded-full bg-brand-primary/30 blur-3xl opacity-70" style={{ animation: 'pulseGlow 16s ease-in-out infinite' }} />
-                  <div className="pointer-events-none absolute bottom-[-3rem] right-[-2rem] h-48 w-48 rounded-full bg-sky-500/40 blur-3xl opacity-80" style={{ animation: 'pulseGlow 20s ease-in-out infinite alternate' }} />
-                  <div className="relative z-10 p-3 sm:p-6 lg:p-10">
-                    <div className="animate-fade-in-up">
-                      <Outlet
-                        context={{
-                          user,
-                          courses,
-                          onProfileUpdate,
-                          coursesLoading,
-                          coursesError,
-                          refreshCourses: onRefreshCourses,
-                          isDarkMode,
-                          onThemeToggle,
-                        }}
-                      />
+            <main className={`relative z-10 flex-1 ${location.pathname === '/chat' ? 'p-0 sm:p-4 h-[calc(100vh-4rem)] md:h-auto overflow-hidden' : 'px-2 pb-24 pt-4 sm:px-6 sm:pb-6 lg:px-10'}`}>
+              {location.pathname === '/chat' ? (
+                <div className="h-full w-full max-w-7xl mx-auto">
+                  <Outlet
+                    context={{
+                      user,
+                      courses,
+                      onProfileUpdate,
+                      coursesLoading,
+                      coursesError,
+                      refreshCourses: onRefreshCourses,
+                      isDarkMode,
+                      onThemeToggle,
+                    }}
+                  />
+                </div>
+              ) : (
+                <div className="relative mx-auto max-w-6xl">
+                  <div className="glass-panel relative overflow-hidden rounded-[1.5rem] md:rounded-[2rem] border border-white/50 bg-white/90 shadow-xl transition-colors duration-500 dark:border-white/10 dark:bg-slate-900/90 dark:shadow-[0_4px_20px_rgba(0,0,0,0.4)]">
+                    <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(255,255,255,0.25),_transparent_65%)] dark:bg-[radial-gradient(circle_at_top,_rgba(148,163,184,0.2),_transparent_70%)]" />
+                    <div className="pointer-events-none absolute -top-20 -left-10 h-40 w-40 rounded-full bg-brand-primary/30 blur-3xl opacity-70" style={{ animation: 'pulseGlow 16s ease-in-out infinite' }} />
+                    <div className="pointer-events-none absolute bottom-[-3rem] right-[-2rem] h-48 w-48 rounded-full bg-sky-500/40 blur-3xl opacity-80" style={{ animation: 'pulseGlow 20s ease-in-out infinite alternate' }} />
+                    <div className="relative z-10 p-3 sm:p-6 lg:p-10">
+                      <div className="animate-fade-in-up">
+                        <Outlet
+                          context={{
+                            user,
+                            courses,
+                            onProfileUpdate,
+                            coursesLoading,
+                            coursesError,
+                            refreshCourses: onRefreshCourses,
+                            isDarkMode,
+                            onThemeToggle,
+                          }}
+                        />
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
+              )}
             </main>
           </div>
         </div>
 
         {/* Global Chat Widget */}
         <React.Suspense fallback={null}>
-          <ChatWidget
-            isOpen={isChatOpen && !isMobile && !!user}
-            onClose={() => setChatOpen(false)}
-            currentUser={user}
-            chats={chats}
-            isLoadingChats={chatsLoading}
+
+          <UserSearchModal
+            isOpen={isSearchModalOpen}
+            onClose={() => setIsSearchModalOpen(false)}
           />
         </React.Suspense>
 

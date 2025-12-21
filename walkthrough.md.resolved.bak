@@ -1,0 +1,6 @@
+
+
+## Interactive Blog Post - Dead Internet Theory
+- **Rich Rendering**: Implemented `BlogPostReader` with `react-markdown` for beautifully formatted content.
+- **Animations**: Added 'framer-motion' for scroll progress, parallax, and entry effects.
+- **Featured Content**: Added 'Dead Internet Theory' as a static featured post in `/data/staticPosts.ts`.

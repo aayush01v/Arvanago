@@ -14,7 +14,7 @@ interface HeaderProps {
   isDarkMode: boolean;
   onThemeToggle: (isDark: boolean) => void;
   unreadChatCount?: number;
-  onChatClick?: () => void;
+  onSearchClick?: () => void;
 }
 
 const Header: React.FC<HeaderProps> = ({
@@ -26,7 +26,7 @@ const Header: React.FC<HeaderProps> = ({
   isDarkMode,
   onThemeToggle,
   unreadChatCount = 0,
-  onChatClick,
+  onSearchClick,
 }) => {
   const location = useLocation();
   const navigate = useNavigate();
@@ -97,17 +97,14 @@ const Header: React.FC<HeaderProps> = ({
               <span className="text-sm font-semibold text-slate-900 dark:text-white">{pageTitle}</span>
             </div>
 
-            {/* Chat Button */}
+            {/* Search Button */}
             {user && (
               <button
-                onClick={onChatClick}
+                onClick={onSearchClick}
                 className="relative flex h-9 w-9 items-center justify-center rounded-full text-slate-500 hover:bg-slate-100 hover:text-brand-primary dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-white transition-colors"
-                aria-label="Chat"
+                aria-label="Search"
               >
-                <Icon name="message-circle" className="h-5 w-5" />
-                {unreadChatCount > 0 && (
-                  <span className="absolute top-2 right-2 h-2 w-2 rounded-full bg-red-500 ring-2 ring-white dark:ring-slate-900"></span>
-                )}
+                <Icon name="search" className="h-5 w-5" />
               </button>
             )}
 
@@ -115,15 +112,16 @@ const Header: React.FC<HeaderProps> = ({
             <div className="flex items-center gap-3 pl-3 border-l border-slate-200 dark:border-slate-700">
               {user ? (
                 <>
-                  <div className="hidden text-right md:block">
+                  <Link to="/profile" className="hidden text-right md:block hover:opacity-80 transition-opacity">
                     <p className="text-sm font-medium text-slate-900 dark:text-white leading-none">{user.name}</p>
-                    {/* Removed 'Learner' subtext for cleaner look */}
-                  </div>
-                  <img
-                    src={user.avatar}
-                    alt={user.name}
-                    className="h-9 w-9 rounded-full bg-slate-100 object-cover ring-2 ring-white dark:ring-slate-800"
-                  />
+                  </Link>
+                  <Link to="/profile" className="hover:opacity-80 transition-opacity">
+                    <img
+                      src={user.avatar}
+                      alt={user.name}
+                      className="h-9 w-9 rounded-full bg-slate-100 object-cover ring-2 ring-white dark:ring-slate-800"
+                    />
+                  </Link>
                 </>
               ) : (
                 <Link

@@ -38,6 +38,9 @@ const AdminPage = React.lazy(() => import('@/pages/AdminPage'));
 const AboutPage = React.lazy(() => import('@/pages/AboutPage'));
 const AdminLoginPage = React.lazy(() => import('@/pages/AdminLoginPage'));
 const NotFoundPage = React.lazy(() => import('@/pages/NotFoundPage'));
+const BlogPage = React.lazy(() => import('@/pages/BlogPage'));
+const BlogPostPage = React.lazy(() => import('@/pages/BlogPostPage'));
+const AdminBlogPage = React.lazy(() => import('@/pages/AdminBlogPage'));
 import AdminRoute from '@/components/AdminRoute';
 
 const SuspenseFallback: React.FC = () => (
@@ -358,6 +361,8 @@ const App: React.FC = () => {
               }
             >
               <Route path="/u/:username" element={<PublicProfilePage />} />
+              <Route path="/blog" element={<BlogPage />} />
+              <Route path="/blog/:id" element={<BlogPostPage />} />
             </Route>
 
             {/* PRIVATE ROUTES (AUTH REQUIRED) */}
@@ -399,6 +404,25 @@ const App: React.FC = () => {
               element={
                 <AdminRoute user={user} authReady={authReady}>
                   <AdminPage />
+                </AdminRoute>
+              }
+            />
+            <Route
+              path="/admin/blog"
+              element={
+                <AdminRoute user={user} authReady={authReady}>
+                  <SidebarLayout
+                    user={user}
+                    courses={courses}
+                    isDarkMode={isDarkMode}
+                    onThemeToggle={handleThemeToggle}
+                    onProfileUpdate={handleProfileUpdate}
+                    coursesLoading={coursesLoading}
+                    coursesError={coursesError}
+                    onRefreshCourses={fetchCourseData}
+                  >
+                    <AdminBlogPage />
+                  </SidebarLayout>
                 </AdminRoute>
               }
             />

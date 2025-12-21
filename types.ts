@@ -48,12 +48,17 @@ export interface User {
 export interface Comment {
   id: string;
   user: {
+    uid?: string; // Add uid for permission checks
     name: string;
     avatar: string;
+    isAdmin?: boolean; // For badge
   };
   text: string;
+  imageUrl?: string; // For image in comment
   timestamp: string;
   replies?: Comment[];
+  likes?: string[]; // Array of userIds who liked
+  isPinned?: boolean; // Admin pin
 }
 
 export interface DownloadableResource {
@@ -217,4 +222,24 @@ export interface Post {
 export interface ChatMessage {
   sender: 'user' | 'ai';
   text: string;
+}
+
+export interface BlogPost {
+  id: string;
+  title: string;
+  slug: string;
+  content: string; // Markdown or HTML
+  excerpt: string;
+  coverImage?: string;
+  author: {
+    uid: string;
+    name: string;
+    avatar: string;
+  };
+  tags: string[];
+  likes: number;
+  commentsCount: number;
+  isPublished: boolean;
+  createdAt: Timestamp;
+  updatedAt: Timestamp;
 }

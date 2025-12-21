@@ -276,7 +276,7 @@ const Homepage: React.FC<HomepageProps> = ({ onNavigateToLogin }) => {
                     </div>
                     <div className="flex justify-center gap-8 mb-8 text-sm text-slate-500 dark:text-slate-400">
                         <Link to="/about" className="hover:text-brand-primary transition-colors">About Us</Link>
-                        <button onClick={() => setIsInfoModalOpen(true)} className="hover:text-brand-primary transition-colors">Contact</button>
+                        <Link to="/blog" className="hover:text-brand-primary transition-colors">Blog</Link>
                         <button onClick={() => setIsInfoModalOpen(true)} className="hover:text-brand-primary transition-colors">Privacy Policy</button>
                         <button onClick={() => setIsInfoModalOpen(true)} className="hover:text-brand-primary transition-colors">Terms of Service</button>
                     </div>

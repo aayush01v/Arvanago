@@ -15,6 +15,8 @@ const CourseEditor: React.FC<CourseEditorProps> = ({ onBack, courseId }) => {
     const [longDescription, setLongDescription] = useState('');
     const [thumbnail, setThumbnail] = useState('');
     const [learningOutcomes, setLearningOutcomes] = useState<string[]>(['']);
+    const [isPaid, setIsPaid] = useState(true);
+    const [price, setPrice] = useState<number>(0);
 
     // New States
     const [simulations, setSimulations] = useState<Simulation[]>([]);
@@ -51,6 +53,9 @@ const CourseEditor: React.FC<CourseEditorProps> = ({ onBack, courseId }) => {
 
                 if (course.simulations) setSimulations(course.simulations);
                 if (course.resources) setResources(course.resources);
+
+                setIsPaid(course.isPaid ?? true);
+                setPrice(course.price ?? 0);
             }
         } catch (error) {
             console.error("Failed to load course", error);
@@ -172,7 +177,11 @@ const CourseEditor: React.FC<CourseEditorProps> = ({ onBack, courseId }) => {
                 learningOutcomes: learningOutcomes.filter(o => o.trim() !== ''),
                 sections,
                 simulations,
-                resources
+                resources,
+                isPaid,
+                isFree: !isPaid,
+                price: isPaid ? price : 0,
+                currency: 'INR'
             };
 
             if (courseId) {
@@ -333,6 +342,43 @@ const CourseEditor: React.FC<CourseEditorProps> = ({ onBack, courseId }) => {
 
                 {/* Sidebar Info */}
                 <div className="space-y-6">
+                    <div className="bg-white/5 border border-white/10 rounded-2xl p-6 backdrop-blur-sm">
+                        <h3 className="text-lg font-bold text-white mb-4">Pricing</h3>
+                        <div className="space-y-4">
+                            <div className="flex items-center justify-between p-3 bg-black/20 rounded-lg border border-white/5">
+                                <span className="text-sm text-gray-300">Course Type</span>
+                                <div className="flex bg-black/40 rounded-lg p-1 border border-white/10">
+                                    <button
+                                        onClick={() => setIsPaid(false)}
+                                        className={`px-3 py-1 text-xs font-medium rounded-md transition-all ${!isPaid ? 'bg-green-500/20 text-green-400 shadow-sm' : 'text-gray-400 hover:text-white'}`}
+                                    >
+                                        Free
+                                    </button>
+                                    <button
+                                        onClick={() => setIsPaid(true)}
+                                        className={`px-3 py-1 text-xs font-medium rounded-md transition-all ${isPaid ? 'bg-blue-500/20 text-blue-400 shadow-sm' : 'text-gray-400 hover:text-white'}`}
+                                    >
+                                        Paid
+                                    </button>
+                                </div>
+                            </div>
+
+                            {isPaid && (
+                                <div>
+                                    <label className="block text-xs font-medium text-gray-500 mb-1 uppercase">Price</label>
+                                    <div className="relative">
+                                        <input
+                                            type="number"
+                                            value={price}
+                                            onChange={(e) => setPrice(Number(e.target.value))}
+                                            className="w-full bg-black/40 border border-white/10 rounded-lg py-2 px-4 text-white focus:outline-none focus:border-blue-500/50"
+                                            placeholder="0.00"
+                                        />
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+                    </div>
                     <div className="bg-white/5 border border-white/10 rounded-2xl p-6 backdrop-blur-sm">
                         <h3 className="text-lg font-bold text-white mb-4">Thumbnail</h3>
                         <div className="aspect-video rounded-xl bg-black/40 border border-white/10 flex items-center justify-center mb-4 overflow-hidden relative group">

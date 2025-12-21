@@ -139,9 +139,9 @@ const LoginPage: React.FC<LoginPageProps> = ({ onNavigateHome }) => {
                     </div>
                 </div>
 
-                <div className="text-sm text-slate-500 font-medium">
-                    © 2024 Edusimulate Inc.
-                </div>
+                <p className="text-sm font-medium text-slate-500">
+                    &copy; 2026 Edusimulate Inc.
+                </p>
             </div>
 
             {/* Right Panel (Form) */}
@@ -170,8 +170,8 @@ const LoginPage: React.FC<LoginPageProps> = ({ onNavigateHome }) => {
                                     key={tab}
                                     onClick={() => switchTab(tab)}
                                     className={`relative z-10 flex-1 py-3 text-sm font-bold rounded-xl transition-all duration-300 ${activeTab === tab
-                                            ? 'text-brand-primary'
-                                            : 'text-slate-500 hover:text-slate-700'
+                                        ? 'text-brand-primary'
+                                        : 'text-slate-500 hover:text-slate-700'
                                         }`}
                                 >
                                     {tab === 'signin' ? 'Sign In' : 'Sign Up'}

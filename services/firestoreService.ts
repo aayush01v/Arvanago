@@ -11,6 +11,8 @@ import type {
   SuggestedCourseSummary,
   Timestamp,
   User,
+  BlogPost,
+  Comment,
 } from '../types.ts';
 
 const COURSE_CACHE_TTL_MS = 1000 * 60 * 5;
@@ -1816,6 +1818,226 @@ export const deleteCourse = async (courseId: string): Promise<void> => {
     throw error;
   }
 };
+// ==========================================
+// BLOG SYSTEM
+// ==========================================
+
+export const getBlogPosts = async (limitCount = 10, lastDoc?: firebase.firestore.QueryDocumentSnapshot): Promise<{ posts: BlogPost[], lastDoc?: firebase.firestore.QueryDocumentSnapshot }> => {
+  let query = db.collection('blog_posts')
+    .where('isPublished', '==', true)
+    .orderBy('createdAt', 'desc')
+    .limit(limitCount);
+
+  if (lastDoc) {
+    query = query.startAfter(lastDoc);
+  }
+
+  const snapshot = await query.get();
+  const posts = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as BlogPost));
+
+  return {
+    posts,
+    lastDoc: snapshot.docs[snapshot.docs.length - 1]
+  };
+};
+
+export const getAllBlogPostsAdmin = async (): Promise<BlogPost[]> => {
+  const snapshot = await db.collection('blog_posts')
+    .orderBy('createdAt', 'desc')
+    .get();
+  return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as BlogPost));
+};
+
+export const getBlogPost = async (id: string): Promise<BlogPost | null> => {
+  const doc = await db.collection('blog_posts').doc(id).get();
+  if (!doc.exists) return null;
+  return { id: doc.id, ...doc.data() } as BlogPost;
+};
+
+export const createBlogPost = async (data: Partial<BlogPost>): Promise<string> => {
+  const docRef = await db.collection('blog_posts').add({
+    ...data,
+    likes: 0,
+    commentsCount: 0,
+    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+    updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+  });
+  return docRef.id;
+};
+
+export const createBlogPostWithId = async (id: string, data: Partial<BlogPost>): Promise<void> => {
+  await db.collection('blog_posts').doc(id).set({
+    ...data,
+    likes: data.likes || 0, // Preserve likes if migrated, or 0
+    commentsCount: data.commentsCount || 0,
+    createdAt: data.createdAt || firebase.firestore.FieldValue.serverTimestamp(),
+    updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+  }, { merge: true });
+};
+
+export const updateBlogPost = async (id: string, data: Partial<BlogPost>): Promise<void> => {
+  await db.collection('blog_posts').doc(id).update({
+    ...data,
+    updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+  });
+};
+
+export const deleteBlogPost = async (id: string): Promise<void> => {
+  await db.collection('blog_posts').doc(id).delete();
+};
+
+export const likeBlogPost = async (postId: string, userId: string): Promise<void> => {
+  const postRef = db.collection('blog_posts').doc(postId);
+  const likeRef = postRef.collection('likes').doc(userId);
+
+  await db.runTransaction(async (transaction) => {
+    const likeDoc = await transaction.get(likeRef);
+    if (likeDoc.exists) {
+      // Unlike
+      transaction.delete(likeRef);
+      transaction.update(postRef, { likes: firebase.firestore.FieldValue.increment(-1) });
+    } else {
+      // Like
+      transaction.set(likeRef, { createdAt: firebase.firestore.FieldValue.serverTimestamp() });
+      transaction.update(postRef, { likes: firebase.firestore.FieldValue.increment(1) });
+    }
+  });
+};
+
+
+export const hasUserLikedBlogPost = async (postId: string, userId: string): Promise<boolean> => {
+  const likeDoc = await db.collection('blog_posts').doc(postId).collection('likes').doc(userId).get();
+  return likeDoc.exists;
+};
+
+export const getBlogComments = async (postId: string): Promise<Comment[]> => {
+  const snapshot = await db.collection('blog_posts').doc(postId).collection('comments')
+    .orderBy('isPinned', 'desc')
+    .orderBy('createdAt', 'desc')
+    .get();
+
+  return snapshot.docs.map(doc => {
+    const data = doc.data();
+    return {
+      id: doc.id,
+      user: data.user,
+      text: data.text,
+      imageUrl: data.imageUrl,
+      timestamp: data.createdAt?.toDate().toISOString() || new Date().toISOString(),
+      likes: data.likes || [],
+      replies: data.replies || [],
+      isPinned: data.isPinned || false
+    };
+  });
+};
+
+export const addBlogComment = async (postId: string, user: User, text: string, imageUrl?: string): Promise<Comment> => {
+  const postRef = db.collection('blog_posts').doc(postId);
+  const commentsRef = postRef.collection('comments');
+
+  const newCommentRef = commentsRef.doc();
+  const timestamp = firebase.firestore.FieldValue.serverTimestamp();
+
+  const commentData = {
+    userId: user.uid,
+    user: {
+      uid: user.uid,
+      name: user.name,
+      avatar: user.avatar,
+      isAdmin: user.role === 'admin'
+    },
+    text,
+    imageUrl: imageUrl || null,
+    likes: [],
+    replies: [],
+    isPinned: false,
+    createdAt: timestamp
+  };
+
+  await db.runTransaction(async (transaction) => {
+    transaction.set(newCommentRef, commentData);
+    transaction.update(postRef, { commentsCount: firebase.firestore.FieldValue.increment(1) });
+  });
+
+  return {
+    id: newCommentRef.id,
+    user: commentData.user,
+    text: commentData.text,
+    imageUrl: commentData.imageUrl || undefined,
+    timestamp: new Date().toISOString(),
+    likes: [],
+    replies: [],
+    isPinned: false
+  };
+};
+
+export const toggleCommentLike = async (postId: string, commentId: string, userId: string): Promise<void> => {
+  const commentRef = db.collection('blog_posts').doc(postId).collection('comments').doc(commentId);
+
+  await db.runTransaction(async (transaction) => {
+    const doc = await transaction.get(commentRef);
+    if (!doc.exists) return;
+
+    const likes = doc.data()?.likes || [];
+    if (likes.includes(userId)) {
+      transaction.update(commentRef, { likes: firebase.firestore.FieldValue.arrayRemove(userId) });
+    } else {
+      transaction.update(commentRef, { likes: firebase.firestore.FieldValue.arrayUnion(userId) });
+    }
+  });
+};
+
+export const addCommentReply = async (postId: string, commentId: string, user: User, text: string): Promise<Comment> => {
+  const commentRef = db.collection('blog_posts').doc(postId).collection('comments').doc(commentId);
+  const reply: Comment = {
+    id: Math.random().toString(36).substr(2, 9), // Simple ID for sub-collection emulator or array
+    user: {
+      uid: user.uid,
+      name: user.name,
+      avatar: user.avatar,
+      isAdmin: user.role === 'admin'
+    },
+    text,
+    timestamp: new Date().toISOString()
+  };
+
+  // Storing replies in an array for simplicity as requested, 
+  // though subcollection is better for scalabiltiy. 
+  // Given the types interface `replies?: Comment[]`, array is implied.
+  await commentRef.update({
+    replies: firebase.firestore.FieldValue.arrayUnion(reply)
+  });
+
+  return reply;
+};
+
+export const pinComment = async (postId: string, commentId: string, isPinned: boolean): Promise<void> => {
+  const commentsRef = db.collection('blog_posts').doc(postId).collection('comments');
+
+  // Enforce max 3 pinned logic (if pinning)
+  if (isPinned) {
+    const pinnedSnapshot = await commentsRef.where('isPinned', '==', true).get();
+    if (pinnedSnapshot.size >= 3) {
+      throw new Error("Maximum 3 comments can be pinned.");
+    }
+  }
+
+  await commentsRef.doc(commentId).update({ isPinned });
+};
+
+export const deleteBlogComment = async (postId: string, commentId: string): Promise<void> => {
+  const postRef = db.collection('blog_posts').doc(postId);
+  const commentRef = postRef.collection('comments').doc(commentId);
+
+  await db.runTransaction(async (transaction) => {
+    const commentDoc = await transaction.get(commentRef);
+    if (!commentDoc.exists) return; // Already deleted
+
+    transaction.delete(commentRef);
+    transaction.update(postRef, { commentsCount: firebase.firestore.FieldValue.increment(-1) });
+  });
+};
+
 
 // ==========================================
 // POST INTERACTION FUNCTIONS

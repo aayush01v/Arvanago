@@ -5,10 +5,13 @@ import CourseManager from '../components/admin/CourseManager';
 import UserManagement from '../components/admin/UserManagement';
 import AdminSettings from '../components/admin/AdminSettings';
 import { useAdminStats } from '../hooks/useAdminStats';
-import { Users, BookOpen, DollarSign, TrendingUp, Clock } from 'lucide-react';
+import { Users, BookOpen, DollarSign, TrendingUp, Clock, Menu } from 'lucide-react';
+
+const AdminBlogPage = React.lazy(() => import('./AdminBlogPage'));
 
 const AdminPage: React.FC = () => {
-    const [activeTab, setActiveTab] = useState<'dashboard' | 'courses' | 'users' | 'settings'>('dashboard');
+    const [activeTab, setActiveTab] = useState<'dashboard' | 'courses' | 'users' | 'settings' | 'blog'>('dashboard');
+    const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const {
         totalCourses,
         activeUsers,
@@ -209,6 +212,8 @@ const AdminPage: React.FC = () => {
                 );
             case 'courses':
                 return <CourseManager />;
+            case 'blog':
+                return <React.Suspense fallback={<div>Loading...</div>}><AdminBlogPage /></React.Suspense>;
             case 'users':
                 return <UserManagement />;
             case 'settings':
@@ -220,17 +225,30 @@ const AdminPage: React.FC = () => {
 
     return (
         <div className="flex min-h-screen bg-[#0a0a0a] text-white font-sans selection:bg-blue-500/30">
-            <AdminSidebar activeTab={activeTab} setActiveTab={setActiveTab} />
+            <AdminSidebar
+                activeTab={activeTab}
+                setActiveTab={setActiveTab}
+                isOpen={isSidebarOpen}
+                onClose={() => setIsSidebarOpen(false)}
+            />
 
             <main className="flex-1 overflow-y-auto max-h-screen">
                 <div className="p-4 md:p-8">
                     <header className="mb-8 flex flex-col md:flex-row justify-between md:items-center gap-4">
-                        <div>
-                            <h2 className="text-3xl font-bold text-white mb-2">
-                                {activeTab === 'dashboard' ? 'Dashboard' :
-                                    activeTab.charAt(0).toUpperCase() + activeTab.slice(1)}
-                            </h2>
-                            <p className="text-slate-400">Manage your platform content and settings</p>
+                        <div className="flex items-center gap-4">
+                            <button
+                                onClick={() => setIsSidebarOpen(true)}
+                                className="p-2 -ml-2 text-slate-400 hover:text-white md:hidden hover:bg-white/10 rounded-lg transition-colors"
+                            >
+                                <Menu className="w-6 h-6" />
+                            </button>
+                            <div>
+                                <h2 className="text-3xl font-bold text-white mb-2">
+                                    {activeTab === 'dashboard' ? 'Dashboard' :
+                                        activeTab.charAt(0).toUpperCase() + activeTab.slice(1)}
+                                </h2>
+                                <p className="text-slate-400">Manage your platform content and settings</p>
+                            </div>
                         </div>
                         <div className="flex items-center space-x-4">
                             <span className="text-sm text-slate-500 flex items-center gap-2">
