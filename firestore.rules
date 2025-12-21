@@ -114,14 +114,24 @@ service cloud.firestore {
     }
     
     // 9. BLOG POSTS
+    // 9. BLOG POSTS
     match /blog_posts/{postId} {
       allow read: if true;
-      allow create, update, delete: if isAdmin();
+      allow create, delete: if isAdmin();
+      // Allow admin to update fully. Allow authenticated users to update LIKES and COMMENTS COUNT.
+      allow update: if isAdmin() || (
+        isAuthenticated() && 
+        request.resource.data.diff(resource.data).affectedKeys().hasOnly(['likes', 'commentsCount'])
+      );
       
       match /comments/{commentId} {
          allow read: if true;
-         allow create: if isAuthenticated(); // Allow any logged-in user to comment
-         allow update, delete: if isAdmin() || (isAuthenticated() && resource.data.userId == request.auth.uid);
+         allow create: if isAuthenticated(); 
+         // Allow admin or owner to delete/edit text. Allow any auth user to toggle LIKES.
+         allow update: if isAdmin() || 
+                       (isAuthenticated() && resource.data.user.uid == request.auth.uid) ||
+                       (isAuthenticated() && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['likes', 'replies']));
+         allow delete: if isAdmin() || (isAuthenticated() && resource.data.user.uid == request.auth.uid);
       }
     }
     

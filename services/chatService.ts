@@ -6,6 +6,7 @@ export interface ChatMessage {
   id: string;
   senderId: string;
   text: string;
+  imageUrl?: string;
   timestamp: Timestamp;
 }
 
@@ -14,6 +15,7 @@ export interface Chat {
   participants: string[];
   lastMessage?: {
     text: string;
+    imageUrl?: string;
     senderId: string;
     timestamp: Timestamp;
   };
@@ -55,7 +57,7 @@ export const chatService = {
   },
 
   // Send Message
-  async sendMessage(chatId: string, senderId: string, text: string): Promise<void> {
+  async sendMessage(chatId: string, senderId: string, text: string, imageUrl?: string): Promise<void> {
     const chatRef = db.collection('chats').doc(chatId);
     const messagesRef = chatRef.collection('messages');
 
@@ -64,6 +66,7 @@ export const chatService = {
     await messagesRef.add({
       senderId,
       text,
+      imageUrl: imageUrl || null,
       timestamp,
     });
 
@@ -76,6 +79,7 @@ export const chatService = {
     const updates: any = {
       lastMessage: {
         text,
+        imageUrl: imageUrl || null,
         senderId,
         timestamp,
       },

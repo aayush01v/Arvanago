@@ -1987,7 +1987,7 @@ export const toggleCommentLike = async (postId: string, commentId: string, userI
   });
 };
 
-export const addCommentReply = async (postId: string, commentId: string, user: User, text: string): Promise<Comment> => {
+export const addCommentReply = async (postId: string, commentId: string, user: User, text: string, imageUrl?: string): Promise<Comment> => {
   const commentRef = db.collection('blog_posts').doc(postId).collection('comments').doc(commentId);
   const reply: Comment = {
     id: Math.random().toString(36).substr(2, 9), // Simple ID for sub-collection emulator or array
@@ -1998,6 +1998,7 @@ export const addCommentReply = async (postId: string, commentId: string, user: U
       isAdmin: user.role === 'admin'
     },
     text,
+    imageUrl,
     timestamp: new Date().toISOString()
   };
 

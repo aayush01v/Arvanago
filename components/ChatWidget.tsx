@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import ReactDOM from 'react-dom';
 import { Chat, ChatMessage, chatService } from '../services/chatService';
+import { uploadToImgBB } from '../services/imgbbService';
 import { User } from '../types';
 import Icon from './common/Icon';
 import { Link, useNavigate } from 'react-router-dom';
@@ -24,6 +25,8 @@ const ChatWidget: React.FC<ChatWidgetProps> = ({
     const [selectedChatId, setSelectedChatId] = useState<string | null>(null);
     const [messages, setMessages] = useState<ChatMessage[]>([]);
     const [input, setInput] = useState('');
+    const [chatImageUrl, setChatImageUrl] = useState('');
+    const [isUploading, setIsUploading] = useState(false);
     const [activeChatUser, setActiveChatUser] = useState<Partial<User> | null>(null);
     const [searchTerm, setSearchTerm] = useState('');
     const [searchResults, setSearchResults] = useState<User[]>([]);
@@ -149,11 +152,27 @@ const ChatWidget: React.FC<ChatWidgetProps> = ({
         }
     };
 
-    const handleSend = async () => {
-        if (!input.trim() || !selectedChatId || !currentUser) return;
+    const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
         try {
-            await chatService.sendMessage(selectedChatId, currentUser.uid, input);
+            setIsUploading(true);
+            const url = await uploadToImgBB(file);
+            setChatImageUrl(url);
+        } catch (error) {
+            console.error("Chat upload failed", error);
+        } finally {
+            setIsUploading(false);
+        }
+    };
+
+    const handleSend = async () => {
+        if ((!input.trim() && !chatImageUrl) || !selectedChatId || !currentUser) return;
+        try {
+            await chatService.sendMessage(selectedChatId, currentUser.uid, input, chatImageUrl || undefined);
             setInput('');
+            setChatImageUrl('');
         } catch (e) {
             console.error("Failed to send", e);
         }
@@ -186,7 +205,7 @@ const ChatWidget: React.FC<ChatWidgetProps> = ({
                         )}
                     </div>
                     <p className={`text-xs truncate ${unreadCount > 0 ? 'font-bold text-slate-900 dark:text-white' : 'text-slate-500'}`}>
-                        {chat.lastMessage?.text || 'Start chatting...'}
+                        {chat.lastMessage?.text || (chat.lastMessage?.imageUrl ? '📷 Photo' : 'Start chatting...')}
                     </p>
                 </div>
             </div>
@@ -338,7 +357,10 @@ const ChatWidget: React.FC<ChatWidgetProps> = ({
                                 return (
                                     <div key={msg.id} className={`flex ${isMe ? 'justify-end' : 'justify-start'}`}>
                                         <div className={`max-w-[80%] px-4 py-2 rounded-2xl text-sm ${isMe ? 'bg-brand-primary text-white rounded-br-none' : 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 rounded-bl-none shadow-sm'}`}>
-                                            {msg.text}
+                                            {msg.imageUrl && (
+                                                <img src={msg.imageUrl} alt="Attachment" className="mb-2 rounded-lg max-h-48 object-cover" />
+                                            )}
+                                            {msg.text && <p>{msg.text}</p>}
                                         </div>
                                     </div>
                                 )
@@ -348,17 +370,36 @@ const ChatWidget: React.FC<ChatWidgetProps> = ({
 
                         <div className="p-3 bg-white dark:bg-slate-900 border-t border-slate-100 dark:border-slate-800">
                             <div className="flex items-center gap-2">
-                                <input
-                                    type="text"
-                                    value={input}
-                                    onChange={(e) => setInput(e.target.value)}
-                                    onKeyDown={(e) => e.key === 'Enter' && handleSend()}
-                                    placeholder="Type a message..."
-                                    className="flex-1 px-4 py-2 rounded-full bg-slate-100 dark:bg-slate-800 border-none focus:ring-2 focus:ring-brand-primary/50 text-sm text-slate-900 dark:text-white"
-                                />
+                                <label className="cursor-pointer p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full transition-colors text-slate-500">
+                                    <Icon name="image" className={`w-5 h-5 ${isUploading ? 'animate-pulse opacity-50' : ''}`} />
+                                    <input type="file" accept="image/*" className="hidden" onChange={handleImageUpload} disabled={isUploading} />
+                                </label>
+                                <div className="flex-1 relative">
+                                    <input
+                                        type="text"
+                                        value={input}
+                                        onChange={(e) => setInput(e.target.value)}
+                                        onKeyDown={(e) => e.key === 'Enter' && handleSend()}
+                                        placeholder="Type a message..."
+                                        className="w-full px-4 py-2 rounded-full bg-slate-100 dark:bg-slate-800 border-none focus:ring-2 focus:ring-brand-primary/50 text-sm text-slate-900 dark:text-white"
+                                    />
+                                    {chatImageUrl && (
+                                        <div className="absolute bottom-full left-0 mb-2 p-1 bg-white dark:bg-slate-800 rounded-lg shadow-lg border border-slate-200 dark:border-slate-700">
+                                            <div className="relative">
+                                                <img src={chatImageUrl} className="h-16 w-16 object-cover rounded-md" />
+                                                <button
+                                                    onClick={() => setChatImageUrl('')}
+                                                    className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-4 h-4 flex items-center justify-center text-[10px]"
+                                                >
+                                                    ×
+                                                </button>
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
                                 <button
                                     onClick={handleSend}
-                                    disabled={!input.trim()}
+                                    disabled={(!input.trim() && !chatImageUrl) || isUploading}
                                     className="p-2 rounded-full bg-brand-primary text-white disabled:opacity-50"
                                 >
                                     <Icon name="send" className="w-4 h-4" />

@@ -30,6 +30,7 @@ const BlogPostPage: React.FC = () => {
     // Reply State
     const [replyingTo, setReplyingTo] = useState<string | null>(null);
     const [replyText, setReplyText] = useState('');
+    const [replyImageUrl, setReplyImageUrl] = useState('');
     const [isUploading, setIsUploading] = useState(false);
 
     const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -42,6 +43,22 @@ const BlogPostPage: React.FC = () => {
             setImageUrl(url);
         } catch (error) {
             console.error("Upload failed", error);
+            alert("Failed to upload image.");
+        } finally {
+            setIsUploading(false);
+        }
+    };
+
+    const handleReplyImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        try {
+            setIsUploading(true);
+            const url = await uploadToImgBB(file);
+            setReplyImageUrl(url);
+        } catch (error) {
+            console.error("Reply upload failed", error);
             alert("Failed to upload image.");
         } finally {
             setIsUploading(false);
@@ -135,7 +152,7 @@ const BlogPostPage: React.FC = () => {
         if (!user || !postId || !replyText.trim()) return;
 
         try {
-            const reply = await addCommentReply(postId, commentId, user, replyText);
+            const reply = await addCommentReply(postId, commentId, user, replyText, replyImageUrl || undefined);
             // Update local state deeply
             setComments(prev => prev.map(c => {
                 if (c.id === commentId) {
@@ -145,6 +162,7 @@ const BlogPostPage: React.FC = () => {
             }));
             setReplyingTo(null);
             setReplyText('');
+            setReplyImageUrl('');
         } catch (err) {
             console.error(err);
         }
@@ -411,7 +429,10 @@ const BlogPostPage: React.FC = () => {
                                                     <img src={reply.user.avatar} className="w-6 h-6 rounded-full" />
                                                     <div className="bg-slate-50 dark:bg-slate-900 p-3 rounded-xl border border-slate-100 dark:border-slate-800">
                                                         <span className="font-bold text-sm block">{reply.user.name}</span>
-                                                        <p className="text-sm text-slate-600 dark:text-slate-400">{reply.text}</p>
+                                                        <p className="text-sm text-slate-600 dark:text-slate-400 whitespace-pre-wrap">{reply.text}</p>
+                                                        {reply.imageUrl && (
+                                                            <img src={reply.imageUrl} alt="Reply attachment" className="mt-2 rounded-lg max-h-40 object-cover" />
+                                                        )}
                                                     </div>
                                                 </div>
                                             ))}
@@ -420,15 +441,39 @@ const BlogPostPage: React.FC = () => {
 
                                     {/* Reply Input */}
                                     {replyingTo === comment.id && user && (
-                                        <div className="mt-3 ml-2 flex gap-2 animate-fade-in-up">
-                                            <input
-                                                autoFocus
-                                                value={replyText}
-                                                onChange={e => setReplyText(e.target.value)}
-                                                onKeyDown={e => e.key === 'Enter' && handleReplySubmit(comment.id)}
-                                                className="flex-1 px-4 py-2 text-sm rounded-full bg-slate-100 dark:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-brand-primary/50"
-                                                placeholder="Write a reply..."
-                                            />
+                                        <div className="mt-3 ml-2">
+                                            <div className="flex gap-2 animate-fade-in-up">
+                                                <input
+                                                    autoFocus
+                                                    value={replyText}
+                                                    onChange={e => setReplyText(e.target.value)}
+                                                    onKeyDown={e => e.key === 'Enter' && handleReplySubmit(comment.id)}
+                                                    className="flex-1 px-4 py-2 text-sm rounded-full bg-slate-100 dark:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-brand-primary/50"
+                                                    placeholder="Write a reply..."
+                                                />
+                                                <label className="cursor-pointer p-2 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-full transition-colors self-center">
+                                                    <Icon name="image" className={`w-5 h-5 text-slate-500 ${isUploading ? 'animate-pulse opacity-50' : ''}`} />
+                                                    <input type="file" accept="image/*" className="hidden" onChange={handleReplyImageUpload} disabled={isUploading} />
+                                                </label>
+                                                <button
+                                                    onClick={() => handleReplySubmit(comment.id)}
+                                                    disabled={!replyText.trim() || isUploading}
+                                                    className="p-2 bg-brand-primary text-white rounded-full hover:bg-brand-primary-dark transition-colors disabled:opacity-50 self-center"
+                                                >
+                                                    <Icon name="send" className="w-4 h-4" />
+                                                </button>
+                                            </div>
+                                            {replyImageUrl && (
+                                                <div className="mt-2 relative inline-block">
+                                                    <img src={replyImageUrl} alt="Reply preview" className="h-12 w-12 rounded object-cover border border-slate-200" />
+                                                    <button
+                                                        onClick={() => setReplyImageUrl('')}
+                                                        className="absolute -top-1 -right-1 bg-red-500 text-white rounded-full w-4 h-4 flex items-center justify-center text-[10px]"
+                                                    >
+                                                        ×
+                                                    </button>
+                                                </div>
+                                            )}
                                         </div>
                                     )}
                                 </div>
