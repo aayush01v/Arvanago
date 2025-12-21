@@ -5,6 +5,8 @@
 
 <img width="1024" height="2231" alt="GHBanner" src="https://api.pikwy.com/web/694852ec06185d6487218519.jpg" />
 
+
+<img width="1024" height="2231" alt="GHBanner" src="https://i.postimg.cc/zvqK0mxh/edusimulate-in-1920x1080desktop-23c44a.png" />
       
 </div>
 
