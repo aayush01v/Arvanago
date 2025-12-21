@@ -13,6 +13,7 @@ const BlogPage: React.FC = () => {
     const [posts, setPosts] = useState<BlogPost[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    const [visibleCount, setVisibleCount] = useState(7); // 1 Featured + 6 Grid
 
     useEffect(() => {
         const fetchPosts = async () => {
@@ -52,6 +53,33 @@ const BlogPage: React.FC = () => {
             </div>
 
             <div className="max-w-7xl mx-auto px-4 sm:px-6 py-12">
+                <script type="application/ld+json">
+                    {JSON.stringify({
+                        "@context": "https://schema.org",
+                        "@type": "Blog",
+                        "headline": "EduSimulate Blog",
+                        "description": "Insights, tutorials, and updates from the world of education and technology.",
+                        "publisher": {
+                            "@type": "Organization",
+                            "name": "EduSimulate",
+                            "logo": {
+                                "@type": "ImageObject",
+                                "url": "https://edusimulate.in/logo.svg"
+                            }
+                        },
+                        "blogPost": posts.slice(0, 5).map(post => ({
+                            "@type": "BlogPosting",
+                            "headline": post.title,
+                            "image": post.coverImage,
+                            "datePublished": post.createdAt ? new Date(post.createdAt.seconds * 1000).toISOString() : undefined,
+                            "author": {
+                                "@type": "Person",
+                                "name": post.author.name
+                            }
+                        }))
+                    })}
+                </script>
+
                 {loading ? (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                         {[1, 2, 3, 4, 5, 6].map((i) => (
@@ -99,15 +127,28 @@ const BlogPage: React.FC = () => {
                                     <Icon name="clock" className="w-6 h-6 text-brand-primary" />
                                     Latest Articles
                                 </h2>
-                                <button className="text-sm font-medium text-brand-primary hover:text-brand-secondary transition-colors">
-                                    View All
-                                </button>
                             </div>
                             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 lg:gap-8">
-                                {posts.slice(1).map(post => (
+                                {posts.slice(1, visibleCount).map(post => (
                                     <BlogCard key={post.id} post={post} />
                                 ))}
                             </div>
+
+                            {/* Load More Button */}
+                            {visibleCount < posts.length && (
+                                <div className="mt-12 text-center">
+                                    <button
+                                        onClick={() => setVisibleCount(prev => prev + 6)}
+                                        className="inline-flex items-center gap-2 px-8 py-3 bg-white dark:bg-slate-800 text-slate-900 dark:text-white font-bold rounded-full border border-slate-200 dark:border-slate-700 shadow-sm hover:shadow-md hover:bg-slate-50 dark:hover:bg-slate-700 transition-all transform hover:-translate-y-0.5"
+                                    >
+                                        Load More Articles
+                                        <Icon name="arrow-down" className="w-4 h-4" />
+                                    </button>
+                                    <p className="mt-4 text-xs text-slate-400">
+                                        Showing {Math.min(visibleCount, posts.length)} of {posts.length} articles
+                                    </p>
+                                </div>
+                            )}
                         </div>
                     </div>
                 )}

@@ -120,8 +120,10 @@ service cloud.firestore {
       allow create, delete: if isAdmin();
       // Allow admin to update fully. Allow authenticated users to update LIKES and COMMENTS COUNT.
       allow update: if isAdmin() || (
-        isAuthenticated() && 
-        request.resource.data.diff(resource.data).affectedKeys().hasOnly(['likes', 'commentsCount'])
+        isAuthenticated() && (
+          request.resource.data.diff(resource.data).affectedKeys().hasOnly(['likes', 'commentsCount']) ||
+          request.resource.data.diff(resource.data).affectedKeys().hasOnly(['likes', 'commentsCount', 'updatedAt'])
+        )
       );
       
       match /comments/{commentId} {
