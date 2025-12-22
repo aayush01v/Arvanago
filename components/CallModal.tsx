@@ -18,6 +18,7 @@ const CallModal: React.FC<CallModalProps> = ({ isOpen, onClose, callId, isCaller
     const remoteVideoRef = useRef<HTMLVideoElement>(null);
     const [isMuted, setIsMuted] = useState(false);
     const [isVideoOff, setIsVideoOff] = useState(false);
+    const [isSpeakerOn, setIsSpeakerOn] = useState(true);
 
     useEffect(() => {
         if (isOpen && callId) {
@@ -28,35 +29,43 @@ const CallModal: React.FC<CallModalProps> = ({ isOpen, onClose, callId, isCaller
     }, [isOpen, callId]);
 
     const startCall = async () => {
-        // If we don't know the type (e.g. joiner), openUserMedia might default to video,
-        // but joinRoom will fix it by reading Firestore.
-        // For caller, we should know the type.
-        const localStream = await webrtcService.openUserMedia(callType);
-        if (localVideoRef.current) localVideoRef.current.srcObject = localStream;
+        // Handle Caller vs Callee logic
+        // caller: createRoom already called (media ready).
+        // callee: need to joinRoom (which inits media).
 
         if (isCaller) {
-            // Logic to create room is handled by parent or before opening modal usually, 
-            // but if we pass callId here, it implies it's already created or we need to join.
-            // For simplicity in this integration, let's assume we join or attach streams here.
-            // If we are the caller, we might have already created the room ID. 
-            // Let's rely on the service maintaining state or re-attach.
+            // For caller, stream should be ready in service
+            if (!webrtcService.localStream) {
+                // Fallback if not ready (shouldn't happen if flow is correct)
+                await webrtcService.openUserMedia(callType);
+            }
         } else {
+            // For callee, we MUST join the room. joinRoom handles openUserMedia internaly
             if (callId) await webrtcService.joinRoom(callId);
+        }
+
+        // Attach Streams to Video Elements
+        if (webrtcService.localStream && localVideoRef.current) {
+            localVideoRef.current.srcObject = webrtcService.localStream;
         }
 
         if (webrtcService.remoteStream && remoteVideoRef.current) {
             remoteVideoRef.current.srcObject = webrtcService.remoteStream;
         }
 
-        // Re-attach remote stream listener if needed because refs might have changed
+        // Setup listener for remote track events (in case they arrive later)
         if (webrtcService.pc) {
             webrtcService.pc.ontrack = (event) => {
                 event.streams[0].getTracks().forEach((track) => {
+                    // Start 'drift' fix: ensure we are adding to the existing remoteStream object if possible
                     if (webrtcService.remoteStream) {
                         webrtcService.remoteStream.addTrack(track);
                     }
                 });
-                if (remoteVideoRef.current) {
+
+                // Force update remote video ref
+                if (remoteVideoRef.current && webrtcService.remoteStream) {
+                    // Sometimes re-assigning srcObject helps trigger play
                     remoteVideoRef.current.srcObject = webrtcService.remoteStream;
                 }
             };
@@ -84,6 +93,13 @@ const CallModal: React.FC<CallModalProps> = ({ isOpen, onClose, callId, isCaller
                 track.enabled = !track.enabled;
             });
             setIsVideoOff(!isVideoOff);
+        }
+    };
+
+    const toggleSpeaker = () => {
+        if (remoteVideoRef.current) {
+            remoteVideoRef.current.muted = isSpeakerOn; // If currently on, we mute it (so muted = true)
+            setIsSpeakerOn(!isSpeakerOn);
         }
     };
 
@@ -164,6 +180,13 @@ const CallModal: React.FC<CallModalProps> = ({ isOpen, onClose, callId, isCaller
                     className="p-5 rounded-full bg-red-500 hover:bg-red-600 text-white transition-all transform hover:scale-110 shadow-lg shadow-red-500/50"
                 >
                     <Icon name="phone" className="w-8 h-8 rotate-[135deg]" />
+                </button>
+
+                <button
+                    onClick={toggleSpeaker}
+                    className={`p-4 rounded-full transition-all ${isSpeakerOn ? 'bg-white/10 text-white hover:bg-white/20' : 'bg-white text-black'}`}
+                >
+                    <Icon name={isSpeakerOn ? 'volume' : 'volume-x'} className="w-6 h-6" />
                 </button>
 
                 <button

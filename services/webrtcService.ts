@@ -1,5 +1,6 @@
 import { db } from './firebase.ts';
 import firebase from 'firebase/compat/app';
+import { chatService } from './chatService';
 
 const servers = {
     iceServers: [
@@ -14,10 +15,16 @@ export const webrtcService = {
     pc: null as RTCPeerConnection | null,
     localStream: null as MediaStream | null,
     remoteStream: null as MediaStream | null,
+    unsubscribes: [] as (() => void)[],
 
     currentFacingMode: 'user' as 'user' | 'environment',
 
     async openUserMedia(type: 'video' | 'audio' = 'video', facingMode: 'user' | 'environment' = 'user') {
+        // Cleanup existing stream if present to avoid multiple active streams
+        if (this.localStream) {
+            this.localStream.getTracks().forEach(track => track.stop());
+        }
+
         this.currentFacingMode = facingMode;
         const constraints = {
             audio: true,
@@ -85,7 +92,7 @@ export const webrtcService = {
         }
     },
 
-    async createRoom(callerId: string, calleeId: string, type: 'video' | 'audio' = 'video'): Promise<string> {
+    async createRoom(callerId: string, calleeId: string, type: 'video' | 'audio' = 'video', chatId?: string, messageId?: string): Promise<string> {
         if (!this.pc) this.pc = new RTCPeerConnection(servers);
 
         // openUserMedia will now add tracks to PC
@@ -118,22 +125,25 @@ export const webrtcService = {
             callerId,
             calleeId,
             type,
+            chatId: chatId || null,
+            messageId: messageId || null,
             status: 'ringing', // Initial status
             offer: { type: offer.type, sdp: offer.sdp },
             timestamp: firebase.firestore.FieldValue.serverTimestamp(),
         });
 
         // Listen for remote answer
-        callDoc.onSnapshot((snapshot) => {
+        const unsubInfo = callDoc.onSnapshot((snapshot) => {
             const data = snapshot.data();
             if (!this.pc?.currentRemoteDescription && data?.answer) {
                 const answerDescription = new RTCSessionDescription(data.answer);
                 this.pc.setRemoteDescription(answerDescription);
             }
         });
+        this.unsubscribes.push(unsubInfo);
 
         // Listen for remote ICE candidates
-        answerCandidates.onSnapshot((snapshot) => {
+        const unsubIce = answerCandidates.onSnapshot((snapshot) => {
             snapshot.docChanges().forEach((change) => {
                 if (change.type === 'added') {
                     const candidate = new RTCIceCandidate(change.doc.data());
@@ -141,6 +151,7 @@ export const webrtcService = {
                 }
             });
         });
+        this.unsubscribes.push(unsubIce);
 
         return callDoc.id;
     },
@@ -189,7 +200,7 @@ export const webrtcService = {
 
         await callDoc.update({ answer });
 
-        offerCandidates.onSnapshot((snapshot) => {
+        const unsubIce = offerCandidates.onSnapshot((snapshot) => {
             snapshot.docChanges().forEach((change) => {
                 if (change.type === 'added') {
                     const candidate = new RTCIceCandidate(change.doc.data());
@@ -197,7 +208,12 @@ export const webrtcService = {
                 }
             });
         });
+        this.unsubscribes.push(unsubIce);
     },
+
+    import { chatService } from './chatService';
+
+    // ... (inside webrtcService object)
 
     async hangUp(callId: string) {
         if (this.pc) {
@@ -210,9 +226,26 @@ export const webrtcService = {
         this.localStream = null;
         this.remoteStream = null;
 
+        // Unsubscribe from all listeners
+        this.unsubscribes.forEach(unsubscribe => unsubscribe());
+        this.unsubscribes = [];
+
         if (callId) {
-            // In a real app, delete subcollections too (via batch or Cloud Function)
-            await db.collection('calls').doc(callId).delete();
+            // Retrieve metadata before deleting
+            try {
+                const callDocRef = db.collection('calls').doc(callId);
+                const callDoc = await callDocRef.get();
+                const callData = callDoc.data();
+
+                if (callData && callData.chatId && callData.messageId) {
+                    await chatService.updateMessage(callData.chatId, callData.messageId, { callStatus: 'ended' });
+                }
+
+                // In a real app, delete subcollections too (via batch or Cloud Function)
+                await callDocRef.delete();
+            } catch (error) {
+                console.error("Error cleaning up call:", error);
+            }
         }
 
         // Reload for a clean state if needed, or just handle state cleanup
@@ -230,5 +263,9 @@ export const webrtcService = {
                     }
                 });
             });
+    },
+
+    async updateCall(callId: string, updates: any) {
+        await db.collection('calls').doc(callId).update(updates);
     }
 };

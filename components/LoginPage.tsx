@@ -214,7 +214,7 @@ const LoginPage: React.FC<LoginPageProps> = ({ onNavigateHome }) => {
                                                 placeholder="Full Name"
                                                 value={name}
                                                 onChange={(e) => setName(e.target.value.replace(/[^a-zA-Z\s]/g, '').slice(0, 20))}
-                                                className="w-full bg-white border border-slate-200 rounded-xl py-3.5 pl-12 pr-4 text-slate-900 placeholder-slate-400 focus:outline-none focus:border-brand-primary focus:ring-4 focus:ring-brand-primary/10 transition-all font-medium"
+                                                className="w-full bg-white border border-slate-200 rounded-xl py-3.5 pl-12 pr-4 text-slate-900 placeholder-slate-400 focus:outline-none focus:border-brand-primary focus:ring-4 focus:ring-brand-primary/20 transition-all font-medium hover:border-brand-primary/50"
                                             />
                                         </div>
                                     </motion.div>
@@ -291,7 +291,7 @@ const LoginPage: React.FC<LoginPageProps> = ({ onNavigateHome }) => {
 
                         <button
                             onClick={handleGoogleSignIn}
-                            className="w-full bg-white text-slate-900 border border-slate-200 hover:bg-slate-50 font-bold py-3.5 rounded-xl transition-all flex items-center justify-center gap-3 active:scale-[0.98]"
+                            className="w-full bg-white text-slate-900 border border-slate-200 hover:bg-slate-50 hover:border-slate-300 font-bold py-3.5 rounded-xl transition-all flex items-center justify-center gap-3 active:scale-[0.98] shadow-sm hover:shadow-md hover:-translate-y-0.5"
                         >
                             <img src="https://www.google.com/favicon.ico" alt="Google" className="w-5 h-5" />
                             <span>Google</span>
