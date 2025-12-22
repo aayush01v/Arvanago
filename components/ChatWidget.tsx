@@ -7,6 +7,7 @@ import Icon from './common/Icon';
 import { Link, useNavigate } from 'react-router-dom';
 import CallModal from './CallModal';
 import { webrtcService } from '../services/webrtcService';
+import { motion, AnimatePresence } from 'framer-motion';
 
 interface ChatWidgetProps {
     isOpen: boolean;
@@ -176,12 +177,39 @@ const ChatWidget: React.FC<ChatWidgetProps> = ({
 
     const handleSend = async () => {
         if ((!input.trim() && !chatImageUrl) || !selectedChatId || !currentUser) return;
+
+        const optimisicId = 'opt_' + Date.now();
+        const optimisticMessage: ChatMessage = {
+            id: optimisicId,
+            senderId: currentUser.uid,
+            text: input,
+            imageUrl: chatImageUrl,
+            timestamp: {
+                seconds: Date.now() / 1000,
+                nanoseconds: 0,
+                toDate: () => new Date(),
+                toMillis: () => Date.now(),
+                isEqual: () => false,
+                valueOf: () => Date.now().toString(),
+                toJSON: () => ({ seconds: Date.now() / 1000, nanoseconds: 0 })
+            } as any,
+            isRead: false
+        };
+
+        setMessages(prev => [...prev, optimisticMessage]);
+        const prevInput = input;
+        const prevImage = chatImageUrl;
+
+        setInput('');
+        setChatImageUrl('');
+
         try {
-            await chatService.sendMessage(selectedChatId, currentUser.uid, input, chatImageUrl || undefined);
-            setInput('');
-            setChatImageUrl('');
+            await chatService.sendMessage(selectedChatId, currentUser.uid, prevInput, prevImage || undefined);
         } catch (e) {
             console.error("Failed to send", e);
+            setMessages(prev => prev.filter(m => m.id !== optimisicId));
+            setInput(prevInput);
+            setChatImageUrl(prevImage);
         }
     };
 
@@ -361,28 +389,37 @@ const ChatWidget: React.FC<ChatWidgetProps> = ({
                         <div className="absolute inset-0 flex flex-col bg-slate-50 dark:bg-slate-900/50">
                             <div className="flex-1 overflow-y-auto p-4 space-y-3 scrollbar-thin flex flex-col">
                                 <div className="flex-1" />
-                                {messages.map(msg => {
-                                    const isMe = msg.senderId === currentUser.uid;
-                                    return (
-                                        <div key={msg.id} className={`flex ${isMe ? 'justify-end' : 'justify-start'}`}>
-                                            <div className={`max-w-[80%] px-4 py-2 rounded-2xl text-sm ${isMe ? 'bg-brand-primary text-white rounded-br-none' : 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 rounded-bl-none shadow-sm'}`}>
-                                                {msg.imageUrl && (
-                                                    <img src={msg.imageUrl} alt="Attachment" className="mb-2 rounded-lg max-h-48 object-cover" />
-                                                )}
-                                                {msg.text && <p>{msg.text}</p>}
-                                                {msg.callId && (
-                                                    <button
-                                                        onClick={() => msg.callId && joinVideoCall(msg.callId)}
-                                                        className={`mt-2 flex items-center gap-2 px-4 py-2 rounded-full font-bold text-xs transition-colors ${isMe ? 'bg-white/20 hover:bg-white/30 text-white' : 'bg-brand-primary text-white hover:bg-brand-secondary'}`}
-                                                    >
-                                                        <Icon name="video" className="w-4 h-4" />
-                                                        {isMe ? 'Join Call Again' : 'Join Video Call'}
-                                                    </button>
-                                                )}
-                                            </div>
-                                        </div>
-                                    )
-                                })}
+                                <AnimatePresence initial={false}>
+                                    {messages.map(msg => {
+                                        const isMe = msg.senderId === currentUser.uid;
+                                        return (
+                                            <motion.div
+                                                key={msg.id}
+                                                initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                                                animate={{ opacity: 1, y: 0, scale: 1 }}
+                                                exit={{ opacity: 0, scale: 0.9 }}
+                                                transition={{ duration: 0.2 }}
+                                                className={`flex ${isMe ? 'justify-end' : 'justify-start'}`}
+                                            >
+                                                <div className={`max-w-[80%] px-4 py-2 rounded-2xl text-sm ${isMe ? 'bg-brand-primary text-white rounded-br-none' : 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 rounded-bl-none shadow-sm'}`}>
+                                                    {msg.imageUrl && (
+                                                        <img src={msg.imageUrl} alt="Attachment" className="mb-2 rounded-lg max-h-48 object-cover" />
+                                                    )}
+                                                    {msg.text && <p>{msg.text}</p>}
+                                                    {msg.callId && (
+                                                        <button
+                                                            onClick={() => msg.callId && joinVideoCall(msg.callId)}
+                                                            className={`mt-2 flex items-center gap-2 px-4 py-2 rounded-full font-bold text-xs transition-colors ${isMe ? 'bg-white/20 hover:bg-white/30 text-white' : 'bg-brand-primary text-white hover:bg-brand-secondary'}`}
+                                                        >
+                                                            <Icon name="video" className="w-4 h-4" />
+                                                            {isMe ? 'Join Call Again' : 'Join Video Call'}
+                                                        </button>
+                                                    )}
+                                                </div>
+                                            </motion.div>
+                                        )
+                                    })}
+                                </AnimatePresence>
                                 <div ref={messagesEndRef} />
                             </div>
 

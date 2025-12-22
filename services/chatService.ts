@@ -11,6 +11,7 @@ export interface ChatMessage {
   callId?: string;
   callStatus?: 'started' | 'ended';
   callType?: 'video' | 'audio';
+  isRead?: boolean;
 }
 
 export interface Chat {

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 
 import Icon from '@/components/common/Icon';
 import SidebarLayout from '@/components/SidebarLayout';
@@ -149,12 +150,45 @@ const ChatPage: React.FC = () => {
 
     const handleSend = async () => {
         if ((!input.trim() && !chatImageUrl) || !selectedChatId || !currentUser) return;
+
+        const optimisicId = 'opt_' + Date.now();
+        const optimisticMessage: ChatMessage = {
+            id: optimisicId,
+            senderId: currentUser.uid,
+            text: input,
+            imageUrl: chatImageUrl,
+            timestamp: {
+                seconds: Date.now() / 1000,
+                nanoseconds: 0,
+                toDate: () => new Date(),
+                toMillis: () => Date.now(),
+                isEqual: () => false,
+                valueOf: () => Date.now().toString(),
+                toJSON: () => ({ seconds: Date.now() / 1000, nanoseconds: 0 })
+            } as any,
+            isRead: false
+        };
+
+        // Optimistic Update
+        setMessages(prev => [optimisticMessage, ...prev]);
+        const prevInput = input;
+        const prevImage = chatImageUrl;
+
+        setInput('');
+        setChatImageUrl('');
+
         try {
-            await chatService.sendMessage(selectedChatId, currentUser.uid, input, chatImageUrl || undefined);
-            setInput('');
-            setChatImageUrl('');
+            await chatService.sendMessage(selectedChatId, currentUser.uid, prevInput, prevImage || undefined);
+            // The subscription will eventually replace this with the real message, 
+            // but we might want to dedupe or let the subscription handle it. 
+            // Usually, standard Firestore subscriptions might flash if we don't handle local IDs, 
+            // but for this UX task, the instant reciprocity is key.
         } catch (e) {
             console.error("Failed to send", e);
+            // Rollback on error
+            setMessages(prev => prev.filter(m => m.id !== optimisicId));
+            setInput(prevInput);
+            setChatImageUrl(prevImage);
         }
     };
 
@@ -325,65 +359,75 @@ const ChatPage: React.FC = () => {
                         {/* Messages List */}
                         <div className="flex-1 overflow-y-auto p-4 md:p-6 space-y-4 md:space-y-6 scrollbar-thin scrollbar-thumb-slate-200 dark:scrollbar-thumb-slate-700 scrollbar-track-transparent flex flex-col-reverse bg-slate-50/50 dark:bg-slate-900/20">
                             <div className="flex flex-col justify-end min-h-full space-y-3 md:space-y-4">
-                                {messages.map((msg, index) => {
-                                    const isMe = msg.senderId === currentUser?.uid;
-                                    const isSequence = index > 0 && messages[index - 1].senderId === msg.senderId;
+                                <AnimatePresence initial={false}>
+                                    {messages.map((msg, index) => {
+                                        const isMe = msg.senderId === currentUser?.uid;
+                                        const isSequence = index > 0 && messages[index - 1].senderId === msg.senderId;
 
-                                    return (
-                                        <div key={msg.id} className={`flex ${isMe ? 'justify-end' : 'justify-start'} ${isSequence ? 'mt-1' : 'mt-4'}`}>
-                                            {!isMe && !isSequence && (
-                                                <img
-                                                    src={activeChatUser?.avatar || 'https://i.pravatar.cc/150'}
-                                                    className="w-8 h-8 rounded-full mr-2 self-end mb-1 shadow-sm object-cover"
-                                                    alt="Sender"
-                                                />
-                                            )}
-                                            {!isMe && isSequence && <div className="w-10"></div>}
+                                        return (
+                                            <motion.div
+                                                key={msg.id}
+                                                layout
+                                                initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                                                animate={{ opacity: 1, y: 0, scale: 1 }}
+                                                exit={{ opacity: 0, scale: 0.9 }}
+                                                transition={{ duration: 0.2 }}
+                                                className={`flex ${isMe ? 'justify-end' : 'justify-start'} ${isSequence ? 'mt-1' : 'mt-4'}`}
+                                            >
+                                                {!isMe && !isSequence && (
+                                                    <img
+                                                        src={activeChatUser?.avatar || 'https://i.pravatar.cc/150'}
+                                                        className="w-8 h-8 rounded-full mr-2 self-end mb-1 shadow-sm object-cover"
+                                                        alt="Sender"
+                                                    />
+                                                )}
+                                                {!isMe && isSequence && <div className="w-10"></div>}
 
-                                            <div className={`max-w-[85%] md:max-w-[70%] relative group`}>
-                                                <div
-                                                    className={`
-                                                            px-4 md:px-5 py-2.5 md:py-3.5 text-[15px] leading-relaxed shadow-sm break-words
-                                                            ${isMe
-                                                            ? 'bg-gradient-to-br from-brand-primary to-blue-600 text-white rounded-[1.2rem] rounded-tr-md'
-                                                            : 'bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200 rounded-[1.2rem] rounded-tl-md border border-slate-100 dark:border-slate-700/50'
-                                                        }
-                                                    `}
-                                                >
-                                                    {msg.imageUrl && (
-                                                        <div className="mb-2 -mx-2 -mt-2 overflow-hidden rounded-lg">
-                                                            <img src={msg.imageUrl} alt="Attachment" className="w-full max-h-80 object-cover hover:scale-105 transition-transform duration-500" />
-                                                        </div>
-                                                    )}
-
-                                                    {msg.text && <p>{msg.text}</p>}
-
-                                                    {msg.callId && (
-                                                        msg.callStatus === 'ended' ? (
-                                                            <div className={`mt-2 flex items-center gap-3 px-4 py-2.5 rounded-xl font-medium text-xs ${isMe ? 'bg-white/20 text-white/90' : 'bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-400'}`}>
-                                                                <div className={`p-1.5 rounded-full ${isMe ? 'bg-white/20' : 'bg-slate-200 dark:bg-slate-600'}`}>
-                                                                    <Icon name="phone" className="w-3.5 h-3.5" />
-                                                                </div>
-                                                                <span>Call Ended • {msg.timestamp ? new Date(msg.timestamp.seconds * 1000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : ''}</span>
+                                                <div className={`max-w-[85%] md:max-w-[70%] relative group`}>
+                                                    <div
+                                                        className={`
+                                                                px-4 md:px-5 py-2.5 md:py-3.5 text-[15px] leading-relaxed shadow-sm break-words
+                                                                ${isMe
+                                                                ? 'bg-gradient-to-br from-brand-primary to-blue-600 text-white rounded-[1.2rem] rounded-tr-md'
+                                                                : 'bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200 rounded-[1.2rem] rounded-tl-md border border-slate-100 dark:border-slate-700/50'
+                                                            }
+                                                        `}
+                                                    >
+                                                        {msg.imageUrl && (
+                                                            <div className="mb-2 -mx-2 -mt-2 overflow-hidden rounded-lg">
+                                                                <img src={msg.imageUrl} alt="Attachment" className="w-full max-h-80 object-cover hover:scale-105 transition-transform duration-500" />
                                                             </div>
-                                                        ) : (
-                                                            <button
-                                                                onClick={() => msg.callId && joinVideoCall(msg.callId, msg.callType || 'video')}
-                                                                className={`mt-2 flex items-center gap-3 px-5 py-3 rounded-xl font-bold text-sm transition-all shadow-sm transform hover:scale-105 active:scale-95 ${isMe ? 'bg-white text-brand-primary hover:bg-slate-100' : 'bg-brand-primary text-white hover:bg-brand-secondary'}`}
-                                                            >
-                                                                <Icon name={msg.callType === 'audio' ? 'phone' : 'video'} className="w-4 h-4" />
-                                                                {isMe ? 'Join Call Again' : `Join ${msg.callType === 'audio' ? 'Audio' : 'Video'} Call`}
-                                                            </button>
-                                                        )
-                                                    )}
+                                                        )}
+
+                                                        {msg.text && <p>{msg.text}</p>}
+
+                                                        {msg.callId && (
+                                                            msg.callStatus === 'ended' ? (
+                                                                <div className={`mt-2 flex items-center gap-3 px-4 py-2.5 rounded-xl font-medium text-xs ${isMe ? 'bg-white/20 text-white/90' : 'bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-400'}`}>
+                                                                    <div className={`p-1.5 rounded-full ${isMe ? 'bg-white/20' : 'bg-slate-200 dark:bg-slate-600'}`}>
+                                                                        <Icon name="phone" className="w-3.5 h-3.5" />
+                                                                    </div>
+                                                                    <span>Call Ended • {msg.timestamp ? new Date(msg.timestamp.seconds * 1000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : ''}</span>
+                                                                </div>
+                                                            ) : (
+                                                                <button
+                                                                    onClick={() => msg.callId && joinVideoCall(msg.callId, msg.callType || 'video')}
+                                                                    className={`mt-2 flex items-center gap-3 px-5 py-3 rounded-xl font-bold text-sm transition-all shadow-sm transform hover:scale-105 active:scale-95 ${isMe ? 'bg-white text-brand-primary hover:bg-slate-100' : 'bg-brand-primary text-white hover:bg-brand-secondary'}`}
+                                                                >
+                                                                    <Icon name={msg.callType === 'audio' ? 'phone' : 'video'} className="w-4 h-4" />
+                                                                    {isMe ? 'Join Call Again' : `Join ${msg.callType === 'audio' ? 'Audio' : 'Video'} Call`}
+                                                                </button>
+                                                            )
+                                                        )}
+                                                    </div>
+                                                    <span className={`text-[10px] text-slate-400 font-medium absolute -bottom-5 ${isMe ? 'right-1' : 'left-1'} opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap`}>
+                                                        {msg.timestamp?.seconds ? new Date(msg.timestamp.seconds * 1000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'Sending...'}
+                                                    </span>
                                                 </div>
-                                                <span className={`text-[10px] text-slate-400 font-medium absolute -bottom-5 ${isMe ? 'right-1' : 'left-1'} opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap`}>
-                                                    {msg.timestamp?.seconds ? new Date(msg.timestamp.seconds * 1000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'Sending...'}
-                                                </span>
-                                            </div>
-                                        </div>
-                                    );
-                                })}
+                                            </motion.div>
+                                        );
+                                    })}
+                                </AnimatePresence>
                                 <div id="scroll-anchor"></div>
                             </div>
                         </div>
