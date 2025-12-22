@@ -185,78 +185,6 @@ const ChatPage: React.FC = () => {
         setIsCallModalOpen(true);
     };
 
-    // Helper to get display info for a chat list item
-    const ChatListItem: React.FC<{ chat: Chat }> = ({ chat }) => {
-        // We need to fetch/store details for list items too. 
-        // For simplicity, we'll fetch on mount or use a cache. 
-        // In a real app, use a hook or global store.
-        const [otherUser, setOtherUser] = useState<Partial<User> | null>(null);
-
-        useEffect(() => {
-            const otherId = chat.participants.find(p => p !== currentUser.uid);
-            if (otherId) {
-                chatService.fetchUserDetails(otherId).then(setOtherUser);
-            }
-        }, [chat]);
-
-        if (!otherUser) return (
-            <div className="p-4 mx-2 animate-pulse bg-slate-100 dark:bg-slate-800 rounded-2xl h-18 mb-2"></div>
-        );
-
-        const unreadCount = chat.unreadCounts?.[currentUser.uid] || 0;
-        const isSelected = selectedChatId === chat.id;
-
-        return (
-            <div
-                onClick={() => handleChatSelect(chat)}
-                className={`
-                    group p-3 mx-2 rounded-2xl cursor-pointer transition-all duration-300 relative overflow-hidden
-                    ${isSelected
-                        ? 'bg-brand-primary/10 shadow-sm'
-                        : 'bg-transparent hover:bg-slate-100 dark:hover:bg-slate-800'
-                    }
-                `}
-            >
-                {isSelected && (
-                    <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-8 bg-brand-primary rounded-r-full"></div>
-                )}
-
-                <div className="flex items-center gap-3 relative z-10">
-                    <div className="relative flex-shrink-0">
-                        <img
-                            src={otherUser.avatar || 'https://i.pravatar.cc/150'}
-                            alt={otherUser.name}
-                            className={`w-12 h-12 rounded-full object-cover transition-transform duration-300 group-hover:scale-105 ${isSelected ? 'ring-2 ring-brand-primary/30' : 'ring-1 ring-slate-200 dark:ring-slate-700'}`}
-                        />
-                        {/* Status dot could be here if we had online status */}
-                    </div>
-
-                    <div className="flex-1 min-w-0">
-                        <div className="flex justify-between items-baseline mb-0.5">
-                            <h4 className={`font-bold text-sm truncate transition-colors ${isSelected ? 'text-brand-primary' : 'text-slate-900 dark:text-slate-100'}`}>
-                                {otherUser.name}
-                            </h4>
-                            <span className={`text-[10px] font-medium ${unreadCount > 0 ? 'text-brand-primary' : 'text-slate-400'}`}>
-                                {chat.updatedAt?.seconds ? new Date(chat.updatedAt.seconds * 1000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'New'}
-                            </span>
-                        </div>
-
-                        <div className="flex justify-between items-center gap-2">
-                            <p className={`text-xs truncate transition-colors w-full ${unreadCount > 0 ? 'font-semibold text-slate-800 dark:text-white' : 'text-slate-500 dark:text-slate-400'}`}>
-                                {chat.lastMessage?.text || (chat.lastMessage?.imageUrl ? '📷 Photo' : 'Start a conversation')}
-                            </p>
-                            {unreadCount > 0 && (
-                                <span className="flex-shrink-0 flex items-center justify-center min-w-[18px] h-[18px] px-1 bg-brand-primary text-white text-[10px] font-bold rounded-full shadow-sm animate-scale-in">
-                                    {unreadCount > 99 ? '99+' : unreadCount}
-                                </span>
-                            )}
-                        </div>
-                    </div>
-                </div>
-            </div>
-        );
-    };
-
     return (
         <div className={`flex gap-6 animate-fade-in text-slate-800 dark:text-white relative ${window.innerWidth < 768 ? 'h-[calc(100dvh-5rem)]' : 'h-[calc(100vh-8rem)] md:h-[calc(100vh-6rem)]'}`}>
 
@@ -317,7 +245,15 @@ const ChatPage: React.FC = () => {
                             <p className="text-xs text-slate-400 mt-1 max-w-[200px]">Search for a user above to start your first conversation.</p>
                         </div>
                     ) : (
-                        chats.map(chat => <ChatListItem key={chat.id} chat={chat} />)
+                        chats.map(chat => (
+                            <ChatListItem
+                                key={chat.id}
+                                chat={chat}
+                                currentUser={currentUser}
+                                selectedChatId={selectedChatId}
+                                onSelect={handleChatSelect}
+                            />
+                        ))
                     )}
                 </div>
             </div>
@@ -508,5 +444,82 @@ const ChatPage: React.FC = () => {
         </div >
     );
 };
+
+const ChatListItem: React.FC<{
+    chat: Chat;
+    currentUser: User | null;
+    selectedChatId: string | null;
+    onSelect: (chat: Chat) => void;
+}> = React.memo(({ chat, currentUser, selectedChatId, onSelect }) => {
+    // We need to fetch/store details for list items too. 
+    // For simplicity, we'll fetch on mount or use a cache. 
+    // In a real app, use a hook or global store.
+    const [otherUser, setOtherUser] = useState<Partial<User> | null>(null);
+
+    useEffect(() => {
+        if (!currentUser) return;
+        const otherId = chat.participants.find(p => p !== currentUser.uid);
+        if (otherId) {
+            chatService.fetchUserDetails(otherId).then(setOtherUser);
+        }
+    }, [chat, currentUser]);
+
+    if (!otherUser) return (
+        <div className="p-4 mx-2 animate-pulse bg-slate-100 dark:bg-slate-800 rounded-2xl h-18 mb-2"></div>
+    );
+
+    const unreadCount = chat.unreadCounts && currentUser ? (chat.unreadCounts[currentUser.uid] || 0) : 0;
+    const isSelected = selectedChatId === chat.id;
+
+    return (
+        <div
+            onClick={() => onSelect(chat)}
+            className={`
+                    group p-3 mx-2 rounded-2xl cursor-pointer transition-all duration-300 relative overflow-hidden
+                    ${isSelected
+                    ? 'bg-brand-primary/10 shadow-sm'
+                    : 'bg-transparent hover:bg-slate-100 dark:hover:bg-slate-800'
+                }
+                `}
+        >
+            {isSelected && (
+                <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-8 bg-brand-primary rounded-r-full"></div>
+            )}
+
+            <div className="flex items-center gap-3 relative z-10">
+                <div className="relative flex-shrink-0">
+                    <img
+                        src={otherUser.avatar || 'https://i.pravatar.cc/150'}
+                        alt={otherUser.name}
+                        className={`w-12 h-12 rounded-full object-cover transition-transform duration-300 group-hover:scale-105 ${isSelected ? 'ring-2 ring-brand-primary/30' : 'ring-1 ring-slate-200 dark:ring-slate-700'}`}
+                    />
+                    {/* Status dot could be here if we had online status */}
+                </div>
+
+                <div className="flex-1 min-w-0">
+                    <div className="flex justify-between items-baseline mb-0.5">
+                        <h4 className={`font-bold text-sm truncate transition-colors ${isSelected ? 'text-brand-primary' : 'text-slate-900 dark:text-slate-100'}`}>
+                            {otherUser.name}
+                        </h4>
+                        <span className={`text-[10px] font-medium ${unreadCount > 0 ? 'text-brand-primary' : 'text-slate-400'}`}>
+                            {chat.updatedAt?.seconds ? new Date(chat.updatedAt.seconds * 1000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'New'}
+                        </span>
+                    </div>
+
+                    <div className="flex justify-between items-center gap-2">
+                        <p className={`text-xs truncate transition-colors w-full ${unreadCount > 0 ? 'font-semibold text-slate-800 dark:text-white' : 'text-slate-500 dark:text-slate-400'}`}>
+                            {chat.lastMessage?.text || (chat.lastMessage?.imageUrl ? '📷 Photo' : 'Start a conversation')}
+                        </p>
+                        {unreadCount > 0 && (
+                            <span className="flex-shrink-0 flex items-center justify-center min-w-[18px] h-[18px] px-1 bg-brand-primary text-white text-[10px] font-bold rounded-full shadow-sm animate-scale-in">
+                                {unreadCount > 99 ? '99+' : unreadCount}
+                            </span>
+                        )}
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
+});
 
 export default ChatPage;

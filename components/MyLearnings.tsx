@@ -11,7 +11,7 @@ interface MyLearningsProps {
 
 type Tab = 'in_progress' | 'completed' | 'wishlist' | 'tasks';
 
-const CourseCard: React.FC<{ course: Course; onClick: () => void; index: number }> = ({ course, onClick, index }) => (
+const CourseCard: React.FC<{ course: Course; onClick: () => void; index: number }> = React.memo(({ course, onClick, index }) => (
     <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -57,9 +57,9 @@ const CourseCard: React.FC<{ course: Course; onClick: () => void; index: number 
             </div>
         </div>
     </motion.div>
-);
+));
 
-const TaskItem: React.FC<{ task: Task; onClick: () => void; index: number }> = ({ task, onClick, index }) => (
+const TaskItem: React.FC<{ task: Task; onClick: () => void; index: number }> = React.memo(({ task, onClick, index }) => (
     <motion.div
         initial={{ opacity: 0, x: -20 }}
         animate={{ opacity: 1, x: 0 }}
@@ -89,7 +89,7 @@ const TaskItem: React.FC<{ task: Task; onClick: () => void; index: number }> = (
             <Icon name="chevronRight" className="w-5 h-5 text-slate-400" />
         </div>
     </motion.div>
-);
+));
 
 const MyLearnings: React.FC<MyLearningsProps> = ({ user, courses, navigateToCourse }) => {
     const [activeTab, setActiveTab] = useState<Tab>('in_progress');

@@ -59,15 +59,15 @@ const DashboardCourseCardComponent: React.FC<DashboardCourseCardProps> = ({ cour
       whileHover={{ scale: 1.02 }}
       className="group bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 overflow-hidden shadow-sm hover:shadow-xl hover:border-brand-primary/20 transition-all duration-300"
     >
-      <div className="flex flex-col md:flex-row h-full">
-        <div className="relative w-full md:w-48 h-48 md:h-auto flex-shrink-0 overflow-hidden">
+      <div className="flex flex-col sm:flex-row lg:flex-col xl:flex-row h-full">
+        <div className="relative w-full sm:w-48 lg:w-full xl:w-48 h-48 sm:h-auto lg:h-48 xl:h-auto flex-shrink-0 overflow-hidden">
           <img
             src={course.thumbnailUrl ?? course.thumbnail}
             alt={course.title}
             className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent md:bg-gradient-to-r" />
-          <div className="absolute bottom-3 left-3 md:top-3 md:left-3 md:bottom-auto">
+          <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent sm:bg-gradient-to-r lg:bg-gradient-to-t xl:bg-gradient-to-r" />
+          <div className="absolute bottom-3 left-3 sm:top-3 sm:left-3 sm:bottom-auto lg:bottom-3 lg:top-auto lg:left-3 xl:top-3 xl:left-3 xl:bottom-auto">
             <span className="px-2.5 py-1 rounded-lg bg-white/20 backdrop-blur-md border border-white/20 text-xs font-bold text-white shadow-sm">
               {course.category}
             </span>
@@ -253,7 +253,7 @@ const Dashboard: React.FC<DashboardProps> = ({ user, courses, navigateToFiltered
         {/* Right Column: Discover (1/3 width) */}
         <div className="space-y-6">
           <h3 className="text-xl font-bold text-slate-900 dark:text-white">Explore Categories</h3>
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-2 lg:grid-cols-1 xl:grid-cols-2 gap-3">
             {CATEGORY_DETAILS.map((cat, idx) => (
               <CategoryCard key={cat.name} category={cat} navigateToFilteredCourses={navigateToFilteredCourses} index={idx} />
             ))}

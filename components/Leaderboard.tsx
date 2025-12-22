@@ -8,7 +8,7 @@ import { getLeaderboard } from '../services/firestoreService.ts';
 import { SidebarLayoutContext } from './SidebarLayout.tsx';
 import { motion, AnimatePresence } from 'framer-motion';
 
-const RankMedal: React.FC<{ rank: number }> = ({ rank }) => {
+const RankMedal: React.FC<{ rank: number }> = React.memo(({ rank }) => {
   const isTop = rank <= 3;
   const gradients = [
     'from-yellow-300 via-amber-200 to-yellow-500', // Gold
@@ -32,9 +32,9 @@ const RankMedal: React.FC<{ rank: number }> = ({ rank }) => {
       {rank}
     </div>
   );
-};
+});
 
-const LeaderboardRow: React.FC<{ entry: LeaderboardEntry; isMe?: boolean; index: number }> = ({ entry, isMe, index }) => {
+const LeaderboardRow: React.FC<{ entry: LeaderboardEntry; isMe?: boolean; index: number }> = React.memo(({ entry, isMe, index }) => {
   const isTop = entry.rank <= 3;
 
   return (
@@ -78,7 +78,7 @@ const LeaderboardRow: React.FC<{ entry: LeaderboardEntry; isMe?: boolean; index:
       </div>
     </motion.div>
   );
-};
+});
 
 const Leaderboard: React.FC = () => {
   const { user } = useOutletContext<SidebarLayoutContext>();
@@ -268,9 +268,9 @@ const Leaderboard: React.FC = () => {
             initial={{ y: 100, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             exit={{ y: 100, opacity: 0 }}
-            className="fixed bottom-6 left-1/2 transform -translate-x-1/2 w-full max-w-xl px-4 z-40"
+            className="fixed bottom-6 inset-x-0 mx-auto w-full max-w-xl px-4 z-50 pointer-events-none"
           >
-            <div className="bg-slate-900/90 dark:bg-white/90 backdrop-blur-md text-white dark:text-slate-900 p-4 rounded-2xl shadow-2xl border border-white/20 flex items-center justify-between ring-1 ring-white/10">
+            <div className="bg-slate-900/90 dark:bg-white/90 backdrop-blur-md text-white dark:text-slate-900 p-4 rounded-2xl shadow-2xl border border-white/20 flex items-center justify-between ring-1 ring-white/10 pointer-events-auto">
               <div className="flex items-center gap-4">
                 <div className="min-w-[3rem] px-2 text-center font-black text-xl text-brand-primary">#{userRankEntry.rank}</div>
                 <div className="flex items-center gap-3">

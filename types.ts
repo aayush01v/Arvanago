@@ -195,6 +195,7 @@ export interface Task {
   dueDate: string;
   courseId: string;
   courseTitle: string;
+  completed?: boolean;
 }
 
 export type AppView = 'dashboard' | 'courses' | 'leaderboard' | 'profile' | 'courseDetail' | 'lecture' | 'myLearnings';

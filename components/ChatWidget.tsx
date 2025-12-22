@@ -207,39 +207,7 @@ const ChatWidget: React.FC<ChatWidgetProps> = ({
         setIsCallModalOpen(true);
     };
 
-    const ChatListItem: React.FC<{ chat: Chat }> = ({ chat }) => {
-        const [otherUser, setOtherUser] = useState<Partial<User> | null>(null);
-        useEffect(() => {
-            const otherId = chat.participants.find(p => p !== currentUser.uid);
-            if (otherId) chatService.fetchUserDetails(otherId).then(setOtherUser);
-        }, [chat]);
 
-        if (!otherUser) return <div className="h-16 bg-slate-100 dark:bg-slate-800 rounded animate-pulse mb-2"></div>;
-
-        const unreadCount = chat.unreadCounts?.[currentUser.uid] || 0;
-
-        return (
-            <div
-                onClick={() => handleChatSelect(chat)}
-                className={`p-3 rounded-xl cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors flex items-center gap-3 ${selectedChatId === chat.id ? 'bg-slate-100 dark:bg-slate-800' : ''}`}
-            >
-                <img src={otherUser.avatar || 'https://i.pravatar.cc/150'} className="w-10 h-10 rounded-full" />
-                <div className="flex-1 min-w-0">
-                    <div className="flex justify-between items-baseline">
-                        <h4 className={`font-bold text-sm truncate ${unreadCount > 0 ? 'text-black dark:text-white' : 'text-slate-700 dark:text-slate-300'}`}>{otherUser.name}</h4>
-                        {unreadCount > 0 && (
-                            <span className="flex items-center justify-center min-w-[18px] h-[18px] px-1 bg-brand-primary text-white text-[10px] font-bold rounded-full shadow-sm">
-                                {unreadCount > 99 ? '99+' : unreadCount}
-                            </span>
-                        )}
-                    </div>
-                    <p className={`text-xs truncate ${unreadCount > 0 ? 'font-bold text-slate-900 dark:text-white' : 'text-slate-500'}`}>
-                        {chat.lastMessage?.text || (chat.lastMessage?.imageUrl ? '📷 Photo' : 'Start chatting...')}
-                    </p>
-                </div>
-            </div>
-        );
-    };
 
     if (!isOpen || !currentUser) return null;
 
@@ -374,7 +342,15 @@ const ChatWidget: React.FC<ChatWidgetProps> = ({
                                         <p className="text-sm">No chats yet.</p>
                                     </div>
                                 ) : (
-                                    chats.map(chat => <ChatListItem key={chat.id} chat={chat} />)
+                                    chats.map(chat => (
+                                        <ChatListItem
+                                            key={chat.id}
+                                            chat={chat}
+                                            currentUser={currentUser}
+                                            selectedChatId={selectedChatId}
+                                            onSelect={handleChatSelect}
+                                        />
+                                    ))
                                 )}
                             </div>
                         </div>
@@ -465,5 +441,44 @@ const ChatWidget: React.FC<ChatWidgetProps> = ({
 
     return ReactDOM.createPortal(content, document.body);
 };
+
+const ChatListItem: React.FC<{
+    chat: Chat;
+    currentUser: User;
+    selectedChatId: string | null;
+    onSelect: (chat: Chat) => void;
+}> = React.memo(({ chat, currentUser, selectedChatId, onSelect }) => {
+    const [otherUser, setOtherUser] = useState<Partial<User> | null>(null);
+    useEffect(() => {
+        const otherId = chat.participants.find(p => p !== currentUser.uid);
+        if (otherId) chatService.fetchUserDetails(otherId).then(setOtherUser);
+    }, [chat, currentUser.uid]);
+
+    if (!otherUser) return <div className="h-16 bg-slate-100 dark:bg-slate-800 rounded animate-pulse mb-2"></div>;
+
+    const unreadCount = chat.unreadCounts?.[currentUser.uid] || 0;
+
+    return (
+        <div
+            onClick={() => onSelect(chat)}
+            className={`p-3 rounded-xl cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors flex items-center gap-3 ${selectedChatId === chat.id ? 'bg-slate-100 dark:bg-slate-800' : ''}`}
+        >
+            <img src={otherUser.avatar || 'https://i.pravatar.cc/150'} className="w-10 h-10 rounded-full" />
+            <div className="flex-1 min-w-0">
+                <div className="flex justify-between items-baseline">
+                    <h4 className={`font-bold text-sm truncate ${unreadCount > 0 ? 'text-black dark:text-white' : 'text-slate-700 dark:text-slate-300'}`}>{otherUser.name}</h4>
+                    {unreadCount > 0 && (
+                        <span className="flex items-center justify-center min-w-[18px] h-[18px] px-1 bg-brand-primary text-white text-[10px] font-bold rounded-full shadow-sm">
+                            {unreadCount > 99 ? '99+' : unreadCount}
+                        </span>
+                    )}
+                </div>
+                <p className={`text-xs truncate ${unreadCount > 0 ? 'font-bold text-slate-900 dark:text-white' : 'text-slate-500'}`}>
+                    {chat.lastMessage?.text || (chat.lastMessage?.imageUrl ? '📷 Photo' : 'Start chatting...')}
+                </p>
+            </div>
+        </div>
+    );
+});
 
 export default ChatWidget;

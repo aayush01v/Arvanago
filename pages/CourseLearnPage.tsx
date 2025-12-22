@@ -35,7 +35,7 @@ const GlassButton: React.FC<React.ButtonHTMLAttributes<HTMLButtonElement> & { ac
 
 // --- Sub Components ---
 
-const SectionSummary: React.FC<{ section: CourseSection; currentLectureId: string; onSelect: (lecture: Lecture) => void }> = ({
+const SectionSummary: React.FC<{ section: CourseSection; currentLectureId: string; onSelect: (lecture: Lecture) => void }> = React.memo(({
   section,
   currentLectureId,
   onSelect,
@@ -113,7 +113,7 @@ const SectionSummary: React.FC<{ section: CourseSection; currentLectureId: strin
       </div>
     </div>
   );
-};
+});
 
 // --- Main Page Component ---
 
