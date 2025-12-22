@@ -28,7 +28,7 @@ const RankMedal: React.FC<{ rank: number }> = ({ rank }) => {
   }
 
   return (
-    <div className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-slate-100 dark:bg-slate-700 font-bold text-slate-500 dark:text-slate-300">
+    <div className="inline-flex min-w-[2rem] w-auto px-2 py-1 items-center justify-center rounded-lg bg-slate-100 dark:bg-slate-700 font-bold text-slate-500 dark:text-slate-300 text-sm">
       {rank}
     </div>
   );
@@ -49,7 +49,7 @@ const LeaderboardRow: React.FC<{ entry: LeaderboardEntry; isMe?: boolean; index:
           : 'bg-white/40 dark:bg-slate-900/40 border border-white/10 dark:border-slate-800'
         }`}
     >
-      <div className="flex-shrink-0 w-8 sm:w-16 text-center">
+      <div className="flex-shrink-0 w-12 sm:w-16 text-center flex justify-center">
         <RankMedal rank={entry.rank} />
       </div>
 
@@ -272,7 +272,7 @@ const Leaderboard: React.FC = () => {
           >
             <div className="bg-slate-900/90 dark:bg-white/90 backdrop-blur-md text-white dark:text-slate-900 p-4 rounded-2xl shadow-2xl border border-white/20 flex items-center justify-between ring-1 ring-white/10">
               <div className="flex items-center gap-4">
-                <div className="w-10 text-center font-black text-xl text-brand-primary">#{userRankEntry.rank}</div>
+                <div className="min-w-[3rem] px-2 text-center font-black text-xl text-brand-primary">#{userRankEntry.rank}</div>
                 <div className="flex items-center gap-3">
                   <img src={userRankEntry.user.avatar} className="w-10 h-10 rounded-full border-2 border-white/30" />
                   <div>
