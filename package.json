@@ -11,9 +11,11 @@
   },
   "dependencies": {
     "@tailwindcss/typography": "^0.5.19",
+    "@types/canvas-confetti": "^1.9.0",
     "@types/react-syntax-highlighter": "^15.5.13",
     "@vitejs/plugin-react": "^5.0.0",
     "apexcharts": "^5.3.6",
+    "canvas-confetti": "^1.9.4",
     "date-fns": "^4.1.0",
     "firebase": "^12.5.0",
     "firebase-admin": "^13.6.0",

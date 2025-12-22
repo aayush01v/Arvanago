@@ -255,7 +255,7 @@ const Leaderboard: React.FC = () => {
           {/* The Rest */}
           <div className="bg-white/40 dark:bg-slate-900/40 rounded-3xl p-6 backdrop-blur-sm">
             {others.map((entry, idx) => (
-              <LeaderboardRow key={entry.rank} entry={entry} isMe={user && entry.user.uid === user.uid} index={idx} />
+              <LeaderboardRow key={entry.rank} entry={entry} isMe={user && entry.user.uid === user.uid} index={idx + 4} />
             ))}
           </div>
         </>

@@ -48,7 +48,12 @@ const CourseCard: React.FC<{ course: Course; onClick: () => void; index: number 
                     <span className="text-xs font-bold text-brand-primary">{course.progress}%</span>
                 </div>
                 <div className="w-full bg-slate-200 dark:bg-slate-700/50 rounded-full h-1.5 overflow-hidden">
-                    <div className="bg-gradient-to-r from-brand-primary to-brand-secondary h-full rounded-full shadow-[0_0_8px_rgba(56,189,248,0.6)]" style={{ width: `${course.progress}%` }}></div>
+                    <motion.div
+                        initial={{ width: 0 }}
+                        animate={{ width: `${course.progress}%` }}
+                        transition={{ duration: 1, ease: 'easeOut', delay: 0.2 }}
+                        className="bg-gradient-to-r from-brand-primary to-brand-secondary h-full rounded-full shadow-[0_0_8px_rgba(56,189,248,0.6)]"
+                    />
                 </div>
 
                 <button className="mt-4 w-full py-2.5 rounded-xl bg-slate-100 dark:bg-white/5 text-slate-700 dark:text-slate-200 font-semibold text-sm hover:bg-brand-primary hover:text-white dark:hover:bg-brand-primary transition-all duration-300 shadow-sm border border-transparent hover:shadow-brand-primary/25">

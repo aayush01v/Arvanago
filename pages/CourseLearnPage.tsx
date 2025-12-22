@@ -9,6 +9,7 @@ import { SidebarLayoutContext } from '@/components/SidebarLayout.tsx';
 import { updateUserProfile } from '@/services/firestoreService.ts';
 import { CourseSection, Lecture } from '@/types.ts';
 import GlassPreviewPlayer from '@/components/media/GlassPreviewPlayer.tsx';
+import confetti from 'canvas-confetti';
 
 // --- Glass UI Components ---
 
@@ -199,6 +200,14 @@ const CourseLearnPage: React.FC = () => {
             ...user.progress,
             [course.id]: newProgress
           }
+        });
+
+        // Trigger confetti for celebration
+        confetti({
+          particleCount: 100,
+          spread: 70,
+          origin: { y: 0.6 },
+          colors: ['#38bdf8', '#818cf8', '#34d399', '#ffbbf2']
         });
       }
     } catch (error) {

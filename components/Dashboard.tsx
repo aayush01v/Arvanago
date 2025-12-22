@@ -230,10 +230,25 @@ const Dashboard: React.FC<DashboardProps> = ({ user, courses, navigateToFiltered
               </h3>
             </div>
 
-            <div className="space-y-4">
+            <motion.div
+              className="space-y-4"
+              variants={{
+                hidden: { opacity: 0 },
+                show: {
+                  opacity: 1,
+                  transition: {
+                    staggerChildren: 0.15
+                  }
+                }
+              }}
+              initial="hidden"
+              animate="show"
+            >
               {ongoingCourses.length > 0 ? (
                 ongoingCourses.slice(0, 3).map((course) => (
-                  <DashboardCourseCard key={course.id} course={course} navigateToCourse={navigateToCourse} />
+                  <motion.div key={course.id} variants={{ hidden: { opacity: 0, x: -20 }, show: { opacity: 1, x: 0 } }}>
+                    <DashboardCourseCard course={course} navigateToCourse={navigateToCourse} />
+                  </motion.div>
                 ))
               ) : (
                 <div className="py-12 text-center rounded-2xl border-2 border-dashed border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50">
@@ -246,18 +261,33 @@ const Dashboard: React.FC<DashboardProps> = ({ user, courses, navigateToFiltered
                   </button>
                 </div>
               )}
-            </div>
+            </motion.div>
           </section>
         </div>
 
         {/* Right Column: Discover (1/3 width) */}
         <div className="space-y-6">
           <h3 className="text-xl font-bold text-slate-900 dark:text-white">Explore Categories</h3>
-          <div className="grid grid-cols-2 lg:grid-cols-1 xl:grid-cols-2 gap-3">
+          <motion.div
+            className="grid grid-cols-2 lg:grid-cols-1 xl:grid-cols-2 gap-3"
+            variants={{
+              hidden: { opacity: 0 },
+              show: {
+                opacity: 1,
+                transition: {
+                  staggerChildren: 0.1
+                }
+              }
+            }}
+            initial="hidden"
+            animate="show"
+          >
             {CATEGORY_DETAILS.map((cat, idx) => (
-              <CategoryCard key={cat.name} category={cat} navigateToFilteredCourses={navigateToFilteredCourses} index={idx} />
+              <motion.div key={cat.name} variants={{ hidden: { opacity: 0, y: 20 }, show: { opacity: 1, y: 0 } }}>
+                <CategoryCard category={cat} navigateToFilteredCourses={navigateToFilteredCourses} index={0} />
+              </motion.div>
             ))}
-          </div>
+          </motion.div>
 
           <div className="bg-gradient-to-br from-brand-primary to-brand-secondary rounded-3xl p-6 text-white relative overflow-hidden shadow-xl">
             <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full blur-2xl translate-x-10 -translate-y-10" />
