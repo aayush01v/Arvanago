@@ -393,13 +393,20 @@ const ChatPage: React.FC = () => {
                                                     )}
                                                     {msg.text && <p>{msg.text}</p>}
                                                     {msg.callId && (
-                                                        <button
-                                                            onClick={() => msg.callId && joinVideoCall(msg.callId, msg.callType || 'video')}
-                                                            className={`mt-2 flex items-center gap-2 px-4 py-2 rounded-full font-bold text-xs transition-colors ${isMe ? 'bg-white/20 hover:bg-white/30 text-white' : 'bg-brand-primary text-white hover:bg-brand-secondary'}`}
-                                                        >
-                                                            <Icon name={msg.callType === 'audio' ? 'phone' : 'video'} className="w-4 h-4" />
-                                                            {isMe ? 'Join Call Again' : `Join ${msg.callType === 'audio' ? 'Audio' : 'Video'} Call`}
-                                                        </button>
+                                                        msg.callStatus === 'ended' ? (
+                                                            <div className={`mt-2 flex items-center gap-2 px-4 py-2 rounded-full font-bold text-xs bg-slate-200 dark:bg-slate-600 text-slate-500 dark:text-slate-400 cursor-not-allowed opacity-70`}>
+                                                                <Icon name={msg.callType === 'audio' ? 'phone' : 'video'} className="w-4 h-4" />
+                                                                Call Ended
+                                                            </div>
+                                                        ) : (
+                                                            <button
+                                                                onClick={() => msg.callId && joinVideoCall(msg.callId, msg.callType || 'video')}
+                                                                className={`mt-2 flex items-center gap-2 px-4 py-2 rounded-full font-bold text-xs transition-colors ${isMe ? 'bg-white/20 hover:bg-white/30 text-white' : 'bg-brand-primary text-white hover:bg-brand-secondary'}`}
+                                                            >
+                                                                <Icon name={msg.callType === 'audio' ? 'phone' : 'video'} className="w-4 h-4" />
+                                                                {isMe ? 'Join Call Again' : `Join ${msg.callType === 'audio' ? 'Audio' : 'Video'} Call`}
+                                                            </button>
+                                                        )
                                                     )}
                                                 </div>
                                                 <span className={`text-[10px] text-slate-400 font-medium absolute -bottom-5 ${isMe ? 'right-0' : 'left-0'} opacity-0 group-hover:opacity-100 transition-opacity`}>
