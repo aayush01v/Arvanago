@@ -6,7 +6,7 @@ import { chatService, Chat, ChatMessage } from '../services/chatService';
 import { uploadToImgBB } from '../services/imgbbService';
 import { auth } from '../services/firebase';
 import { User } from '../types';
-import { useOutletContext, useLocation, useNavigate } from 'react-router-dom';
+import { useOutletContext, useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import CallModal from '@/components/CallModal';
 import { webrtcService } from '../services/webrtcService';
 
@@ -15,6 +15,7 @@ const ChatPage: React.FC = () => {
     const { user: currentUser } = useOutletContext<{ user: User }>();
     const location = useLocation();
     const navigate = useNavigate();
+    const [searchParams, setSearchParams] = useSearchParams();
 
     const [chats, setChats] = useState<Chat[]>([]);
     const [messages, setMessages] = useState<ChatMessage[]>([]);
@@ -34,6 +35,35 @@ const ChatPage: React.FC = () => {
     const [currentCallType, setCurrentCallType] = useState<'video' | 'audio'>('video');
     const [isCaller, setIsCaller] = useState(false);
     const [showCallTypeSelection, setShowCallTypeSelection] = useState(false);
+
+    // Sync URL with State
+    useEffect(() => {
+        const chatIdParam = searchParams.get('chatId');
+        if (chatIdParam) {
+            setSelectedChatId(chatIdParam);
+            setShowChatOnMobile(true);
+            // We need to set activeChatUser. If we have chats loaded, find it.
+            // If not (deep link), we might need to fetch it in the effect below or separate logic.
+            const chat = chats.find(c => c.id === chatIdParam);
+            if (chat && currentUser) {
+                const otherId = chat.participants.find(p => p !== currentUser.uid);
+                if (otherId) {
+                    chatService.fetchUserDetails(otherId).then(setActiveChatUser);
+                }
+                // Mark as read
+                if (chat.unreadCounts?.[currentUser.uid] > 0) {
+                    chatService.markChatRead(chat.id, currentUser.uid);
+                }
+            }
+        } else {
+            setShowChatOnMobile(false);
+            // On desktop, we might want to keep selectedChatId if not explicitly cleared,
+            // or clear it. If we want "Back" to clear it, we should clear it.
+            if (window.innerWidth < 768) {
+                setSelectedChatId(null);
+            }
+        }
+    }, [searchParams, chats, currentUser]);
 
     // Subscribe to My Chats
     useEffect(() => {
@@ -56,21 +86,14 @@ const ChatPage: React.FC = () => {
         return () => unsubscribe();
     }, [selectedChatId]);
 
-    // Initial Selection (First Chat or State)
+    // Initial Selection fallback (Desktop only)
     useEffect(() => {
-        // Check for navigation state first
-        if (location.state?.chatId) {
-            setSelectedChatId(location.state.chatId);
-            setShowChatOnMobile(true);
-            if (location.state.recipientUser) {
-                setActiveChatUser(location.state.recipientUser);
-            }
+        const chatIdParam = searchParams.get('chatId');
+        // Fallback to first chat if no param and desktop
+        if (!chatIdParam && !selectedChatId && chats.length > 0 && window.innerWidth >= 768) {
+            setSearchParams({ chatId: chats[0].id }, { replace: true });
         }
-        // Fallback to first chat if no state and desktop
-        else if (!selectedChatId && chats.length > 0 && !showChatOnMobile && window.innerWidth >= 768) {
-            handleChatSelect(chats[0]);
-        }
-    }, [chats, selectedChatId, location.state]);
+    }, [chats, selectedChatId, searchParams]);
 
     // Search Users
     useEffect(() => {
@@ -89,20 +112,7 @@ const ChatPage: React.FC = () => {
 
 
     const handleChatSelect = async (chat: Chat) => {
-        setSelectedChatId(chat.id);
-        setShowChatOnMobile(true);
-
-        // Mark as read
-        if (currentUser && chat.unreadCounts?.[currentUser.uid] > 0) {
-            chatService.markChatRead(chat.id, currentUser.uid);
-        }
-
-        // Find other participant ID
-        const otherId = chat.participants.find(p => p !== currentUser.uid);
-        if (otherId) {
-            const details = await chatService.fetchUserDetails(otherId);
-            setActiveChatUser(details);
-        }
+        setSearchParams({ chatId: chat.id });
     };
 
     const handleUserSelect = async (otherUser: User) => {
@@ -113,14 +123,8 @@ const ChatPage: React.FC = () => {
             setSearchTerm(''); // Clear search
             setSearchResults([]);
 
-            // Mark as read immediately on creation/selection via search
-            // (Though new chat unread is 0, logic is safe)
-            chatService.markChatRead(chatId, currentUser.uid);
-
-            // Optimistic UI updates could go here, but for now wait for subscription
-            setSelectedChatId(chatId);
+            setSearchParams({ chatId });
             setActiveChatUser(otherUser);
-            setShowChatOnMobile(true);
         } catch (error) {
             console.error("Failed to create chat:", error);
         } finally {
@@ -318,12 +322,7 @@ const ChatPage: React.FC = () => {
                         {/* Chat Header */}
                         <div className="px-4 md:px-6 py-4 border-b border-white/10 flex items-center justify-between bg-white/40 dark:bg-slate-900/40 backdrop-blur-md sticky top-0 z-10">
                             <div className="flex items-center gap-3 md:gap-4">
-                                <button
-                                    onClick={() => setShowChatOnMobile(false)}
-                                    className="md:hidden p-2 -ml-2 rounded-full hover:bg-white/20 dark:hover:bg-slate-700/50"
-                                >
-                                    <Icon name="arrowLeft" className="w-5 h-5" />
-                                </button>
+                                {/* Removed redundant Mobile Back Button */}
 
                                 <div
                                     className="flex items-center gap-3 md:gap-4 cursor-pointer hover:opacity-80 transition-opacity"
