@@ -100,6 +100,12 @@ export const chatService = {
     await chatRef.update(updates);
   },
 
+  // Update a message (e.g., to change call status)
+  async updateMessage(chatId: string, messageId: string, updates: Partial<ChatMessage>): Promise<void> {
+    const messageRef = db.collection('chats').doc(chatId).collection('messages').doc(messageId);
+    await messageRef.update(updates);
+  },
+
   // Mark chat as read
   async markChatRead(chatId: string, userId: string): Promise<void> {
     const chatRef = db.collection('chats').doc(chatId);

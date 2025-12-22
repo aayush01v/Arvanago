@@ -45,12 +45,18 @@ export const webrtcService = {
             return stream;
         } catch (error: any) {
             console.error("Error accessing media devices:", error);
+
+            // Provide user-friendly error messages
             if (error.name === 'NotFoundError' || error.name === 'DevicesNotFoundError') {
                 throw new Error("No camera or microphone found. Please ensure your devices are connected.");
             } else if (error.name === 'NotAllowedError' || error.name === 'PermissionDeniedError') {
-                throw new Error("Permission to access camera/microphone was denied.");
+                throw new Error("Camera/microphone access denied. Please allow permissions in your browser settings.");
+            } else if (error.name === 'NotReadableError' || error.name === 'TrackStartError') {
+                throw new Error("Camera/microphone is already in use by another application. Please close other apps and try again.");
+            } else if (error.name === 'OverconstrainedError') {
+                throw new Error("Camera/microphone doesn't meet requirements. Please check your device settings.");
             } else {
-                throw error;
+                throw new Error("Failed to access camera/microphone. Please check your device and try again.");
             }
         }
     },
@@ -138,6 +144,11 @@ export const webrtcService = {
             if (!this.pc?.currentRemoteDescription && data?.answer) {
                 const answerDescription = new RTCSessionDescription(data.answer);
                 this.pc.setRemoteDescription(answerDescription);
+
+                // Update status when connected
+                callDoc.update({ status: 'connected' }).catch(err =>
+                    console.error('Failed to update call status:', err)
+                );
             }
         });
         this.unsubscribes.push(unsubInfo);
@@ -159,37 +170,46 @@ export const webrtcService = {
     async joinRoom(callId: string) {
         if (!this.pc) this.pc = new RTCPeerConnection(servers);
 
-        // openUserMedia will now add tracks to PC
-        // this.localStream?.getTracks().forEach((track) => {
-        //     if (this.pc && this.localStream) {
-        //         this.pc.addTrack(track, this.localStream);
-        //     }
-        // });
+        const callDoc = db.collection('calls').doc(callId);
+        const offerCandidates = callDoc.collection('offerCandidates');
+        const answerCandidates = callDoc.collection('answerCandidates');
 
+        // Get call data first to determine type
+        const callData = (await callDoc.get()).data();
+        if (!callData) throw new Error("Call data not found");
+
+        // Initialize remote stream before setting up handlers
+        this.remoteStream = new MediaStream();
+
+        // Monitor ICE connection state for debugging and reconnection
+        this.pc.oniceconnectionstatechange = () => {
+            console.log('ICE Connection State:', this.pc?.iceConnectionState);
+            if (this.pc?.iceConnectionState === 'failed' || this.pc?.iceConnectionState === 'disconnected') {
+                console.warn('Connection issues detected, may need to reconnect');
+            }
+        };
+
+        // Set up track handler to receive remote streams
         this.pc.ontrack = (event) => {
             event.streams[0].getTracks().forEach((track) => {
                 this.remoteStream?.addTrack(track);
             });
         };
 
-        const callDoc = db.collection('calls').doc(callId);
-        const offerCandidates = callDoc.collection('offerCandidates');
-        const answerCandidates = callDoc.collection('answerCandidates');
-
+        // Set up ICE candidate handler
         this.pc.onicecandidate = (event) => {
             event.candidate && answerCandidates.add(event.candidate.toJSON());
         };
 
-        const callData = (await callDoc.get()).data();
-        if (!callData) throw new Error("Call data not found")
-
-        // Determine type from call data to open correct media
+        // Get local media BEFORE setting remote description
         const type = callData.type || 'video';
         await this.openUserMedia(type);
 
+        // Set remote description (offer from caller)
         const offerDescription = callData.offer;
         await this.pc.setRemoteDescription(new RTCSessionDescription(offerDescription));
 
+        // Create and set local description (answer)
         const answerDescription = await this.pc.createAnswer();
         await this.pc.setLocalDescription(answerDescription);
 
@@ -198,8 +218,10 @@ export const webrtcService = {
             sdp: answerDescription.sdp,
         };
 
-        await callDoc.update({ answer });
+        // Send answer to caller
+        await callDoc.update({ answer, status: 'connected' });
 
+        // Listen for remote ICE candidates
         const unsubIce = offerCandidates.onSnapshot((snapshot) => {
             snapshot.docChanges().forEach((change) => {
                 if (change.type === 'added') {
@@ -210,10 +232,6 @@ export const webrtcService = {
         });
         this.unsubscribes.push(unsubIce);
     },
-
-    import { chatService } from './chatService';
-
-    // ... (inside webrtcService object)
 
     async hangUp(callId: string) {
         if (this.pc) {
@@ -231,7 +249,6 @@ export const webrtcService = {
         this.unsubscribes = [];
 
         if (callId) {
-            // Retrieve metadata before deleting
             try {
                 const callDocRef = db.collection('calls').doc(callId);
                 const callDoc = await callDocRef.get();
@@ -241,7 +258,7 @@ export const webrtcService = {
                     await chatService.updateMessage(callData.chatId, callData.messageId, { callStatus: 'ended' });
                 }
 
-                // In a real app, delete subcollections too (via batch or Cloud Function)
+                // Delete call document (in production, consider using Cloud Functions to clean up subcollections)
                 await callDocRef.delete();
             } catch (error) {
                 console.error("Error cleaning up call:", error);
