@@ -87,8 +87,20 @@ const CallModal: React.FC<CallModalProps> = ({ isOpen, onClose, callId, isCaller
         }
     };
 
-    const handleHangUp = () => {
-        stopCall();
+    const handleSwitchCamera = async () => {
+        const newStream = await webrtcService.switchCamera();
+        if (newStream && localVideoRef.current) {
+            localVideoRef.current.srcObject = newStream;
+        }
+    };
+
+    const handleHangUp = async () => {
+        // We await stopCall to ensure cleanup, but we catch errors so the modal ALWAYS closes.
+        try {
+            await stopCall();
+        } catch (e) {
+            console.error("Hangup error:", e);
+        }
         onClose();
     };
 
@@ -137,6 +149,14 @@ const CallModal: React.FC<CallModalProps> = ({ isOpen, onClose, callId, isCaller
                     className={`p-4 rounded-full transition-all ${isMuted ? 'bg-white text-black' : 'bg-white/10 text-white hover:bg-white/20'}`}
                 >
                     <Icon name={isMuted ? 'micOff' : 'mic'} className="w-6 h-6" />
+                </button>
+
+                <button
+                    onClick={handleSwitchCamera}
+                    disabled={callType === 'audio'}
+                    className={`p-4 rounded-full transition-all bg-white/10 text-white hover:bg-white/20 transform hover:rotate-180 ${callType === 'audio' ? 'hidden' : ''}`}
+                >
+                    <Icon name="refreshCw" className="w-6 h-6" />
                 </button>
 
                 <button

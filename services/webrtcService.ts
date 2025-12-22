@@ -15,10 +15,13 @@ export const webrtcService = {
     localStream: null as MediaStream | null,
     remoteStream: null as MediaStream | null,
 
-    async openUserMedia(type: 'video' | 'audio' = 'video') {
+    currentFacingMode: 'user' as 'user' | 'environment',
+
+    async openUserMedia(type: 'video' | 'audio' = 'video', facingMode: 'user' | 'environment' = 'user') {
+        this.currentFacingMode = facingMode;
         const constraints = {
             audio: true,
-            video: type === 'video'
+            video: type === 'video' ? { facingMode } : false
         };
         try {
             const stream = await navigator.mediaDevices.getUserMedia(constraints);
@@ -42,6 +45,43 @@ export const webrtcService = {
             } else {
                 throw error;
             }
+        }
+    },
+
+    async switchCamera() {
+        if (!this.localStream) return;
+
+        const videoTrack = this.localStream.getVideoTracks()[0];
+        if (!videoTrack) return; // Audio only or no video
+
+        const newFacingMode = this.currentFacingMode === 'user' ? 'environment' : 'user';
+
+        try {
+            const newStream = await navigator.mediaDevices.getUserMedia({
+                video: { facingMode: newFacingMode },
+                audio: false // We keep the existing audio track
+            });
+
+            const newVideoTrack = newStream.getVideoTracks()[0];
+
+            // Replace track in local stream (for self view)
+            this.localStream.removeTrack(videoTrack);
+            this.localStream.addTrack(newVideoTrack);
+            videoTrack.stop(); // Stop old track
+
+            // Replace track in PeerConnection (for remote view)
+            if (this.pc) {
+                const sender = this.pc.getSenders().find(s => s.track?.kind === 'video');
+                if (sender) {
+                    await sender.replaceTrack(newVideoTrack);
+                }
+            }
+
+            this.currentFacingMode = newFacingMode;
+            return this.localStream;
+        } catch (error) {
+            console.error("Error switching camera:", error);
+            throw error;
         }
     },
 
