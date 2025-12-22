@@ -243,10 +243,10 @@ const Profile: React.FC<ProfileProps> = ({ user, onProfileUpdate, isDarkMode }) 
 
         {/* Avatar - Positioned Absolute Overlapping */}
         <motion.div
-          initial={{ y: 50, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
+          initial={{ x: "-50%", y: 50, opacity: 0 }}
+          animate={{ x: "-50%", y: 0, opacity: 1 }}
           transition={{ delay: 0.2 }}
-          className="absolute -bottom-16 md:-bottom-20 left-1/2 -translate-x-1/2 flex flex-col items-center z-20"
+          className="absolute -bottom-16 md:-bottom-20 left-1/2 flex flex-col items-center z-20"
         >
           <div className="relative group/avatar">
             {/* Outer gradient border ring */}
@@ -264,12 +264,12 @@ const Profile: React.FC<ProfileProps> = ({ user, onProfileUpdate, isDarkMode }) 
                 </div>
               </div>
             </div>
-            {/* Camera Icon - Upload Trigger */}
+            {/* Pencil Icon - Upload Trigger */}
             <button
               onClick={openFilePicker}
               className="absolute bottom-2 right-2 p-3 bg-white dark:bg-slate-800 rounded-full text-slate-700 dark:text-white shadow-lg hover:text-brand-primary hover:scale-110 transition-all z-20"
             >
-              <Icon name="camera" className="w-5 h-5" />
+              <Icon name="edit-3" className="w-5 h-5" />
             </button>
             <input type="file" ref={fileInputRef} className="hidden" accept="image/*" onChange={handleAvatarChange} />
           </div>
