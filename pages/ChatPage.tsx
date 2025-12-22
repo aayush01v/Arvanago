@@ -199,46 +199,58 @@ const ChatPage: React.FC = () => {
             }
         }, [chat]);
 
-        if (!otherUser) return <div className="p-4 animate-pulse bg-slate-100 dark:bg-slate-800 rounded-2xl h-20 mb-2"></div>;
+        if (!otherUser) return (
+            <div className="p-4 mx-2 animate-pulse bg-slate-100 dark:bg-slate-800 rounded-2xl h-18 mb-2"></div>
+        );
 
         const unreadCount = chat.unreadCounts?.[currentUser.uid] || 0;
+        const isSelected = selectedChatId === chat.id;
 
         return (
             <div
                 onClick={() => handleChatSelect(chat)}
                 className={`
-                    group p-4 rounded-2xl cursor-pointer transition-all border border-transparent relative
-                    ${selectedChatId === chat.id
-                        ? 'bg-brand-primary/10 border-brand-primary/20 shadow-md'
-                        : 'bg-white/40 dark:bg-slate-800/40 hover:bg-white/60 dark:hover:bg-slate-700/60 border-white/40 dark:border-white/5'
+                    group p-3 mx-2 rounded-2xl cursor-pointer transition-all duration-300 relative overflow-hidden
+                    ${isSelected
+                        ? 'bg-brand-primary/10 shadow-sm'
+                        : 'bg-transparent hover:bg-slate-100 dark:hover:bg-slate-800'
                     }
                 `}
             >
-                <div className="flex items-center gap-4">
-                    <div className="relative">
-                        <img src={otherUser.avatar || 'https://i.pravatar.cc/150'} alt={otherUser.name} className="w-12 h-12 rounded-full object-cover shadow-sm bg-slate-200" />
+                {isSelected && (
+                    <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-8 bg-brand-primary rounded-r-full"></div>
+                )}
+
+                <div className="flex items-center gap-3 relative z-10">
+                    <div className="relative flex-shrink-0">
+                        <img
+                            src={otherUser.avatar || 'https://i.pravatar.cc/150'}
+                            alt={otherUser.name}
+                            className={`w-12 h-12 rounded-full object-cover transition-transform duration-300 group-hover:scale-105 ${isSelected ? 'ring-2 ring-brand-primary/30' : 'ring-1 ring-slate-200 dark:ring-slate-700'}`}
+                        />
                         {/* Status dot could be here if we had online status */}
                     </div>
+
                     <div className="flex-1 min-w-0">
-                        <div className="flex justify-between items-start">
-                            <h4 className={`font-bold text-sm truncate ${selectedChatId === chat.id ? 'text-brand-primary' : ''}`}>
+                        <div className="flex justify-between items-baseline mb-0.5">
+                            <h4 className={`font-bold text-sm truncate transition-colors ${isSelected ? 'text-brand-primary' : 'text-slate-900 dark:text-slate-100'}`}>
                                 {otherUser.name}
                             </h4>
-                            {/* Time formatting */}
-                            <div className="flex flex-col items-end gap-1">
-                                <span className="text-[10px] text-slate-400 font-medium">
-                                    {chat.updatedAt?.seconds ? new Date(chat.updatedAt.seconds * 1000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'New'}
-                                </span>
-                                {unreadCount > 0 && (
-                                    <span className="flex items-center justify-center min-w-[20px] h-5 px-1.5 bg-brand-primary text-white text-[10px] font-bold rounded-full shadow-sm animate-scale-in">
-                                        {unreadCount > 99 ? '99+' : unreadCount}
-                                    </span>
-                                )}
-                            </div>
+                            <span className={`text-[10px] font-medium ${unreadCount > 0 ? 'text-brand-primary' : 'text-slate-400'}`}>
+                                {chat.updatedAt?.seconds ? new Date(chat.updatedAt.seconds * 1000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'New'}
+                            </span>
                         </div>
-                        <p className={`text-xs truncate mt-0.5 pr-6 ${unreadCount > 0 ? 'font-bold text-slate-800 dark:text-white' : 'text-slate-500 dark:text-slate-400'}`}>
-                            {chat.lastMessage?.text || (chat.lastMessage?.imageUrl ? '📷 Photo' : 'Start a conversation')}
-                        </p>
+
+                        <div className="flex justify-between items-center gap-2">
+                            <p className={`text-xs truncate transition-colors w-full ${unreadCount > 0 ? 'font-semibold text-slate-800 dark:text-white' : 'text-slate-500 dark:text-slate-400'}`}>
+                                {chat.lastMessage?.text || (chat.lastMessage?.imageUrl ? '📷 Photo' : 'Start a conversation')}
+                            </p>
+                            {unreadCount > 0 && (
+                                <span className="flex-shrink-0 flex items-center justify-center min-w-[18px] h-[18px] px-1 bg-brand-primary text-white text-[10px] font-bold rounded-full shadow-sm animate-scale-in">
+                                    {unreadCount > 99 ? '99+' : unreadCount}
+                                </span>
+                            )}
+                        </div>
                     </div>
                 </div>
             </div>
@@ -248,39 +260,43 @@ const ChatPage: React.FC = () => {
     return (
         <div className={`flex gap-6 animate-fade-in text-slate-800 dark:text-white relative ${window.innerWidth < 768 ? 'h-[calc(100dvh-5rem)]' : 'h-[calc(100vh-8rem)] md:h-[calc(100vh-6rem)]'}`}>
 
-            {/* Sidebar */}
+            {/* Sidebar List */}
             <div className={`
                 ${showChatOnMobile ? 'hidden md:flex' : 'flex'} 
                 w-full md:w-80 flex-shrink-0 flex-col gap-4 transition-all
             `}>
-                {/* Search */}
-                <div className="relative z-20">
-                    <Icon name="search" className="absolute left-4 top-3.5 w-5 h-5 text-slate-400" />
-                    <input
-                        type="text"
-                        placeholder="Search users..."
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
-                        className="w-full pl-12 pr-4 py-3 rounded-2xl bg-white/60 dark:bg-slate-800/60 backdrop-blur-md border border-white/40 dark:border-white/10 focus:ring-2 focus:ring-brand-primary/50 outline-none transition-all shadow-sm"
-                    />
+                {/* Search Header */}
+                <div className="relative z-20 px-2">
+                    <div className="relative group">
+                        <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
+                            <Icon name="search" className="w-5 h-5 text-slate-400 group-focus-within:text-brand-primary transition-colors" />
+                        </div>
+                        <input
+                            type="text"
+                            placeholder="Search users..."
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                            className="w-full pl-11 pr-4 py-3 rounded-2xl bg-white/50 dark:bg-slate-800/50 backdrop-blur-sm border border-slate-200 dark:border-slate-700/50 focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary transition-all shadow-sm outline-none text-sm placeholder:text-slate-400"
+                        />
+                    </div>
 
                     {/* Search Results Dropdown */}
                     {searchResults.length > 0 && (
-                        <div className="absolute top-full left-0 right-0 mt-2 bg-white dark:bg-slate-900 rounded-2xl shadow-xl border border-slate-100 dark:border-slate-800 overflow-hidden max-h-60 overflow-y-auto">
+                        <div className="absolute top-full left-2 right-2 mt-2 bg-white dark:bg-slate-900 rounded-2xl shadow-xl border border-slate-100 dark:border-slate-800 overflow-hidden max-h-60 overflow-y-auto no-scrollbar z-50">
                             {searchResults.map(u => {
                                 const isExistingContact = chats.some(chat => chat.participants.includes(u.uid));
                                 return (
                                     <div
                                         key={u.uid}
                                         onClick={() => !creatingChat && handleUserSelect(u)}
-                                        className={`p-3 hover:bg-slate-50 dark:hover:bg-slate-800 cursor-pointer flex items-center gap-3 ${creatingChat ? 'opacity-50 cursor-wait' : ''}`}
+                                        className={`p-3 hover:bg-slate-50 dark:hover:bg-slate-800 cursor-pointer flex items-center gap-3 border-b border-slate-50 dark:border-slate-800/50 last:border-0 ${creatingChat ? 'opacity-50 cursor-wait' : ''}`}
                                     >
-                                        <img src={u.avatar || 'https://i.pravatar.cc/150'} className="w-8 h-8 rounded-full" />
-                                        <div className="flex-1">
-                                            <p className={`text-sm font-bold ${isExistingContact ? 'text-green-600 dark:text-green-400' : ''}`}>
+                                        <img src={u.avatar || 'https://i.pravatar.cc/150'} className="w-10 h-10 rounded-full object-cover" />
+                                        <div className="flex-1 min-w-0">
+                                            <p className={`text-sm font-bold truncate ${isExistingContact ? 'text-green-600 dark:text-green-400' : 'text-slate-900 dark:text-white'}`}>
                                                 {u.name}
                                             </p>
-                                            <p className="text-xs text-slate-500">@{u.username || 'user'}</p>
+                                            <p className="text-xs text-slate-500 truncate">@{u.username || 'user'}</p>
                                         </div>
                                         {creatingChat && <Icon name="spinner" className="w-4 h-4 animate-spin text-brand-primary" />}
                                     </div>
@@ -290,12 +306,15 @@ const ChatPage: React.FC = () => {
                     )}
                 </div>
 
-                {/* Chat List */}
-                <div className="flex-1 overflow-y-auto space-y-2 pr-1 scrollbar-thin scrollbar-thumb-slate-200 dark:scrollbar-thumb-slate-700">
+                {/* Chat List Content */}
+                <div className="flex-1 overflow-y-auto space-y-1 pr-1 scrollbar-thin scrollbar-thumb-slate-200 dark:scrollbar-thumb-slate-700 scrollbar-track-transparent">
                     {chats.length === 0 ? (
-                        <div className="text-center p-8 text-slate-400">
-                            <p>No chats yet.</p>
-                            <p className="text-xs mt-2">Search for a user to start chatting!</p>
+                        <div className="flex flex-col items-center justify-center h-full p-8 text-center opacity-60">
+                            <div className="w-16 h-16 bg-slate-100 dark:bg-slate-800 rounded-full flex items-center justify-center mb-4 text-slate-400">
+                                <Icon name="message-square" className="w-8 h-8" />
+                            </div>
+                            <p className="text-slate-500 font-medium">No active chats</p>
+                            <p className="text-xs text-slate-400 mt-1 max-w-[200px]">Search for a user above to start your first conversation.</p>
                         </div>
                     ) : (
                         chats.map(chat => <ChatListItem key={chat.id} chat={chat} />)
@@ -367,40 +386,54 @@ const ChatPage: React.FC = () => {
                             </div>
                         </div>
 
-                        {/* Messages */}
-                        <div className="flex-1 overflow-y-auto p-4 md:p-6 space-y-4 md:space-y-6 scrollbar-thin scrollbar-thumb-slate-200 dark:scrollbar-thumb-slate-700 flex flex-col-reverse">
-                            {/* Flex col reverse for auto scroll to bottom behavior usually, but simple mapping works if we scroll to bottom on mount. 
-                                For simplicity with Firestore ordering (asc), we map normally but might need auto-scroll ref.
-                            */}
-                            <div className="flex flex-col justify-end min-h-full space-y-4">
-                                {messages.map((msg) => {
+                        {/* Messages List */}
+                        <div className="flex-1 overflow-y-auto p-4 md:p-6 space-y-4 md:space-y-6 scrollbar-thin scrollbar-thumb-slate-200 dark:scrollbar-thumb-slate-700 scrollbar-track-transparent flex flex-col-reverse bg-slate-50/50 dark:bg-slate-900/20">
+                            <div className="flex flex-col justify-end min-h-full space-y-3 md:space-y-4">
+                                {messages.map((msg, index) => {
                                     const isMe = msg.senderId === currentUser?.uid;
+                                    const isSequence = index > 0 && messages[index - 1].senderId === msg.senderId;
+
                                     return (
-                                        <div key={msg.id} className={`flex ${isMe ? 'justify-end' : 'justify-start'}`}>
+                                        <div key={msg.id} className={`flex ${isMe ? 'justify-end' : 'justify-start'} ${isSequence ? 'mt-1' : 'mt-4'}`}>
+                                            {!isMe && !isSequence && (
+                                                <img
+                                                    src={activeChatUser?.avatar || 'https://i.pravatar.cc/150'}
+                                                    className="w-8 h-8 rounded-full mr-2 self-end mb-1 shadow-sm object-cover"
+                                                    alt="Sender"
+                                                />
+                                            )}
+                                            {!isMe && isSequence && <div className="w-10"></div>}
+
                                             <div className={`max-w-[85%] md:max-w-[70%] relative group`}>
                                                 <div
                                                     className={`
-                                                            px-4 md:px-5 py-3 md:py-3.5 rounded-xl md:rounded-2xl text-sm leading-relaxed shadow-sm animate-fade-in-up
+                                                            px-4 md:px-5 py-2.5 md:py-3.5 text-[15px] leading-relaxed shadow-sm break-words
                                                             ${isMe
-                                                            ? 'bg-brand-primary text-white rounded-br-none shadow-brand-primary/20'
-                                                            : 'bg-white dark:bg-slate-700 text-slate-700 dark:text-slate-200 rounded-bl-none shadow-sm'
+                                                            ? 'bg-gradient-to-br from-brand-primary to-blue-600 text-white rounded-[1.2rem] rounded-tr-md'
+                                                            : 'bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200 rounded-[1.2rem] rounded-tl-md border border-slate-100 dark:border-slate-700/50'
                                                         }
                                                     `}
                                                 >
                                                     {msg.imageUrl && (
-                                                        <img src={msg.imageUrl} alt="Attachment" className="mb-2 rounded-lg max-h-60 object-cover" />
+                                                        <div className="mb-2 -mx-2 -mt-2 overflow-hidden rounded-lg">
+                                                            <img src={msg.imageUrl} alt="Attachment" className="w-full max-h-80 object-cover hover:scale-105 transition-transform duration-500" />
+                                                        </div>
                                                     )}
+
                                                     {msg.text && <p>{msg.text}</p>}
+
                                                     {msg.callId && (
                                                         msg.callStatus === 'ended' ? (
-                                                            <div className={`mt-2 flex items-center gap-2 px-4 py-2 rounded-full font-bold text-xs bg-slate-200 dark:bg-slate-600 text-slate-500 dark:text-slate-400 cursor-not-allowed opacity-70`}>
-                                                                <Icon name={msg.callType === 'audio' ? 'phone' : 'video'} className="w-4 h-4" />
-                                                                Call Ended
+                                                            <div className={`mt-2 flex items-center gap-3 px-4 py-2.5 rounded-xl font-medium text-xs ${isMe ? 'bg-white/20 text-white/90' : 'bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-400'}`}>
+                                                                <div className={`p-1.5 rounded-full ${isMe ? 'bg-white/20' : 'bg-slate-200 dark:bg-slate-600'}`}>
+                                                                    <Icon name="phone" className="w-3.5 h-3.5" />
+                                                                </div>
+                                                                <span>Call Ended • {msg.timestamp ? new Date(msg.timestamp.seconds * 1000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : ''}</span>
                                                             </div>
                                                         ) : (
                                                             <button
                                                                 onClick={() => msg.callId && joinVideoCall(msg.callId, msg.callType || 'video')}
-                                                                className={`mt-2 flex items-center gap-2 px-4 py-2 rounded-full font-bold text-xs transition-colors ${isMe ? 'bg-white/20 hover:bg-white/30 text-white' : 'bg-brand-primary text-white hover:bg-brand-secondary'}`}
+                                                                className={`mt-2 flex items-center gap-3 px-5 py-3 rounded-xl font-bold text-sm transition-all shadow-sm transform hover:scale-105 active:scale-95 ${isMe ? 'bg-white text-brand-primary hover:bg-slate-100' : 'bg-brand-primary text-white hover:bg-brand-secondary'}`}
                                                             >
                                                                 <Icon name={msg.callType === 'audio' ? 'phone' : 'video'} className="w-4 h-4" />
                                                                 {isMe ? 'Join Call Again' : `Join ${msg.callType === 'audio' ? 'Audio' : 'Video'} Call`}
@@ -408,7 +441,7 @@ const ChatPage: React.FC = () => {
                                                         )
                                                     )}
                                                 </div>
-                                                <span className={`text-[10px] text-slate-400 font-medium absolute -bottom-5 ${isMe ? 'right-0' : 'left-0'} opacity-0 group-hover:opacity-100 transition-opacity`}>
+                                                <span className={`text-[10px] text-slate-400 font-medium absolute -bottom-5 ${isMe ? 'right-1' : 'left-1'} opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap`}>
                                                     {msg.timestamp?.seconds ? new Date(msg.timestamp.seconds * 1000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'Sending...'}
                                                 </span>
                                             </div>
@@ -420,28 +453,29 @@ const ChatPage: React.FC = () => {
                         </div>
 
                         {/* Input Area */}
-                        <div className="p-3 md:p-4 border-t border-white/10 bg-white/40 dark:bg-slate-900/40 backdrop-blur-md">
-                            <div className="relative flex items-end gap-2">
-                                <label className="cursor-pointer p-3 md:p-3.5 hover:bg-white/50 dark:hover:bg-slate-700/50 rounded-full transition-colors text-slate-500 mb-[2px]">
-                                    <Icon name="image" className={`w-5 h-5 ${isUploading ? 'animate-pulse opacity-50' : ''}`} />
+                        <div className="p-3 md:p-4 bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border-t border-slate-100 dark:border-slate-800 z-20">
+                            <div className="relative flex items-end gap-2 max-w-4xl mx-auto">
+                                <label className="cursor-pointer p-3 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors text-slate-500 dark:text-slate-400 mb-0.5 group">
+                                    <Icon name="image" className={`w-6 h-6 group-hover:text-brand-primary transition-colors ${isUploading ? 'animate-pulse opacity-50' : ''}`} />
                                     <input type="file" accept="image/*" className="hidden" onChange={handleImageUpload} disabled={isUploading} />
                                 </label>
-                                <div className="flex-1 relative">
+
+                                <div className="flex-1 relative bg-slate-100 dark:bg-slate-800 rounded-[1.5rem] focus-within:ring-2 focus-within:ring-brand-primary/50 focus-within:bg-white dark:focus-within:bg-slate-900 transition-all shadow-inner border border-transparent focus-within:border-brand-primary/30">
                                     <input
                                         type="text"
                                         value={input}
                                         onChange={(e) => setInput(e.target.value)}
                                         onKeyDown={(e) => e.key === 'Enter' && handleSend()}
                                         placeholder="Type a message..."
-                                        className="w-full px-4 md:px-5 py-3 md:py-3.5 rounded-full bg-white dark:bg-slate-800 border-none focus:ring-2 focus:ring-brand-primary/50 outline-none shadow-inner placeholder:text-slate-400 transition-all text-sm md:text-base pr-12"
+                                        className="w-full px-5 py-3.5 bg-transparent border-none outline-none text-slate-800 dark:text-slate-100 placeholder:text-slate-400 transition-all text-sm md:text-base pr-12"
                                     />
                                     {chatImageUrl && (
-                                        <div className="absolute bottom-full left-0 mb-3 p-2 bg-white dark:bg-slate-800 rounded-xl shadow-xl border border-slate-200 dark:border-slate-700 z-20">
+                                        <div className="absolute bottom-full left-0 mb-3 p-2 bg-white dark:bg-slate-800 rounded-xl shadow-xl border border-slate-200 dark:border-slate-700 z-20 animate-scale-in">
                                             <div className="relative group">
                                                 <img src={chatImageUrl} className="h-24 w-24 object-cover rounded-lg" />
                                                 <button
                                                     onClick={() => setChatImageUrl('')}
-                                                    className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center shadow-md hover:bg-red-600 transition-colors"
+                                                    className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center shadow-md hover:bg-red-600 transition-transform hover:scale-110"
                                                 >
                                                     <Icon name="x" className="w-3 h-3" />
                                                 </button>
@@ -449,12 +483,13 @@ const ChatPage: React.FC = () => {
                                         </div>
                                     )}
                                 </div>
+
                                 <button
                                     onClick={handleSend}
                                     disabled={(!input.trim() && !chatImageUrl) || isUploading}
-                                    className="p-3 md:p-3.5 rounded-full bg-brand-primary text-white hover:bg-brand-secondary disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-lg shadow-brand-primary/25 hover:scale-105 active:scale-95"
+                                    className="p-3.5 rounded-full bg-brand-primary text-white hover:bg-brand-secondary disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-lg shadow-brand-primary/25 hover:scale-105 active:scale-95 mb-0.5"
                                 >
-                                    <Icon name="send" className="w-4 h-4 md:w-5 md:h-5 ml-0.5" />
+                                    <Icon name="send" className="w-5 h-5 ml-0.5" />
                                 </button>
                             </div>
                         </div>
