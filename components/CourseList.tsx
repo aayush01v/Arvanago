@@ -2,6 +2,7 @@ import React, { memo, useCallback, useDeferredValue, useEffect, useMemo, useStat
 import { Course } from '../types.ts';
 import Icon from './common/Icon.tsx';
 import SkeletonCard from './common/SkeletonCard.tsx';
+import { motion, AnimatePresence } from 'framer-motion';
 
 interface CourseListProps {
   courses: Course[];
@@ -25,6 +26,7 @@ interface CourseCardProps {
   isWishlisted?: boolean;
   isEnrolled?: boolean;
   isEnrolling?: boolean;
+  index: number;
 }
 
 const CourseCardComponent: React.FC<CourseCardProps> = ({
@@ -35,6 +37,7 @@ const CourseCardComponent: React.FC<CourseCardProps> = ({
   isWishlisted = false,
   isEnrolled = false,
   isEnrolling = false,
+  index
 }) => {
   const coverImage = course.thumbnailUrl ?? course.thumbnail;
   const isPaid = course.isPaid || (typeof course.price === 'number' && course.price > 0);
@@ -69,7 +72,13 @@ const CourseCardComponent: React.FC<CourseCardProps> = ({
   })();
 
   return (
-    <div className="interactive-card flex flex-col rounded-3xl bg-white/60 dark:bg-slate-900/60 backdrop-blur-xl border border-white/40 dark:border-white/10 shadow-lg overflow-hidden cursor-pointer group hover:shadow-2xl hover:border-brand-primary/30 transition-all duration-300">
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: index * 0.05 }}
+      whileHover={{ y: -8 }}
+      className="interactive-card flex flex-col rounded-3xl bg-white/60 dark:bg-slate-900/60 backdrop-blur-xl border border-white/40 dark:border-white/10 shadow-lg overflow-hidden cursor-pointer group hover:shadow-2xl hover:border-brand-primary/30 transition-all duration-300"
+    >
       <div className="relative h-56 overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent z-10 opacity-70 group-hover:opacity-50 transition-opacity" />
         <img
@@ -80,13 +89,14 @@ const CourseCardComponent: React.FC<CourseCardProps> = ({
         />
 
         <div className="absolute top-4 left-4 z-20">
-          <span className="inline-block px-3 py-1 rounded-full bg-black/60 backdrop-blur-md border border-white/10 text-xs font-semibold text-white">
+          <span className="inline-block px-3 py-1 rounded-full bg-black/60 backdrop-blur-md border border-white/10 text-xs font-semibold text-white shadow-lg">
             {isEnrolled ? 'Enrolled' : priceLabel}
           </span>
         </div>
 
         {!isEnrolled && (
-          <button
+          <motion.button
+            whileTap={{ scale: 0.9 }}
             onClick={handleWishlistClick}
             aria-label={wishlisted ? 'Remove from wishlist' : 'Add to wishlist'}
             className="absolute top-4 right-4 z-20 p-2 rounded-full bg-black/40 backdrop-blur-md border border-white/10 hover:bg-black/60 transition-colors group/btn"
@@ -95,19 +105,18 @@ const CourseCardComponent: React.FC<CourseCardProps> = ({
               name={wishlisted ? 'heart-filled' : 'heart'}
               className={`w-5 h-5 transition-colors ${wishlisted ? 'text-red-500' : 'text-white group-hover/btn:text-red-400'}`}
             />
-          </button>
+          </motion.button>
         )}
 
         <div className="absolute bottom-4 left-4 right-4 z-20 flex justify-between items-end">
           <div className="flex -space-x-2">
-            {/* Placeholder avatars based on random logic or real data if available */}
             {[1, 2, 3].map((_, i) => (
-              <div key={i} className={`w-8 h-8 rounded-full border-2 border-slate-800 bg-slate-700 flex items-center justify-center text-[10px] text-white overflow-hidden`}>
+              <div key={i} className={`w-8 h-8 rounded-full border-2 border-slate-800 bg-slate-700 flex items-center justify-center text-[10px] text-white overflow-hidden shadow-lg`}>
                 <img src={`https://i.pravatar.cc/100?img=${(course.id.charCodeAt(0) + i) % 70}`} alt="User" className="w-full h-full object-cover" />
               </div>
             ))}
           </div>
-          <div className="flex items-center gap-1 bg-black/50 backdrop-blur-md px-2 py-1 rounded-lg border border-white/10">
+          <div className="flex items-center gap-1 bg-black/50 backdrop-blur-md px-2 py-1 rounded-lg border border-white/10 shadow-lg">
             <Icon name="star" className="w-3 h-3 text-yellow-400 fill-current" />
             <span className="text-xs font-bold text-white">{course.rating || '4.8'}</span>
           </div>
@@ -144,12 +153,13 @@ const CourseCardComponent: React.FC<CourseCardProps> = ({
           </div>
 
           {isEnrolled ? (
-            <button
+            <motion.button
+              whileTap={{ scale: 0.98 }}
               onClick={() => onEnrollCourse(course)}
               className="w-full py-2.5 rounded-xl bg-gradient-to-r from-brand-primary via-brand-secondary to-brand-primary text-white font-bold shadow-lg shadow-brand-primary/25 hover:shadow-brand-primary/40 transition-all active:scale-95 flex items-center justify-center gap-2"
             >
               <Icon name="play" className="w-4 h-4" /> Continue Learning
-            </button>
+            </motion.button>
           ) : (
             <div className="grid grid-cols-2 gap-3">
               <button
@@ -158,7 +168,8 @@ const CourseCardComponent: React.FC<CourseCardProps> = ({
               >
                 Preview
               </button>
-              <button
+              <motion.button
+                whileTap={{ scale: 0.98 }}
                 onClick={() => onEnrollCourse(course)}
                 disabled={isEnrolling}
                 className={`py-2.5 rounded-xl font-bold transition-all flex items-center justify-center gap-2
@@ -174,12 +185,12 @@ const CourseCardComponent: React.FC<CourseCardProps> = ({
                 ) : (
                   <>{isPaid ? 'Enroll' : 'Start Free'}</>
                 )}
-              </button>
+              </motion.button>
             </div>
           )}
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 };
 
@@ -200,6 +211,9 @@ const CourseList: React.FC<CourseListProps> = ({
 }) => {
   const [selectedCategory, setSelectedCategory] = useState(initialCategory);
 
+  // Use local state for more granular filtering if needed later
+  const [searchTerm, setSearchTerm] = useState('');
+
   useEffect(() => {
     setSelectedCategory(initialCategory);
   }, [initialCategory]);
@@ -214,12 +228,19 @@ const CourseList: React.FC<CourseListProps> = ({
   }, [publishedCourses]);
 
   const filteredCourses = useMemo(() => {
-    if (deferredCategory === 'All') {
-      return publishedCourses;
+    let result = publishedCourses;
+
+    if (deferredCategory !== 'All') {
+      result = result.filter((course) => course.category === deferredCategory);
     }
 
-    return publishedCourses.filter((course) => course.category === deferredCategory);
-  }, [deferredCategory, publishedCourses]);
+    if (searchTerm) {
+      const lowerTerm = searchTerm.toLowerCase();
+      result = result.filter(c => c.title.toLowerCase().includes(lowerTerm) || c.description.toLowerCase().includes(lowerTerm));
+    }
+
+    return result;
+  }, [deferredCategory, publishedCourses, searchTerm]);
 
   const handleSelectCategory = useCallback((category: string) => {
     setSelectedCategory(category);
@@ -244,13 +265,49 @@ const CourseList: React.FC<CourseListProps> = ({
       <div className="relative overflow-hidden rounded-[32px] glass-ambient dark:bg-slate-900/60 p-8 md:p-12 shadow-2xl">
         <div className="absolute top-0 right-0 w-96 h-96 bg-brand-primary/20 rounded-full blur-[120px] pointer-events-none -translate-y-1/2 translate-x-1/2" />
 
-        <div className="relative z-10 max-w-2xl">
-          <h2 className="text-4xl md:text-5xl font-black text-slate-900 dark:text-white mb-4 tracking-tight">Explore Courses</h2>
-          <p className="text-lg text-slate-600 dark:text-slate-300 leading-relaxed mb-8">
+        <div className="relative z-10 max-w-3xl">
+          <motion.h2
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="text-4xl md:text-5xl font-black text-slate-900 dark:text-white mb-4 tracking-tight"
+          >
+            Explore Courses
+          </motion.h2>
+          <motion.p
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 }}
+            className="text-lg text-slate-600 dark:text-slate-300 leading-relaxed mb-8"
+          >
             Discover immersive lessons curated for modern creators. From coding to design, find your next breakthrough.
-          </p>
+          </motion.p>
 
-          <div className="flex flex-wrap gap-3">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+            className="flex flex-col md:flex-row gap-4 mb-8"
+          >
+            <div className="relative flex-grow max-w-md">
+              <div className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">
+                <Icon name="search" className="w-5 h-5" />
+              </div>
+              <input
+                type="text"
+                placeholder="Search for courses..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full pl-12 pr-4 py-3 rounded-xl bg-white/50 dark:bg-black/20 border border-slate-200 dark:border-white/10 focus:ring-2 focus:ring-brand-primary/50 focus:border-brand-primary outline-none transition-all"
+              />
+            </div>
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.3 }}
+            className="flex flex-wrap gap-3"
+          >
             {categories.map((category) => (
               <button
                 key={category}
@@ -266,7 +323,7 @@ const CourseList: React.FC<CourseListProps> = ({
                 {category}
               </button>
             ))}
-          </div>
+          </motion.div>
         </div>
       </div>
 
@@ -281,30 +338,44 @@ const CourseList: React.FC<CourseListProps> = ({
             <p className="mt-2 text-slate-600 dark:text-slate-300">{errorMessage}</p>
           </div>
         ) : filteredCourses.length > 0 ? (
-          filteredCourses.map((course) => (
-            <CourseCard
-              key={course.id}
-              course={course}
-              onEnrollCourse={handleEnrollCourse}
-              onPreviewCourse={handlePreview}
-              onToggleWishlist={onToggleWishlist}
-              isWishlisted={wishlistCourseIds?.includes(course.id)}
-              isEnrolled={
-                enrolledCourseIds?.includes(course.id) || ongoingCourseIds?.includes(course.id)
-              }
-              isEnrolling={enrollingCourseId === course.id}
-            />
-          ))
+          <AnimatePresence>
+            {filteredCourses.map((course, idx) => (
+              <CourseCard
+                key={course.id}
+                course={course}
+                index={idx}
+                onEnrollCourse={handleEnrollCourse}
+                onPreviewCourse={handlePreview}
+                onToggleWishlist={onToggleWishlist}
+                isWishlisted={wishlistCourseIds?.includes(course.id)}
+                isEnrolled={
+                  enrolledCourseIds?.includes(course.id) || ongoingCourseIds?.includes(course.id)
+                }
+                isEnrolling={enrollingCourseId === course.id}
+              />
+            ))}
+          </AnimatePresence>
         ) : (
-          <div className="col-span-full flex flex-col items-center justify-center rounded-3xl border border-dashed border-slate-300 dark:border-slate-700 bg-white/20 dark:bg-slate-800/20 p-20 text-center backdrop-blur-sm">
-            <div className="w-20 h-20 bg-slate-100 dark:bg-slate-800 rounded-full flex items-center justify-center mb-6">
-              <Icon name="search" className="w-10 h-10 text-slate-400" />
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="col-span-full flex flex-col items-center justify-center rounded-3xl border border-dashed border-slate-300 dark:border-slate-700 bg-white/20 dark:bg-slate-800/20 p-20 text-center backdrop-blur-sm"
+          >
+            <div className="w-24 h-24 bg-slate-100 dark:bg-slate-800 rounded-full flex items-center justify-center mb-6 shadow-inner">
+              <Icon name="search" className="w-12 h-12 text-slate-400" />
             </div>
             <h3 className="text-2xl font-bold text-slate-900 dark:text-white">No courses found</h3>
             <p className="mt-2 max-w-md text-slate-500 dark:text-slate-400">
-              We couldn&apos;t find any courses for "{selectedCategory}". Try selecting "All" to see everything we offer.
+              We couldn&apos;t find any courses for "{selectedCategory}"{searchTerm && ` matching "${searchTerm}"`}.
+              <br />Try adjusting your filters or search term.
             </p>
-          </div>
+            <button
+              onClick={() => { setSelectedCategory('All'); setSearchTerm(''); }}
+              className="mt-6 px-6 py-2 rounded-xl bg-brand-primary text-white font-bold hover:bg-brand-secondary transition-colors"
+            >
+              Clear Filters
+            </button>
+          </motion.div>
         )}
       </div>
     </div>

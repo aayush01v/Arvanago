@@ -186,15 +186,18 @@ const ChatWidget: React.FC<ChatWidgetProps> = ({
     };
 
     const startVideoCall = async () => {
-        if (!selectedChatId || !currentUser) return;
+        if (!selectedChatId || !currentUser || !activeChatUser?.uid) return;
         try {
-            const callId = await webrtcService.createRoom(currentUser.uid);
-            await chatService.sendMessage(selectedChatId, currentUser.uid, "Started a video call", undefined, callId);
+            const callId = await webrtcService.createRoom(currentUser.uid, activeChatUser.uid, 'video');
+            await chatService.sendMessage(selectedChatId, currentUser.uid, "Started a video call", undefined, callId, 'video');
             setCurrentCallId(callId);
             setIsCaller(true);
             setIsCallModalOpen(true);
-        } catch (e) {
+        } catch (e: any) {
             console.error("Failed to start call", e);
+            // Show user-friendly error message
+            const errorMsg = e.message || 'Failed to start video call. Please check your camera and microphone permissions.';
+            alert(errorMsg);
         }
     };
 

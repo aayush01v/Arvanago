@@ -19,6 +19,7 @@ const CallModal: React.FC<CallModalProps> = ({ isOpen, onClose, callId, isCaller
     const [isMuted, setIsMuted] = useState(false);
     const [isVideoOff, setIsVideoOff] = useState(false);
     const [isSpeakerOn, setIsSpeakerOn] = useState(true);
+    const [connectionStatus, setConnectionStatus] = useState<'connecting' | 'connected' | 'reconnecting' | 'failed'>('connecting');
 
     useEffect(() => {
         if (isOpen && callId) {
@@ -29,46 +30,63 @@ const CallModal: React.FC<CallModalProps> = ({ isOpen, onClose, callId, isCaller
     }, [isOpen, callId]);
 
     const startCall = async () => {
-        // Handle Caller vs Callee logic
-        // caller: createRoom already called (media ready).
-        // callee: need to joinRoom (which inits media).
-
-        if (isCaller) {
-            // For caller, stream should be ready in service
-            if (!webrtcService.localStream) {
-                // Fallback if not ready (shouldn't happen if flow is correct)
-                await webrtcService.openUserMedia(callType);
-            }
-        } else {
-            // For callee, we MUST join the room. joinRoom handles openUserMedia internaly
-            if (callId) await webrtcService.joinRoom(callId);
-        }
-
-        // Attach Streams to Video Elements
-        if (webrtcService.localStream && localVideoRef.current) {
-            localVideoRef.current.srcObject = webrtcService.localStream;
-        }
-
-        if (webrtcService.remoteStream && remoteVideoRef.current) {
-            remoteVideoRef.current.srcObject = webrtcService.remoteStream;
-        }
-
-        // Setup listener for remote track events (in case they arrive later)
-        if (webrtcService.pc) {
-            webrtcService.pc.ontrack = (event) => {
-                event.streams[0].getTracks().forEach((track) => {
-                    // Start 'drift' fix: ensure we are adding to the existing remoteStream object if possible
-                    if (webrtcService.remoteStream) {
-                        webrtcService.remoteStream.addTrack(track);
-                    }
-                });
-
-                // Force update remote video ref
-                if (remoteVideoRef.current && webrtcService.remoteStream) {
-                    // Sometimes re-assigning srcObject helps trigger play
-                    remoteVideoRef.current.srcObject = webrtcService.remoteStream;
+        try {
+            // Handle Caller vs Callee logic
+            if (isCaller) {
+                // For caller, stream should be ready in service
+                if (!webrtcService.localStream) {
+                    // Fallback if not ready
+                    await webrtcService.openUserMedia(callType);
                 }
-            };
+            } else {
+                // For callee, we MUST join the room. joinRoom handles openUserMedia internally
+                if (callId) await webrtcService.joinRoom(callId);
+            }
+
+            // Attach Streams to Video Elements with defensive checks
+            if (webrtcService.localStream && localVideoRef.current) {
+                localVideoRef.current.srcObject = webrtcService.localStream;
+            }
+
+            if (webrtcService.remoteStream && remoteVideoRef.current) {
+                remoteVideoRef.current.srcObject = webrtcService.remoteStream;
+            }
+
+            // Setup listener for remote track events (in case they arrive later)
+            if (webrtcService.pc) {
+                // Monitor connection state
+                webrtcService.pc.oniceconnectionstatechange = () => {
+                    const state = webrtcService.pc?.iceConnectionState;
+                    console.log('ICE Connection State:', state);
+
+                    if (state === 'connected' || state === 'completed') {
+                        setConnectionStatus('connected');
+                    } else if (state === 'checking' || state === 'new') {
+                        setConnectionStatus('connecting');
+                    } else if (state === 'disconnected') {
+                        setConnectionStatus('reconnecting');
+                    } else if (state === 'failed' || state === 'closed') {
+                        setConnectionStatus('failed');
+                    }
+                };
+
+                webrtcService.pc.ontrack = (event) => {
+                    event.streams[0].getTracks().forEach((track) => {
+                        // Ensure remoteStream exists
+                        if (webrtcService.remoteStream) {
+                            webrtcService.remoteStream.addTrack(track);
+                        }
+                    });
+
+                    // Force update remote video ref
+                    if (remoteVideoRef.current && webrtcService.remoteStream) {
+                        remoteVideoRef.current.srcObject = webrtcService.remoteStream;
+                    }
+                };
+            }
+        } catch (error) {
+            console.error('Error starting call:', error);
+            setConnectionStatus('failed');
         }
     };
 
@@ -136,7 +154,17 @@ const CallModal: React.FC<CallModalProps> = ({ isOpen, onClose, callId, isCaller
                     />
                     <div className="absolute top-4 left-4 text-white text-shadow">
                         <h3 className="font-bold text-lg">{otherUser?.name || 'Unknown User'}</h3>
-                        <p className="text-sm opacity-80">{isCaller ? 'Calling...' : 'Connected'}</p>
+                        <div className="flex items-center gap-2">
+                            <p className="text-sm opacity-80">
+                                {connectionStatus === 'connecting' && 'Connecting...'}
+                                {connectionStatus === 'connected' && 'Connected'}
+                                {connectionStatus === 'reconnecting' && 'Reconnecting...'}
+                                {connectionStatus === 'failed' && 'Connection Failed'}
+                            </p>
+                            {connectionStatus === 'connected' && (
+                                <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                            )}
+                        </div>
                     </div>
                 </div>
 
