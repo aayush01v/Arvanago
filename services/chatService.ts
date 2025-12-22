@@ -8,6 +8,9 @@ export interface ChatMessage {
   text: string;
   imageUrl?: string;
   timestamp: Timestamp;
+  callId?: string;
+  callStatus?: 'started' | 'ended';
+  callType?: 'video' | 'audio';
 }
 
 export interface Chat {
@@ -57,7 +60,7 @@ export const chatService = {
   },
 
   // Send Message
-  async sendMessage(chatId: string, senderId: string, text: string, imageUrl?: string): Promise<void> {
+  async sendMessage(chatId: string, senderId: string, text: string, imageUrl?: string, callId?: string, callType?: 'video' | 'audio'): Promise<void> {
     const chatRef = db.collection('chats').doc(chatId);
     const messagesRef = chatRef.collection('messages');
 
@@ -67,6 +70,9 @@ export const chatService = {
       senderId,
       text,
       imageUrl: imageUrl || null,
+      callId: callId || null,
+      callStatus: callId ? 'started' : null,
+      callType: callType || null,
       timestamp,
     });
 

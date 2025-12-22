@@ -5,6 +5,8 @@ import { uploadToImgBB } from '../services/imgbbService';
 import { User } from '../types';
 import Icon from './common/Icon';
 import { Link, useNavigate } from 'react-router-dom';
+import CallModal from './CallModal';
+import { webrtcService } from '../services/webrtcService';
 
 interface ChatWidgetProps {
     isOpen: boolean;
@@ -31,6 +33,11 @@ const ChatWidget: React.FC<ChatWidgetProps> = ({
     const [searchTerm, setSearchTerm] = useState('');
     const [searchResults, setSearchResults] = useState<User[]>([]);
     const [creatingChat, setCreatingChat] = useState(false);
+
+    // Call State
+    const [isCallModalOpen, setIsCallModalOpen] = useState(false);
+    const [currentCallId, setCurrentCallId] = useState<string | null>(null);
+    const [isCaller, setIsCaller] = useState(false);
 
     // Window State
     const [position, setPosition] = useState({ x: 0, y: 0 });
@@ -178,6 +185,25 @@ const ChatWidget: React.FC<ChatWidgetProps> = ({
         }
     };
 
+    const startVideoCall = async () => {
+        if (!selectedChatId || !currentUser) return;
+        try {
+            const callId = await webrtcService.createRoom(currentUser.uid);
+            await chatService.sendMessage(selectedChatId, currentUser.uid, "Started a video call", undefined, callId);
+            setCurrentCallId(callId);
+            setIsCaller(true);
+            setIsCallModalOpen(true);
+        } catch (e) {
+            console.error("Failed to start call", e);
+        }
+    };
+
+    const joinVideoCall = (callId: string) => {
+        setCurrentCallId(callId);
+        setIsCaller(false);
+        setIsCallModalOpen(true);
+    };
+
     const ChatListItem: React.FC<{ chat: Chat }> = ({ chat }) => {
         const [otherUser, setOtherUser] = useState<Partial<User> | null>(null);
         useEffect(() => {
@@ -230,186 +256,208 @@ const ChatWidget: React.FC<ChatWidgetProps> = ({
     };
 
     const content = (
-        <div
-            className={`fixed z-[9999] bg-white dark:bg-slate-900 shadow-2xl overflow-hidden flex flex-col border border-slate-200 dark:border-slate-800
-                ${isMobile
-                    ? 'inset-0 w-full h-full rounded-none' // Mobile: Full Screen
-                    : 'rounded-2xl transition-all duration-200' // Desktop
-                }
-            `}
-            style={isMobile ? {} : desktopStyle}
-        >
-            {/* Header */}
+        <>
             <div
-                onMouseDown={handleMouseDown}
-                className={`flex-shrink-0 p-3 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between 
-                       bg-white/95 dark:bg-slate-900/95 backdrop-blur-md z-10 select-none
-                       ${isMobile ? '' : 'cursor-move'}
+                className={`fixed z-[9999] bg-white dark:bg-slate-900 shadow-2xl overflow-hidden flex flex-col border border-slate-200 dark:border-slate-800
+                    ${isMobile
+                        ? 'inset-0 w-full h-full rounded-none' // Mobile: Full Screen
+                        : 'rounded-2xl transition-all duration-200' // Desktop
+                    }
                 `}
+                style={isMobile ? {} : desktopStyle}
             >
-                <div className="flex items-center gap-3">
-                    {/* Window Controls (Desktop Only) */}
-                    {!isMobile && (
-                        <div className="flex items-center gap-1.5 mr-2">
-                            <button
-                                onClick={(e) => {
-                                    e.stopPropagation();
-                                    setIsMinimized(!isMinimized);
-                                }}
-                                className="w-3.5 h-3.5 rounded-full bg-yellow-500 hover:scale-110 transition-transform shadow-sm flex items-center justify-center group"
-                                title={isMinimized ? "Expand" : "Minimize"}
-                            />
-                            <button
-                                onClick={(e) => {
-                                    e.stopPropagation();
-                                    onClose();
-                                    navigate('/chat');
-                                }}
-                                className="w-3.5 h-3.5 rounded-full bg-green-500 hover:scale-110 transition-transform shadow-sm"
-                                title="Full Screen Page"
-                            />
-                            <button
-                                onClick={(e) => { e.stopPropagation(); onClose(); }}
-                                className="w-3.5 h-3.5 rounded-full bg-red-500 hover:scale-110 transition-transform shadow-sm"
-                                title="Close"
-                            />
-                        </div>
-                    )}
-
-                    {selectedChatId && (!isMinimized || isMobile) ? (
-                        <div className="flex items-center gap-2">
-                            <button
-                                onClick={(e) => { e.stopPropagation(); setSelectedChatId(null); }}
-                                className="p-1.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-full transition-colors z-20"
-                            >
-                                <Icon name="arrowLeft" className="w-5 h-5 text-slate-900 dark:text-white" />
-                            </button>
-                            <div className="flex items-center gap-2">
-                                <img src={activeChatUser?.avatar || 'https://i.pravatar.cc/150'} className="w-8 h-8 rounded-full border border-slate-200 dark:border-slate-700" />
-                                <div className="flex flex-col">
-                                    <h3 className="font-bold text-sm leading-none text-slate-900 dark:text-gray-100">{activeChatUser?.name}</h3>
-                                    <span className="text-[10px] text-green-500">@{activeChatUser?.username}</span>
-                                </div>
+                {/* Header */}
+                <div
+                    onMouseDown={handleMouseDown}
+                    className={`flex-shrink-0 p-3 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between 
+                        bg-white/95 dark:bg-slate-900/95 backdrop-blur-md z-10 select-none
+                        ${isMobile ? '' : 'cursor-move'}
+                    `}
+                >
+                    <div className="flex items-center gap-3">
+                        {/* Window Controls (Desktop Only) */}
+                        {!isMobile && (
+                            <div className="flex items-center gap-1.5 mr-2">
+                                <button
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        setIsMinimized(!isMinimized);
+                                    }}
+                                    className="w-3.5 h-3.5 rounded-full bg-yellow-500 hover:scale-110 transition-transform shadow-sm flex items-center justify-center group"
+                                    title={isMinimized ? "Expand" : "Minimize"}
+                                />
+                                <button
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        onClose();
+                                        navigate('/chat');
+                                    }}
+                                    className="w-3.5 h-3.5 rounded-full bg-green-500 hover:scale-110 transition-transform shadow-sm"
+                                    title="Full Screen Page"
+                                />
+                                <button
+                                    onClick={(e) => { e.stopPropagation(); onClose(); }}
+                                    className="w-3.5 h-3.5 rounded-full bg-red-500 hover:scale-110 transition-transform shadow-sm"
+                                    title="Close"
+                                />
                             </div>
-                        </div>
-                    ) : (
-                        <h3 className="font-bold text-lg ml-1 text-slate-800 dark:text-white">Messages</h3>
+                        )}
+
+                        {selectedChatId && (!isMinimized || isMobile) ? (
+                            <div className="flex items-center gap-2">
+                                <button
+                                    onClick={(e) => { e.stopPropagation(); setSelectedChatId(null); }}
+                                    className="p-1.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-full transition-colors z-20"
+                                >
+                                    <Icon name="arrowLeft" className="w-5 h-5 text-slate-900 dark:text-white" />
+                                </button>
+                                <div className="flex items-center gap-2">
+                                    <img src={activeChatUser?.avatar || 'https://i.pravatar.cc/150'} className="w-8 h-8 rounded-full border border-slate-200 dark:border-slate-700" />
+                                    <div className="flex flex-col">
+                                        <h3 className="font-bold text-sm leading-none text-slate-900 dark:text-gray-100">{activeChatUser?.name}</h3>
+                                        <span className="text-[10px] text-green-500">@{activeChatUser?.username}</span>
+                                    </div>
+                                </div>
+                                <button onClick={startVideoCall} className="p-2 ml-1 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full transition-colors text-slate-500 dark:text-slate-400" title="Start Video Call">
+                                    <Icon name="video" className="w-5 h-5" />
+                                </button>
+                            </div>
+                        ) : (
+                            <h3 className="font-bold text-lg ml-1 text-slate-800 dark:text-white">Messages</h3>
+                        )}
+                    </div>
+
+                    {isMobile && (
+                        <button onClick={onClose} className="p-2 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800">
+                            <Icon name="x" className="w-6 h-6 text-slate-500" />
+                        </button>
                     )}
                 </div>
 
-                {isMobile && (
-                    <button onClick={onClose} className="p-2 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800">
-                        <Icon name="x" className="w-6 h-6 text-slate-500" />
-                    </button>
-                )}
-            </div>
-
-            {/* Content (Hidden if minimized on Desktop) */}
-            <div className={`flex-1 overflow-hidden relative flex flex-col bg-white dark:bg-slate-900 ${(!isMobile && isMinimized) ? 'hidden' : ''}`}>
-                {/* List View */}
-                {!selectedChatId && (
-                    <div className="absolute inset-0 overflow-y-auto p-2 scrollbar-thin">
-                        <div className="p-2 sticky top-0 bg-white dark:bg-slate-900 z-10 pb-4">
-                            <div className="relative">
-                                <Icon name="search" className="absolute left-3 top-3 w-4 h-4 text-slate-400" />
-                                <input
-                                    type="text"
-                                    placeholder="Search..."
-                                    value={searchTerm}
-                                    onChange={(e) => setSearchTerm(e.target.value)}
-                                    className="w-full pl-9 pr-4 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 border-none text-sm focus:ring-2 focus:ring-brand-primary/50 text-slate-900 dark:text-white"
-                                />
-                            </div>
-                            {searchResults.length > 0 && (
-                                <div className="absolute top-12 left-0 right-0 bg-white dark:bg-slate-900 shadow-xl rounded-xl border border-slate-200 dark:border-slate-800 z-20 max-h-60 overflow-y-auto">
-                                    {searchResults.map(u => (
-                                        <div key={u.uid} onClick={() => !creatingChat && handleUserSelect(u)} className="p-3 hover:bg-slate-50 dark:hover:bg-slate-800 cursor-pointer flex items-center gap-3">
-                                            <img src={u.avatar || 'https://i.pravatar.cc/150'} className="w-8 h-8 rounded-full" />
-                                            <p className="text-sm font-bold flex-1 text-slate-900 dark:text-white">{u.name}</p>
-                                            {creatingChat && <Icon name="spinner" className="w-4 h-4 animate-spin" />}
-                                        </div>
-                                    ))}
-                                </div>
-                            )}
-                        </div>
-
-                        <div className="space-y-1">
-                            {isLoadingChats ? (
-                                <div className="text-center p-4 text-slate-400 text-xs">Loading...</div>
-                            ) : chats.length === 0 ? (
-                                <div className="text-center p-8 text-slate-400">
-                                    <p className="text-sm">No chats yet.</p>
-                                </div>
-                            ) : (
-                                chats.map(chat => <ChatListItem key={chat.id} chat={chat} />)
-                            )}
-                        </div>
-                    </div>
-                )}
-
-                {/* Chat View */}
-                {selectedChatId && (
-                    <div className="absolute inset-0 flex flex-col bg-slate-50 dark:bg-slate-900/50">
-                        <div className="flex-1 overflow-y-auto p-4 space-y-3 scrollbar-thin flex flex-col">
-                            <div className="flex-1" />
-                            {messages.map(msg => {
-                                const isMe = msg.senderId === currentUser.uid;
-                                return (
-                                    <div key={msg.id} className={`flex ${isMe ? 'justify-end' : 'justify-start'}`}>
-                                        <div className={`max-w-[80%] px-4 py-2 rounded-2xl text-sm ${isMe ? 'bg-brand-primary text-white rounded-br-none' : 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 rounded-bl-none shadow-sm'}`}>
-                                            {msg.imageUrl && (
-                                                <img src={msg.imageUrl} alt="Attachment" className="mb-2 rounded-lg max-h-48 object-cover" />
-                                            )}
-                                            {msg.text && <p>{msg.text}</p>}
-                                        </div>
-                                    </div>
-                                )
-                            })}
-                            <div ref={messagesEndRef} />
-                        </div>
-
-                        <div className="p-3 bg-white dark:bg-slate-900 border-t border-slate-100 dark:border-slate-800">
-                            <div className="flex items-center gap-2">
-                                <label className="cursor-pointer p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full transition-colors text-slate-500">
-                                    <Icon name="image" className={`w-5 h-5 ${isUploading ? 'animate-pulse opacity-50' : ''}`} />
-                                    <input type="file" accept="image/*" className="hidden" onChange={handleImageUpload} disabled={isUploading} />
-                                </label>
-                                <div className="flex-1 relative">
+                {/* Content (Hidden if minimized on Desktop) */}
+                <div className={`flex-1 overflow-hidden relative flex flex-col bg-white dark:bg-slate-900 ${(!isMobile && isMinimized) ? 'hidden' : ''}`}>
+                    {/* List View */}
+                    {!selectedChatId && (
+                        <div className="absolute inset-0 overflow-y-auto p-2 scrollbar-thin">
+                            <div className="p-2 sticky top-0 bg-white dark:bg-slate-900 z-10 pb-4">
+                                <div className="relative">
+                                    <Icon name="search" className="absolute left-3 top-3 w-4 h-4 text-slate-400" />
                                     <input
                                         type="text"
-                                        value={input}
-                                        onChange={(e) => setInput(e.target.value)}
-                                        onKeyDown={(e) => e.key === 'Enter' && handleSend()}
-                                        placeholder="Type a message..."
-                                        className="w-full px-4 py-2 rounded-full bg-slate-100 dark:bg-slate-800 border-none focus:ring-2 focus:ring-brand-primary/50 text-sm text-slate-900 dark:text-white"
+                                        placeholder="Search..."
+                                        value={searchTerm}
+                                        onChange={(e) => setSearchTerm(e.target.value)}
+                                        className="w-full pl-9 pr-4 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 border-none text-sm focus:ring-2 focus:ring-brand-primary/50 text-slate-900 dark:text-white"
                                     />
-                                    {chatImageUrl && (
-                                        <div className="absolute bottom-full left-0 mb-2 p-1 bg-white dark:bg-slate-800 rounded-lg shadow-lg border border-slate-200 dark:border-slate-700">
-                                            <div className="relative">
-                                                <img src={chatImageUrl} className="h-16 w-16 object-cover rounded-md" />
-                                                <button
-                                                    onClick={() => setChatImageUrl('')}
-                                                    className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-4 h-4 flex items-center justify-center text-[10px]"
-                                                >
-                                                    ×
-                                                </button>
-                                            </div>
-                                        </div>
-                                    )}
                                 </div>
-                                <button
-                                    onClick={handleSend}
-                                    disabled={(!input.trim() && !chatImageUrl) || isUploading}
-                                    className="p-2 rounded-full bg-brand-primary text-white disabled:opacity-50"
-                                >
-                                    <Icon name="send" className="w-4 h-4" />
-                                </button>
+                                {searchResults.length > 0 && (
+                                    <div className="absolute top-12 left-0 right-0 bg-white dark:bg-slate-900 shadow-xl rounded-xl border border-slate-200 dark:border-slate-800 z-20 max-h-60 overflow-y-auto">
+                                        {searchResults.map(u => (
+                                            <div key={u.uid} onClick={() => !creatingChat && handleUserSelect(u)} className="p-3 hover:bg-slate-50 dark:hover:bg-slate-800 cursor-pointer flex items-center gap-3">
+                                                <img src={u.avatar || 'https://i.pravatar.cc/150'} className="w-8 h-8 rounded-full" />
+                                                <p className="text-sm font-bold flex-1 text-slate-900 dark:text-white">{u.name}</p>
+                                                {creatingChat && <Icon name="spinner" className="w-4 h-4 animate-spin" />}
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
+
+                            <div className="space-y-1">
+                                {isLoadingChats ? (
+                                    <div className="text-center p-4 text-slate-400 text-xs">Loading...</div>
+                                ) : chats.length === 0 ? (
+                                    <div className="text-center p-8 text-slate-400">
+                                        <p className="text-sm">No chats yet.</p>
+                                    </div>
+                                ) : (
+                                    chats.map(chat => <ChatListItem key={chat.id} chat={chat} />)
+                                )}
                             </div>
                         </div>
-                    </div>
-                )}
+                    )}
+
+                    {/* Chat View */}
+                    {selectedChatId && (
+                        <div className="absolute inset-0 flex flex-col bg-slate-50 dark:bg-slate-900/50">
+                            <div className="flex-1 overflow-y-auto p-4 space-y-3 scrollbar-thin flex flex-col">
+                                <div className="flex-1" />
+                                {messages.map(msg => {
+                                    const isMe = msg.senderId === currentUser.uid;
+                                    return (
+                                        <div key={msg.id} className={`flex ${isMe ? 'justify-end' : 'justify-start'}`}>
+                                            <div className={`max-w-[80%] px-4 py-2 rounded-2xl text-sm ${isMe ? 'bg-brand-primary text-white rounded-br-none' : 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 rounded-bl-none shadow-sm'}`}>
+                                                {msg.imageUrl && (
+                                                    <img src={msg.imageUrl} alt="Attachment" className="mb-2 rounded-lg max-h-48 object-cover" />
+                                                )}
+                                                {msg.text && <p>{msg.text}</p>}
+                                                {msg.callId && (
+                                                    <button
+                                                        onClick={() => msg.callId && joinVideoCall(msg.callId)}
+                                                        className={`mt-2 flex items-center gap-2 px-4 py-2 rounded-full font-bold text-xs transition-colors ${isMe ? 'bg-white/20 hover:bg-white/30 text-white' : 'bg-brand-primary text-white hover:bg-brand-secondary'}`}
+                                                    >
+                                                        <Icon name="video" className="w-4 h-4" />
+                                                        {isMe ? 'Join Call Again' : 'Join Video Call'}
+                                                    </button>
+                                                )}
+                                            </div>
+                                        </div>
+                                    )
+                                })}
+                                <div ref={messagesEndRef} />
+                            </div>
+
+                            <div className="p-3 bg-white dark:bg-slate-900 border-t border-slate-100 dark:border-slate-800">
+                                <div className="flex items-center gap-2">
+                                    <label className="cursor-pointer p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full transition-colors text-slate-500">
+                                        <Icon name="image" className={`w-5 h-5 ${isUploading ? 'animate-pulse opacity-50' : ''}`} />
+                                        <input type="file" accept="image/*" className="hidden" onChange={handleImageUpload} disabled={isUploading} />
+                                    </label>
+                                    <div className="flex-1 relative">
+                                        <input
+                                            type="text"
+                                            value={input}
+                                            onChange={(e) => setInput(e.target.value)}
+                                            onKeyDown={(e) => e.key === 'Enter' && handleSend()}
+                                            placeholder="Type a message..."
+                                            className="w-full px-4 py-2 rounded-full bg-slate-100 dark:bg-slate-800 border-none focus:ring-2 focus:ring-brand-primary/50 text-sm text-slate-900 dark:text-white"
+                                        />
+                                        {chatImageUrl && (
+                                            <div className="absolute bottom-full left-0 mb-2 p-1 bg-white dark:bg-slate-800 rounded-lg shadow-lg border border-slate-200 dark:border-slate-700">
+                                                <div className="relative">
+                                                    <img src={chatImageUrl} className="h-16 w-16 object-cover rounded-md" />
+                                                    <button
+                                                        onClick={() => setChatImageUrl('')}
+                                                        className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-4 h-4 flex items-center justify-center text-[10px]"
+                                                    >
+                                                        ×
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        )}
+                                    </div>
+                                    <button
+                                        onClick={handleSend}
+                                        disabled={(!input.trim() && !chatImageUrl) || isUploading}
+                                        className="p-2 rounded-full bg-brand-primary text-white disabled:opacity-50"
+                                    >
+                                        <Icon name="send" className="w-4 h-4" />
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+                </div>
             </div>
-        </div>
+
+            <CallModal
+                isOpen={isCallModalOpen}
+                onClose={() => setIsCallModalOpen(false)}
+                callId={currentCallId}
+                isCaller={isCaller}
+                otherUser={activeChatUser}
+            />
+        </>
     );
 
     return ReactDOM.createPortal(content, document.body);

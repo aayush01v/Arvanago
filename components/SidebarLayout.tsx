@@ -3,6 +3,7 @@ import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 import Sidebar from './Sidebar.tsx';
 import Header from './Header.tsx';
 import { Course, User } from '@/types';
+import IncomingCallListener from '@/components/IncomingCallListener';
 
 export interface SidebarLayoutContext {
   user: User | null;
@@ -180,6 +181,7 @@ const SidebarLayout: React.FC<SidebarLayoutProps> = ({
         <div className="pointer-events-none fixed top-1/3 right-[-8rem] h-96 w-96 rounded-full opacity-60 dark:opacity-30 will-change-transform" style={{ background: 'radial-gradient(circle, rgba(168, 85, 247, 0.35) 0%, transparent 70%)', animation: 'driftGlow 22s ease-in-out infinite' }} />
         <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(43,131,198,0.12),_transparent_55%)] dark:bg-[radial-gradient(circle_at_top,_rgba(43,131,198,0.15),_transparent_60%)]" />
         <div className="relative z-10 flex min-h-screen">
+          <IncomingCallListener currentUser={user} />
           <Sidebar
             isSidebarOpen={isSidebarOpen}
             setSidebarOpen={setSidebarOpen}

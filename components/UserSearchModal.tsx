@@ -96,7 +96,7 @@ const UserSearchModal: React.FC<UserSearchModalProps> = ({ isOpen, onClose }) =>
                                 <div
                                     key={user.uid}
                                     onClick={() => {
-                                        navigate(`/profile/${user.uid}`);
+                                        navigate(`/u/${user.username}`);
                                         onClose();
                                     }}
                                     className="flex items-center gap-3 p-3 hover:bg-slate-50 dark:hover:bg-slate-700/50 rounded-xl cursor-pointer transition-colors"

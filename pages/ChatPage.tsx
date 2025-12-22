@@ -7,6 +7,8 @@ import { uploadToImgBB } from '../services/imgbbService';
 import { auth } from '../services/firebase';
 import { User } from '../types';
 import { useOutletContext, useLocation, useNavigate } from 'react-router-dom';
+import CallModal from '@/components/CallModal';
+import { webrtcService } from '../services/webrtcService';
 
 const ChatPage: React.FC = () => {
     // Context from SidebarLayout (User)
@@ -25,6 +27,13 @@ const ChatPage: React.FC = () => {
     const [chatImageUrl, setChatImageUrl] = useState('');
     const [isUploading, setIsUploading] = useState(false);
     const [creatingChat, setCreatingChat] = useState(false);
+
+    // Call State
+    const [isCallModalOpen, setIsCallModalOpen] = useState(false);
+    const [currentCallId, setCurrentCallId] = useState<string | null>(null);
+    const [currentCallType, setCurrentCallType] = useState<'video' | 'audio'>('video');
+    const [isCaller, setIsCaller] = useState(false);
+    const [showCallTypeSelection, setShowCallTypeSelection] = useState(false);
 
     // Subscribe to My Chats
     useEffect(() => {
@@ -143,6 +152,33 @@ const ChatPage: React.FC = () => {
         } catch (e) {
             console.error("Failed to send", e);
         }
+    };
+
+    const initiateCall = () => {
+        setShowCallTypeSelection(true);
+    };
+
+    const startCall = async (type: 'video' | 'audio') => {
+        setShowCallTypeSelection(false);
+        if (!selectedChatId || !currentUser || !activeChatUser?.uid) return;
+        try {
+            const callId = await webrtcService.createRoom(currentUser.uid, activeChatUser.uid, type);
+            const msgText = type === 'video' ? "Started a video call" : "Started an audio call";
+            await chatService.sendMessage(selectedChatId, currentUser.uid, msgText, undefined, callId, type);
+            setCurrentCallId(callId);
+            setCurrentCallType(type);
+            setIsCaller(true);
+            setIsCallModalOpen(true);
+        } catch (e) {
+            console.error("Failed to start call", e);
+        }
+    };
+
+    const joinVideoCall = (callId: string, type: 'video' | 'audio' = 'video') => {
+        setCurrentCallId(callId);
+        setCurrentCallType(type);
+        setIsCaller(false);
+        setIsCallModalOpen(true);
     };
 
     // Helper to get display info for a chat list item
@@ -301,6 +337,34 @@ const ChatPage: React.FC = () => {
                                         <span className="text-[10px] md:text-xs text-brand-primary font-medium">@{activeChatUser?.username || 'user'}</span>
                                     </div>
                                 </div>
+
+                                {/* Call Type Selection Modal/Popover */}
+                                {showCallTypeSelection && (
+                                    <div className="absolute top-16 right-4 bg-white dark:bg-slate-800 rounded-xl shadow-xl border border-slate-200 dark:border-slate-700 z-50 p-2 flex flex-col gap-1 min-w-[140px] animate-fade-in-up">
+                                        <button
+                                            onClick={() => startCall('audio')}
+                                            className="flex items-center gap-3 px-4 py-3 hover:bg-slate-50 dark:hover:bg-slate-700 rounded-lg text-sm font-medium transition-colors"
+                                        >
+                                            <Icon name="phone" className="w-4 h-4 text-green-500" />
+                                            Audio Call
+                                        </button>
+                                        <button
+                                            onClick={() => startCall('video')}
+                                            className="flex items-center gap-3 px-4 py-3 hover:bg-slate-50 dark:hover:bg-slate-700 rounded-lg text-sm font-medium transition-colors"
+                                        >
+                                            <Icon name="video" className="w-4 h-4 text-blue-500" />
+                                            Video Call
+                                        </button>
+                                    </div>
+                                )}
+                                {showCallTypeSelection && (
+                                    <div className="fixed inset-0 z-40" onClick={() => setShowCallTypeSelection(false)}></div>
+                                )}
+
+                                <button onClick={initiateCall} className="p-3 rounded-full hover:bg-white/50 dark:hover:bg-slate-700/50 transition-colors text-slate-500 dark:text-slate-400" title="Start Call">
+                                    <Icon name="phone" className="w-6 h-6 md:hidden" />
+                                    <Icon name="video" className="w-6 h-6 hidden md:block" />
+                                </button>
                             </div>
                         </div>
 
@@ -328,6 +392,15 @@ const ChatPage: React.FC = () => {
                                                         <img src={msg.imageUrl} alt="Attachment" className="mb-2 rounded-lg max-h-60 object-cover" />
                                                     )}
                                                     {msg.text && <p>{msg.text}</p>}
+                                                    {msg.callId && (
+                                                        <button
+                                                            onClick={() => msg.callId && joinVideoCall(msg.callId, msg.callType || 'video')}
+                                                            className={`mt-2 flex items-center gap-2 px-4 py-2 rounded-full font-bold text-xs transition-colors ${isMe ? 'bg-white/20 hover:bg-white/30 text-white' : 'bg-brand-primary text-white hover:bg-brand-secondary'}`}
+                                                        >
+                                                            <Icon name={msg.callType === 'audio' ? 'phone' : 'video'} className="w-4 h-4" />
+                                                            {isMe ? 'Join Call Again' : `Join ${msg.callType === 'audio' ? 'Audio' : 'Video'} Call`}
+                                                        </button>
+                                                    )}
                                                 </div>
                                                 <span className={`text-[10px] text-slate-400 font-medium absolute -bottom-5 ${isMe ? 'right-0' : 'left-0'} opacity-0 group-hover:opacity-100 transition-opacity`}>
                                                     {msg.timestamp?.seconds ? new Date(msg.timestamp.seconds * 1000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'Sending...'}
@@ -382,7 +455,16 @@ const ChatPage: React.FC = () => {
                     </>
                 )}
             </div>
-        </div>
+
+            <CallModal
+                isOpen={isCallModalOpen}
+                onClose={() => setIsCallModalOpen(false)}
+                callId={currentCallId}
+                isCaller={isCaller}
+                otherUser={activeChatUser}
+                callType={currentCallType}
+            />
+        </div >
     );
 };
 
