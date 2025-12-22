@@ -228,16 +228,18 @@ const Profile: React.FC<ProfileProps> = ({ user, onProfileUpdate, isDarkMode }) 
     <div className="max-w-7xl mx-auto p-4 sm:p-6 lg:p-8 animate-fade-in relative z-0 min-h-screen">
 
       {/* Cover Photo Area with Parallax feel */}
-      <div className="relative w-full aspect-[2.5/1] sm:aspect-[3/1] md:aspect-[4/1] max-h-80 rounded-[2rem] overflow-hidden shadow-2xl mb-24 md:mb-28 group">
-        <motion.img
-          initial={{ scale: 1.1 }}
-          animate={{ scale: 1 }}
-          transition={{ duration: 1 }}
-          src={user.coverPhoto || 'https://images.unsplash.com/photo-1579546929518-9e396f3cc809?auto=format&fit=crop&w=1200&q=80'}
-          className="w-full h-full object-cover"
-          alt="Cover"
-        />
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black/50"></div>
+      <div className="relative mb-24 md:mb-28 group">
+        <div className="w-full aspect-[2.5/1] sm:aspect-[3/1] md:aspect-[4/1] max-h-80 rounded-[2rem] overflow-hidden shadow-2xl">
+          <motion.img
+            initial={{ scale: 1.1 }}
+            animate={{ scale: 1 }}
+            transition={{ duration: 1 }}
+            src={user.coverPhoto || 'https://images.unsplash.com/photo-1579546929518-9e396f3cc809?auto=format&fit=crop&w=1200&q=80'}
+            className="w-full h-full object-cover"
+            alt="Cover"
+          />
+          <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black/50"></div>
+        </div>
 
         {/* Avatar - Positioned Absolute Overlapping */}
         <motion.div
