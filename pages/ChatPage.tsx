@@ -329,6 +329,13 @@ const ChatPage: React.FC = () => {
 
                             {/* Left: User Info */}
                             <div className="flex items-center gap-3 md:gap-4 overflow-hidden">
+                                <button
+                                    onClick={() => setSearchParams({})}
+                                    className="md:hidden p-2 -ml-2 text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full"
+                                >
+                                    <Icon name="arrowLeft" className="w-5 h-5" />
+                                </button>
+
                                 <div
                                     className="flex items-center gap-3 md:gap-4 cursor-pointer hover:opacity-80 transition-opacity min-w-0"
                                     onClick={() => activeChatUser?.username && navigate(`/u/${activeChatUser.username}`)}

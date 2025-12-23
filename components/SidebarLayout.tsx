@@ -213,7 +213,7 @@ const SidebarLayout: React.FC<SidebarLayoutProps> = ({
               unreadChatCount={unreadCount}
               onSearchClick={() => setIsSearchModalOpen(true)}
             />
-            <main className={`relative z-10 flex-1 ${location.pathname === '/chat' ? 'p-0 sm:p-4 h-[calc(100vh-4rem)] md:h-auto overflow-hidden' : 'px-2 pb-24 pt-4 sm:px-6 sm:pb-6 lg:px-10'}`}>
+            <main className={`relative ${location.pathname === '/chat' ? 'z-40 p-0 sm:p-4 h-[calc(100vh-4rem)] md:h-auto overflow-hidden' : 'z-10 px-2 pb-24 pt-4 sm:px-6 sm:pb-6 lg:px-10'}`}>
               {location.pathname === '/chat' ? (
                 <div className="h-full w-full max-w-7xl mx-auto">
                   <Outlet
