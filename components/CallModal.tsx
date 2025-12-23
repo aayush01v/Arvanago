@@ -156,7 +156,7 @@ const CallModal: React.FC<CallModalProps> = ({ isOpen, onClose, callId, isCaller
                         <h3 className="font-bold text-lg">{otherUser?.name || 'Unknown User'}</h3>
                         <div className="flex items-center gap-2">
                             <p className="text-sm opacity-80">
-                                {connectionStatus === 'connecting' && 'Connecting...'}
+                                {connectionStatus === 'connecting' && (isCaller ? 'Calling...' : 'Connecting...')}
                                 {connectionStatus === 'connected' && 'Connected'}
                                 {connectionStatus === 'reconnecting' && 'Reconnecting...'}
                                 {connectionStatus === 'failed' && 'Connection Failed'}

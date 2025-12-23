@@ -138,12 +138,26 @@ export const webrtcService = {
             timestamp: firebase.firestore.FieldValue.serverTimestamp(),
         });
 
-        // Listen for remote answer
-        const unsubInfo = callDoc.onSnapshot((snapshot) => {
+        // Queue for candidates arriving before answer
+        const candidateQueue: RTCIceCandidate[] = [];
+
+        // Listen for remote answer AND call end
+        const unsubInfo = callDoc.onSnapshot(async (snapshot) => {
+            if (!snapshot.exists) {
+                this.hangUp('');
+                return;
+            }
+
             const data = snapshot.data();
             if (!this.pc?.currentRemoteDescription && data?.answer) {
                 const answerDescription = new RTCSessionDescription(data.answer);
-                this.pc.setRemoteDescription(answerDescription);
+                await this.pc.setRemoteDescription(answerDescription);
+
+                // Process queued candidates
+                candidateQueue.forEach(candidate => {
+                    this.pc?.addIceCandidate(candidate).catch(e => console.error("Error adding queued candidate:", e));
+                });
+                candidateQueue.length = 0;
 
                 // Update status when connected
                 callDoc.update({ status: 'connected' }).catch(err =>
@@ -158,7 +172,11 @@ export const webrtcService = {
             snapshot.docChanges().forEach((change) => {
                 if (change.type === 'added') {
                     const candidate = new RTCIceCandidate(change.doc.data());
-                    this.pc?.addIceCandidate(candidate);
+                    if (this.pc?.currentRemoteDescription) {
+                        this.pc.addIceCandidate(candidate).catch(e => console.error("Error adding candidate:", e));
+                    } else {
+                        candidateQueue.push(candidate);
+                    }
                 }
             });
         });
@@ -231,6 +249,15 @@ export const webrtcService = {
             });
         });
         this.unsubscribes.push(unsubIce);
+
+        // Listen for call end (Caller hangs up)
+        const unsubCall = callDoc.onSnapshot((snapshot) => {
+            if (!snapshot.exists) {
+                // Call ended by caller
+                this.hangUp(''); // Local cleanup only, as doc is gone
+            }
+        });
+        this.unsubscribes.push(unsubCall);
     },
 
     async hangUp(callId: string) {
