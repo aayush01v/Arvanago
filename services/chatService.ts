@@ -61,13 +61,14 @@ export const chatService = {
   },
 
   // Send Message
-  async sendMessage(chatId: string, senderId: string, text: string, imageUrl?: string, callId?: string, callType?: 'video' | 'audio'): Promise<void> {
+  // Send Message
+  async sendMessage(chatId: string, senderId: string, text: string, imageUrl?: string, callId?: string, callType?: 'video' | 'audio'): Promise<string> {
     const chatRef = db.collection('chats').doc(chatId);
     const messagesRef = chatRef.collection('messages');
 
     const timestamp = firebase.firestore.FieldValue.serverTimestamp();
 
-    await messagesRef.add({
+    const docRef = await messagesRef.add({
       senderId,
       text,
       imageUrl: imageUrl || null,
@@ -99,6 +100,8 @@ export const chatService = {
     }
 
     await chatRef.update(updates);
+
+    return docRef.id;
   },
 
   // Update a message (e.g., to change call status)

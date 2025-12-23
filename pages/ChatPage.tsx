@@ -202,7 +202,11 @@ const ChatPage: React.FC = () => {
         try {
             const callId = await webrtcService.createRoom(currentUser.uid, activeChatUser.uid, type);
             const msgText = type === 'video' ? "Started a video call" : "Started an audio call";
-            await chatService.sendMessage(selectedChatId, currentUser.uid, msgText, undefined, callId, type);
+            const messageId = await chatService.sendMessage(selectedChatId, currentUser.uid, msgText, undefined, callId, type);
+
+            // Link call to message so we can update status later
+            await webrtcService.updateCall(callId, { chatId: selectedChatId, messageId });
+
             setCurrentCallId(callId);
             setCurrentCallType(type);
             setIsCaller(true);

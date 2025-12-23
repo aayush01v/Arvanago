@@ -149,20 +149,25 @@ export const webrtcService = {
             }
 
             const data = snapshot.data();
-            if (!this.pc?.currentRemoteDescription && data?.answer) {
+            // Ensure pc exists before accessing properties
+            if (!this.pc) return;
+
+            if (!this.pc.currentRemoteDescription && data?.answer) {
                 const answerDescription = new RTCSessionDescription(data.answer);
-                await this.pc.setRemoteDescription(answerDescription);
+                try {
+                    await this.pc.setRemoteDescription(answerDescription);
 
-                // Process queued candidates
-                candidateQueue.forEach(candidate => {
-                    this.pc?.addIceCandidate(candidate).catch(e => console.error("Error adding queued candidate:", e));
-                });
-                candidateQueue.length = 0;
+                    // Process queued candidates
+                    candidateQueue.forEach(candidate => {
+                        this.pc?.addIceCandidate(candidate).catch(e => console.error("Error adding queued candidate:", e));
+                    });
+                    candidateQueue.length = 0;
 
-                // Update status when connected
-                callDoc.update({ status: 'connected' }).catch(err =>
-                    console.error('Failed to update call status:', err)
-                );
+                    // Update status when connected
+                    await callDoc.update({ status: 'connected' });
+                } catch (e) {
+                    console.error("Error setting remote description:", e);
+                }
             }
         });
         this.unsubscribes.push(unsubInfo);
