@@ -318,61 +318,62 @@ const ChatPage: React.FC = () => {
                 ) : (
                     <>
                         {/* Chat Header */}
-                        <div className="px-4 md:px-6 py-4 border-b border-white/10 flex items-center justify-between bg-white/40 dark:bg-slate-900/40 backdrop-blur-md sticky top-0 z-10">
-                            <div className="flex items-center gap-3 md:gap-4">
-                                <button
-                                    className="md:hidden p-2 -ml-2 text-slate-500"
-                                    onClick={() => {
-                                        setSearchParams({});
-                                        setShowChatOnMobile(false);
-                                    }}
-                                >
-                                    <Icon name="arrow-left" className="w-5 h-5" />
-                                </button>
+                        <div className="px-4 md:px-6 py-4 border-b border-white/10 flex items-center justify-between bg-white/40 dark:bg-slate-900/40 backdrop-blur-md sticky top-0 z-30">
 
+                            {/* Left: User Info */}
+                            <div className="flex items-center gap-3 md:gap-4 overflow-hidden">
                                 <div
-                                    className="flex items-center gap-3 md:gap-4 cursor-pointer hover:opacity-80 transition-opacity"
+                                    className="flex items-center gap-3 md:gap-4 cursor-pointer hover:opacity-80 transition-opacity min-w-0"
                                     onClick={() => activeChatUser?.username && navigate(`/u/${activeChatUser.username}`)}
                                 >
-                                    <div className="relative">
-                                        <img src={activeChatUser?.avatar || 'https://i.pravatar.cc/150'} alt={activeChatUser?.name || 'User'} className="w-8 h-8 md:w-10 md:h-10 rounded-full object-cover shadow-sm text-slate-400" />
+                                    <div className="relative flex-shrink-0">
+                                        <img src={activeChatUser?.avatar || 'https://i.pravatar.cc/150'} alt={activeChatUser?.name || 'User'} className="w-10 h-10 md:w-11 md:h-11 rounded-full object-cover shadow-sm ring-2 ring-white/10" />
+                                        <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-white dark:border-slate-900 rounded-full"></div>
                                     </div>
-                                    <div>
-                                        <h3 className="font-bold text-base md:text-lg leading-tight">{activeChatUser?.name || 'User'}</h3>
-                                        <span className="text-[10px] md:text-xs text-brand-primary font-medium">@{activeChatUser?.username || 'user'}</span>
+                                    <div className="min-w-0">
+                                        <h3 className="font-bold text-base md:text-lg leading-tight truncate text-slate-900 dark:text-white">{activeChatUser?.name || 'User'}</h3>
+                                        <span className="text-[11px] md:text-xs text-slate-500 dark:text-slate-400 font-medium truncate block">@{activeChatUser?.username || 'user'}</span>
                                     </div>
                                 </div>
+                            </div>
 
-                                {/* Call Type Selection Modal/Popover */}
+                            {/* Right: Call Actions */}
+                            <div className="flex items-center gap-2 md:gap-4 flex-shrink-0 relative">
+
+                                {/* Call Type Selection Popover */}
                                 {showCallTypeSelection && (
-                                    <div className="absolute top-16 right-4 bg-white/90 dark:bg-slate-800/90 backdrop-blur-xl rounded-2xl shadow-2xl border border-white/20 dark:border-slate-700/50 z-50 p-2 flex flex-col gap-1 min-w-[160px] animate-scale-in origin-top-right transform">
-                                        <div className="px-3 py-2 text-xs font-bold text-slate-400 uppercase tracking-wider">Start Call</div>
-                                        <button
-                                            onClick={() => startCall('audio')}
-                                            className="flex items-center gap-3 px-4 py-3 hover:bg-slate-100 dark:hover:bg-slate-700/50 rounded-xl text-sm font-bold transition-all group"
-                                        >
-                                            <div className="p-2 rounded-full bg-green-500/10 text-green-500 group-hover:bg-green-500 group-hover:text-white transition-colors">
-                                                <Icon name="phone" className="w-4 h-4" />
-                                            </div>
-                                            Audio Call
-                                        </button>
-                                        <button
-                                            onClick={() => startCall('video')}
-                                            className="flex items-center gap-3 px-4 py-3 hover:bg-slate-100 dark:hover:bg-slate-700/50 rounded-xl text-sm font-bold transition-all group"
-                                        >
-                                            <div className="p-2 rounded-full bg-blue-500/10 text-blue-500 group-hover:bg-blue-500 group-hover:text-white transition-colors">
-                                                <Icon name="video" className="w-4 h-4" />
-                                            </div>
-                                            Video Call
-                                        </button>
-                                    </div>
-                                )}
-                                {showCallTypeSelection && (
-                                    <div className="fixed inset-0 z-40" onClick={() => setShowCallTypeSelection(false)}></div>
+                                    <>
+                                        <div className="fixed inset-0 z-40" onClick={() => setShowCallTypeSelection(false)}></div>
+                                        <div className="absolute top-full right-0 mt-4 bg-white/90 dark:bg-slate-800/90 backdrop-blur-xl rounded-2xl shadow-2xl border border-white/20 dark:border-slate-700/50 z-50 p-2 flex flex-col gap-1 min-w-[180px] animate-scale-in origin-top-right">
+                                            <div className="px-3 py-2 text-[10px] font-bold text-slate-400 uppercase tracking-wider">Start Call</div>
+                                            <button
+                                                onClick={() => startCall('audio')}
+                                                className="flex items-center gap-3 px-4 py-3 hover:bg-slate-100 dark:hover:bg-slate-700/50 rounded-xl text-sm font-bold transition-all group text-slate-700 dark:text-slate-200"
+                                            >
+                                                <div className="p-2 rounded-full bg-green-500/10 text-green-500 group-hover:bg-green-500 group-hover:text-white transition-colors">
+                                                    <Icon name="phone" className="w-4 h-4" />
+                                                </div>
+                                                Audio Call
+                                            </button>
+                                            <button
+                                                onClick={() => startCall('video')}
+                                                className="flex items-center gap-3 px-4 py-3 hover:bg-slate-100 dark:hover:bg-slate-700/50 rounded-xl text-sm font-bold transition-all group text-slate-700 dark:text-slate-200"
+                                            >
+                                                <div className="p-2 rounded-full bg-blue-500/10 text-blue-500 group-hover:bg-blue-500 group-hover:text-white transition-colors">
+                                                    <Icon name="video" className="w-4 h-4" />
+                                                </div>
+                                                Video Call
+                                            </button>
+                                        </div>
+                                    </>
                                 )}
 
-                                <button onClick={initiateCall} className="p-3 rounded-full hover:bg-white/50 dark:hover:bg-slate-700/50 transition-colors text-slate-500 dark:text-slate-400" title="Start Call">
-                                    <Icon name="video" className="w-6 h-6" />
+                                <button
+                                    onClick={initiateCall}
+                                    className="p-3 md:p-3.5 rounded-full bg-slate-100 dark:bg-slate-800 hover:bg-brand-primary/10 hover:text-brand-primary dark:hover:bg-slate-700 transition-all text-slate-600 dark:text-slate-300 shadow-sm border border-transparent hover:border-brand-primary/20 hover:scale-105 active:scale-95"
+                                    title="Start Call"
+                                >
+                                    <Icon name="video" className="w-5 h-5 md:w-6 md:h-6" />
                                 </button>
                             </div>
                         </div>
