@@ -328,19 +328,24 @@ const ChatPage: React.FC = () => {
 
                                 {/* Call Type Selection Modal/Popover */}
                                 {showCallTypeSelection && (
-                                    <div className="absolute top-16 right-4 bg-white dark:bg-slate-800 rounded-xl shadow-xl border border-slate-200 dark:border-slate-700 z-50 p-2 flex flex-col gap-1 min-w-[140px] animate-fade-in-up">
+                                    <div className="absolute top-16 right-4 bg-white/90 dark:bg-slate-800/90 backdrop-blur-xl rounded-2xl shadow-2xl border border-white/20 dark:border-slate-700/50 z-50 p-2 flex flex-col gap-1 min-w-[160px] animate-scale-in origin-top-right transform">
+                                        <div className="px-3 py-2 text-xs font-bold text-slate-400 uppercase tracking-wider">Start Call</div>
                                         <button
                                             onClick={() => startCall('audio')}
-                                            className="flex items-center gap-3 px-4 py-3 hover:bg-slate-50 dark:hover:bg-slate-700 rounded-lg text-sm font-medium transition-colors"
+                                            className="flex items-center gap-3 px-4 py-3 hover:bg-slate-100 dark:hover:bg-slate-700/50 rounded-xl text-sm font-bold transition-all group"
                                         >
-                                            <Icon name="phone" className="w-4 h-4 text-green-500" />
+                                            <div className="p-2 rounded-full bg-green-500/10 text-green-500 group-hover:bg-green-500 group-hover:text-white transition-colors">
+                                                <Icon name="phone" className="w-4 h-4" />
+                                            </div>
                                             Audio Call
                                         </button>
                                         <button
                                             onClick={() => startCall('video')}
-                                            className="flex items-center gap-3 px-4 py-3 hover:bg-slate-50 dark:hover:bg-slate-700 rounded-lg text-sm font-medium transition-colors"
+                                            className="flex items-center gap-3 px-4 py-3 hover:bg-slate-100 dark:hover:bg-slate-700/50 rounded-xl text-sm font-bold transition-all group"
                                         >
-                                            <Icon name="video" className="w-4 h-4 text-blue-500" />
+                                            <div className="p-2 rounded-full bg-blue-500/10 text-blue-500 group-hover:bg-blue-500 group-hover:text-white transition-colors">
+                                                <Icon name="video" className="w-4 h-4" />
+                                            </div>
                                             Video Call
                                         </button>
                                     </div>

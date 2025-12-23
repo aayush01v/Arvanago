@@ -141,89 +141,132 @@ const CallModal: React.FC<CallModalProps> = ({ isOpen, onClose, callId, isCaller
     if (!isOpen) return null;
 
     return createPortal(
-        <div className="fixed inset-0 z-[9999] bg-black/90 flex flex-col items-center justify-center">
+        <div className="fixed inset-0 z-[9999] flex flex-col items-center justify-center p-4 sm:p-6 animate-fade-in">
+            {/* Backdrop with Blur */}
+            <div className="absolute inset-0 bg-slate-900/90 backdrop-blur-xl transition-all duration-500" />
 
-            <div className="relative w-full max-w-4xl h-full max-h-[80vh] bg-black rounded-3xl overflow-hidden shadow-2xl flex flex-col md:flex-row">
-                {/* Remote Video (Main) */}
-                <div className="flex-1 relative bg-slate-900 flex items-center justify-center">
+            <div className="relative w-full max-w-5xl h-full max-h-[85vh] bg-black/80 rounded-[2.5rem] overflow-hidden shadow-2xl border border-white/10 flex flex-col items-center">
+
+                {/* Main Video Area */}
+                <div className="relative w-full h-full flex items-center justify-center overflow-hidden bg-slate-900">
                     <video
                         ref={remoteVideoRef}
                         autoPlay
                         playsInline
                         className="w-full h-full object-cover"
                     />
-                    <div className="absolute top-4 left-4 text-white text-shadow">
-                        <h3 className="font-bold text-lg">{otherUser?.name || 'Unknown User'}</h3>
-                        <div className="flex items-center gap-2">
-                            <p className="text-sm opacity-80">
+
+                    {/* Status Check / Avatar Fallback */}
+                    {(!remoteVideoRef.current?.srcObject || connectionStatus !== 'connected') && (
+                        <div className="absolute inset-0 flex flex-col items-center justify-center bg-slate-900/80 backdrop-blur-sm z-10 transition-all">
+                            <div className="relative mb-8">
+                                <div className="absolute inset-0 bg-brand-primary/20 blur-3xl rounded-full animate-pulse-slow"></div>
+                                <img
+                                    src={otherUser?.avatar || 'https://i.pravatar.cc/150'}
+                                    alt={otherUser?.name}
+                                    className="w-32 h-32 rounded-full object-cover shadow-2xl border-4 border-white/10 relative z-10 animate-scale-in"
+                                />
+                                {connectionStatus === 'connecting' && (
+                                    <div className="absolute -bottom-2 -right-2 w-10 h-10 bg-brand-primary rounded-full flex items-center justify-center border-4 border-slate-900 z-20 animate-bounce">
+                                        <Icon name="loader" className="w-5 h-5 text-white animate-spin" />
+                                    </div>
+                                )}
+                            </div>
+                            <h3 className="text-3xl font-bold text-white mb-2 tracking-tight">{otherUser?.name || 'Unknown User'}</h3>
+                            <p className="text-white/60 text-lg font-medium animate-pulse">
                                 {connectionStatus === 'connecting' && (isCaller ? 'Calling...' : 'Connecting...')}
                                 {connectionStatus === 'connected' && 'Connected'}
                                 {connectionStatus === 'reconnecting' && 'Reconnecting...'}
                                 {connectionStatus === 'failed' && 'Connection Failed'}
                             </p>
-                            {connectionStatus === 'connected' && (
-                                <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                            )}
                         </div>
-                    </div>
+                    )}
+
+                    {/* Gradient Overlay for Controls */}
+                    <div className="absolute inset-x-0 bottom-0 h-48 bg-gradient-to-t from-black/90 via-black/50 to-transparent pointer-events-none" />
                 </div>
 
                 {/* Local Video (PiP) */}
-                <div className="absolute top-4 right-4 w-32 h-48 md:w-48 md:h-72 bg-slate-800 rounded-xl overflow-hidden shadow-lg border-2 border-white/20">
+                <div className="absolute top-6 right-6 w-32 h-44 sm:w-48 sm:h-64 bg-slate-800 rounded-2xl overflow-hidden shadow-2xl border border-white/20 transition-all hover:scale-105 hover:border-brand-primary/50 group">
                     <video
                         ref={localVideoRef}
                         autoPlay
                         playsInline
                         muted
-                        className={`w-full h-full object-cover transform scale-x-[-1] ${isVideoOff || callType === 'audio' ? 'hidden' : ''}`}
+                        className={`w-full h-full object-cover transform scale-x-[-1] transition-opacity duration-300 ${isVideoOff || callType === 'audio' ? 'opacity-0' : 'opacity-100'}`}
                     />
                     {(isVideoOff || callType === 'audio') && (
-                        <div className="w-full h-full flex items-center justify-center text-white/50 flex-col gap-2">
-                            <img src={otherUser?.avatar || 'https://i.pravatar.cc/150'} className="w-16 h-16 rounded-full opacity-50" />
-                            {callType === 'audio' && <span className="text-xs">Audio Call</span>}
+                        <div className="absolute inset-0 flex flex-col items-center justify-center bg-slate-800 p-4 text-center">
+                            <div className="w-16 h-16 rounded-full bg-slate-700 flex items-center justify-center mb-2">
+                                <Icon name={callType === 'audio' ? "mic" : "videoOff"} className="w-8 h-8 text-slate-400" />
+                            </div>
+                            <span className="text-xs text-slate-400 font-medium">You are {callType === 'audio' ? 'in audio mode' : 'hidden'}</span>
                         </div>
                     )}
                 </div>
-            </div>
 
-            {/* Controls */}
-            <div className="mt-8 flex items-center gap-6">
-                <button
-                    onClick={toggleMute}
-                    className={`p-4 rounded-full transition-all ${isMuted ? 'bg-white text-black' : 'bg-white/10 text-white hover:bg-white/20'}`}
-                >
-                    <Icon name={isMuted ? 'micOff' : 'mic'} className="w-6 h-6" />
-                </button>
+                {/* Header Info */}
+                <div className="absolute top-6 left-6 flex items-center gap-4 z-20">
+                    <button onClick={onClose} className="p-3 rounded-full bg-black/40 hover:bg-black/60 backdrop-blur-md text-white/80 hover:text-white border border-white/10 transition-all">
+                        <Icon name="minimize-2" className="w-5 h-5" />
+                    </button>
+                </div>
 
-                <button
-                    onClick={handleSwitchCamera}
-                    disabled={callType === 'audio'}
-                    className={`p-4 rounded-full transition-all bg-white/10 text-white hover:bg-white/20 transform hover:rotate-180 ${callType === 'audio' ? 'hidden' : ''}`}
-                >
-                    <Icon name="refreshCw" className="w-6 h-6" />
-                </button>
+                {/* Floating Controls Bar */}
+                <div className="absolute bottom-10 left-1/2 -translate-x-1/2 flex items-center gap-4 sm:gap-6 z-30 p-2 rounded-full">
 
-                <button
-                    onClick={handleHangUp}
-                    className="p-5 rounded-full bg-red-500 hover:bg-red-600 text-white transition-all transform hover:scale-110 shadow-lg shadow-red-500/50"
-                >
-                    <Icon name="phone" className="w-8 h-8 rotate-[135deg]" />
-                </button>
+                    <button
+                        onClick={toggleMute}
+                        className={`p-5 rounded-full transition-all duration-300 backdrop-blur-md shadow-lg border ${isMuted
+                                ? 'bg-white text-slate-900 border-white hover:bg-slate-200'
+                                : 'bg-white/10 text-white border-white/10 hover:bg-white/20 hover:scale-110'
+                            }`}
+                        title={isMuted ? "Unmute" : "Mute"}
+                    >
+                        <Icon name={isMuted ? 'micOff' : 'mic'} className="w-6 h-6" />
+                    </button>
 
-                <button
-                    onClick={toggleSpeaker}
-                    className={`p-4 rounded-full transition-all ${isSpeakerOn ? 'bg-white/10 text-white hover:bg-white/20' : 'bg-white text-black'}`}
-                >
-                    <Icon name={isSpeakerOn ? 'volume' : 'volume-x'} className="w-6 h-6" />
-                </button>
+                    <button
+                        onClick={handleSwitchCamera}
+                        disabled={callType === 'audio'}
+                        className={`p-5 rounded-full transition-all duration-300 backdrop-blur-md shadow-lg border bg-white/10 text-white border-white/10 hover:bg-white/20 hover:scale-110 hover:rotate-180 ${callType === 'audio' ? 'hidden' : ''}`}
+                        title="Switch Camera"
+                    >
+                        <Icon name="refreshCw" className="w-6 h-6" />
+                    </button>
 
-                <button
-                    onClick={toggleVideo}
-                    disabled={callType === 'audio'}
-                    className={`p-4 rounded-full transition-all ${isVideoOff || callType === 'audio' ? 'bg-white text-black' : 'bg-white/10 text-white hover:bg-white/20'} ${callType === 'audio' ? 'opacity-50 cursor-not-allowed' : ''}`}
-                >
-                    <Icon name={isVideoOff || callType === 'audio' ? 'videoOff' : 'video'} className="w-6 h-6" />
-                </button>
+                    <button
+                        onClick={handleHangUp}
+                        className="p-6 rounded-full bg-red-500 text-white shadow-xl shadow-red-500/40 border border-red-400 hover:bg-red-600 hover:scale-110 active:scale-95 transition-all duration-300 mx-2"
+                        title="End Call"
+                    >
+                        <Icon name="phone" className="w-8 h-8 rotate-[135deg]" />
+                    </button>
+
+                    <button
+                        onClick={toggleVideo}
+                        disabled={callType === 'audio'}
+                        className={`p-5 rounded-full transition-all duration-300 backdrop-blur-md shadow-lg border ${isVideoOff || callType === 'audio'
+                                ? 'bg-white text-slate-900 border-white hover:bg-slate-200'
+                                : 'bg-white/10 text-white border-white/10 hover:bg-white/20 hover:scale-110'
+                            } ${callType === 'audio' ? 'opacity-50 cursor-not-allowed' : ''}`}
+                        title={isVideoOff ? "Turn Video On" : "Turn Video Off"}
+                    >
+                        <Icon name={isVideoOff || callType === 'audio' ? 'videoOff' : 'video'} className="w-6 h-6" />
+                    </button>
+
+                    <button
+                        onClick={toggleSpeaker}
+                        className={`p-5 rounded-full transition-all duration-300 backdrop-blur-md shadow-lg border ${!isSpeakerOn
+                                ? 'bg-white text-slate-900 border-white hover:bg-slate-200'
+                                : 'bg-white/10 text-white border-white/10 hover:bg-white/20 hover:scale-110'
+                            }`}
+                        title={isSpeakerOn ? "Mute Speaker" : "Unmute Speaker"}
+                    >
+                        <Icon name={isSpeakerOn ? 'volume' : 'volume-x'} className="w-6 h-6" />
+                    </button>
+
+                </div>
             </div>
         </div>,
         document.body
