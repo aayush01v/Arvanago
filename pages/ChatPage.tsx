@@ -30,6 +30,9 @@ const ChatPage: React.FC = () => {
     const [isUploading, setIsUploading] = useState(false);
     const [creatingChat, setCreatingChat] = useState(false);
 
+    const [expandedImage, setExpandedImage] = useState<string | null>(null);
+    const [localPreview, setLocalPreview] = useState<string | null>(null);
+
     // Call State
     const [isCallModalOpen, setIsCallModalOpen] = useState(false);
     const [currentCallId, setCurrentCallId] = useState<string | null>(null);
@@ -58,13 +61,18 @@ const ChatPage: React.FC = () => {
             }
         } else {
             setShowChatOnMobile(false);
-            // On desktop, we might want to keep selectedChatId if not explicitly cleared,
-            // or clear it. If we want "Back" to clear it, we should clear it.
             if (window.innerWidth < 768) {
                 setSelectedChatId(null);
             }
         }
     }, [searchParams, chats, currentUser]);
+
+    // Cleanup local preview
+    useEffect(() => {
+        return () => {
+            if (localPreview) URL.revokeObjectURL(localPreview);
+        };
+    }, [localPreview]);
 
     // Subscribe to My Chats
     useEffect(() => {
@@ -90,7 +98,6 @@ const ChatPage: React.FC = () => {
     // Initial Selection fallback (Desktop only)
     useEffect(() => {
         const chatIdParam = searchParams.get('chatId');
-        // Fallback to first chat if no param and desktop
         if (!chatIdParam && !selectedChatId && chats.length > 0 && window.innerWidth >= 768) {
             setSearchParams({ chatId: chats[0].id }, { replace: true });
         }
@@ -101,7 +108,6 @@ const ChatPage: React.FC = () => {
         const search = async () => {
             if (searchTerm.trim().length > 1) {
                 const results = await chatService.searchUsers(searchTerm);
-                // Filter out self
                 setSearchResults(results.filter(u => u.uid !== currentUser?.uid));
             } else {
                 setSearchResults([]);
@@ -138,6 +144,8 @@ const ChatPage: React.FC = () => {
         if (!file) return;
 
         try {
+            const preview = URL.createObjectURL(file);
+            setLocalPreview(preview);
             setIsUploading(true);
             const url = await uploadToImgBB(file);
             setChatImageUrl(url);
@@ -145,6 +153,7 @@ const ChatPage: React.FC = () => {
             console.error("Chat upload failed", error);
         } finally {
             setIsUploading(false);
+            setLocalPreview(null); // Cleanup done by effect or manually here, but we switch to real URL
         }
     };
 
@@ -176,16 +185,12 @@ const ChatPage: React.FC = () => {
 
         setInput('');
         setChatImageUrl('');
+        setLocalPreview(null);
 
         try {
             await chatService.sendMessage(selectedChatId, currentUser.uid, prevInput, prevImage || undefined);
-            // The subscription will eventually replace this with the real message, 
-            // but we might want to dedupe or let the subscription handle it. 
-            // Usually, standard Firestore subscriptions might flash if we don't handle local IDs, 
-            // but for this UX task, the instant reciprocity is key.
         } catch (e) {
             console.error("Failed to send", e);
-            // Rollback on error
             setMessages(prev => prev.filter(m => m.id !== optimisicId));
             setInput(prevInput);
             setChatImageUrl(prevImage);
@@ -315,7 +320,15 @@ const ChatPage: React.FC = () => {
                         {/* Chat Header */}
                         <div className="px-4 md:px-6 py-4 border-b border-white/10 flex items-center justify-between bg-white/40 dark:bg-slate-900/40 backdrop-blur-md sticky top-0 z-10">
                             <div className="flex items-center gap-3 md:gap-4">
-                                {/* Removed redundant Mobile Back Button */}
+                                <button
+                                    className="md:hidden p-2 -ml-2 text-slate-500"
+                                    onClick={() => {
+                                        setSearchParams({});
+                                        setShowChatOnMobile(false);
+                                    }}
+                                >
+                                    <Icon name="arrow-left" className="w-5 h-5" />
+                                </button>
 
                                 <div
                                     className="flex items-center gap-3 md:gap-4 cursor-pointer hover:opacity-80 transition-opacity"
@@ -359,8 +372,7 @@ const ChatPage: React.FC = () => {
                                 )}
 
                                 <button onClick={initiateCall} className="p-3 rounded-full hover:bg-white/50 dark:hover:bg-slate-700/50 transition-colors text-slate-500 dark:text-slate-400" title="Start Call">
-                                    <Icon name="phone" className="w-6 h-6 md:hidden" />
-                                    <Icon name="video" className="w-6 h-6 hidden md:block" />
+                                    <Icon name="video" className="w-6 h-6" />
                                 </button>
                             </div>
                         </div>
@@ -404,7 +416,12 @@ const ChatPage: React.FC = () => {
                                                     >
                                                         {msg.imageUrl && (
                                                             <div className="mb-2 -mx-2 -mt-2 overflow-hidden rounded-lg">
-                                                                <img src={msg.imageUrl} alt="Attachment" className="w-full max-h-80 object-cover hover:scale-105 transition-transform duration-500" />
+                                                                <img
+                                                                    src={msg.imageUrl}
+                                                                    alt="Attachment"
+                                                                    className="w-full max-h-80 object-cover cursor-pointer hover:scale-105 transition-transform duration-500 shadow-sm"
+                                                                    onClick={() => setExpandedImage(msg.imageUrl)}
+                                                                />
                                                             </div>
                                                         )}
 
@@ -458,16 +475,25 @@ const ChatPage: React.FC = () => {
                                         placeholder="Type a message..."
                                         className="w-full px-5 py-3.5 bg-transparent border-none outline-none text-slate-800 dark:text-slate-100 placeholder:text-slate-400 transition-all text-sm md:text-base pr-12"
                                     />
-                                    {chatImageUrl && (
+                                    {(chatImageUrl || (isUploading && localPreview)) && (
                                         <div className="absolute bottom-full left-0 mb-3 p-2 bg-white dark:bg-slate-800 rounded-xl shadow-xl border border-slate-200 dark:border-slate-700 z-20 animate-scale-in">
                                             <div className="relative group">
-                                                <img src={chatImageUrl} className="h-24 w-24 object-cover rounded-lg" />
-                                                <button
-                                                    onClick={() => setChatImageUrl('')}
-                                                    className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center shadow-md hover:bg-red-600 transition-transform hover:scale-110"
-                                                >
-                                                    <Icon name="x" className="w-3 h-3" />
-                                                </button>
+                                                <img src={chatImageUrl || localPreview || ''} className={`h-24 w-24 object-cover rounded-lg ${isUploading ? 'opacity-50 blur-sm' : ''}`} />
+
+                                                {isUploading && (
+                                                    <div className="absolute inset-0 flex items-center justify-center">
+                                                        <Icon name="loader" className="w-8 h-8 text-brand-primary animate-spin" />
+                                                    </div>
+                                                )}
+
+                                                {!isUploading && chatImageUrl && (
+                                                    <button
+                                                        onClick={() => setChatImageUrl('')}
+                                                        className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center shadow-md hover:bg-red-600 transition-transform hover:scale-110"
+                                                    >
+                                                        <Icon name="x" className="w-3 h-3" />
+                                                    </button>
+                                                )}
                                             </div>
                                         </div>
                                     )}
@@ -494,6 +520,33 @@ const ChatPage: React.FC = () => {
                 otherUser={activeChatUser}
                 callType={currentCallType}
             />
+
+            {/* Expanded Image Modal / Lightbox */}
+            <AnimatePresence>
+                {expandedImage && (
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="fixed inset-0 z-[10000] bg-black/90 backdrop-blur-xl flex items-center justify-center p-4 cursor-zoom-out"
+                        onClick={() => setExpandedImage(null)}
+                    >
+                        <motion.img
+                            initial={{ scale: 0.9, opacity: 0 }}
+                            animate={{ scale: 1, opacity: 1 }}
+                            exit={{ scale: 0.9, opacity: 0 }}
+                            src={expandedImage}
+                            className="max-w-full max-h-[90vh] object-contain rounded-lg shadow-2xl"
+                        // Prevent closing if clicking image itself, optional, but standard lightbox usually closes on BG click only?
+                        // Actually user said "maximise image in chat", so zoom out on click is intuitive.
+                        />
+                        <button className="absolute top-4 right-4 p-3 bg-white/10 text-white rounded-full hover:bg-white/20 transition-colors">
+                            <Icon name="x" className="w-6 h-6" />
+                        </button>
+                    </motion.div>
+                )}
+            </AnimatePresence>
+
         </div >
     );
 };
