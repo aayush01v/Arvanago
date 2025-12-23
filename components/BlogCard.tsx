@@ -9,21 +9,27 @@ interface BlogCardProps {
 }
 
 const BlogCard: React.FC<BlogCardProps> = ({ post, featured = false }) => {
+    // Helper to optimize Unsplash images
+    const getOptimizedImageUrl = (url: string, width: number) => {
+        if (url.includes('images.unsplash.com')) {
+            return `${url}&w=${width}&q=80&auto=format`;
+        }
+        return url;
+    };
+
     return (
         <Link
             to={`/blog/${post.id}`}
-            className={`group relative flex flex-col bg-white dark:bg-slate-900 rounded-3xl overflow-hidden border border-slate-200 dark:border-slate-800 transition-all duration-500 hover:shadow-2xl hover:-translate-y-2 ${featured ? 'md:col-span-2 md:flex-row h-auto md:h-96' : 'h-full'}`}
+            className={`group relative flex flex-col bg-white dark:bg-slate-900 rounded-3xl overflow-hidden border border-slate-200 dark:border-slate-800 transition-transform duration-300 hover:-translate-y-1 hover:shadow-xl ${featured ? 'md:col-span-2 md:flex-row h-auto md:h-96' : 'h-full'}`}
         >
             {/* Cover Image Wrapper */}
             <div className={`relative overflow-hidden bg-slate-100 dark:bg-slate-800 ${featured ? 'w-full md:w-3/5 h-64 md:h-auto' : 'w-full aspect-[16/10]'}`}>
                 {post.coverImage ? (
                     <img
-                        src={post.coverImage}
+                        src={getOptimizedImageUrl(post.coverImage, featured ? 800 : 500)}
                         alt={post.title}
                         loading="lazy"
-                        width={featured ? 800 : 400}
-                        height={featured ? 450 : 250}
-                        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105 will-change-transform"
                     />
                 ) : (
                     <div className="w-full h-full flex items-center justify-center text-slate-300 dark:text-slate-600 bg-slate-50 dark:bg-slate-900">
@@ -32,12 +38,12 @@ const BlogCard: React.FC<BlogCardProps> = ({ post, featured = false }) => {
                 )}
 
                 {/* Overlay Gradient */}
-                <div className="absolute inset-0 bg-gradient-to-t from-slate-900/60 via-slate-900/10 to-transparent opacity-80 group-hover:opacity-60 transition-opacity duration-500"></div>
+                <div className="absolute inset-0 bg-gradient-to-t from-slate-900/60 via-slate-900/10 to-transparent opacity-80 group-hover:opacity-60 transition-opacity duration-300"></div>
 
                 {/* Floating Badge */}
                 <div className="absolute top-4 left-4 flex flex-wrap gap-2 z-10">
                     {post.tags.slice(0, 2).map((tag, idx) => (
-                        <span key={`${tag}-${idx}`} className="px-3 py-1 text-[10px] uppercase tracking-wider font-bold bg-white/90 dark:bg-slate-950/80 backdrop-blur-md text-slate-900 dark:text-white rounded-full shadow-lg border border-white/20">
+                        <span key={`${tag}-${idx}`} className="px-3 py-1 text-[10px] uppercase tracking-wider font-bold bg-white/90 dark:bg-slate-950/80 backdrop-blur-sm text-slate-900 dark:text-white rounded-full shadow-lg border border-white/20">
                             {tag}
                         </span>
                     ))}
@@ -64,7 +70,7 @@ const BlogCard: React.FC<BlogCardProps> = ({ post, featured = false }) => {
                     </div>
                 </div>
 
-                <h3 className={`font-black text-slate-900 dark:text-white mb-3 group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-brand-primary group-hover:to-brand-secondary transition-all decoration-clone ${featured ? 'text-2xl md:text-3xl leading-tight' : 'text-xl leading-snug'}`}>
+                <h3 className={`font-black text-slate-900 dark:text-white mb-3 group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-brand-primary group-hover:to-brand-secondary transition-all duration-300 decoration-clone ${featured ? 'text-2xl md:text-3xl leading-tight' : 'text-xl leading-snug'}`}>
                     {post.title}
                 </h3>
 
