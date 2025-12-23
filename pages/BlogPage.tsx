@@ -20,7 +20,13 @@ const BlogPage: React.FC = () => {
             try {
                 setLoading(true);
                 const { posts: fetchedPosts } = await getBlogPosts(20);
-                setPosts([...STATIC_POSTS, ...fetchedPosts]);
+
+                // Deduplicate: Exclude static posts if a dynamic post with the same slug exists
+                const filteredStaticPosts = STATIC_POSTS.filter(staticPost =>
+                    !fetchedPosts.some(fetchedPost => fetchedPost.slug === staticPost.slug)
+                );
+
+                setPosts([...filteredStaticPosts, ...fetchedPosts]);
             } catch (err) {
                 console.error("Failed to fetch blog posts", err);
                 setError("Failed to load articles. Please try again later.");
