@@ -204,20 +204,27 @@ const ChatPage: React.FC = () => {
     const startCall = async (type: 'video' | 'audio') => {
         setShowCallTypeSelection(false);
         if (!selectedChatId || !currentUser || !activeChatUser?.uid) return;
+
+        // Optimistic UI: Open modal immediately
+        setCurrentCallId(null); // Will be updated shortly
+        setCurrentCallType(type);
+        setIsCaller(true);
+        setIsCallModalOpen(true);
+
         try {
             const callId = await webrtcService.createRoom(currentUser.uid, activeChatUser.uid, type);
+            // Now we have the ID, update the state
+            setCurrentCallId(callId);
+
             const msgText = type === 'video' ? "Started a video call" : "Started an audio call";
             const messageId = await chatService.sendMessage(selectedChatId, currentUser.uid, msgText, undefined, callId, type);
 
             // Link call to message so we can update status later
             await webrtcService.updateCall(callId, { chatId: selectedChatId, messageId });
-
-            setCurrentCallId(callId);
-            setCurrentCallType(type);
-            setIsCaller(true);
-            setIsCallModalOpen(true);
         } catch (e) {
             console.error("Failed to start call", e);
+            // Close modal on error if it was opened
+            setIsCallModalOpen(false);
         }
     };
 

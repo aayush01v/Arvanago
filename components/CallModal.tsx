@@ -22,7 +22,7 @@ const CallModal: React.FC<CallModalProps> = ({ isOpen, onClose, callId, isCaller
     const [connectionStatus, setConnectionStatus] = useState<'connecting' | 'connected' | 'reconnecting' | 'failed'>('connecting');
 
     useEffect(() => {
-        if (isOpen && callId) {
+        if (isOpen) {
             startCall();
         } else {
             stopCall();
@@ -40,6 +40,7 @@ const CallModal: React.FC<CallModalProps> = ({ isOpen, onClose, callId, isCaller
                 }
             } else {
                 // For callee, we MUST join the room. joinRoom handles openUserMedia internally
+                // If callId is null (shouldn't happen for callee, but safe check), we wait.
                 if (callId) await webrtcService.joinRoom(callId);
             }
 
@@ -217,8 +218,8 @@ const CallModal: React.FC<CallModalProps> = ({ isOpen, onClose, callId, isCaller
                     <button
                         onClick={toggleMute}
                         className={`p-4 sm:p-5 rounded-full transition-all duration-300 backdrop-blur-md shadow-lg border ${isMuted
-                                ? 'bg-white text-slate-900 border-white hover:bg-slate-200'
-                                : 'bg-white/10 text-white border-white/10 hover:bg-white/20 hover:scale-110'
+                            ? 'bg-white text-slate-900 border-white hover:bg-slate-200'
+                            : 'bg-white/10 text-white border-white/10 hover:bg-white/20 hover:scale-110'
                             }`}
                         title={isMuted ? "Unmute" : "Mute"}
                     >
@@ -246,8 +247,8 @@ const CallModal: React.FC<CallModalProps> = ({ isOpen, onClose, callId, isCaller
                         onClick={toggleVideo}
                         disabled={callType === 'audio'}
                         className={`p-4 sm:p-5 rounded-full transition-all duration-300 backdrop-blur-md shadow-lg border ${isVideoOff || callType === 'audio'
-                                ? 'bg-white text-slate-900 border-white hover:bg-slate-200'
-                                : 'bg-white/10 text-white border-white/10 hover:bg-white/20 hover:scale-110'
+                            ? 'bg-white text-slate-900 border-white hover:bg-slate-200'
+                            : 'bg-white/10 text-white border-white/10 hover:bg-white/20 hover:scale-110'
                             } ${callType === 'audio' ? 'opacity-50 cursor-not-allowed' : ''}`}
                         title={isVideoOff ? "Turn Video On" : "Turn Video Off"}
                     >
@@ -257,8 +258,8 @@ const CallModal: React.FC<CallModalProps> = ({ isOpen, onClose, callId, isCaller
                     <button
                         onClick={toggleSpeaker}
                         className={`p-4 sm:p-5 rounded-full transition-all duration-300 backdrop-blur-md shadow-lg border ${!isSpeakerOn
-                                ? 'bg-white text-slate-900 border-white hover:bg-slate-200'
-                                : 'bg-white/10 text-white border-white/10 hover:bg-white/20 hover:scale-110'
+                            ? 'bg-white text-slate-900 border-white hover:bg-slate-200'
+                            : 'bg-white/10 text-white border-white/10 hover:bg-white/20 hover:scale-110'
                             }`}
                         title={isSpeakerOn ? "Mute Speaker" : "Unmute Speaker"}
                     >
