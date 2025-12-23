@@ -282,12 +282,16 @@ export const webrtcService = {
 
         if (callId) {
             try {
+                console.log(`[HangUp] Attempting to hang up call ${callId}`);
                 const callDocRef = db.collection('calls').doc(callId);
                 const callDoc = await callDocRef.get();
                 const callData = callDoc.data();
 
                 if (callData && callData.chatId && callData.messageId) {
+                    console.log('[HangUp] Updating chat status:', callData.chatId, callData.messageId);
                     await chatService.updateMessage(callData.chatId, callData.messageId, { callStatus: 'ended' });
+                } else {
+                    console.warn('[HangUp] Missing chat/message info:', callData);
                 }
 
                 // Delete call document (in production, consider using Cloud Functions to clean up subcollections)
