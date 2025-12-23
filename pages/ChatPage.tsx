@@ -236,7 +236,7 @@ const ChatPage: React.FC = () => {
     };
 
     return (
-        <div className={`flex gap-6 animate-fade-in text-slate-800 dark:text-white relative ${window.innerWidth < 768 ? 'h-[calc(100dvh-5rem)]' : 'h-[calc(100vh-8rem)] md:h-[calc(100vh-6rem)]'}`}>
+        <div className="flex gap-6 animate-fade-in text-slate-800 dark:text-white relative h-[calc(100dvh-4rem)] md:h-[calc(100vh-6rem)]">
 
             {/* Sidebar List */}
             <div className={`
@@ -310,8 +310,8 @@ const ChatPage: React.FC = () => {
 
             {/* Main Chat Area */}
             <div className={`
-                ${showChatOnMobile ? 'flex' : 'hidden md:flex'} 
-                flex-1 flex-col rounded-3xl bg-white/60 dark:bg-slate-800/60 backdrop-blur-md border border-white/40 dark:border-white/10 shadow-xl overflow-hidden relative
+                ${showChatOnMobile ? 'flex fixed inset-0 z-50 bg-white dark:bg-slate-900' : 'hidden md:flex'} 
+                md:relative flex-1 flex-col md:rounded-3xl md:bg-white/60 md:dark:bg-slate-800/60 md:backdrop-blur-md md:border border-white/40 dark:border-white/10 md:shadow-xl overflow-hidden
             `}>
                 {!selectedChatId ? (
                     <div className="flex-1 flex flex-col items-center justify-center text-slate-400 p-8 text-center animate-fade-in">
