@@ -24,13 +24,84 @@ interface BlogPostReaderProps {
     post: BlogPost;
 }
 
-const BlogPostReader: React.FC<BlogPostReaderProps> = ({ post }) => {
+const CodeBlock = React.memo(({ node, inline, className, children, ...props }: any) => {
+    const match = /language-(\w+)/.exec(className || '');
+    const language = match ? match[1] : null;
+
+    if (!inline && language) {
+        return (
+            <div className="relative group rounded-xl overflow-hidden my-6 border border-slate-700 shadow-2xl">
+                <div className="absolute top-0 left-0 right-0 h-10 bg-[#2D2D2D] border-b border-black/50 flex items-center justify-between px-4">
+                    <div className="flex gap-1.5">
+                        <div className="w-3 h-3 rounded-full bg-red-500/80" />
+                        <div className="w-3 h-3 rounded-full bg-yellow-500/80" />
+                        <div className="w-3 h-3 rounded-full bg-green-500/80" />
+                    </div>
+                    <div className="text-xs font-mono text-slate-400 uppercase tracking-wider">
+                        {language}
+                    </div>
+                </div>
+                <SyntaxHighlighter
+                    style={atomDark}
+                    language={language}
+                    PreTag="div"
+                    customStyle={{
+                        margin: 0,
+                        padding: '3.5rem 1.5rem 1.5rem',
+                        background: '#1E1E1E',
+                        fontSize: '0.9rem',
+                        lineHeight: '1.6',
+                    }}
+                    {...props}
+                >
+                    {String(children).replace(/\n$/, '')}
+                </SyntaxHighlighter>
+
+                <button
+                    onClick={() => {
+                        navigator.clipboard.writeText(String(children));
+                        // alert("Code copied!"); // Removed alert for smoother UX
+                    }}
+                    className="absolute top-2 right-2 p-1.5 text-slate-400 hover:text-white bg-white/5 hover:bg-white/10 rounded-lg transition-colors opacity-0 group-hover:opacity-100"
+                    title="Copy Code"
+                >
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2" /><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2" /></svg>
+                </button>
+            </div>
+        );
+    }
+    return (
+        <code className={`${className} bg-slate-100 dark:bg-slate-800 px-1.5 py-0.5 rounded font-mono text-brand-primary font-bold`} {...props}>
+            {children}
+        </code>
+    );
+});
+
+const MarkdownImage = React.memo(({ src, alt, ...props }: any) => {
+    return (
+        <img
+            src={src}
+            alt={alt}
+            loading="lazy"
+            className="rounded-2xl shadow-lg my-8 w-full max-h-[500px] object-cover bg-slate-100 dark:bg-slate-800"
+            {...props}
+        />
+    );
+});
+
+const BlogPostReader: React.FC<BlogPostReaderProps> = React.memo(({ post }) => {
     const { scrollYProgress } = useScroll();
     const scaleX = useSpring(scrollYProgress, {
         stiffness: 100,
         damping: 30,
         restDelta: 0.001
     });
+
+    // Memoize the components map to prevent ReactMarkdown from re-rendering everything on parent updates
+    const markdownComponents = React.useMemo(() => ({
+        code: CodeBlock,
+        img: MarkdownImage
+    }), []);
 
     return (
         <article className="relative max-w-4xl mx-auto bg-white dark:bg-slate-950 min-h-screen">
@@ -121,60 +192,7 @@ const BlogPostReader: React.FC<BlogPostReaderProps> = ({ post }) => {
                     prose-pre:bg-[#1E1E1E] prose-pre:rounded-xl prose-pre:border prose-pre:border-slate-800 prose-pre:shadow-2xl"
                 >
                     <ReactMarkdown
-                        components={{
-                            code({ node, inline, className, children, ...props }: any) {
-                                const match = /language-(\w+)/.exec(className || '');
-                                const language = match ? match[1] : null;
-
-                                if (!inline && language) {
-                                    return (
-                                        <div className="relative group rounded-xl overflow-hidden my-6 border border-slate-700 shadow-2xl">
-                                            <div className="absolute top-0 left-0 right-0 h-10 bg-[#2D2D2D] border-b border-black/50 flex items-center justify-between px-4">
-                                                <div className="flex gap-1.5">
-                                                    <div className="w-3 h-3 rounded-full bg-red-500/80" />
-                                                    <div className="w-3 h-3 rounded-full bg-yellow-500/80" />
-                                                    <div className="w-3 h-3 rounded-full bg-green-500/80" />
-                                                </div>
-                                                <div className="text-xs font-mono text-slate-400 uppercase tracking-wider">
-                                                    {language}
-                                                </div>
-                                            </div>
-                                            <SyntaxHighlighter
-                                                style={atomDark}
-                                                language={language}
-                                                PreTag="div"
-                                                customStyle={{
-                                                    margin: 0,
-                                                    padding: '3.5rem 1.5rem 1.5rem',
-                                                    background: '#1E1E1E',
-                                                    fontSize: '0.9rem',
-                                                    lineHeight: '1.6',
-                                                }}
-                                                {...props}
-                                            >
-                                                {String(children).replace(/\n$/, '')}
-                                            </SyntaxHighlighter>
-
-                                            <button
-                                                onClick={() => {
-                                                    navigator.clipboard.writeText(String(children));
-                                                    alert("Code copied!");
-                                                }}
-                                                className="absolute top-2 right-2 p-1.5 text-slate-400 hover:text-white bg-white/5 hover:bg-white/10 rounded-lg transition-colors opacity-0 group-hover:opacity-100"
-                                                title="Copy Code"
-                                            >
-                                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2" /><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2" /></svg>
-                                            </button>
-                                        </div>
-                                    );
-                                }
-                                return (
-                                    <code className={`${className} bg-slate-100 dark:bg-slate-800 px-1.5 py-0.5 rounded font-mono text-brand-primary font-bold`} {...props}>
-                                        {children}
-                                    </code>
-                                );
-                            }
-                        }}
+                        components={markdownComponents}
                     >
                         {post.content}
                     </ReactMarkdown>
@@ -182,6 +200,6 @@ const BlogPostReader: React.FC<BlogPostReaderProps> = ({ post }) => {
             </div>
         </article>
     );
-};
+});
 
 export default BlogPostReader;
