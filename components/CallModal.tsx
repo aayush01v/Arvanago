@@ -141,11 +141,11 @@ const CallModal: React.FC<CallModalProps> = ({ isOpen, onClose, callId, isCaller
     if (!isOpen) return null;
 
     return createPortal(
-        <div className="fixed inset-0 z-[9999] flex flex-col items-center justify-center p-4 sm:p-6 animate-fade-in">
+        <div className="fixed inset-0 z-[9999] flex flex-col items-center justify-center sm:p-6 animate-fade-in">
             {/* Backdrop with Blur */}
             <div className="absolute inset-0 bg-slate-900/90 backdrop-blur-xl transition-all duration-500" />
 
-            <div className="relative w-full max-w-5xl h-full max-h-[85vh] bg-black/80 rounded-[2.5rem] overflow-hidden shadow-2xl border border-white/10 flex flex-col items-center">
+            <div className="relative w-full sm:max-w-5xl h-full sm:max-h-[85vh] bg-black/80 sm:rounded-[2.5rem] overflow-hidden shadow-2xl border-0 sm:border border-white/10 flex flex-col items-center">
 
                 {/* Main Video Area */}
                 <div className="relative w-full h-full flex items-center justify-center overflow-hidden bg-slate-900">
@@ -187,7 +187,7 @@ const CallModal: React.FC<CallModalProps> = ({ isOpen, onClose, callId, isCaller
                 </div>
 
                 {/* Local Video (PiP) */}
-                <div className="absolute top-6 right-6 w-32 h-44 sm:w-48 sm:h-64 bg-slate-800 rounded-2xl overflow-hidden shadow-2xl border border-white/20 transition-all hover:scale-105 hover:border-brand-primary/50 group">
+                <div className="absolute top-6 right-6 w-28 h-40 sm:w-48 sm:h-64 bg-slate-800 rounded-2xl overflow-hidden shadow-2xl border border-white/20 transition-all hover:scale-105 hover:border-brand-primary/50 group z-20">
                     <video
                         ref={localVideoRef}
                         autoPlay
@@ -197,10 +197,9 @@ const CallModal: React.FC<CallModalProps> = ({ isOpen, onClose, callId, isCaller
                     />
                     {(isVideoOff || callType === 'audio') && (
                         <div className="absolute inset-0 flex flex-col items-center justify-center bg-slate-800 p-4 text-center">
-                            <div className="w-16 h-16 rounded-full bg-slate-700 flex items-center justify-center mb-2">
-                                <Icon name={callType === 'audio' ? "mic" : "videoOff"} className="w-8 h-8 text-slate-400" />
+                            <div className="w-10 h-10 sm:w-16 sm:h-16 rounded-full bg-slate-700 flex items-center justify-center mb-2">
+                                <Icon name={callType === 'audio' ? "mic" : "videoOff"} className="w-6 h-6 sm:w-8 sm:h-8 text-slate-400" />
                             </div>
-                            <span className="text-xs text-slate-400 font-medium">You are {callType === 'audio' ? 'in audio mode' : 'hidden'}</span>
                         </div>
                     )}
                 </div>
@@ -213,11 +212,11 @@ const CallModal: React.FC<CallModalProps> = ({ isOpen, onClose, callId, isCaller
                 </div>
 
                 {/* Floating Controls Bar */}
-                <div className="absolute bottom-10 left-1/2 -translate-x-1/2 flex items-center gap-4 sm:gap-6 z-30 p-2 rounded-full">
+                <div className="absolute bottom-6 sm:bottom-10 left-1/2 -translate-x-1/2 flex items-center gap-3 sm:gap-6 z-30 p-2 rounded-full w-full justify-center px-4">
 
                     <button
                         onClick={toggleMute}
-                        className={`p-5 rounded-full transition-all duration-300 backdrop-blur-md shadow-lg border ${isMuted
+                        className={`p-4 sm:p-5 rounded-full transition-all duration-300 backdrop-blur-md shadow-lg border ${isMuted
                                 ? 'bg-white text-slate-900 border-white hover:bg-slate-200'
                                 : 'bg-white/10 text-white border-white/10 hover:bg-white/20 hover:scale-110'
                             }`}
@@ -229,7 +228,7 @@ const CallModal: React.FC<CallModalProps> = ({ isOpen, onClose, callId, isCaller
                     <button
                         onClick={handleSwitchCamera}
                         disabled={callType === 'audio'}
-                        className={`p-5 rounded-full transition-all duration-300 backdrop-blur-md shadow-lg border bg-white/10 text-white border-white/10 hover:bg-white/20 hover:scale-110 hover:rotate-180 ${callType === 'audio' ? 'hidden' : ''}`}
+                        className={`p-4 sm:p-5 rounded-full transition-all duration-300 backdrop-blur-md shadow-lg border bg-white/10 text-white border-white/10 hover:bg-white/20 hover:scale-110 hover:rotate-180 ${callType === 'audio' ? 'hidden' : ''}`}
                         title="Switch Camera"
                     >
                         <Icon name="refreshCw" className="w-6 h-6" />
@@ -237,7 +236,7 @@ const CallModal: React.FC<CallModalProps> = ({ isOpen, onClose, callId, isCaller
 
                     <button
                         onClick={handleHangUp}
-                        className="p-6 rounded-full bg-red-500 text-white shadow-xl shadow-red-500/40 border border-red-400 hover:bg-red-600 hover:scale-110 active:scale-95 transition-all duration-300 mx-2"
+                        className="p-5 sm:p-6 rounded-full bg-red-500 text-white shadow-xl shadow-red-500/40 border border-red-400 hover:bg-red-600 hover:scale-110 active:scale-95 transition-all duration-300 mx-1 sm:mx-2"
                         title="End Call"
                     >
                         <Icon name="phone" className="w-8 h-8 rotate-[135deg]" />
@@ -246,7 +245,7 @@ const CallModal: React.FC<CallModalProps> = ({ isOpen, onClose, callId, isCaller
                     <button
                         onClick={toggleVideo}
                         disabled={callType === 'audio'}
-                        className={`p-5 rounded-full transition-all duration-300 backdrop-blur-md shadow-lg border ${isVideoOff || callType === 'audio'
+                        className={`p-4 sm:p-5 rounded-full transition-all duration-300 backdrop-blur-md shadow-lg border ${isVideoOff || callType === 'audio'
                                 ? 'bg-white text-slate-900 border-white hover:bg-slate-200'
                                 : 'bg-white/10 text-white border-white/10 hover:bg-white/20 hover:scale-110'
                             } ${callType === 'audio' ? 'opacity-50 cursor-not-allowed' : ''}`}
@@ -257,7 +256,7 @@ const CallModal: React.FC<CallModalProps> = ({ isOpen, onClose, callId, isCaller
 
                     <button
                         onClick={toggleSpeaker}
-                        className={`p-5 rounded-full transition-all duration-300 backdrop-blur-md shadow-lg border ${!isSpeakerOn
+                        className={`p-4 sm:p-5 rounded-full transition-all duration-300 backdrop-blur-md shadow-lg border ${!isSpeakerOn
                                 ? 'bg-white text-slate-900 border-white hover:bg-slate-200'
                                 : 'bg-white/10 text-white border-white/10 hover:bg-white/20 hover:scale-110'
                             }`}
