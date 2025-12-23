@@ -423,14 +423,10 @@ const ChatPage: React.FC = () => {
                                                         `}
                                                     >
                                                         {msg.imageUrl && (
-                                                            <div className="mb-2 -mx-2 -mt-2 overflow-hidden rounded-lg">
-                                                                <img
-                                                                    src={msg.imageUrl}
-                                                                    alt="Attachment"
-                                                                    className="w-full max-h-80 object-cover cursor-pointer hover:scale-105 transition-transform duration-500 shadow-sm"
-                                                                    onClick={() => setExpandedImage(msg.imageUrl)}
-                                                                />
-                                                            </div>
+                                                            <MessageImage
+                                                                src={msg.imageUrl}
+                                                                onClick={() => setExpandedImage(msg.imageUrl || null)}
+                                                            />
                                                         )}
 
                                                         {msg.text && <p>{msg.text}</p>}
@@ -635,5 +631,26 @@ const ChatListItem: React.FC<{
         </div>
     );
 });
+
+const MessageImage: React.FC<{ src: string; onClick: () => void }> = ({ src, onClick }) => {
+    const [isLoading, setIsLoading] = useState(true);
+
+    return (
+        <div className="relative mb-2 -mx-2 -mt-2 overflow-hidden rounded-lg min-h-[150px] bg-slate-100 dark:bg-slate-800 flex items-center justify-center">
+            {isLoading && (
+                <div className="absolute inset-0 flex items-center justify-center z-0">
+                    <Icon name="loader" className="w-8 h-8 text-brand-primary animate-spin" />
+                </div>
+            )}
+            <img
+                src={src}
+                alt="Attachment"
+                className={`w-full max-h-80 object-cover cursor-pointer hover:scale-105 transition-transform duration-500 shadow-sm relative z-10 ${isLoading ? 'opacity-0' : 'opacity-100'}`}
+                onClick={onClick}
+                onLoad={() => setIsLoading(false)}
+            />
+        </div>
+    );
+};
 
 export default ChatPage;
