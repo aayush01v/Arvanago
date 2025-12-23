@@ -3,21 +3,209 @@ import { BlogPost, User } from '@/types';
 import { Timestamp } from 'firebase/firestore';
 
 const MOCK_TIMESTAMP = {
-    seconds: Math.floor(Date.now() / 1000),
-    nanoseconds: 0,
-    toDate: () => new Date(),
-    toMillis: () => Date.now(),
-    isEqual: () => false,
-    valueOf: () => "0",
+  seconds: Math.floor(Date.now() / 1000),
+  nanoseconds: 0,
+  toDate: () => new Date(),
+  toMillis: () => Date.now(),
+  isEqual: () => false,
+  valueOf: () => "0",
 } as unknown as Timestamp;
 
 export const STATIC_POSTS: BlogPost[] = [
-    {
-        id: 'dead-internet-theory',
-        title: 'The Dead Internet Theory: Are You Playing Against Real People?',
-        slug: 'dead-internet-theory',
-        excerpt: 'Dive into the "Dead Internet Theory"—the conspiracy that robots are taking over online conversation. Then discover how RGSGT Publishing turns that fear into a feature.',
-        content: `
+  {
+    id: 'product-engineer-2026',
+    title: 'The "Full-Stack" Is Dead: Why You Need to Be a "Product Engineer" in 2026',
+    slug: 'product-engineer-2026',
+    excerpt: 'The era of being valued only for knowing frameworks is ending. AI handle syntax; you must own outcomes. Discover why the "Product Engineer" is the only role that matters in 2026.',
+    content: `
+# The "Full-Stack" Is Dead: Why You Need to Be a "Product Engineer" in 2026
+
+## Target Audience
+CS graduates and bootcamp students worried about AI replacing developer jobs.
+
+---
+
+## Introduction
+
+Junior developers today are scared—and for a good reason. AI tools can now generate full applications, write APIs, and fix bugs in seconds. This has created confusion around one big question:
+
+**What should a developer study in 2026?**
+
+The answer is simple but uncomfortable: *writing syntax is no longer the hard part*. The era of being valued only for knowing frameworks is ending. What’s emerging instead is the role of the **Product Engineer**.
+
+---
+
+## The Core Problem
+
+Most students are trained to think like this:
+- Learn a language
+- Learn a framework
+- Build a project
+
+But AI can already do most of that. Syntax, boilerplate, and basic logic are now commodities. This means:
+
+- Knowing React or Node alone is not enough
+- Being "full-stack" is now baseline, not a differentiator
+- Copy‑paste development is replaceable
+
+The fear isn’t irrational—it’s a signal that the skillset needs to evolve.
+
+---
+
+## Why "Full-Stack" Is No Longer Enough
+
+The term *full-stack* used to mean someone who could handle frontend and backend work. Today, that’s the **minimum expectation**.
+
+Modern software fails not because of bad syntax, but because of:
+- Poor understanding of user needs
+- Incorrect business logic
+- Bad deployment decisions
+- Lack of monitoring and iteration
+
+AI can generate code. It cannot own outcomes.
+
+---
+
+## Who Is a Product Engineer?
+
+A **Product Engineer** is a developer who understands the *entire lifecycle* of a feature:
+
+- Why it exists (business & user value)
+- How it should behave (logic & edge cases)
+- How it’s shipped (deployment & safety)
+- How success is measured (metrics & feedback)
+
+They don’t just ask:
+> “How do I build this?”
+
+They ask:
+> “Should this be built, and how do we know it worked?”
+
+---
+
+## What AI Makes Easy—and What It Doesn’t
+
+### Easy for AI:
+- Writing syntax
+- Generating CRUD APIs
+- Creating UI components
+- Scaffolding projects
+
+### Still Hard (Human Skills):
+- Translating vague business goals into features
+- Choosing trade‑offs under real constraints
+- Designing for usability and retention
+- Deploying safely with rollback strategies
+- Measuring real‑world impact
+
+Perfect code that solves the wrong problem is still a failure.
+
+---
+
+## What You Should Study Instead (Roadmap)
+
+### 1. Strong Foundations
+- Programming fundamentals
+- Data structures and databases
+- Git and version control
+
+### 2. Business & Product Thinking
+- Writing problem statements
+- Understanding metrics (retention, funnels, DAU/MAU)
+- Defining success before building
+
+### 3. Deployment & Reliability
+- CI/CD pipelines
+- Monitoring and logging
+- Feature flags and rollbacks
+
+### 4. UX & Design Awareness
+- User flows and onboarding
+- Usability heuristics
+- Small design experiments
+
+### 5. Communication & Experiments
+- Writing clear PRs and design docs
+- Running experiments
+- Learning from failure through postmortems
+
+---
+
+## How to Show This on Your Resume
+
+Instead of:
+> Built a Todo App using React and Node
+
+Say:
+> Improved onboarding completion from 20% to 45% by redesigning signup flow, adding analytics, and deploying via CI/CD with rollback support
+
+Recruiters care about **impact**, not frameworks.
+
+---
+
+## Interview Reality in 2026
+
+Expect questions like:
+- How would you improve a product metric?
+- How would you deploy this feature safely?
+- What trade‑offs would you make and why?
+
+Your advantage comes from thinking beyond code.
+
+---
+
+## Where EduSimulate Fits In
+
+EduSimulate is not just another coding bootcamp.
+
+It’s built for the Product Engineer era.
+
+### Skill Radar
+EduSimulate’s **Skill Radar** tracks:
+- Business understanding
+- Design & UX thinking
+- Deployment and production readiness
+
+—not just syntax or frameworks.
+
+You don’t just build projects.
+You ship, measure, and improve them.
+
+---
+
+## Final Message
+
+The future developer is not the fastest typist.
+
+It’s the one who:
+- Understands users
+- Ships responsibly
+- Measures impact
+- Thinks like an owner
+
+The full‑stack title is fading.
+
+**Product Engineers are taking its place.**
+        `,
+    coverImage: 'https://images.unsplash.com/photo-1550751827-4bd374c3f58b?auto=format&fit=crop&q=80',
+    author: {
+      uid: 'admin-career',
+      name: 'Career Guide',
+      avatar: 'https://i.pravatar.cc/150?u=career'
+    },
+    tags: ['Career', 'AI', 'ProductEngineer', 'FutureOfWork'],
+    likes: 245,
+    commentsCount: 89,
+    isPublished: true,
+    createdAt: MOCK_TIMESTAMP,
+    updatedAt: MOCK_TIMESTAMP
+  },
+  {
+    id: 'dead-internet-theory',
+    title: 'The Dead Internet Theory: Are You Playing Against Real People?',
+    slug: 'dead-internet-theory',
+    excerpt: 'Dive into the "Dead Internet Theory"—the conspiracy that robots are taking over online conversation. Then discover how RGSGT Publishing turns that fear into a feature.',
+    content: `
 # The Dead Internet Theory: Are You Playing Against Real People?
 
 **Meta (SEO):** *Dead Internet Theory 2025 | AI Agents in gaming | Turing Test for NPCs*  
@@ -122,25 +310,25 @@ Building humanlike agents comes with responsibilities:
 
 A policy-first approach avoids backlash and preserves long-term trust.
         `,
-        coverImage: 'https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?auto=format&fit=crop&q=80',
-        author: {
-            uid: 'admin-rgsgt',
-            name: 'RGSGT Publishing',
-            avatar: 'https://i.pravatar.cc/150?u=rgsgt'
-        },
-        tags: ['AI', 'DeadInternet', 'GameDev', 'TuringTest'],
-        likes: 124,
-        commentsCount: 42,
-        isPublished: true,
-        createdAt: MOCK_TIMESTAMP,
-        updatedAt: MOCK_TIMESTAMP
+    coverImage: 'https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?auto=format&fit=crop&q=80',
+    author: {
+      uid: 'admin-rgsgt',
+      name: 'RGSGT Publishing',
+      avatar: 'https://i.pravatar.cc/150?u=rgsgt'
     },
-    {
-        id: 'beyond-frameworks-vanilla-js-2025',
-        title: 'Beyond Frameworks: The Return of Vanilla JavaScript in 2025',
-        slug: 'beyond-frameworks-vanilla-js-2025',
-        excerpt: 'In 2025, modern browsers are powerful enough to challenge heavy frameworks. Learn why Vanilla JavaScript is making a comeback—and how to build fast, interactive components without React.',
-        content: `
+    tags: ['AI', 'DeadInternet', 'GameDev', 'TuringTest'],
+    likes: 124,
+    commentsCount: 42,
+    isPublished: true,
+    createdAt: MOCK_TIMESTAMP,
+    updatedAt: MOCK_TIMESTAMP
+  },
+  {
+    id: 'beyond-frameworks-vanilla-js-2025',
+    title: 'Beyond Frameworks: The Return of Vanilla JavaScript in 2025',
+    slug: 'beyond-frameworks-vanilla-js-2025',
+    excerpt: 'In 2025, modern browsers are powerful enough to challenge heavy frameworks. Learn why Vanilla JavaScript is making a comeback—and how to build fast, interactive components without React.',
+    content: `
 # Beyond Frameworks: The Return of Vanilla JavaScript in 2025
 
 **Meta (SEO):** *Vanilla JS vs React 2025 | Web performance optimization | Frontend development trends*  
@@ -343,25 +531,25 @@ By embracing modern browser capabilities, you can build interactive, beautiful, 
 
 **Tags:** Vanilla JavaScript, Vanilla JS vs React 2025, Web performance optimization, Frontend development trends, modern web
 `,
-        coverImage: 'https://images.unsplash.com/photo-1555099962-4199c345e5dd?auto=format&fit=crop&q=80',
-        author: {
-            uid: 'admin-js',
-            name: 'Frontend Weekly',
-            avatar: 'https://i.pravatar.cc/150?u=js'
-        },
-        tags: ['JavaScript', 'WebDev', 'Performance', 'NoFramework'],
-        likes: 85,
-        commentsCount: 12,
-        isPublished: true,
-        createdAt: MOCK_TIMESTAMP,
-        updatedAt: MOCK_TIMESTAMP
+    coverImage: 'https://images.unsplash.com/photo-1555099962-4199c345e5dd?auto=format&fit=crop&q=80',
+    author: {
+      uid: 'admin-js',
+      name: 'Frontend Weekly',
+      avatar: 'https://i.pravatar.cc/150?u=js'
     },
-    {
-        id: 'c-23-modern-features-game-engines',
-        title: 'C++23 and Beyond: Modern Features for Game Engine Developers',
-        slug: 'c-23-modern-features-game-engines',
-        excerpt: 'Explore modern C++ (C++20/23) features that matter for game engines—Concepts, Modules, Coroutines, Ranges, and more—and how RGSGT Publishing uses them to build robust, high-performance engines.',
-        content: `
+    tags: ['JavaScript', 'WebDev', 'Performance', 'NoFramework'],
+    likes: 85,
+    commentsCount: 12,
+    isPublished: true,
+    createdAt: MOCK_TIMESTAMP,
+    updatedAt: MOCK_TIMESTAMP
+  },
+  {
+    id: 'c-23-modern-features-game-engines',
+    title: 'C++23 and Beyond: Modern Features for Game Engine Developers',
+    slug: 'c-23-modern-features-game-engines',
+    excerpt: 'Explore modern C++ (C++20/23) features that matter for game engines—Concepts, Modules, Coroutines, Ranges, and more—and how RGSGT Publishing uses them to build robust, high-performance engines.',
+    content: `
 # C++23 and Beyond: Modern Features for Game Engine Developers
 
 **Meta (SEO):** *C++23 features | Game engine architecture | C++ for Unreal Engine 5 | Memory management in C++*  
@@ -557,25 +745,25 @@ Modern C++ features reduce cognitive load and improve compiler diagnostics, but 
 
 **Tags:** C++23 features, Game engine architecture, C++ for Unreal Engine 5, Memory management in C++, RGSGT Publishing
 `,
-        coverImage: 'https://images.unsplash.com/photo-1555066931-4365d14bab8c?auto=format&fit=crop&q=80',
-        author: {
-            uid: 'admin-rgsgt',
-            name: 'RGSGT Publishing',
-            avatar: 'https://i.pravatar.cc/150?u=rgsgt'
-        },
-        tags: ['C++', 'GameDev', 'EngineArchitecture', 'Performance'],
-        likes: 0,
-        commentsCount: 0,
-        isPublished: true,
-        createdAt: MOCK_TIMESTAMP,
-        updatedAt: MOCK_TIMESTAMP
+    coverImage: 'https://images.unsplash.com/photo-1555066931-4365d14bab8c?auto=format&fit=crop&q=80',
+    author: {
+      uid: 'admin-rgsgt',
+      name: 'RGSGT Publishing',
+      avatar: 'https://i.pravatar.cc/150?u=rgsgt'
     },
-    {
-        id: 'gamification-education-ai-2025',
-        title: 'Gamification in Education: How AI Turns Students into Scholars',
-        slug: 'gamification-education-ai-2025',
-        excerpt: 'Learn why gamification and AI‑driven personalised learning are the top EdTech trends of 2025—and how EduSimulate’s Leaderboard and Streak features turn engagement into measurable learning gains.',
-        content: `
+    tags: ['C++', 'GameDev', 'EngineArchitecture', 'Performance'],
+    likes: 0,
+    commentsCount: 0,
+    isPublished: true,
+    createdAt: MOCK_TIMESTAMP,
+    updatedAt: MOCK_TIMESTAMP
+  },
+  {
+    id: 'gamification-education-ai-2025',
+    title: 'Gamification in Education: How AI Turns Students into Scholars',
+    slug: 'gamification-education-ai-2025',
+    excerpt: 'Learn why gamification and AI‑driven personalised learning are the top EdTech trends of 2025—and how EduSimulate’s Leaderboard and Streak features turn engagement into measurable learning gains.',
+    content: `
 # Gamification in Education: How AI Turns Students into Scholars
 
 **Meta (SEO):** *EdTech trends 2025 | Gamified learning platforms | AI in education | Student engagement strategies*  
@@ -729,25 +917,25 @@ A: Yes, when designed with learner wellbeing in mind. Transparent rules, opt‑o
 
 **Tags:** EdTech trends 2025, Gamified learning platforms, AI in education, Student engagement strategies, EduSimulate
 `,
-        coverImage: 'https://images.unsplash.com/photo-1503676260728-1c00da094a0b?auto=format&fit=crop&q=80',
-        author: {
-            uid: 'admin-education',
-            name: 'EduTech Insights',
-            avatar: 'https://i.pravatar.cc/150?u=education'
-        },
-        tags: ['EdTech', 'Gamification', 'AI', 'Education', 'StudentEngagement'],
-        likes: 0,
-        commentsCount: 0,
-        isPublished: true,
-        createdAt: MOCK_TIMESTAMP,
-        updatedAt: MOCK_TIMESTAMP
+    coverImage: 'https://images.unsplash.com/photo-1503676260728-1c00da094a0b?auto=format&fit=crop&q=80',
+    author: {
+      uid: 'admin-education',
+      name: 'EduTech Insights',
+      avatar: 'https://i.pravatar.cc/150?u=education'
     },
-    {
-        id: 'webgpu-vs-webgl-physics-simulation',
-        title: 'WebGPU vs. WebGL: The Future of Physics Simulation in Browsers',
-        slug: 'webgpu-vs-webgl-physics-simulation',
-        excerpt: 'WebGPU is redefining high‑performance browser graphics and physics simulation. Learn how it compares to WebGL, how C++ compiles to WebAssembly, and how the CarX Engine brings real physics to the web.',
-        content: `
+    tags: ['EdTech', 'Gamification', 'AI', 'Education', 'StudentEngagement'],
+    likes: 0,
+    commentsCount: 0,
+    isPublished: true,
+    createdAt: MOCK_TIMESTAMP,
+    updatedAt: MOCK_TIMESTAMP
+  },
+  {
+    id: 'webgpu-vs-webgl-physics-simulation',
+    title: 'WebGPU vs. WebGL: The Future of Physics Simulation in Browsers',
+    slug: 'webgpu-vs-webgl-physics-simulation',
+    excerpt: 'WebGPU is redefining high‑performance browser graphics and physics simulation. Learn how it compares to WebGL, how C++ compiles to WebAssembly, and how the CarX Engine brings real physics to the web.',
+    content: `
 # WebGPU vs. WebGL: The Future of Physics Simulation in Browsers
 
 **Meta (SEO):** *Browser physics simulation | WebGPU tutorial | High-performance web graphics | C++ to WebAssembly*  
@@ -945,17 +1133,17 @@ The future of high‑performance web graphics and physics simulation is no longe
 
 **Tags:** Browser physics simulation, WebGPU tutorial, High‑performance web graphics, C++ to WebAssembly, CarX Engine, web simulation, game engines
 `,
-        coverImage: 'https://images.unsplash.com/photo-1550745165-9bc0b252726f?auto=format&fit=crop&q=80',
-        author: {
-            uid: 'admin-graphics',
-            name: 'Graphics Tech Weekly',
-            avatar: 'https://i.pravatar.cc/150?u=graphics'
-        },
-        tags: ['WebGPU', 'WebGL', 'Physics', 'WASM', 'GameDev'],
-        likes: 0,
-        commentsCount: 0,
-        isPublished: true,
-        createdAt: MOCK_TIMESTAMP,
-        updatedAt: MOCK_TIMESTAMP
-    }
+    coverImage: 'https://images.unsplash.com/photo-1550745165-9bc0b252726f?auto=format&fit=crop&q=80',
+    author: {
+      uid: 'admin-graphics',
+      name: 'Graphics Tech Weekly',
+      avatar: 'https://i.pravatar.cc/150?u=graphics'
+    },
+    tags: ['WebGPU', 'WebGL', 'Physics', 'WASM', 'GameDev'],
+    likes: 0,
+    commentsCount: 0,
+    isPublished: true,
+    createdAt: MOCK_TIMESTAMP,
+    updatedAt: MOCK_TIMESTAMP
+  }
 ];
