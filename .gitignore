@@ -26,3 +26,9 @@ dist-ssr
 *.sln
 *.sw?
 .vite
+
+# Migration script files
+scripts/migration_status.json
+scripts/migrated_links.txt
+scripts/temp/
+scripts/videos.txt
