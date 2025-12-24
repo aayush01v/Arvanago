@@ -671,7 +671,7 @@ const GlassPreviewPlayer: React.FC<GlassPreviewPlayerProps> = ({ videoUrl, poste
                   src={`https://player.vimeo.com/video/${vimeoId}?background=1&autoplay=0&loop=1&byline=0&title=0&muted=0&controls=0`}
                   className="h-full w-full pointer-events-none" // pointer-events-none to let Glass controls handle click
                   frameBorder="0"
-                  allow="autoplay; fullscreen; picture-in-picture" // Removed encryption-media/referrerPolicy/sandbox to fix playback
+                  allow="autoplay; fullscreen; picture-in-picture; encrypted-media" // Re-added encrypted-media
                   allowFullScreen
                   style={{ pointerEvents: 'none' }} // Ensure clicks go to the glass overlay
                 />
