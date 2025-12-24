@@ -3,6 +3,8 @@ import React, { useEffect, useState } from 'react';
 import ReactMarkdown from 'react-markdown';
 import { BlogPost } from '@/types';
 import { motion, useScroll, useSpring } from 'framer-motion';
+import remarkMath from 'remark-math';
+import rehypeKatex from 'rehype-katex';
 
 import { PrismLight as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { atomDark } from 'react-syntax-highlighter/dist/esm/styles/prism';
@@ -104,7 +106,7 @@ const BlogPostReader: React.FC<BlogPostReaderProps> = React.memo(({ post }) => {
     }), []);
 
     return (
-        <article className="relative max-w-4xl mx-auto bg-white dark:bg-slate-950 min-h-screen">
+        <article className={`relative max-w-4xl mx-auto bg-white dark:bg-slate-950 min-h-screen ${post.tags.includes('Physics') ? 'physics-theme' : ''}`}>
             {/* Reading Progress Bar */}
             <motion.div
                 className="fixed top-0 left-0 right-0 h-1.5 bg-brand-primary origin-left z-50"
@@ -115,8 +117,18 @@ const BlogPostReader: React.FC<BlogPostReaderProps> = React.memo(({ post }) => {
             <header className="relative py-24 px-6 text-center overflow-hidden">
                 {/* Background Elements */}
                 <div className="absolute inset-0 overflow-hidden pointer-events-none">
-                    <div className="absolute top-0 left-1/4 w-96 h-96 bg-brand-primary/10 rounded-full blur-[100px] animate-blob" />
-                    <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-brand-secondary/10 rounded-full blur-[100px] animate-blob animation-delay-2000" />
+                    {post.tags.includes('Physics') ? (
+                        <>
+                            <div className="absolute top-0 left-1/4 w-96 h-96 bg-blue-500/10 rounded-full blur-[100px] animate-blob" />
+                            <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-indigo-500/10 rounded-full blur-[100px] animate-blob animation-delay-2000" />
+                            <div className="absolute top-0 right-0 w-full h-full bg-[url('https://www.transparenttextures.com/patterns/graphy.png')] opacity-[0.03]" />
+                        </>
+                    ) : (
+                        <>
+                            <div className="absolute top-0 left-1/4 w-96 h-96 bg-brand-primary/10 rounded-full blur-[100px] animate-blob" />
+                            <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-brand-secondary/10 rounded-full blur-[100px] animate-blob animation-delay-2000" />
+                        </>
+                    )}
                 </div>
 
                 <motion.div
@@ -193,6 +205,8 @@ const BlogPostReader: React.FC<BlogPostReaderProps> = React.memo(({ post }) => {
                 >
                     <ReactMarkdown
                         components={markdownComponents}
+                        remarkPlugins={[remarkMath]}
+                        rehypePlugins={[rehypeKatex]}
                     >
                         {post.content}
                     </ReactMarkdown>
