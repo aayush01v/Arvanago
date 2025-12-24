@@ -4,6 +4,7 @@ import ReactMarkdown from 'react-markdown';
 import { BlogPost } from '@/types';
 import { motion, useScroll, useSpring } from 'framer-motion';
 import remarkMath from 'remark-math';
+import remarkGfm from 'remark-gfm';
 import rehypeKatex from 'rehype-katex';
 
 import { PrismLight as SyntaxHighlighter } from 'react-syntax-highlighter';
@@ -205,7 +206,7 @@ const BlogPostReader: React.FC<BlogPostReaderProps> = React.memo(({ post }) => {
                 >
                     <ReactMarkdown
                         components={markdownComponents}
-                        remarkPlugins={[remarkMath]}
+                        remarkPlugins={[remarkMath, remarkGfm]}
                         rehypePlugins={[rehypeKatex]}
                     >
                         {post.content}
