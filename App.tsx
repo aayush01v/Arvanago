@@ -41,6 +41,7 @@ const NotFoundPage = React.lazy(() => import('@/pages/NotFoundPage'));
 const BlogPage = React.lazy(() => import('@/pages/BlogPage'));
 const BlogPostPage = React.lazy(() => import('@/pages/BlogPostPage'));
 const AdminBlogPage = React.lazy(() => import('@/pages/AdminBlogPage'));
+const VideoPreviewPage = React.lazy(() => import('@/pages/VideoPreviewPage'));
 import AdminRoute from '@/components/AdminRoute';
 
 const SuspenseFallback: React.FC = () => (
@@ -422,6 +423,26 @@ const App: React.FC = () => {
                     onRefreshCourses={fetchCourseData}
                   >
                     <AdminBlogPage />
+                  </SidebarLayout>
+                </AdminRoute>
+              }
+            />
+
+            <Route
+              path="/preview"
+              element={
+                <AdminRoute user={user} authReady={authReady}>
+                  <SidebarLayout
+                    user={user}
+                    courses={courses}
+                    isDarkMode={isDarkMode}
+                    onThemeToggle={handleThemeToggle}
+                    onProfileUpdate={handleProfileUpdate}
+                    coursesLoading={coursesLoading}
+                    coursesError={coursesError}
+                    onRefreshCourses={fetchCourseData}
+                  >
+                    <VideoPreviewPage />
                   </SidebarLayout>
                 </AdminRoute>
               }

@@ -25,6 +25,7 @@ interface SidebarLayoutProps {
   coursesLoading: boolean;
   coursesError: string | null;
   onRefreshCourses: (options?: { forceRefresh?: boolean }) => Promise<void>;
+  children?: React.ReactNode;
 }
 
 const SidebarLayout: React.FC<SidebarLayoutProps> = ({
@@ -36,6 +37,7 @@ const SidebarLayout: React.FC<SidebarLayoutProps> = ({
   coursesLoading,
   coursesError,
   onRefreshCourses,
+  children,
 }) => {
   const [isSidebarOpen, setSidebarOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
@@ -237,18 +239,20 @@ const SidebarLayout: React.FC<SidebarLayoutProps> = ({
                     <div className="pointer-events-none absolute bottom-[-3rem] right-[-2rem] h-48 w-48 rounded-full bg-sky-500/40 blur-3xl opacity-80" style={{ animation: 'pulseGlow 20s ease-in-out infinite alternate' }} />
                     <div className="relative z-10 p-3 sm:p-6 lg:p-10">
                       <div className="animate-fade-in-up">
-                        <Outlet
-                          context={{
-                            user,
-                            courses,
-                            onProfileUpdate,
-                            coursesLoading,
-                            coursesError,
-                            refreshCourses: onRefreshCourses,
-                            isDarkMode,
-                            onThemeToggle,
-                          }}
-                        />
+                        <div className="animate-fade-in-up">
+                          {children || <Outlet
+                            context={{
+                              user,
+                              courses,
+                              onProfileUpdate,
+                              coursesLoading,
+                              coursesError,
+                              refreshCourses: onRefreshCourses,
+                              isDarkMode,
+                              onThemeToggle,
+                            }}
+                          />}
+                        </div>
                       </div>
                     </div>
                   </div>
