@@ -445,7 +445,7 @@ const AdminBlogPage: React.FC = () => {
                                             onClick={() => handleDelete(post.id)}
                                             className="w-12 flex items-center justify-center rounded-lg bg-red-50 dark:bg-red-500/10 text-red-600 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-500/20 transition-colors"
                                         >
-                                            <Icon name="trash-2" className="w-4 h-4" />
+                                            <Icon name="trash" className="w-4 h-4" />
                                         </button>
                                     </div>
                                 </div>
@@ -518,7 +518,7 @@ const AdminBlogPage: React.FC = () => {
                                                         className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-lg transition-colors"
                                                         title="Delete"
                                                     >
-                                                        <Icon name="trash-2" className="w-4 h-4" />
+                                                        <Icon name="trash" className="w-4 h-4" />
                                                     </button>
                                                 </div>
                                             </td>
