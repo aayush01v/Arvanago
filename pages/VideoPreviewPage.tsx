@@ -1,29 +1,6 @@
 import React from 'react';
 import GlassPreviewPlayer from '../components/media/GlassPreviewPlayer';
-
-// Hardcoded data from recent migration for preview purposes
-const PREVIEW_VIDEOS = [
-    {
-        id: '1149238674',
-        title: '(Advance) Class - 07 Surds and Indices By Gagan sir [2025-12-09]',
-        url: 'https://vimeo.com/1149238674'
-    },
-    {
-        id: '1149238673',
-        title: 'ADVANCE (Topic 1)',
-        url: 'https://vimeo.com/1149238673'
-    },
-    {
-        id: '1149238675',
-        title: 'Main Topic : ADVANCE (Part 2)',
-        url: 'https://vimeo.com/1149238675'
-    },
-    {
-        id: '1149238676',
-        title: 'Main Topic : ADVANCE (Part 3)',
-        url: 'https://vimeo.com/1149238676'
-    }
-];
+import { PREVIEW_VIDEOS } from './previewVideos';
 
 const VideoPreviewPage: React.FC = () => {
     return (
