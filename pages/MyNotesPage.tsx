@@ -146,8 +146,11 @@ const MyNotesPage: React.FC = () => {
             zip.forEach((relativePath, entry) => {
                 if (entry.dir) return; // Ignore directory entries
                 // Ignore macOS junk and hidden files
-                if (relativePath.includes('__MACOSX') || relativePath.split('/').some(p => p.startsWith('.'))) return;
-                validFiles.push(relativePath);
+                if (relativePath.includes('__MACOSX') || relativePath.split(/[/\\]/).some(p => p.startsWith('.'))) return;
+
+                // Normalize separators
+                const normalizedPath = relativePath.replace(/\\/g, '/');
+                validFiles.push(normalizedPath);
             });
 
             let commonRoot = "";
@@ -177,7 +180,10 @@ const MyNotesPage: React.FC = () => {
             zip.forEach((relativePath, zipEntry) => {
                 if (zipEntry.dir) return;
                 // Double check it's not a hidden file
-                if (relativePath.includes('__MACOSX') || relativePath.split('/').some(p => p.startsWith('.'))) return;
+                if (relativePath.includes('__MACOSX') || relativePath.split(/[/\\]/).some(p => p.startsWith('.'))) return;
+
+                // Normalize Path
+                const normalizedPath = relativePath.replace(/\\/g, '/');
 
                 // Collect CSS
                 if (relativePath.endsWith('.css')) {
@@ -191,7 +197,7 @@ const MyNotesPage: React.FC = () => {
                 }
 
                 // Strip common root
-                const cleanPath = relativePath.startsWith(commonRoot) ? relativePath.slice(commonRoot.length) : relativePath;
+                const cleanPath = normalizedPath.startsWith(commonRoot) ? normalizedPath.slice(commonRoot.length) : normalizedPath;
                 if (!cleanPath) return;
 
                 // Only process .md or .canvas (as text/json content)

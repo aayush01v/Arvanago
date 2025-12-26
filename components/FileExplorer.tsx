@@ -21,25 +21,40 @@ const buildFileTree = (notes: Note[]): FileNode[] => {
     const map: Record<string, FileNode[]> = { '': root };
 
     notes.forEach(note => {
-        // Construct full path including filename to ensure uniqueness
-        const fullPath = note.path ? `${note.path}/${note.title}` : note.title;
+        // Handle potential path separators in title if path is missing (recovery mode)
+        // AND support backslashes for Windows compatibility
+        let fullPath = note.path ? `${note.path}/${note.title}` : note.title;
+
+        // Normalize to forward slashes
+        fullPath = fullPath.replace(/\\/g, '/');
+
+        // Remove multiple slashes //
+        fullPath = fullPath.replace(/\/+/g, '/');
+
         const parts = fullPath.split('/');
+
+        // Filter empty parts (e.g. leading slash resulting in empty first part)
+        const validParts = parts.filter(p => p.length > 0);
+
         let currentPath = '';
 
-        parts.forEach((part, index) => {
-            const isFile = index === parts.length - 1;
+        validParts.forEach((part, index) => {
+            const isFile = index === validParts.length - 1;
             const existingPath = currentPath;
             currentPath = currentPath ? `${currentPath}/${part}` : part;
 
             // If we are at the file level
             if (isFile) {
                 let parentChildren = map[existingPath] || root;
-                parentChildren.push({
-                    name: note.title,
-                    type: 'file',
-                    path: currentPath,
-                    note: note
-                });
+                // Avoid duplicates
+                if (!parentChildren.find(n => n.type === 'file' && n.name === part)) {
+                    parentChildren.push({
+                        name: part, // Use the part name (filename)
+                        type: 'file',
+                        path: currentPath,
+                        note: note
+                    });
+                }
             } else {
                 // Folder level
                 if (!map[currentPath]) {

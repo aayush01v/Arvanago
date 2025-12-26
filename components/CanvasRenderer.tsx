@@ -95,6 +95,8 @@ const CanvasRenderer: React.FC<CanvasRendererProps> = ({ content, onNavigate, on
     const processNodeText = (text: string) => {
         let cleanText = text;
         let classes = "";
+        let header = null;
+
         const frontmatterRegex = /^---\n([\s\S]*?)\n---\n/;
         const match = text.match(frontmatterRegex);
         if (match) {
@@ -105,7 +107,14 @@ const CanvasRenderer: React.FC<CanvasRendererProps> = ({ content, onNavigate, on
             }
             cleanText = text.replace(frontmatterRegex, '');
         }
-        cleanText = cleanText.replace(/\[!cc-header\]\s*(.*)/g, '### $1');
+
+        // Extract header
+        const headerMatch = cleanText.match(/\[!cc-header\]\s*(.*)/);
+        if (headerMatch) {
+            header = headerMatch[1];
+            cleanText = cleanText.replace(/\[!cc-header\]\s*(.*)(\n)?/g, '');
+        }
+
         cleanText = cleanText.replace(/\[!cc-card\]/g, '');
         cleanText = cleanText.replace(/\[\[([^\]|]+)(?:\|([^\]]+))?\]\]/g, (match, p1, p2) => {
             const label = p2 || p1;
@@ -116,7 +125,7 @@ const CanvasRenderer: React.FC<CanvasRendererProps> = ({ content, onNavigate, on
             return `<div class="p-2 border-l-4 border-brand-primary bg-slate-50 dark:bg-slate-800 my-2 text-sm italic">Embedded: ${p1}</div>`;
         });
         cleanText = cleanText.replace(/(^|\s)#([a-zA-Z0-9_-]+)/g, '$1<span class="text-brand-primary bg-brand-primary/10 px-1 rounded text-xs font-mono">#$2</span>');
-        return { cleanText, classes };
+        return { cleanText, classes, header };
     };
 
     const getNodeRect = (nodeId: string) => {
@@ -218,6 +227,7 @@ const CanvasRenderer: React.FC<CanvasRendererProps> = ({ content, onNavigate, on
     // Touch
     const handleNodeTouchStart = (e: React.TouchEvent, node: CanvasNode) => {
         e.stopPropagation();
+        e.preventDefault();
         setSelectedNodeId(node.id);
         setIsEditingText(false);
         setInteractionMode('drag-node');
@@ -246,6 +256,7 @@ const CanvasRenderer: React.FC<CanvasRendererProps> = ({ content, onNavigate, on
     // Touch
     const handleResizeTouchStart = (e: React.TouchEvent, handle: string) => {
         e.stopPropagation();
+        e.preventDefault();
         const node = data.nodes.find(n => n.id === selectedNodeId);
         if (!node) return;
         setInteractionMode('resize-node');
@@ -273,6 +284,7 @@ const CanvasRenderer: React.FC<CanvasRendererProps> = ({ content, onNavigate, on
     // Touch
     const handleConnectTouchStart = (e: React.TouchEvent, nodeId: string, side: 'top' | 'right' | 'bottom' | 'left') => {
         e.stopPropagation();
+        e.preventDefault();
         setInteractionMode('connect');
         const rect = getNodeRect(nodeId);
         const startPoint = getConnectorPoint(rect, side);
@@ -575,7 +587,7 @@ const CanvasRenderer: React.FC<CanvasRendererProps> = ({ content, onNavigate, on
 
                 {/* 2. Nodes Layer */}
                 {data.nodes.map(node => {
-                    const { cleanText, classes } = node.text ? processNodeText(node.text) : { cleanText: '', classes: '' };
+                    const { cleanText, classes, header } = node.text ? processNodeText(node.text) : { cleanText: '', classes: '', header: null };
                     const isSelected = node.id === selectedNodeId;
 
                     if (node.type === 'sticker') {
@@ -620,41 +632,57 @@ const CanvasRenderer: React.FC<CanvasRendererProps> = ({ content, onNavigate, on
                             {isSelected && <SelectionOverlay node={node} />}
 
                             {node.type === 'text' && node.text && (
-                                <div className="w-full h-full p-4 text-sm prose dark:prose-invert max-w-none overflow-y-auto node-content cursor-text"
-                                    onMouseDown={(e) => {
-                                        if (isEditingText) {
-                                            e.stopPropagation();
-                                        }
-                                    }}
-                                    onTouchStart={(e) => {
-                                        if (isEditingText) {
-                                            e.stopPropagation();
-                                        }
-                                    }}
+                                <div className="w-full h-full text-sm flex flex-col node-content cursor-text overflow-hidden rounded-lg"
                                     onDoubleClick={() => setIsEditingText(true)}
                                 >
-                                    {isEditingText ? (
-                                        <textarea
-                                            autoFocus
-                                            className="w-full h-full bg-transparent resize-none focus:outline-none"
-                                            value={node.text}
-                                            onChange={e => updateText(e.target.value)}
-                                            onBlur={() => setIsEditingText(false)}
-                                            onMouseDown={e => e.stopPropagation()}
-                                            onTouchStart={e => e.stopPropagation()}
-                                        />
-                                    ) : (
-                                        <div onClick={(e) => {
-                                            const target = e.target as HTMLElement;
-                                            const link = target.closest('a');
-                                            if (link && link.dataset.internalLink) {
-                                                e.preventDefault();
-                                                onNavigate?.(link.dataset.internalLink);
-                                            }
-                                        }}>
-                                            <ReactMarkdown rehypePlugins={[rehypeRaw]} remarkPlugins={[remarkGfm]}>{cleanText}</ReactMarkdown>
+                                    {!isEditingText && header && (
+                                        <div
+                                            className="px-4 py-3 border-b border-slate-200 dark:border-slate-700 font-bold text-base flex items-center shrink-0"
+                                            style={{
+                                                backgroundColor: node.color ? `${getColor(node.color)}33` : 'rgba(0,0,0,0.02)'
+                                            }}
+                                        >
+                                            <div className="mr-3 w-1 h-4 rounded-full"
+                                                style={{ backgroundColor: node.color ? getColor(node.color) : '#94a3b8' }}
+                                            />
+                                            {header}
                                         </div>
                                     )}
+                                    <div className={`w-full flex-1 overflow-y-auto ${!isEditingText ? 'p-4 prose dark:prose-invert max-w-none' : ''}`}
+                                        onMouseDown={(e) => {
+                                            if (isEditingText) {
+                                                e.stopPropagation();
+                                            }
+                                        }}
+                                        onTouchStart={(e) => {
+                                            if (isEditingText) {
+                                                e.stopPropagation();
+                                            }
+                                        }}
+                                    >
+                                        {isEditingText ? (
+                                            <textarea
+                                                autoFocus
+                                                className="w-full h-full p-4 bg-transparent resize-none focus:outline-none font-mono text-sm"
+                                                value={node.text}
+                                                onChange={e => updateText(e.target.value)}
+                                                onBlur={() => setIsEditingText(false)}
+                                                onMouseDown={e => e.stopPropagation()}
+                                                onTouchStart={e => e.stopPropagation()}
+                                            />
+                                        ) : (
+                                            <div onClick={(e) => {
+                                                const target = e.target as HTMLElement;
+                                                const link = target.closest('a');
+                                                if (link && link.dataset.internalLink) {
+                                                    e.preventDefault();
+                                                    onNavigate?.(link.dataset.internalLink);
+                                                }
+                                            }}>
+                                                <ReactMarkdown rehypePlugins={[rehypeRaw]} remarkPlugins={[remarkGfm]}>{cleanText}</ReactMarkdown>
+                                            </div>
+                                        )}
+                                    </div>
                                 </div>
                             )}
                             {node.type === 'file' && (
