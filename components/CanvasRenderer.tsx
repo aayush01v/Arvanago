@@ -39,6 +39,7 @@ interface CanvasRendererProps {
 }
 
 const CanvasRenderer: React.FC<CanvasRendererProps> = ({ content, onNavigate, onSave }) => {
+    const containerRef = useRef<HTMLDivElement>(null);
     const [data, setData] = useState<CanvasData>({ nodes: [], edges: [] });
 
     useEffect(() => {
@@ -169,9 +170,6 @@ const CanvasRenderer: React.FC<CanvasRendererProps> = ({ content, onNavigate, on
 
     // --- Mouse & Touch Handlers ---
 
-    // Note: React's TouchEvent vs MouseEvent are slightly different, so we unite them or duplicate logic.
-    // For simplicity, we implement separate handlers but reuse logic where possible.
-
     const handleStart = (clientX: number, clientY: number, mode: typeof interactionMode) => {
         setInteractionMode(mode);
         activeRef.current.startMouse = { x: clientX, y: clientY };
@@ -198,8 +196,6 @@ const CanvasRenderer: React.FC<CanvasRendererProps> = ({ content, onNavigate, on
             setInteractionMode('zoom');
             activeRef.current.lastTouchDistance = getTouchDistance(e);
         } else if (e.touches.length === 1) {
-            // Check if we are interacting with something else (selection handled via node/handle handlers)
-            // If checking bubbling, node handlers stopPropagation, so here we assume Pan
             handleStart(e.touches[0].clientX, e.touches[0].clientY, 'pan');
         }
     };
@@ -250,7 +246,6 @@ const CanvasRenderer: React.FC<CanvasRendererProps> = ({ content, onNavigate, on
     // Touch
     const handleResizeTouchStart = (e: React.TouchEvent, handle: string) => {
         e.stopPropagation();
-        // e.preventDefault(); // prevent default might kill scroll, but handled by touch-action: none
         const node = data.nodes.find(n => n.id === selectedNodeId);
         if (!node) return;
         setInteractionMode('resize-node');
@@ -289,16 +284,6 @@ const CanvasRenderer: React.FC<CanvasRendererProps> = ({ content, onNavigate, on
     };
 
     // --- Move & Up Handlers (Common) ---
-
-    // Helper to get clientX/Y from either event type
-    // TouchMove doesn't have clientX directly on event, need e.touches[0]
-    const getCoords = (e: React.MouseEvent | React.TouchEvent | MouseEvent | TouchEvent) => {
-        if ('touches' in e) {
-            return { x: e.touches[0].clientX, y: e.touches[0].clientY };
-        } else {
-            return { x: (e as React.MouseEvent).clientX, y: (e as React.MouseEvent).clientY };
-        }
-    };
 
     const handleMove = (clientX: number, clientY: number, e?: React.TouchEvent | React.MouseEvent) => {
         if (interactionMode === 'none') return;
@@ -384,8 +369,7 @@ const CanvasRenderer: React.FC<CanvasRendererProps> = ({ content, onNavigate, on
         }
 
         if (interactionMode === 'connect' && activeRef.current.connectionStart && e) {
-            // Can't reliably use e.clientX on touchend because no touches. 
-            // We rely on last known move or changedTouches[0].
+            // Need accurate clientX/Y
             let clientX = 0, clientY = 0;
             if ('changedTouches' in e && e.changedTouches.length > 0) {
                 clientX = e.changedTouches[0].clientX;
@@ -393,13 +377,14 @@ const CanvasRenderer: React.FC<CanvasRendererProps> = ({ content, onNavigate, on
             } else if ('clientX' in e) {
                 clientX = (e as React.MouseEvent).clientX;
                 clientY = (e as React.MouseEvent).clientY;
+            } else {
+                // Fallback if no touches in event (rare for touchend) or just mouseup
+                // If we had mouseup from window, it might not have coords if not passed?
+                // React synthetic event usually has them.
             }
 
-            const canvasRect = document.querySelector('.group')?.getBoundingClientRect(); // Hacky ref
-            // Better: use activeRef or assume full screen. 
-            // Actually, getting rect from event target in 'up' is hard if it fired on window.
-            // We can use the last known target or just calculation.
-            // For strict correctness we need proper ref.
+            // Use the ref to get the correct bounding rect
+            const canvasRect = containerRef.current?.getBoundingClientRect();
 
             if (canvasRect) {
                 const mouseXRel = clientX - canvasRect.left;
@@ -436,7 +421,7 @@ const CanvasRenderer: React.FC<CanvasRendererProps> = ({ content, onNavigate, on
 
         setInteractionMode('none');
         setTempConnection(null);
-        activeRef.current = { startMouse: { x: 0, y: 0 } }; // Reset
+        activeRef.current = { startMouse: { x: 0, y: 0 } };
     };
 
     // React Events
@@ -486,6 +471,7 @@ const CanvasRenderer: React.FC<CanvasRendererProps> = ({ content, onNavigate, on
 
     return (
         <div
+            ref={containerRef}
             className="relative w-full h-full overflow-hidden bg-slate-50 dark:bg-slate-900 bg-grid-slate-200 dark:bg-grid-slate-800 cursor-default select-none group touch-none"
             onWheel={handleWheel}
             onMouseDown={handleCanvasMouseDown}
@@ -495,7 +481,6 @@ const CanvasRenderer: React.FC<CanvasRendererProps> = ({ content, onNavigate, on
             onMouseUp={onMouseUp}
             onTouchEnd={onTouchEnd}
             onMouseLeave={onMouseUp}
-        // onTouchCancel={onTouchEnd} 
         >
             <div
                 className="absolute transition-transform duration-75 ease-out origin-top-left"
@@ -716,29 +701,46 @@ const CanvasRenderer: React.FC<CanvasRendererProps> = ({ content, onNavigate, on
                     onTouchStart={e => handleResizeTouchStart(e, 'se')}
                 />
 
-                <div className={`absolute -top-3 left-1/2 -translate-x-1/2 w-4 h-4 rounded-full bg-white border-2 border-brand-primary cursor-crosshair opacity-0 hover:opacity-100 transition-opacity flex items-center justify-center`}
+                {/* Connection Handles - Updated: Larger touch area, removed opacity-0 */}
+
+                {/* TOP */}
+                <div className={`absolute -top-3 left-1/2 -translate-x-1/2 w-8 h-8 flex items-center justify-center cursor-crosshair z-10`}
                     onMouseDown={e => handleConnectMouseDown(e, node.id, 'top')}
                     onTouchStart={e => handleConnectTouchStart(e, node.id, 'top')}
                     title="Connect">
-                    <div className="w-1 h-1 bg-brand-primary rounded-full"></div>
+                    <div className="w-4 h-4 rounded-full bg-white border-2 border-brand-primary flex items-center justify-center shadow-sm">
+                        <div className="w-1.5 h-1.5 bg-brand-primary rounded-full"></div>
+                    </div>
                 </div>
-                <div className={`absolute top-1/2 -right-3 -translate-y-1/2 w-4 h-4 rounded-full bg-white border-2 border-brand-primary cursor-crosshair opacity-0 hover:opacity-100 transition-opacity flex items-center justify-center`}
+
+                {/* RIGHT */}
+                <div className={`absolute top-1/2 -right-3 -translate-y-1/2 w-8 h-8 flex items-center justify-center cursor-crosshair z-10`}
                     onMouseDown={e => handleConnectMouseDown(e, node.id, 'right')}
                     onTouchStart={e => handleConnectTouchStart(e, node.id, 'right')}
                     title="Connect">
-                    <div className="w-1 h-1 bg-brand-primary rounded-full"></div>
+                    <div className="w-4 h-4 rounded-full bg-white border-2 border-brand-primary flex items-center justify-center shadow-sm">
+                        <div className="w-1.5 h-1.5 bg-brand-primary rounded-full"></div>
+                    </div>
                 </div>
-                <div className={`absolute -bottom-3 left-1/2 -translate-x-1/2 w-4 h-4 rounded-full bg-white border-2 border-brand-primary cursor-crosshair opacity-0 hover:opacity-100 transition-opacity flex items-center justify-center`}
+
+                {/* BOTTOM */}
+                <div className={`absolute -bottom-3 left-1/2 -translate-x-1/2 w-8 h-8 flex items-center justify-center cursor-crosshair z-10`}
                     onMouseDown={e => handleConnectMouseDown(e, node.id, 'bottom')}
                     onTouchStart={e => handleConnectTouchStart(e, node.id, 'bottom')}
                     title="Connect">
-                    <div className="w-1 h-1 bg-brand-primary rounded-full"></div>
+                    <div className="w-4 h-4 rounded-full bg-white border-2 border-brand-primary flex items-center justify-center shadow-sm">
+                        <div className="w-1.5 h-1.5 bg-brand-primary rounded-full"></div>
+                    </div>
                 </div>
-                <div className={`absolute top-1/2 -left-3 -translate-y-1/2 w-4 h-4 rounded-full bg-white border-2 border-brand-primary cursor-crosshair opacity-0 hover:opacity-100 transition-opacity flex items-center justify-center`}
+
+                {/* LEFT */}
+                <div className={`absolute top-1/2 -left-3 -translate-y-1/2 w-8 h-8 flex items-center justify-center cursor-crosshair z-10`}
                     onMouseDown={e => handleConnectMouseDown(e, node.id, 'left')}
                     onTouchStart={e => handleConnectTouchStart(e, node.id, 'left')}
                     title="Connect">
-                    <div className="w-1 h-1 bg-brand-primary rounded-full"></div>
+                    <div className="w-4 h-4 rounded-full bg-white border-2 border-brand-primary flex items-center justify-center shadow-sm">
+                        <div className="w-1.5 h-1.5 bg-brand-primary rounded-full"></div>
+                    </div>
                 </div>
             </>
         )
