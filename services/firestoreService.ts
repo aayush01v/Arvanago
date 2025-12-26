@@ -13,6 +13,7 @@ import type {
   User,
   BlogPost,
   Comment,
+  Note,
 } from '../types.ts';
 
 const COURSE_CACHE_TTL_MS = 1000 * 60 * 5;
@@ -795,6 +796,22 @@ const sanitizeInstructors = (value: unknown): CourseInstructor[] | undefined => 
     .filter((instructor): instructor is CourseInstructor => Boolean(instructor));
 
   return instructors.length > 0 ? instructors : undefined;
+};
+
+
+export const getUserNotes = async (userId: string): Promise<Note[]> => {
+  if (!userId) return [];
+
+  try {
+    const snapshot = await db.collection('users').doc(userId).collection('notes').orderBy('createdAt', 'desc').get();
+    return snapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data()
+    } as Note));
+  } catch (error) {
+    console.warn(`Failed to fetch notes for user ${userId}, returning empty list.`, error);
+    return [];
+  }
 };
 
 const sanitizeDescriptionSections = (
@@ -2133,3 +2150,110 @@ export const deleteComment = async (postId: string, commentId: string): Promise<
   });
 };
 
+
+
+
+// Vault Services
+export const createVault = async (userId: string, name: string, description?: string): Promise<Vault> => {
+  const vaultsRef = db.collection('users').doc(userId).collection('vaults');
+  const newVaultRef = vaultsRef.doc();
+  const timestamp = firebase.firestore.Timestamp.now();
+
+  const newVault: Vault = {
+    id: newVaultRef.id,
+    userId,
+    name,
+    description: description || null, // Firebase doesn't accept undefined
+    createdAt: timestamp,
+    updatedAt: timestamp,
+  };
+
+  await newVaultRef.set(newVault);
+  return newVault;
+};
+
+export const deleteVault = async (userId: string, vaultId: string): Promise<void> => {
+  // 1. Delete all notes in this vault
+  const notesRef = db.collection('users').doc(userId).collection('notes');
+  const snapshot = await notesRef.where('vaultId', '==', vaultId).get();
+
+  const batch = db.batch();
+  snapshot.docs.forEach(doc => {
+    batch.delete(doc.ref);
+  });
+
+  // 2. Delete the vault itself
+  const vaultRef = db.collection('users').doc(userId).collection('vaults').doc(vaultId);
+  batch.delete(vaultRef);
+
+  await batch.commit();
+};
+
+export const updateVault = async (userId: string, vaultId: string, updates: Partial<Vault>): Promise<void> => {
+  await db.collection('users').doc(userId).collection('vaults').doc(vaultId).update({
+    ...updates,
+    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+  });
+};
+
+export const getUserVaults = async (userId: string): Promise<Vault[]> => {
+  const snapshot = await db.collection('users').doc(userId).collection('vaults').orderBy('createdAt', 'desc').get();
+  return snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() } as Vault));
+};
+
+export const getNotesForVault = async (userId: string, vaultId: string): Promise<Note[]> => {
+  const snapshot = await db.collection('users').doc(userId).collection('notes')
+    .where('vaultId', '==', vaultId)
+    .orderBy('createdAt', 'desc')
+    .get();
+
+  return snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() } as Note));
+};
+
+export const createNoteInVault = async (userId: string, vaultId: string, title: string, content: string, path?: string): Promise<Note> => {
+  const notesRef = db.collection('users').doc(userId).collection('notes');
+  const newNoteRef = notesRef.doc();
+  const timestamp = firebase.firestore.Timestamp.now();
+
+  const newNote: Note = {
+    id: newNoteRef.id,
+    userId,
+    title,
+    content,
+    vaultId,
+    path: path || '',
+    isPublic: false,
+    createdAt: timestamp,
+    updatedAt: timestamp,
+  };
+
+  await newNoteRef.set(newNote);
+  return newNote;
+};
+
+export const deleteNote = async (userId: string, noteId: string): Promise<void> => {
+  await db.collection('users').doc(userId).collection('notes').doc(noteId).delete();
+};
+
+export const updateNote = async (userId: string, noteId: string, updates: Partial<Note>): Promise<void> => {
+  await db.collection('users').doc(userId).collection('notes').doc(noteId).update({
+    ...updates,
+    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+  });
+};
+
+export const getPublicNote = async (userId: string, noteId: string): Promise<Note | null> => {
+  // We need userId to find the note because it's in a subcollection.
+  // However, the shared link might only have noteId if we structured it differently.
+  // But since notes are subcollections of users, we typically need the userId path.
+  // Wait, if I only have noteId, I can't easily find it in a subcollection queryGroup without an index.
+  // Simplest approach: The share link should logically be /note/:userId/:noteId OR we use collection group queries.
+  // Let's assume for now we will pass userId in the URL or use collection group.
+
+  // Using collection group query for 'notes' where id == noteId
+  const snapshot = await db.collectionGroup('notes').where('id', '==', noteId).limit(1).get();
+  if (snapshot.empty) return null;
+  const note = snapshot.docs[0].data() as Note;
+  if (!note.isPublic) return null;
+  return note;
+};

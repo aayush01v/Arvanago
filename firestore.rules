@@ -31,6 +31,15 @@ service cloud.firestore {
         // Allow write if the authenticated user is adding specifically THEMSELVES as a follower.
         allow write: if isAuthenticated() && request.auth.uid == followerId;
       }
+      
+      // Notes & Vaults
+      match /vaults/{vaultId} {
+        allow read, write: if isOwner(userId);
+      }
+      match /notes/{noteId} {
+        allow read: if isOwner(userId) || resource.data.isPublic == true;
+        allow write: if isOwner(userId);
+      }
     }
 
     // 2. ADMINS

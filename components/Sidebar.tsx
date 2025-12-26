@@ -16,6 +16,7 @@ interface SidebarProps {
 const navItems = [
   { to: '/dashboard', icon: 'dashboard', label: 'Dashboard' },
   { to: '/my-learnings', icon: 'bookmark', label: 'My Learnings' },
+  { to: '/mynotes', icon: 'file-text', label: 'My Notes' },
   { to: '/explore', icon: 'courses', label: 'Explore Courses' },
   { to: '/leaderboard', icon: 'leaderboard', label: 'Leaderboard' },
   { to: '/chat', icon: 'message-circle', label: 'Chat' },
@@ -107,16 +108,8 @@ const Sidebar: React.FC<SidebarProps> = ({ isSidebarOpen, setSidebarOpen, isDark
             <div className="h-px bg-slate-100 dark:bg-slate-800 my-2" />
 
             {user ? (
-              <button
-                onClick={() => {
-                  signOutUser();
-                  handleNavigate();
-                }}
-                className="group flex w-full items-center gap-3 rounded-lg px-4 py-2.5 text-sm font-medium text-slate-600 hover:bg-red-50 hover:text-red-600 dark:text-slate-400 dark:hover:bg-red-900/10 dark:hover:text-red-400 transition-colors"
-              >
-                <Icon name="logout" className="h-5 w-5 text-slate-400 group-hover:text-red-500 dark:text-slate-500 dark:group-hover:text-red-400" />
-                <span>Logout</span>
-              </button>
+              // Logout moved to Settings > Account
+              null
             ) : (
               <NavLink
                 to="/login"

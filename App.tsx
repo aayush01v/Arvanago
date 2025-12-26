@@ -41,6 +41,8 @@ const NotFoundPage = React.lazy(() => import('@/pages/NotFoundPage'));
 const BlogPage = React.lazy(() => import('@/pages/BlogPage'));
 const BlogPostPage = React.lazy(() => import('@/pages/BlogPostPage'));
 const AdminBlogPage = React.lazy(() => import('@/pages/AdminBlogPage'));
+const MyNotesPage = React.lazy(() => import('@/pages/MyNotesPage'));
+const PublicNotePage = React.lazy(() => import('@/pages/PublicNotePage'));
 const VideoPreviewPage = React.lazy(() => import('@/pages/VideoPreviewPage'));
 import AdminRoute from '@/components/AdminRoute';
 
@@ -384,6 +386,8 @@ const App: React.FC = () => {
               >
                 <Route path="/dashboard" element={<DashboardPage />} />
                 <Route path="/my-learnings" element={<MyLearningsPage />} />
+                <Route path="/mynotes" element={<MyNotesPage />} />
+                <Route path="/note/:noteId" element={<PublicNotePage />} />
                 <Route path="/explore" element={<ExploreCoursesPage />} />
                 <Route path="/leaderboard" element={<LeaderboardPage />} />
                 <Route path="/chat" element={<ChatPage />} />

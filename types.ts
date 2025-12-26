@@ -244,3 +244,26 @@ export interface BlogPost {
   createdAt: Timestamp;
   updatedAt: Timestamp;
 }
+
+export interface Note {
+  id: string;
+  userId: string;
+  title: string;
+  content: string;
+  vaultId?: string; // Optional linkage to a vault
+  isPublic?: boolean;
+  path?: string; // Folder structure path
+  createdAt: Timestamp;
+  updatedAt?: Timestamp;
+}
+
+export interface Vault {
+  id: string;
+  userId: string;
+  name: string;
+  description?: string;
+  css?: string;
+  createdAt: Timestamp;
+  updatedAt: Timestamp;
+  isDefault?: boolean;
+}
