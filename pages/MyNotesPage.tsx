@@ -375,7 +375,7 @@ const MyNotesPage: React.FC = () => {
                                                 document.exitFullscreen();
                                             }
                                         }}
-                                        className="p-2 text-slate-400 hover:text-brand-primary hover:bg-brand-primary/10 rounded-lg hidden sm:block"
+                                        className="p-2 text-slate-400 hover:text-brand-primary hover:bg-brand-primary/10 rounded-lg"
                                         title="Toggle Fullscreen"
                                         aria-label="Toggle fullscreen"
                                     >
