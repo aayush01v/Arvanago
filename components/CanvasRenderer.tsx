@@ -369,7 +369,6 @@ const CanvasRenderer: React.FC<CanvasRendererProps> = ({ content, onNavigate, on
         }
 
         if (interactionMode === 'connect' && activeRef.current.connectionStart && e) {
-            // Need accurate clientX/Y
             let clientX = 0, clientY = 0;
             if ('changedTouches' in e && e.changedTouches.length > 0) {
                 clientX = e.changedTouches[0].clientX;
@@ -377,13 +376,8 @@ const CanvasRenderer: React.FC<CanvasRendererProps> = ({ content, onNavigate, on
             } else if ('clientX' in e) {
                 clientX = (e as React.MouseEvent).clientX;
                 clientY = (e as React.MouseEvent).clientY;
-            } else {
-                // Fallback if no touches in event (rare for touchend) or just mouseup
-                // If we had mouseup from window, it might not have coords if not passed?
-                // React synthetic event usually has them.
             }
 
-            // Use the ref to get the correct bounding rect
             const canvasRect = containerRef.current?.getBoundingClientRect();
 
             if (canvasRect) {
@@ -399,6 +393,7 @@ const CanvasRenderer: React.FC<CanvasRendererProps> = ({ content, onNavigate, on
                 );
 
                 if (targetNode) {
+                    // Connect to existing node
                     const center = { x: targetNode.x + targetNode.width / 2, y: targetNode.y + targetNode.height / 2 };
                     const angle = Math.atan2(logicY - center.y, logicX - center.x) * 180 / Math.PI;
                     let endSide: 'top' | 'right' | 'bottom' | 'left' = 'left';
@@ -415,6 +410,53 @@ const CanvasRenderer: React.FC<CanvasRendererProps> = ({ content, onNavigate, on
                         toSide: endSide
                     };
                     saveData({ ...data, edges: [...data.edges, newEdge] });
+                } else {
+                    // Drop on Empty Space -> Create New Node
+                    const newNodeId = String(Date.now());
+                    const newNode: CanvasNode = {
+                        id: newNodeId,
+                        type: 'text',
+                        text: 'New Card',
+                        x: logicX - 125, // Center around drop point (assuming width 250)
+                        y: logicY - 70,  // Center around drop point (assuming height 140)
+                        width: 250,
+                        height: 140
+                    };
+
+                    // Determine edge side for new node
+                    const fromNode = data.nodes.find(n => n.id === activeRef.current.connectionStart!.nodeId);
+                    let endSide: 'top' | 'right' | 'bottom' | 'left' = 'left';
+
+                    if (fromNode) {
+                        const center = { x: newNode.x + newNode.width / 2, y: newNode.y + newNode.height / 2 };
+                        const fromCenter = { x: fromNode.x + fromNode.width / 2, y: fromNode.y + fromNode.height / 2 };
+                        // Angle from new node center to source (since we want side OF new node)
+                        // Actually wait, simple approach:
+                        // If source is to the left, connect to left side of new node? No, right side of drag
+
+                        const angle = Math.atan2(fromCenter.y - center.y, fromCenter.x - center.x) * 180 / Math.PI;
+                        // Invert angle logic because we want the side facing the source
+                        if (angle >= -45 && angle < 45) endSide = 'right';
+                        else if (angle >= 45 && angle < 135) endSide = 'bottom';
+                        else if (angle >= -135 && angle < -45) endSide = 'top';
+                        else endSide = 'left';
+                    }
+
+                    const newEdge: CanvasEdge = {
+                        id: String(Date.now() + 1),
+                        fromNode: activeRef.current.connectionStart!.nodeId,
+                        fromSide: activeRef.current.connectionStart!.side,
+                        toNode: newNodeId,
+                        toSide: endSide
+                    };
+
+                    saveData({
+                        nodes: [...data.nodes, newNode],
+                        edges: [...data.edges, newEdge]
+                    });
+
+                    // Optional: Select new node immediately
+                    setSelectedNodeId(newNodeId);
                 }
             }
         }
@@ -701,7 +743,7 @@ const CanvasRenderer: React.FC<CanvasRendererProps> = ({ content, onNavigate, on
                     onTouchStart={e => handleResizeTouchStart(e, 'se')}
                 />
 
-                {/* Connection Handles - Updated: Larger touch area, removed opacity-0 */}
+                {/* Connection Handles */}
 
                 {/* TOP */}
                 <div className={`absolute -top-3 left-1/2 -translate-x-1/2 w-8 h-8 flex items-center justify-center cursor-crosshair z-10`}
