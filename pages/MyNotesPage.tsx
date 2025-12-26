@@ -244,7 +244,7 @@ const MyNotesPage: React.FC = () => {
     if (vaultId && activeVault) {
 
         return (
-            <div className="flex h-screen overflow-hidden bg-slate-50 dark:bg-slate-900">
+            <div className="flex flex-col md:flex-row h-[calc(100dvh-64px)] md:h-[calc(100vh-64px)] overflow-hidden bg-slate-50 dark:bg-slate-900">
                 <Helmet>
                     <title>{activeVault.name} | Edusimulate</title>
                 </Helmet>
@@ -260,6 +260,21 @@ const MyNotesPage: React.FC = () => {
                         aria-hidden="true"
                     />
                 )}
+
+                {/* Mobile Top Bar (Persistent) */}
+                <div className="md:hidden flex items-center justify-between p-3 bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 flex-shrink-0 z-20 shadow-sm">
+                    <button
+                        onClick={() => setIsSidebarOpen(true)}
+                        className="flex items-center gap-2 text-slate-700 dark:text-slate-200 px-3 py-2 bg-slate-100 dark:bg-slate-700/50 rounded-lg active:bg-slate-200"
+                        aria-label="Open sidebar"
+                    >
+                        <Icon name="menu" className="w-5 h-5" />
+                        <span className="text-sm font-semibold">Files</span>
+                    </button>
+                    <div className="font-semibold text-slate-700 dark:text-slate-300 truncate max-w-[50%] text-sm">
+                        {selectedNote ? selectedNote.title : activeVault.name}
+                    </div>
+                </div>
 
                 {/* Left Sidebar: File Explorer */}
                 <div className={`fixed inset-y-0 left-0 w-72 z-40 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 flex flex-col transform transition-transform duration-300 md:relative md:translate-x-0 ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
@@ -304,14 +319,6 @@ const MyNotesPage: React.FC = () => {
                         <div className="max-w-5xl mx-auto p-4 md:p-8 h-full flex flex-col">
                             <div className="flex items-center justify-between mb-6 pb-4 border-b border-slate-100 dark:border-slate-700 gap-2">
                                 <div className="flex items-center gap-2 overflow-hidden">
-                                    {/* Mobile Toggle Button */}
-                                    <button
-                                        onClick={() => setIsSidebarOpen(true)}
-                                        className="md:hidden p-2 -ml-2 text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg"
-                                        aria-label="Open sidebar"
-                                    >
-                                        <Icon name="menu" className="w-6 h-6" />
-                                    </button>
                                     <div className="min-w-0">
                                         <h1 className="text-2xl md:text-3xl font-bold text-slate-900 dark:text-white mb-1 truncate">{selectedNote.title}</h1>
                                         <div className="text-xs md:text-sm text-slate-400 flex gap-2 truncate">
@@ -392,16 +399,9 @@ const MyNotesPage: React.FC = () => {
                         </div>
                     ) : (
                         <div className="h-full flex flex-col items-center justify-center text-slate-400 p-4 text-center">
-                            <button
-                                onClick={() => setIsSidebarOpen(true)}
-                                className="md:hidden p-3 bg-slate-100 dark:bg-slate-800 rounded-full mb-4"
-                                aria-label="Open sidebar"
-                            >
-                                <Icon name="menu" className="w-6 h-6" />
-                            </button>
                             <Icon name="file-text" className="w-16 h-16 mb-4 opacity-20" />
                             <p className="text-lg">Select a file to view</p>
-                            <p className="text-sm opacity-60 mt-2">Open the sidebar to browse your files.</p>
+                            <p className="text-sm opacity-60 mt-2">Use the "Files" button above to browse.</p>
                         </div>
                     )}
                 </div>
