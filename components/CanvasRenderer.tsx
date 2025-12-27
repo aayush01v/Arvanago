@@ -1,5 +1,5 @@
 import { Note } from '../types';
-import React, { useMemo, useState, useRef, useEffect } from 'react';
+import React, { useMemo, useState, useRef, useEffect, useCallback } from 'react';
 import ReactMarkdown from 'react-markdown';
 import rehypeRaw from 'rehype-raw';
 import remarkGfm from 'remark-gfm';
@@ -449,7 +449,8 @@ const CanvasRenderer: React.FC<CanvasRendererProps> = ({ content, onNavigate, on
     // --- Node (Drag/Select) ---
 
     // Mouse
-    const handleNodeMouseDown = (e: React.MouseEvent, node: CanvasNode) => {
+    // Mouse
+    const handleNodeMouseDown = useCallback((e: React.MouseEvent, node: CanvasNode) => {
         e.stopPropagation();
         if (e.button !== 0) return;
         setSelectedNodeId(node.id);
@@ -460,10 +461,10 @@ const CanvasRenderer: React.FC<CanvasRendererProps> = ({ content, onNavigate, on
             startMouse: { x: e.clientX, y: e.clientY },
             initialNode: { ...node }
         };
-    };
+    }, []);
 
     // Touch
-    const handleNodeTouchStart = (e: React.TouchEvent, node: CanvasNode) => {
+    const handleNodeTouchStart = useCallback((e: React.TouchEvent, node: CanvasNode) => {
         // Do NOT stop propagation immediately to allow scrolling if user doesn't hold
         // e.stopPropagation(); 
         // e.preventDefault();
@@ -492,12 +493,12 @@ const CanvasRenderer: React.FC<CanvasRendererProps> = ({ content, onNavigate, on
             // navigator.vibrate?.(50); // Haptic feedback if available (often blocked in frames but worth try)
             console.log('Long press detected - Drag mode active');
         }, 500);
-    };
+    }, []); // setSelectedNodeId, setSelectedEdgeId, setIsEditingText, setInteractionMode are stable
 
     // --- Handle (Resize/Connect) ---
 
     // Mouse
-    const handleResizeMouseDown = (e: React.MouseEvent, handle: string) => {
+    const handleResizeMouseDown = useCallback((e: React.MouseEvent, handle: string) => {
         e.stopPropagation();
         e.preventDefault();
         const node = data.nodes.find(n => n.id === selectedNodeId);
@@ -508,10 +509,10 @@ const CanvasRenderer: React.FC<CanvasRendererProps> = ({ content, onNavigate, on
             initialNode: { ...node },
             handle
         };
-    };
+    }, [data.nodes, selectedNodeId]);
 
     // Touch
-    const handleResizeTouchStart = (e: React.TouchEvent, handle: string) => {
+    const handleResizeTouchStart = useCallback((e: React.TouchEvent, handle: string) => {
         e.stopPropagation();
         e.preventDefault();
         const node = data.nodes.find(n => n.id === selectedNodeId);
@@ -522,10 +523,10 @@ const CanvasRenderer: React.FC<CanvasRendererProps> = ({ content, onNavigate, on
             initialNode: { ...node },
             handle
         };
-    };
+    }, [data.nodes, selectedNodeId]);
 
     // Mouse
-    const handleConnectMouseDown = (e: React.MouseEvent, nodeId: string, side: 'top' | 'right' | 'bottom' | 'left') => {
+    const handleConnectMouseDown = useCallback((e: React.MouseEvent, nodeId: string, side: 'top' | 'right' | 'bottom' | 'left') => {
         e.stopPropagation();
         e.preventDefault();
         setInteractionMode('connect');
@@ -536,10 +537,10 @@ const CanvasRenderer: React.FC<CanvasRendererProps> = ({ content, onNavigate, on
             connectionStart: { nodeId, side }
         };
         setTempConnection({ start: startPoint, end: startPoint });
-    };
+    }, [getNodeRect, getConnectorPoint]);
 
     // Touch
-    const handleConnectTouchStart = (e: React.TouchEvent, nodeId: string, side: 'top' | 'right' | 'bottom' | 'left') => {
+    const handleConnectTouchStart = useCallback((e: React.TouchEvent, nodeId: string, side: 'top' | 'right' | 'bottom' | 'left') => {
         e.stopPropagation();
         e.preventDefault();
         setInteractionMode('connect');
@@ -550,11 +551,11 @@ const CanvasRenderer: React.FC<CanvasRendererProps> = ({ content, onNavigate, on
             connectionStart: { nodeId, side }
         };
         setTempConnection({ start: startPoint, end: startPoint });
-    };
+    }, [getNodeRect, getConnectorPoint]);
 
     // --- Move & Up Handlers (Common) ---
 
-    const handleMove = (clientX: number, clientY: number, e?: React.TouchEvent | React.MouseEvent) => {
+    const handleMove = useCallback((clientX: number, clientY: number, e?: React.TouchEvent | React.MouseEvent) => {
         if (interactionMode === 'none') return;
 
         // ZOOM Pinch
@@ -640,9 +641,9 @@ const CanvasRenderer: React.FC<CanvasRendererProps> = ({ content, onNavigate, on
                 }
             });
         }
-    };
+    }, [interactionMode, transform.scale, data, tempConnection, setTransform, setData, setTempConnection]);
 
-    const handleUp = (e?: React.MouseEvent | React.TouchEvent | MouseEvent | TouchEvent) => {
+    const handleUp = useCallback((e?: React.MouseEvent | React.TouchEvent | MouseEvent | TouchEvent) => {
         if (interactionMode === 'drag-node' || interactionMode === 'resize-node') {
             saveData(data);
         }
@@ -746,30 +747,44 @@ const CanvasRenderer: React.FC<CanvasRendererProps> = ({ content, onNavigate, on
         setInteractionMode('none');
         setTempConnection(null);
         activeRef.current = { startMouse: { x: 0, y: 0 } };
-    };
+    }, [interactionMode, data, transform, minX, minY, saveData, setSelectedNodeId, setInteractionMode, setTempConnection]);
 
     // React Events
-    const onMouseMove = (e: React.MouseEvent) => handleMove(e.clientX, e.clientY, e);
-    const onTouchMove = (e: React.TouchEvent) => handleMove(e.touches[0].clientX, e.touches[0].clientY, e);
-    const onMouseUp = (e: React.MouseEvent) => handleUp(e);
-    const onTouchEnd = (e: React.TouchEvent) => handleUp(e);
+    const onMouseMove = useCallback((e: React.MouseEvent) => handleMove(e.clientX, e.clientY, e), [handleMove]);
+    const onTouchMove = useCallback((e: React.TouchEvent) => handleMove(e.touches[0].clientX, e.touches[0].clientY, e), [handleMove]);
+    const onMouseUp = useCallback((e: React.MouseEvent) => handleUp(e), [handleUp]);
+    const onTouchEnd = useCallback((e: React.TouchEvent) => handleUp(e), [handleUp]);
 
-    const handleWheel = (e: React.WheelEvent) => {
+    const handleWheel = useCallback((e: React.WheelEvent) => {
         if (e.ctrlKey || e.metaKey) {
             e.preventDefault();
+            e.stopPropagation(); // Stop zoom prop
             const delta = -e.deltaY * 0.001;
             setTransform(prev => ({
                 ...prev,
                 scale: Math.min(Math.max(0.1, prev.scale + delta), 5)
             }));
         } else {
+            e.stopPropagation(); // Stop scroll prop
             setTransform(prev => ({
                 ...prev,
                 x: prev.x - e.deltaX,
                 y: prev.y - e.deltaY
             }));
         }
-    };
+    }, []); // setTransform is stable
+
+    const updateColor = useCallback((color: string) => {
+        if (!selectedNodeId) return;
+        const updated = data.nodes.map(n => n.id === selectedNodeId ? { ...n, color } : n);
+        saveData({ ...data, nodes: updated });
+    }, [selectedNodeId, data, saveData]);
+
+    const updateEdgeLabel = useCallback((text: string) => {
+        if (!selectedEdgeId) return;
+        const updated = data.edges.map(e => e.id === selectedEdgeId ? { ...e, label: text } : e);
+        saveData({ ...data, edges: updated });
+    }, [selectedEdgeId, data, saveData]);
 
     const selectedNode = data.nodes.find(n => n.id === selectedNodeId);
     const selectedEdge = data.edges.find(e => e.id === selectedEdgeId);
@@ -881,38 +896,7 @@ const CanvasRenderer: React.FC<CanvasRendererProps> = ({ content, onNavigate, on
                 ))}
             </div>
 
-            {selectedNode && !interactionMode.startsWith('drag') && !interactionMode.startsWith('resize') && (
-                <div
-                    className="absolute z-50 p-2 bg-white dark:bg-slate-800 rounded-lg shadow-xl border border-slate-200 dark:border-slate-700 flex gap-2 animate-in fade-in zoom-in-95 duration-200"
-                    style={{
-                        left: (selectedNode.x - minX) * transform.scale + transform.x,
-                        top: (selectedNode.y - minY) * transform.scale + transform.y - 60,
-                    }}
-                    onMouseDown={e => e.stopPropagation()}
-                    onTouchStart={e => e.stopPropagation()}
-                    role="toolbar"
-                    aria-label="Node actions"
-                >
-                    <button onClick={deleteSelected} className="p-2 hover:bg-slate-100 dark:hover:bg-slate-700 rounded text-red-500" title="Delete" aria-label="Delete node">
-                        <Icon name="trash" className="w-5 h-5" />
-                    </button>
-                    <div className="w-px h-6 bg-slate-200 dark:bg-slate-700 my-auto"></div>
-                    <div className="flex gap-1" role="group" aria-label="Color selection">
-                        {['1', '2', '3', '4', '5', '6'].map((c, i) => (
-                            <button
-                                key={c}
-                                onClick={() => updateColor(c)}
-                                className="w-6 h-6 rounded-full border border-slate-200 dark:border-slate-600 hover:scale-110 transition-transform"
-                                style={{ backgroundColor: getColor(c) }}
-                                aria-label={`Color ${i + 1}`}
-                            />
-                        ))}
-                        <button onClick={() => updateColor('')} className="w-6 h-6 rounded-full border border-slate-200 bg-white flex items-center justify-center" aria-label="Remove color">
-                            <span className="block w-6 h-px bg-red-500 transform rotate-45"></span>
-                        </button>
-                    </div>
-                </div>
-            )}
+
 
             {selectedEdge && !interactionMode.startsWith('drag') && !interactionMode.startsWith('resize') && (
                 <div
