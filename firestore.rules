@@ -147,6 +147,11 @@ service cloud.firestore {
          allow delete: if isAdmin() || (isAuthenticated() && resource.data.user.uid == request.auth.uid);
       }
     }
+
+    // 10. COLLECTION GROUP QUERIES (NOTES)
+    match /{path=**}/notes/{noteId} {
+      allow read: if resource.data.isPublic == true;
+    }
     
     // Default deny
     match /{document=**} {

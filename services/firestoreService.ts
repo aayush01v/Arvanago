@@ -2250,8 +2250,12 @@ export const getPublicNote = async (userId: string, noteId: string): Promise<Not
   // Simplest approach: The share link should logically be /note/:userId/:noteId OR we use collection group queries.
   // Let's assume for now we will pass userId in the URL or use collection group.
 
-  // Using collection group query for 'notes' where id == noteId
-  const snapshot = await db.collectionGroup('notes').where('id', '==', noteId).limit(1).get();
+  // Using collection group query for 'notes' where id == noteId AND isPublic == true
+  const snapshot = await db.collectionGroup('notes')
+    .where('id', '==', noteId)
+    .where('isPublic', '==', true)
+    .limit(1)
+    .get();
   if (snapshot.empty) return null;
   const note = snapshot.docs[0].data() as Note;
   if (!note.isPublic) return null;
