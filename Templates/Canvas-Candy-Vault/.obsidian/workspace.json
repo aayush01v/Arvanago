@@ -1,0 +1,184 @@
+{
+  "main": {
+    "id": "aed831b202d54933",
+    "type": "split",
+    "children": [
+      {
+        "id": "f473dc178700d7e1",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "4716f37104da9193",
+            "type": "leaf",
+            "state": {
+              "type": "canvas",
+              "state": {
+                "file": "00 START HERE.canvas",
+                "viewState": {
+                  "x": 259,
+                  "y": -400.5,
+                  "zoom": -0.6116492232775815
+                }
+              }
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "vertical"
+  },
+  "left": {
+    "id": "7c10b64d7deb7ce7",
+    "type": "split",
+    "children": [
+      {
+        "id": "b734fc9e0bd9e7c2",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "886082390c1da9fa",
+            "type": "leaf",
+            "state": {
+              "type": "file-explorer",
+              "state": {
+                "sortOrder": "alphabetical"
+              }
+            }
+          },
+          {
+            "id": "0973c96e3ff73464",
+            "type": "leaf",
+            "state": {
+              "type": "search",
+              "state": {
+                "query": "prism",
+                "matchingCase": false,
+                "explainSearch": false,
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical"
+              }
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 249.5
+  },
+  "right": {
+    "id": "6223e9908cd52675",
+    "type": "split",
+    "children": [
+      {
+        "id": "c860d318e816f2a4",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "dc74e38444cb80e3",
+            "type": "leaf",
+            "state": {
+              "type": "outgoing-link",
+              "state": {
+                "file": "00 START HERE.canvas",
+                "linksCollapsed": false,
+                "unlinkedCollapsed": true
+              }
+            }
+          },
+          {
+            "id": "f33f21862870bb88",
+            "type": "leaf",
+            "state": {
+              "type": "all-properties",
+              "state": {
+                "sortOrder": "frequency",
+                "showSearch": false,
+                "searchQuery": ""
+              }
+            }
+          },
+          {
+            "id": "97d0a342c2a8117d",
+            "type": "leaf",
+            "state": {
+              "type": "file-properties",
+              "state": {
+                "file": "00 START HERE.canvas"
+              }
+            }
+          }
+        ],
+        "currentTab": 2
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300,
+    "collapsed": true
+  },
+  "left-ribbon": {
+    "hiddenItems": {
+      "switcher:Open quick switcher": false,
+      "canvas:Create new canvas": false,
+      "command-palette:Open command palette": false
+    }
+  },
+  "active": "4716f37104da9193",
+  "lastOpenFiles": [
+    "CHANGELOG.md",
+    "SUPPORT.canvas",
+    "SETUP YOUR VAULT.canvas",
+    "00 START HERE.canvas",
+    "01 Features Index.md",
+    "04 List of Decorations.md",
+    "Tutorial/Lesson 01 - Getting Started.canvas",
+    "Tutorial/Next Steps - Learn about the different decorations.canvas",
+    "Tutorial/Lesson 05 - Using Callout decorations.canvas",
+    "Tutorial/Lesson 04 - Using multiple decorations in a card.canvas",
+    "Tutorial/Lesson 03 - Try decorating a card for yourself.canvas",
+    "Tutorial/Lesson 02 - Decorating a card.canvas",
+    "Stencils/Borders Stencil.canvas",
+    "07 Compatibility.md",
+    "06 Community Content.md",
+    "03 Samples Index.md",
+    "02 Stencil Index.md",
+    "test doc.md",
+    "Pasted image 20231026104419.png",
+    "Pasted image 20231026104417.png",
+    "Pasted image 20231026103825.png",
+    "Pasted image 20231026074029.png",
+    "Stencils/media/diamonds/diamond-turquoise-solid-cc-image.svg",
+    "Stencils/media/diamonds/diamond-turquoise-soft-cc-image.svg",
+    "Stencils/media/diamonds/diamond-red-solid-cc-image.svg",
+    "Stencils/media/diamonds/diamond-red-soft-cc-image.svg",
+    "Stencils/media/diamonds/diamond-purple-solid-cc-image.svg",
+    "Stencils/media/diamonds/diamond-purple-soft-cc-image.svg",
+    "Stencils/media/diamonds",
+    "Stencils/media/Stickers",
+    "Stencils/media",
+    "Stencils",
+    "Samples/media/home-netowrk",
+    "diamond-turquoise-soft.svg.md",
+    "Samples/media/stickers",
+    "Features/Headers and Labels",
+    "Features/untitled folder",
+    "Features/Cards",
+    "Features/Borders",
+    "Documentation/media/photo credits.md",
+    "SUPPORT.md",
+    "Samples/media/sample notes/diabetes/What is type 1 2.md",
+    "Samples/media/sample notes/diabetes/What is type 3.md",
+    "test.md",
+    "test 2.md",
+    "Samples/media/sample notes/annotation/Bluejay.md",
+    "Samples/Untitled.md",
+    "Samples/media/sample notes/diabetes/What is Diabetes.md",
+    "Samples/media/sample notes/diabetes/What is type 2.md",
+    "Samples/media/sample notes/diabetes/What is type 1.md",
+    "n asa-coEJ3MW8jV8-unsplash.jpg.md",
+    "Samples/media/sample notes/diabetes/Type 2 treatment.md",
+    "Samples/media/sample notes/diabetes/What is Diabetes?.md",
+    "Samples/media/sample notes/diabetes/What is type 1?.md",
+    "Samples/media/sample notes/diabetes/Type 1 treatment.md"
+  ]
+}

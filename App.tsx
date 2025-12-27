@@ -121,6 +121,14 @@ const App: React.FC = () => {
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged(async (firebaseUser) => {
       if (firebaseUser) {
+        if (!firebaseUser.emailVerified) {
+          // Force sign out if email is not verified
+          await auth.signOut();
+          setUser(null);
+          setAuthReady(true);
+          return;
+        }
+
         try {
           const appUser = await getOrCreateUser(
             firebaseUser.uid,

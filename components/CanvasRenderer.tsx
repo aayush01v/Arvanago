@@ -1,7 +1,10 @@
+import { Note } from '../types';
 import React, { useMemo, useState, useRef, useEffect } from 'react';
 import ReactMarkdown from 'react-markdown';
 import rehypeRaw from 'rehype-raw';
 import remarkGfm from 'remark-gfm';
+import remarkMath from 'remark-math';
+import rehypeKatex from 'rehype-katex';
 import Icon from './common/Icon';
 
 interface CanvasNode {
@@ -36,9 +39,10 @@ interface CanvasRendererProps {
     content: string;
     onNavigate?: (path: string) => void;
     onSave?: (newContent: string) => void;
+    files?: Note[];
 }
 
-const CanvasRenderer: React.FC<CanvasRendererProps> = ({ content, onNavigate, onSave }) => {
+const CanvasRenderer: React.FC<CanvasRendererProps> = ({ content, onNavigate, onSave, files = [] }) => {
     const containerRef = useRef<HTMLDivElement>(null);
     const [data, setData] = useState<CanvasData>({ nodes: [], edges: [] });
 
@@ -60,6 +64,7 @@ const CanvasRenderer: React.FC<CanvasRendererProps> = ({ content, onNavigate, on
     };
 
     const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
+    const [selectedEdgeId, setSelectedEdgeId] = useState<string | null>(null);
     const [isEditingText, setIsEditingText] = useState(false);
     const [interactionMode, setInteractionMode] = useState<'none' | 'drag-node' | 'resize-node' | 'connect' | 'pan' | 'zoom'>('none');
     const [transform, setTransform] = useState({ x: 50, y: 50, scale: 0.8 });
@@ -70,7 +75,11 @@ const CanvasRenderer: React.FC<CanvasRendererProps> = ({ content, onNavigate, on
         handle?: string;
         connectionStart?: { nodeId: string, side: 'top' | 'right' | 'bottom' | 'left' };
         lastTouchDistance?: number;
+        longPressStart?: { x: number, y: number };
     }>({ startMouse: { x: 0, y: 0 } });
+
+    // Timer for mobile long-press
+    const longPressTimerRef = useRef<NodeJS.Timeout | null>(null);
 
     const [tempConnection, setTempConnection] = useState<{
         start: { x: number, y: number };
@@ -80,52 +89,166 @@ const CanvasRenderer: React.FC<CanvasRendererProps> = ({ content, onNavigate, on
     const minX = Math.min(...(data.nodes.length ? data.nodes.map(n => n.x) : [0]));
     const minY = Math.min(...(data.nodes.length ? data.nodes.map(n => n.y) : [0]));
 
-    const getColor = (color?: string) => {
-        const map: Record<string, string> = {
-            '1': '#ef4444',
-            '2': '#f97316',
-            '3': '#eab308',
-            '4': '#22c55e',
-            '5': '#06b6d4',
-            '6': '#8b5cf6',
+    const getColor = (colorStr: string) => {
+        // Obsidian Canvas Colors
+        const colors: Record<string, string> = {
+            '1': '#ff5959', // Red
+            '2': '#ff9b59', // Orange
+            '3': '#ffdf59', // Yellow
+            '4': '#59ff59', // Green
+            '5': '#59ffff', // Cyan
+            '6': '#599bff', // Blue
+            '7': '#b359ff', // Purple
+            '8': '#ff59c8', // Pink
+            '9': '#cccccc', // Grey
         };
-        return map[color || ''] || '#ffffff';
+        return colors[colorStr] || colorStr;
+    };
+
+    const hexToRgb = (hex: string) => {
+        const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+        return result ? `${parseInt(result[1], 16)}, ${parseInt(result[2], 16)}, ${parseInt(result[3], 16)}` : '255, 255, 255';
+    };
+
+    const resolveFileSrc = (filePath: string) => {
+        if (!filePath) return '';
+        if (filePath.startsWith('http')) return filePath;
+
+        // Try to find the file in the passed notes/files
+        // path in canvas JSON is usually "Path/To/File.png"
+        // note in list has path: "Path/To" and title: "File.png"
+
+        const targetName = filePath.split('/').pop();
+        const targetPath = filePath.includes('/') ? filePath.substring(0, filePath.lastIndexOf('/')) : '';
+
+        // Exact match
+        let found = files.find(n => n.title === targetName && (n.path === targetPath || !targetPath));
+
+        // Loose match (just filename)
+        if (!found) {
+            found = files.find(n => n.title === targetName);
+        }
+
+        if (found) {
+            // Check if content is a data URI
+            if (found.content.startsWith('data:')) return found.content;
+            // If not, it might be a text file, but we shouldn't be here for images unless stored wrong
+            return found.content;
+        }
+
+        return filePath; // Fallback to original path (might be 404 but best effort)
     };
 
     const processNodeText = (text: string) => {
         let cleanText = text;
         let classes = "";
-        let header = null;
 
-        const frontmatterRegex = /^---\n([\s\S]*?)\n---\n/;
+        // 1. Extract Frontmatter (allow optional leading whitespace)
+        // Also look for cssclasses anywhere in the text if strict frontmatter fails or complements it
+        const frontmatterRegex = /^\s*---\n([\s\S]*?)\n---\n/;
         const match = text.match(frontmatterRegex);
+
+        let frontmatterContent = "";
         if (match) {
-            const frontmatter = match[1];
-            const classMatch = frontmatter.match(/cssclasses:\s*(.*)/);
-            if (classMatch) {
-                classes = classMatch[1].trim().replace(/,/g, ' ');
-            }
+            frontmatterContent = match[1];
             cleanText = text.replace(frontmatterRegex, '');
         }
 
-        // Extract header
-        const headerMatch = cleanText.match(/\[!cc-header\]\s*(.*)/);
-        if (headerMatch) {
-            header = headerMatch[1];
-            cleanText = cleanText.replace(/\[!cc-header\]\s*(.*)(\n)?/g, '');
+        // Look for cssclasses in frontmatter OR anywhere in the text (e.g. at the bottom)
+        // This regex looks for 'cssclasses: value' 
+        const cssClassesRegex = /cssclasses:\s*(.*)/;
+        const classMatch = frontmatterContent.match(cssClassesRegex) || text.match(cssClassesRegex);
+
+        if (classMatch) {
+            // Handle comma-separated and bracket syntax [cls1, cls2]
+            classes = classMatch[1]
+                .replace(/[\[\]]/g, '') // Remove brackets
+                .trim()
+                .replace(/,/g, ' '); // Replace commas with spaces
+
+            // Remove the cssclasses line from the text content so it's not visible
+            // We use a global regex to catch it anywhere
+            cleanText = cleanText.replace(/cssclasses:.*(\r\n|\n|\r)?/g, '');
         }
 
+        // 2. Handle Canvas Candy Callouts (convert to HTML for rehype-raw)
+        // ensure data-callout is passed. React accepts data- attributes.
+
+        // Header
+        cleanText = cleanText.replace(/>\s*\[!cc-header(-noborder)?\]\s*(.*)/g, (match, noBorder, title) => {
+            const type = noBorder ? 'cc-header-noborder' : 'cc-header';
+            const style = `background-color: rgba(var(--canvas-color), var(--cc-header-opacity-level)); border-bottom: ${noBorder ? 'none' : '2px solid rgba(var(--canvas-color), 1)'}; padding: 8px 16px; margin: -1rem -1rem 1rem -1rem;`;
+            return `<div data-callout="${type}" class="callout" style="${style}"><div class="callout-title" style="font-weight: bold;">${title}</div></div>`;
+        });
+
+        // Footer
+        cleanText = cleanText.replace(/>\s*\[!cc-footer(-noborder)?\]\s*(.*)/g, (match, noBorder, title) => {
+            const type = noBorder ? 'cc-footer-noborder' : 'cc-footer';
+            const style = `background-color: rgba(var(--canvas-color), var(--cc-footers-opacity-level)); border-top: ${noBorder ? 'none' : '2px solid rgba(var(--canvas-color), 1)'}; padding: 8px 16px; margin: 1rem -1rem -1rem -1rem;`;
+            return `<div data-callout="${type}" class="callout" style="${style}"><div class="callout-title" style="font-weight: bold;">${title}</div></div>`;
+        });
+
+        // Labels
+        cleanText = cleanText.replace(/>\s*\[!cc-label-(left|right)(-noborder)?\]\s*(.*)/g, (match, side, noBorder, title) => {
+            const type = `cc-label-${side}${noBorder ? '-noborder' : ''}`;
+            const innerTitle = title.trim() ? title : '';
+            const isLeft = side === 'left';
+            const style = `
+                position: absolute;
+                ${isLeft ? 'left: 0; transform: translateX(-100%); border-right: 2px solid rgba(var(--canvas-color), 1);' : 'right: 0; transform: translateX(100%); border-left: 2px solid rgba(var(--canvas-color), 1);'}
+                top: 20px;
+                background-color: rgba(var(--canvas-color), var(--cc-labels-opacity-level));
+                padding: 4px 8px;
+                ${noBorder ? 'border: none;' : ''}
+            `;
+            return `<div data-callout="${type}" class="callout" style="${style}"><div class="callout-title"><div class="callout-title-inner">${innerTitle}</div></div></div>`;
+        });
+
+        // Remove 'cc-card' marker if present
         cleanText = cleanText.replace(/\[!cc-card\]/g, '');
+
+
+        // 3. Obsidan/Standard Transformations
+        // Image embeds ![[path]] -> need rendering?
+        cleanText = cleanText.replace(/!\[\[([^\]]+)\]\]/g, (match, p1) => {
+            const src = resolveFileSrc(p1);
+            if (/\.(png|jpg|jpeg|gif|svg|webp)$/i.test(p1)) {
+                return `<img src="${src}" alt="${p1}" class="w-full rounded-lg" />`;
+            }
+            return `<div class="p-2 border-l-4 border-brand-primary bg-slate-50 dark:bg-slate-800 my-2 text-sm italic">Embedded: ${p1}</div>`;
+        });
+
         cleanText = cleanText.replace(/\[\[([^\]|]+)(?:\|([^\]]+))?\]\]/g, (match, p1, p2) => {
             const label = p2 || p1;
             const target = p1;
             return `<a href="#" data-internal-link="${target}" class="text-brand-primary hover:underline">${label}</a>`;
         });
-        cleanText = cleanText.replace(/!\[\[([^\]]+)\]\]/g, (match, p1) => {
-            return `<div class="p-2 border-l-4 border-brand-primary bg-slate-50 dark:bg-slate-800 my-2 text-sm italic">Embedded: ${p1}</div>`;
-        });
         cleanText = cleanText.replace(/(^|\s)#([a-zA-Z0-9_-]+)/g, '$1<span class="text-brand-primary bg-brand-primary/10 px-1 rounded text-xs font-mono">#$2</span>');
-        return { cleanText, classes, header };
+
+        return { cleanText, classes };
+    };
+
+    // --- Toolbar Component ---
+    const NodeToolbar = ({ node, onColorChange, onEdit }: { node: CanvasNode, onColorChange: (color: string) => void, onEdit: () => void }) => {
+        const colors = ['1', '2', '3', '4', '5', '6']; // Red, Orange, Yellow, Green, Cyan, Blue
+        return (
+            <div className="absolute -top-12 left-0 h-10 bg-white dark:bg-slate-800 shadow-lg rounded-full flex items-center px-3 gap-2 border border-slate-200 dark:border-slate-700 z-[100]"
+                onMouseDown={e => e.stopPropagation()} // Prevent dragging node when clicking toolbar
+            >
+                {colors.map(c => (
+                    <button
+                        key={c}
+                        onClick={() => onColorChange(c)}
+                        className={`w-6 h-6 rounded-full border-2 ${node.color === c ? 'border-slate-900 dark:border-white' : 'border-transparent hover:scale-110 transition-transform'}`}
+                        style={{ backgroundColor: getColor(c) }}
+                    />
+                ))}
+                <div className="w-px h-4 bg-slate-300 dark:bg-slate-600 mx-1" />
+                <button onClick={onEdit} className="p-1 hover:bg-slate-100 dark:hover:bg-slate-700 rounded text-slate-600 dark:text-slate-300">
+                    <Icon name="edit" className="w-4 h-4" />
+                </button>
+            </div>
+        );
     };
 
     const getNodeRect = (nodeId: string) => {
@@ -193,6 +316,7 @@ const CanvasRenderer: React.FC<CanvasRendererProps> = ({ content, onNavigate, on
         } else {
             if (interactionMode === 'none') {
                 setSelectedNodeId(null);
+                setSelectedEdgeId(null);
                 setIsEditingText(false);
             }
         }
@@ -216,6 +340,7 @@ const CanvasRenderer: React.FC<CanvasRendererProps> = ({ content, onNavigate, on
         e.stopPropagation();
         if (e.button !== 0) return;
         setSelectedNodeId(node.id);
+        setSelectedEdgeId(null);
         setIsEditingText(false);
         setInteractionMode('drag-node');
         activeRef.current = {
@@ -226,15 +351,34 @@ const CanvasRenderer: React.FC<CanvasRendererProps> = ({ content, onNavigate, on
 
     // Touch
     const handleNodeTouchStart = (e: React.TouchEvent, node: CanvasNode) => {
-        e.stopPropagation();
-        e.preventDefault();
+        // Do NOT stop propagation immediately to allow scrolling if user doesn't hold
+        // e.stopPropagation(); 
+        // e.preventDefault();
+
+        const clientX = e.touches[0].clientX;
+        const clientY = e.touches[0].clientY;
+
+        // Clear any existing timer
+        if (longPressTimerRef.current) clearTimeout(longPressTimerRef.current);
+
         setSelectedNodeId(node.id);
+        setSelectedEdgeId(null);
         setIsEditingText(false);
-        setInteractionMode('drag-node');
-        activeRef.current = {
-            startMouse: { x: e.touches[0].clientX, y: e.touches[0].clientY },
-            initialNode: { ...node }
-        };
+
+        // Store initial touch for tolerance check
+        activeRef.current.longPressStart = { x: clientX, y: clientY };
+
+        // Start 500ms Timer
+        longPressTimerRef.current = setTimeout(() => {
+            // If we are here, user held for 500ms
+            setInteractionMode('drag-node');
+            activeRef.current = {
+                startMouse: { x: clientX, y: clientY },
+                initialNode: { ...node }
+            };
+            // navigator.vibrate?.(50); // Haptic feedback if available (often blocked in frames but worth try)
+            console.log('Long press detected - Drag mode active');
+        }, 500);
     };
 
     // --- Handle (Resize/Connect) ---
@@ -311,6 +455,16 @@ const CanvasRenderer: React.FC<CanvasRendererProps> = ({ content, onNavigate, on
             }));
             activeRef.current.lastTouchDistance = newDist;
             return;
+        }
+
+        // Cancel Long Press if moved significantly (scrolling)
+        if (longPressTimerRef.current && activeRef.current.longPressStart) {
+            const dist = Math.sqrt(Math.pow(clientX - activeRef.current.longPressStart.x, 2) + Math.pow(clientY - activeRef.current.longPressStart.y, 2));
+            if (dist > 10) { // 10px tolerance
+                clearTimeout(longPressTimerRef.current);
+                longPressTimerRef.current = null;
+                console.log('Touch moved too much - Cancelled long press');
+            }
         }
 
         const dx = (clientX - activeRef.current.startMouse.x) / transform.scale;
@@ -442,9 +596,6 @@ const CanvasRenderer: React.FC<CanvasRendererProps> = ({ content, onNavigate, on
                     if (fromNode) {
                         const center = { x: newNode.x + newNode.width / 2, y: newNode.y + newNode.height / 2 };
                         const fromCenter = { x: fromNode.x + fromNode.width / 2, y: fromNode.y + fromNode.height / 2 };
-                        // Angle from new node center to source (since we want side OF new node)
-                        // Actually wait, simple approach:
-                        // If source is to the left, connect to left side of new node? No, right side of drag
 
                         const angle = Math.atan2(fromCenter.y - center.y, fromCenter.x - center.x) * 180 / Math.PI;
                         // Invert angle logic because we want the side facing the source
@@ -471,6 +622,12 @@ const CanvasRenderer: React.FC<CanvasRendererProps> = ({ content, onNavigate, on
                     setSelectedNodeId(newNodeId);
                 }
             }
+        }
+
+        // Clear long press timer on any up event
+        if (longPressTimerRef.current) {
+            clearTimeout(longPressTimerRef.current);
+            longPressTimerRef.current = null;
         }
 
         setInteractionMode('none');
@@ -502,11 +659,16 @@ const CanvasRenderer: React.FC<CanvasRendererProps> = ({ content, onNavigate, on
     };
 
     const deleteSelected = () => {
-        if (!selectedNodeId) return;
-        const newNodes = data.nodes.filter(n => n.id !== selectedNodeId);
-        const newEdges = data.edges.filter(e => e.fromNode !== selectedNodeId && e.toNode !== selectedNodeId);
-        saveData({ nodes: newNodes, edges: newEdges });
-        setSelectedNodeId(null);
+        if (selectedNodeId) {
+            const newNodes = data.nodes.filter(n => n.id !== selectedNodeId);
+            const newEdges = data.edges.filter(e => e.fromNode !== selectedNodeId && e.toNode !== selectedNodeId);
+            saveData({ nodes: newNodes, edges: newEdges });
+            setSelectedNodeId(null);
+        } else if (selectedEdgeId) {
+            const newEdges = data.edges.filter(e => e.id !== selectedEdgeId);
+            saveData({ ...data, edges: newEdges });
+            setSelectedEdgeId(null);
+        }
     };
 
     const updateColor = (color: string) => {
@@ -521,7 +683,14 @@ const CanvasRenderer: React.FC<CanvasRendererProps> = ({ content, onNavigate, on
         saveData({ ...data, nodes: updated });
     };
 
+    const updateEdgeLabel = (text: string) => {
+        if (!selectedEdgeId) return;
+        const updated = data.edges.map(e => e.id === selectedEdgeId ? { ...e, label: text } : e);
+        saveData({ ...data, edges: updated });
+    };
+
     const selectedNode = data.nodes.find(n => n.id === selectedNodeId);
+    const selectedEdge = data.edges.find(e => e.id === selectedEdgeId);
 
     return (
         <div
@@ -551,12 +720,27 @@ const CanvasRenderer: React.FC<CanvasRendererProps> = ({ content, onNavigate, on
                     </defs>
                     {data.edges?.map((edge, i) => (
                         <g key={edge.id || i}>
+                            {/* Hit Path (Transparent, Wide) - Click to select */}
                             <path
                                 d={calculatePath(edge)}
-                                stroke="#94a3b8"
-                                strokeWidth="2"
+                                stroke="transparent"
+                                strokeWidth="20"
+                                fill="none"
+                                className="cursor-pointer pointer-events-auto"
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    setSelectedEdgeId(edge.id);
+                                    setSelectedNodeId(null);
+                                }}
+                            />
+                            {/* Visible Path */}
+                            <path
+                                d={calculatePath(edge)}
+                                stroke={selectedEdgeId === edge.id ? '#3b82f6' : "#94a3b8"}
+                                strokeWidth={selectedEdgeId === edge.id ? "3" : "2"}
                                 fill="none"
                                 markerEnd="url(#arrowhead)"
+                                className="pointer-events-none transition-colors"
                             />
                             {edge.label && (
                                 <text
@@ -587,8 +771,81 @@ const CanvasRenderer: React.FC<CanvasRendererProps> = ({ content, onNavigate, on
 
                 {/* 2. Nodes Layer */}
                 {data.nodes.map(node => {
-                    const { cleanText, classes, header } = node.text ? processNodeText(node.text) : { cleanText: '', classes: '', header: null };
+                    const { cleanText, classes } = node.text ? processNodeText(node.text) : { cleanText: '', classes: '' };
                     const isSelected = node.id === selectedNodeId;
+                    const nodeColor = node.color ? getColor(node.color) : undefined;
+                    const nodeRgb = nodeColor ? hexToRgb(nodeColor) : undefined;
+
+                    const nodeStyle: any = {
+                        left: node.x - minX,
+                        top: node.y - minY,
+                        width: node.width,
+                        height: node.height,
+                        // Defaults for CC variables in case CSS :root is missed
+                        '--cc-header-opacity-level': 0.2,
+                        '--cc-footers-opacity-level': 0.09,
+                        '--cc-label-width': '50px',
+                        '--cc-labels-opacity-level': 0.3,
+                        '--cc-gradient-start': 0.7,
+                        '--cc-gradient-end': 0.1,
+                    };
+
+                    if (nodeRgb) {
+                        nodeStyle['--canvas-color'] = nodeRgb;
+                    }
+
+                    // --- Wrapper Structure for Canvas Candy ---
+                    // .canvas-node > .canvas-node-container > .canvas-node-content
+
+
+                    if (node.type === 'file') {
+                        const isImage = node.file && /\.(png|jpg|jpeg|gif|svg|webp)$/i.test(node.file);
+                        const isSticker = node.file && node.file.includes('-cc-image');
+
+                        return (
+                            <div
+                                key={node.id}
+                                onMouseDown={(e) => handleNodeMouseDown(e, node)}
+                                onTouchStart={(e) => handleNodeTouchStart(e, node)}
+                                className={`canvas-node absolute overflow-visible flex flex-col ${isSelected ? 'z-50' : 'z-10'}`}
+                                style={nodeStyle}
+                            >
+                                <div
+                                    className={`canvas-node-container w-full h-full border rounded-lg shadow-sm bg-white dark:bg-slate-800 transition-all ${isSelected ? 'ring-2 ring-brand-primary' : isSticker ? 'border-none shadow-none bg-transparent' : 'border-slate-300 dark:border-slate-600'}`}
+                                    style={isSticker ? { backgroundColor: 'transparent', border: 'none', boxShadow: 'none' } : undefined}
+                                >
+                                    <div className={`canvas-node-content w-full h-full flex flex-col ${isSticker ? 'bg-transparent' : ''}`}
+                                        style={isSticker ? { backgroundColor: 'transparent' } : undefined}
+                                    >
+                                        {isSelected && <SelectionOverlay node={node} />}
+
+                                        {isImage ? (
+                                            <img
+                                                src={resolveFileSrc(node.file!)}
+                                                alt={node.file}
+                                                // Ensure the src attribute contains the keyword so CSS selectors might also pick it up if they target img[src*="..."]
+                                                // Although base64 breaks that, inline styles above fix it.
+                                                data-src-path={node.file}
+                                                className="w-full h-full object-contain pointer-events-none"
+                                            />
+                                        ) : (
+                                            <div
+                                                className="p-4 h-full flex flex-col items-center justify-center bg-slate-50 dark:bg-slate-900/50 cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                                                onDoubleClick={(e) => {
+                                                    if (node.file) onNavigate?.(node.file);
+                                                }}
+                                            >
+                                                <span className="font-semibold text-slate-700 dark:text-slate-300 truncate w-full text-center">
+                                                    {node.file}
+                                                </span>
+                                                <span className="text-xs text-slate-500">Double click to open</span>
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
+                            </div>
+                        )
+                    }
 
                     if (node.type === 'sticker') {
                         return (
@@ -596,19 +853,18 @@ const CanvasRenderer: React.FC<CanvasRendererProps> = ({ content, onNavigate, on
                                 key={node.id}
                                 onMouseDown={(e) => handleNodeMouseDown(e, node)}
                                 onTouchStart={(e) => handleNodeTouchStart(e, node)}
-                                className={`absolute ${isSelected ? 'ring-2 ring-brand-primary' : 'hover:ring-1 hover:ring-brand-primary/50'}`}
-                                style={{
-                                    left: node.x - minX,
-                                    top: node.y - minY,
-                                    width: node.width,
-                                    height: node.height,
-                                }}
+                                className={`canvas-node absolute ${isSelected ? 'ring-2 ring-brand-primary' : 'hover:ring-1 hover:ring-brand-primary/50'}`}
+                                style={nodeStyle}
                             >
-                                <img
-                                    src={node.file || node.url}
-                                    alt="sticker"
-                                    className="w-full h-full object-contain pointer-events-none"
-                                />
+                                <div className="canvas-node-container w-full h-full relative" style={{ backgroundColor: 'transparent', border: 'none', boxShadow: 'none' }}>
+                                    <div className="canvas-node-content w-full h-full" style={{ backgroundColor: 'transparent' }}>
+                                        <img
+                                            src={resolveFileSrc(node.file || node.url || '')}
+                                            alt="sticker"
+                                            className="w-full h-full object-contain pointer-events-none"
+                                        />
+                                    </div>
+                                </div>
                                 {isSelected && <SelectionOverlay node={node} />}
                             </div>
                         )
@@ -619,90 +875,76 @@ const CanvasRenderer: React.FC<CanvasRendererProps> = ({ content, onNavigate, on
                             key={node.id}
                             onMouseDown={(e) => handleNodeMouseDown(e, node)}
                             onTouchStart={(e) => handleNodeTouchStart(e, node)}
-                            className={`absolute border rounded-lg shadow-sm bg-white dark:bg-slate-800 overflow-visible flex flex-col ${classes} ${isSelected ? 'ring-2 ring-brand-primary z-50' : 'border-slate-300 dark:border-slate-600'}`}
-                            style={{
-                                left: node.x - minX,
-                                top: node.y - minY,
-                                width: node.width,
-                                height: node.height,
-                                borderColor: node.color ? getColor(node.color) : undefined,
-                                borderWidth: node.color ? '2px' : undefined
-                            }}
+                            // 'canvas-node' class is crucial for CC selectors
+                            className={`canvas-node absolute overflow-visible flex flex-col ${isSelected ? 'z-50' : 'z-10'} ${classes}`}
+                            style={nodeStyle}
                         >
-                            {isSelected && <SelectionOverlay node={node} />}
+                            {/* Container: holds the actual styled card. CC expects classes here/inside to trigger styles */}
+                            <div
+                                className={`canvas-node-container w-full h-full border rounded-lg shadow-sm bg-white dark:bg-slate-800 transition-all ${isSelected ? 'ring-2 ring-brand-primary' : 'border-slate-300 dark:border-slate-600'}`}
+                                style={{
+                                    borderColor: nodeColor,
+                                    borderWidth: nodeColor ? '2px' : undefined
+                                }}
+                            >
+                                {/* Content: where the text lives. Classes from frontmatter applied HERE so :has() on container works */}
+                                <div className={`canvas-node-content w-full h-full flex flex-col ${classes}`}>
+                                    {isSelected && <SelectionOverlay node={node} />}
 
-                            {node.type === 'text' && node.text && (
-                                <div className="w-full h-full text-sm flex flex-col node-content cursor-text overflow-hidden rounded-lg"
-                                    onDoubleClick={() => setIsEditingText(true)}
-                                >
-                                    {!isEditingText && header && (
-                                        <div
-                                            className="px-4 py-3 border-b border-slate-200 dark:border-slate-700 font-bold text-base flex items-center shrink-0"
-                                            style={{
-                                                backgroundColor: node.color ? `${getColor(node.color)}33` : 'rgba(0,0,0,0.02)'
-                                            }}
+                                    {node.type === 'text' && node.text && (
+                                        <div className="w-full h-full text-sm flex flex-col node-content cursor-text overflow-hidden rounded-lg"
+                                            onDoubleClick={() => setIsEditingText(true)}
                                         >
-                                            <div className="mr-3 w-1 h-4 rounded-full"
-                                                style={{ backgroundColor: node.color ? getColor(node.color) : '#94a3b8' }}
-                                            />
-                                            {header}
+                                            <div className={`markdown-preview-view w-full flex-1 overflow-y-auto ${!(isSelected && isEditingText) ? 'p-4 prose dark:prose-invert max-w-none' : ''}`}
+                                                onMouseDown={(e) => {
+                                                    if (isSelected && isEditingText) {
+                                                        e.stopPropagation();
+                                                    }
+                                                }}
+                                                onTouchStart={(e) => {
+                                                    if (isSelected && isEditingText) {
+                                                        e.stopPropagation();
+                                                    }
+                                                }}
+                                            >
+                                                {isSelected && isEditingText ? (
+                                                    <textarea
+                                                        autoFocus
+                                                        className="w-full h-full p-4 bg-transparent resize-none focus:outline-none font-mono text-sm"
+                                                        value={node.text}
+                                                        onChange={e => updateText(e.target.value)}
+                                                        onBlur={() => setIsEditingText(false)}
+                                                        onMouseDown={e => e.stopPropagation()}
+                                                        onTouchStart={e => e.stopPropagation()}
+                                                    />
+                                                ) : (
+                                                    <div className="markdown-preview-section" onClick={(e) => {
+                                                        const target = e.target as HTMLElement;
+                                                        const link = target.closest('a');
+                                                        if (link && link.dataset.internalLink) {
+                                                            e.preventDefault();
+                                                            onNavigate?.(link.dataset.internalLink);
+                                                        }
+                                                    }}>
+                                                        {/* Processed text includes generic <div>s representing callouts which CC styles */}
+                                                        <ReactMarkdown
+                                                            rehypePlugins={[rehypeRaw, rehypeKatex]}
+                                                            remarkPlugins={[remarkGfm, remarkMath]}
+                                                        >
+                                                            {cleanText}
+                                                        </ReactMarkdown>
+                                                    </div>
+                                                )}
+                                            </div>
                                         </div>
                                     )}
-                                    <div className={`w-full flex-1 overflow-y-auto ${!isEditingText ? 'p-4 prose dark:prose-invert max-w-none' : ''}`}
-                                        onMouseDown={(e) => {
-                                            if (isEditingText) {
-                                                e.stopPropagation();
-                                            }
-                                        }}
-                                        onTouchStart={(e) => {
-                                            if (isEditingText) {
-                                                e.stopPropagation();
-                                            }
-                                        }}
-                                    >
-                                        {isEditingText ? (
-                                            <textarea
-                                                autoFocus
-                                                className="w-full h-full p-4 bg-transparent resize-none focus:outline-none font-mono text-sm"
-                                                value={node.text}
-                                                onChange={e => updateText(e.target.value)}
-                                                onBlur={() => setIsEditingText(false)}
-                                                onMouseDown={e => e.stopPropagation()}
-                                                onTouchStart={e => e.stopPropagation()}
-                                            />
-                                        ) : (
-                                            <div onClick={(e) => {
-                                                const target = e.target as HTMLElement;
-                                                const link = target.closest('a');
-                                                if (link && link.dataset.internalLink) {
-                                                    e.preventDefault();
-                                                    onNavigate?.(link.dataset.internalLink);
-                                                }
-                                            }}>
-                                                <ReactMarkdown rehypePlugins={[rehypeRaw]} remarkPlugins={[remarkGfm]}>{cleanText}</ReactMarkdown>
-                                            </div>
-                                        )}
-                                    </div>
+                                    {node.type === 'group' && (
+                                        <div className="w-full h-full bg-slate-100/50 dark:bg-slate-800/50 flex items-start justify-center p-2 font-bold text-slate-500">
+                                            {node.label}
+                                        </div>
+                                    )}
                                 </div>
-                            )}
-                            {node.type === 'file' && (
-                                <div
-                                    className="p-4 h-full flex flex-col items-center justify-center bg-slate-50 dark:bg-slate-900/50 cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
-                                    onDoubleClick={(e) => {
-                                        if (node.file) onNavigate?.(node.file);
-                                    }}
-                                >
-                                    <span className="font-semibold text-slate-700 dark:text-slate-300 truncate w-full text-center">
-                                        {node.file}
-                                    </span>
-                                    <span className="text-xs text-slate-500">Double click to open</span>
-                                </div>
-                            )}
-                            {node.type === 'group' && (
-                                <div className="w-full h-full bg-slate-100/50 dark:bg-slate-800/50 flex items-start justify-center p-2 font-bold text-slate-500">
-                                    {node.label}
-                                </div>
-                            )}
+                            </div>
                         </div>
                     );
                 })}
@@ -737,7 +979,40 @@ const CanvasRenderer: React.FC<CanvasRendererProps> = ({ content, onNavigate, on
                         <button onClick={() => updateColor('')} className="w-6 h-6 rounded-full border border-slate-200 bg-white flex items-center justify-center" aria-label="Remove color">
                             <span className="block w-6 h-px bg-red-500 transform rotate-45"></span>
                         </button>
+                        <div className="w-px h-6 bg-slate-200 dark:bg-slate-700 my-auto"></div>
+                        <button onClick={() => setIsEditingText(true)} className="p-2 hover:bg-slate-100 dark:hover:bg-slate-700 rounded text-slate-600 dark:text-slate-300" title="Edit Text" aria-label="Edit text">
+                            <Icon name="edit" className="w-5 h-5" />
+                        </button>
                     </div>
+                </div>
+            )}
+
+            {selectedEdge && !interactionMode.startsWith('drag') && !interactionMode.startsWith('resize') && (
+                <div
+                    className="absolute z-50 p-2 bg-white dark:bg-slate-800 rounded-lg shadow-xl border border-slate-200 dark:border-slate-700 flex gap-2 animate-in fade-in zoom-in-95 duration-200"
+                    style={{
+                        left: (getNodeRect(selectedEdge.fromNode).x + getNodeRect(selectedEdge.toNode).x) / 2 * transform.scale + transform.x,
+                        top: (getNodeRect(selectedEdge.fromNode).y + getNodeRect(selectedEdge.toNode).y) / 2 * transform.scale + transform.y - 60,
+                    }}
+                    onMouseDown={e => e.stopPropagation()}
+                    onTouchStart={e => e.stopPropagation()}
+                    role="toolbar"
+                    aria-label="Edge actions"
+                >
+                    <button onClick={deleteSelected} className="p-2 hover:bg-slate-100 dark:hover:bg-slate-700 rounded text-red-500" title="Delete Connection">
+                        <Icon name="trash" className="w-5 h-5" />
+                    </button>
+                    <div className="w-px h-6 bg-slate-200 dark:bg-slate-700 my-auto"></div>
+                    <button
+                        onClick={() => {
+                            const newLabel = window.prompt("Edit Label", selectedEdge.label || "");
+                            if (newLabel !== null) updateEdgeLabel(newLabel);
+                        }}
+                        className="p-2 hover:bg-slate-100 dark:hover:bg-slate-700 rounded text-slate-600 dark:text-slate-300"
+                        title="Edit Label"
+                    >
+                        <Icon name="edit" className="w-5 h-5" />
+                    </button>
                 </div>
             )}
 
@@ -751,9 +1026,22 @@ const CanvasRenderer: React.FC<CanvasRendererProps> = ({ content, onNavigate, on
         </div>
     );
 
+    const handleColorChange = (nodeId: string, color: string) => {
+        setData(prev => ({
+            ...prev,
+            nodes: prev.nodes.map(n => n.id === nodeId ? { ...n, color } : n)
+        }));
+        saveData({ ...data, nodes: data.nodes.map(n => n.id === nodeId ? { ...n, color } : n) });
+    };
+
     function SelectionOverlay({ node }: { node: CanvasNode }) {
         return (
             <>
+                <NodeToolbar
+                    node={node}
+                    onColorChange={(color) => handleColorChange(node.id, color)}
+                    onEdit={() => setIsEditingText(true)}
+                />
                 <div className="absolute -top-1 -left-1 w-3 h-3 bg-white border border-brand-primary cursor-nw-resize"
                     onMouseDown={e => handleResizeMouseDown(e, 'nw')}
                     onTouchStart={e => handleResizeTouchStart(e, 'nw')}
@@ -774,7 +1062,7 @@ const CanvasRenderer: React.FC<CanvasRendererProps> = ({ content, onNavigate, on
                 {/* Connection Handles */}
 
                 {/* TOP */}
-                <div className={`absolute -top-3 left-1/2 -translate-x-1/2 w-8 h-8 flex items-center justify-center cursor-crosshair z-10`}
+                <div className={`absolute -top-3 left-1/2 -translate-x-1/2 w-16 h-16 flex items-center justify-center cursor-crosshair z-10`}
                     onMouseDown={e => handleConnectMouseDown(e, node.id, 'top')}
                     onTouchStart={e => handleConnectTouchStart(e, node.id, 'top')}
                     title="Connect">
@@ -784,7 +1072,7 @@ const CanvasRenderer: React.FC<CanvasRendererProps> = ({ content, onNavigate, on
                 </div>
 
                 {/* RIGHT */}
-                <div className={`absolute top-1/2 -right-3 -translate-y-1/2 w-8 h-8 flex items-center justify-center cursor-crosshair z-10`}
+                <div className={`absolute top-1/2 -right-3 -translate-y-1/2 w-16 h-16 flex items-center justify-center cursor-crosshair z-10`}
                     onMouseDown={e => handleConnectMouseDown(e, node.id, 'right')}
                     onTouchStart={e => handleConnectTouchStart(e, node.id, 'right')}
                     title="Connect">
@@ -794,7 +1082,7 @@ const CanvasRenderer: React.FC<CanvasRendererProps> = ({ content, onNavigate, on
                 </div>
 
                 {/* BOTTOM */}
-                <div className={`absolute -bottom-3 left-1/2 -translate-x-1/2 w-8 h-8 flex items-center justify-center cursor-crosshair z-10`}
+                <div className={`absolute -bottom-3 left-1/2 -translate-x-1/2 w-16 h-16 flex items-center justify-center cursor-crosshair z-10`}
                     onMouseDown={e => handleConnectMouseDown(e, node.id, 'bottom')}
                     onTouchStart={e => handleConnectTouchStart(e, node.id, 'bottom')}
                     title="Connect">
@@ -804,7 +1092,7 @@ const CanvasRenderer: React.FC<CanvasRendererProps> = ({ content, onNavigate, on
                 </div>
 
                 {/* LEFT */}
-                <div className={`absolute top-1/2 -left-3 -translate-y-1/2 w-8 h-8 flex items-center justify-center cursor-crosshair z-10`}
+                <div className={`absolute top-1/2 -left-3 -translate-y-1/2 w-16 h-16 flex items-center justify-center cursor-crosshair z-10`}
                     onMouseDown={e => handleConnectMouseDown(e, node.id, 'left')}
                     onTouchStart={e => handleConnectTouchStart(e, node.id, 'left')}
                     title="Connect">

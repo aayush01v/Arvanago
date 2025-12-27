@@ -1,0 +1,8 @@
+{
+	"nodes":[
+		{"id":"1ad9c32fcf3832a6","type":"text","text":"---\ncssclasses: cc-card-gradient-270deg, cc-border-top, cc-border-double\n---\n\n### Stay Informed\n\nWe have set up a Substack newsletter to inform customers of when there are updates to the Canvas Candy Vault that you purchased. You can choose whether to receive updates about Canvas Candy. Substack has the advantage of giving users more choices on how to stay informed. I will occasionally post user tips and relevant information about Canvas Candy in this newsletter.\n\n- To sign up for this, please go to [https://canvascandy.substack.com.](https://canvascandy.substack.com/) Once signed up, you can configure if you will receive email notifications. Again, it's free!","x":-400,"y":-380,"width":540,"height":380,"color":"5"},
+		{"id":"03218f6dfb095197","type":"text","text":"---\ncssclasses: cc-card-gradient-0deg, cc-border-top, cc-border-double\n---\n# Updates\n\nUpdates to the Canvas Candy Vault.\n\nYou can always download the most current version of Canvas Candy from your orders page at https://app.lemonsqueezy.com/my-orders.","x":-800,"y":-380,"width":400,"height":307,"color":"4"},
+		{"id":"9e0682962b08053d","type":"text","text":"---\ncssclasses: cc-card-gradient-0deg, cc-border-top, cc-border-double\n---\n\n# Support\nPlease get in touch with me for support at support@tfthacker.com, or you can find me on Discord at https://discord.gg/6HfUwK8gxC in the `canvas-candy` channel for real-time discussion and support.","x":-640,"y":-600,"width":570,"height":220,"color":"3"}
+	],
+	"edges":[]
+}

@@ -2,6 +2,8 @@
 @tailwind components;
 @tailwind utilities;
 
+@import './Templates/canvas-candy.css';
+
 :root {
   font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   color: #0f172a;
@@ -13,6 +15,26 @@
   --glass-dark: rgba(15, 23, 42, 0.65);
   --neon-primary: #7c3aed;
   --neon-secondary: #22d3ee;
+
+  /* Canvas Candy Required Variables */
+  --canvas-color: 255, 255, 255;
+  /* RGB value for light mode ({r}, {g}, {b}) */
+  --canvas-background: #f8fafc;
+
+  /* Obsidian Compatibility vars for Canvas Candy */
+  --border-width: 2px;
+  --size-4-3: 1rem;
+  /* Used for footer margins, approx 16px */
+  --size-4-6: 1rem;
+  /* Used for header left margin */
+  --size-4-9: 1rem;
+  /* Used for header right margin */
+}
+
+.dark:root {
+  --canvas-color: 30, 41, 59;
+  /* RGB value for dark mode */
+  --canvas-background: #020617;
 }
 
 *,

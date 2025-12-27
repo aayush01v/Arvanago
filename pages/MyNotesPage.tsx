@@ -127,12 +127,11 @@ const MyNotesPage: React.FC = () => {
             console.error("Failed to save canvas", err);
         }
     };
-
     const importTemplate = async () => {
         if (!currentUserId) return;
         setImporting(true);
         try {
-            const response = await fetch('/templates/canvas-candy.zip');
+            const response = await fetch('/templates/Engineering-Maths.zip');
             if (!response.ok) throw new Error("Failed to fetch template");
             const blob = await response.blob();
 
@@ -141,45 +140,11 @@ const MyNotesPage: React.FC = () => {
             // Process files
             const promises: Promise<void>[] = [];
 
-            // First pass: Detect common root directory
-            const validFiles: string[] = [];
-            zip.forEach((relativePath, entry) => {
-                if (entry.dir) return; // Ignore directory entries
-                // Ignore macOS junk and hidden files
-                if (relativePath.includes('__MACOSX') || relativePath.split(/[/\\]/).some(p => p.startsWith('.'))) return;
-
-                // Normalize separators
-                const normalizedPath = relativePath.replace(/\\/g, '/');
-                validFiles.push(normalizedPath);
-            });
-
-            let commonRoot = "";
-            if (validFiles.length > 0) {
-                validFiles.sort();
-                const first = validFiles[0];
-                const last = validFiles[validFiles.length - 1];
-                let i = 0;
-                while (i < first.length && first[i] === last[i]) {
-                    i++;
-                }
-                const prefix = first.substring(0, i);
-                // If the prefix ends with '/', it's a folder. If not, trim to last slash.
-                if (prefix.includes('/')) {
-                    commonRoot = prefix.substring(0, prefix.lastIndexOf('/') + 1);
-                } else if (validFiles.every(f => f.startsWith(first.split('/')[0] + '/'))) {
-                    commonRoot = first.split('/')[0] + '/';
-                }
-                console.log(`Detected common root: "${commonRoot}" from ${validFiles.length} valid files`);
-            }
-
-            let vaultCss = "";
-
             // Create Vault
-            const vault = await createVault(currentUserId, "Canvas Candy Vault", "Imported from template");
+            const vault = await createVault(currentUserId, "Engineering Maths", "Sequence and Series");
 
             zip.forEach((relativePath, zipEntry) => {
                 if (zipEntry.dir) return;
-                // Double check it's not a hidden file
                 if (relativePath.includes('__MACOSX') || relativePath.split(/[/\\]/).some(p => p.startsWith('.'))) return;
 
                 // Normalize Path
@@ -188,55 +153,52 @@ const MyNotesPage: React.FC = () => {
                 // Collect CSS
                 if (relativePath.endsWith('.css')) {
                     promises.push(
-                        zipEntry.async("string").then((content) => {
+                        zipEntry.async("string").then(async (content) => {
                             console.log(`Found CSS: ${relativePath}`);
-                            vaultCss += `/* ${relativePath} */\n${content}\n`;
+                            // Save CSS to vault
+                            await updateVault(currentUserId, vault.id, { css: content });
                         })
                     );
                     return;
                 }
 
-                // Strip common root
-                const cleanPath = normalizedPath.startsWith(commonRoot) ? normalizedPath.slice(commonRoot.length) : normalizedPath;
+                // Clean paths (remove top folder if exists)
+                const parts = normalizedPath.split('/');
+                const cleanPath = parts.length > 1 ? parts.slice(1).join('/') : normalizedPath;
                 if (!cleanPath) return;
 
-                // Only process .md or .canvas (as text/json content)
-                if (cleanPath.endsWith('.md') || cleanPath.endsWith('.canvas') || cleanPath.endsWith('.txt')) {
-                    console.log(`Processing file path: ${cleanPath} (orig: ${relativePath})`);
+                const ext = cleanPath.split('.').pop()?.toLowerCase();
+                if (!ext) return;
+
+                // Process Text Files
+                if (['md', 'canvas', 'txt'].includes(ext)) {
                     promises.push(
                         zipEntry.async("string").then(async (content) => {
-                            // Use filename as title
                             const title = cleanPath.split('/').pop() || cleanPath;
-                            // Path should be directory without filename
                             const path = cleanPath.includes('/') ? cleanPath.substring(0, cleanPath.lastIndexOf('/')) : '';
-
-                            console.log(`Creating note: ${title} in path: ${path}`);
                             await createNoteInVault(currentUserId, vault.id, title, content, path);
                         })
                     );
-                } else {
-                    console.log(`Skipping file: ${cleanPath}`);
                 }
             });
 
-            console.log(`Found ${promises.length} files to import.`);
             await Promise.all(promises);
-            console.log("All files imported.");
 
             // Refresh vaults
             const userVaults = await getUserVaults(currentUserId);
             setVaults(userVaults);
-
             // Navigate to new vault
             setSearchParams({ vaultId: vault.id });
 
         } catch (error) {
             console.error("Import failed:", error);
-            alert("Failed to import template. Please try again.");
+            alert("Failed to import template.");
         } finally {
             setImporting(false);
         }
     };
+
+
 
     if (loading && !vaults.length && !notes.length) {
         return (
@@ -395,6 +357,7 @@ const MyNotesPage: React.FC = () => {
                                         content={selectedNote.content}
                                         onNavigate={handleNavigate}
                                         onSave={handleSaveCanvas}
+                                        files={notes}
                                     />
                                 ) : (
                                     <div className="h-full overflow-y-auto p-4 pb-20">
@@ -438,20 +401,20 @@ const MyNotesPage: React.FC = () => {
 
             {vaults.length === 0 ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto mt-12">
-                    <div className="bg-gradient-to-br from-indigo-500 to-purple-600 rounded-2xl p-8 text-white shadow-xl relative overflow-hidden group">
+                    <div className="bg-gradient-to-br from-blue-600 to-cyan-500 rounded-2xl p-8 text-white shadow-xl relative overflow-hidden group">
                         <div className="relative z-10">
-                            <h3 className="text-2xl font-bold mb-2">Start with Canvas Candy</h3>
-                            <p className="text-indigo-100 mb-6">
-                                Jumpstart your visual note-taking with a pre-configured vault containing templates, stickers, and canvas examples.
+                            <h3 className="text-2xl font-bold mb-2">Start Engineering Maths</h3>
+                            <p className="text-blue-50 mb-6">
+                                Jumpstart your engineering notes with a default Sequence & Series canvas using Canvas Candy.
                             </p>
                             <button
                                 onClick={importTemplate}
                                 disabled={importing}
-                                className="bg-white text-indigo-600 px-6 py-3 rounded-xl font-bold hover:bg-indigo-50 transition-colors disabled:opacity-75 disabled:cursor-not-allowed flex items-center gap-2"
+                                className="bg-white text-blue-600 px-6 py-3 rounded-xl font-bold hover:bg-blue-50 transition-colors disabled:opacity-75 disabled:cursor-not-allowed flex items-center gap-2"
                             >
                                 {importing ? (
                                     <>
-                                        <div className="w-4 h-4 border-2 border-indigo-600/30 border-t-indigo-600 rounded-full animate-spin" />
+                                        <div className="w-4 h-4 border-2 border-blue-600/30 border-t-blue-600 rounded-full animate-spin" />
                                         Installing...
                                     </>
                                 ) : (

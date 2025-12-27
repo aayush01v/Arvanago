@@ -2,6 +2,7 @@
 import firebase from 'firebase/compat/app';
 import 'firebase/compat/auth';
 import { auth } from './firebase.ts';
+export { auth };
 
 const googleProvider = new firebase.auth.GoogleAuthProvider();
 
@@ -15,32 +16,47 @@ export const signInWithGoogle = async () => {
   }
 };
 
-export const signUpWithEmail = async (name: string, email: string, pass: string) => {
-    try {
-        // FIX: Use compat syntax for createUserWithEmailAndPassword.
-        const res = await auth.createUserWithEmailAndPassword(email, pass);
-        const user = res.user;
-        if (user) {
-            // FIX: updateProfile is on the user object, which is correct. No change needed here but confirming it's compat-compatible.
-             await user.updateProfile({
-                displayName: name
-             });
-        }
-        return user;
-    } catch(err) {
-        console.error("Error signing up with email: ", err);
-        throw err;
+export const sendVerificationEmail = async () => {
+  try {
+    const user = auth.currentUser;
+    if (user) {
+      await user.sendEmailVerification();
+    } else {
+      throw new Error("No user logged in to send verification email.");
     }
+  } catch (error) {
+    console.error("Error sending verification email: ", error);
+    throw error;
+  }
+};
+
+export const signUpWithEmail = async (name: string, email: string, pass: string) => {
+  try {
+    // FIX: Use compat syntax for createUserWithEmailAndPassword.
+    const res = await auth.createUserWithEmailAndPassword(email, pass);
+    const user = res.user;
+    if (user) {
+      await user.updateProfile({
+        displayName: name
+      });
+      // Send verification email immediately to avoid race conditions with App.tsx auto-logout
+      await user.sendEmailVerification();
+    }
+    return user;
+  } catch (err) {
+    console.error("Error signing up with email: ", err);
+    throw err;
+  }
 }
 
 export const signInWithEmail = async (email: string, pass: string) => {
-    try {
-        // FIX: Use compat syntax for signInWithEmailAndPassword.
-        await auth.signInWithEmailAndPassword(email, pass);
-    } catch (err) {
-        console.error("Error signing in with email: ", err);
-        throw err;
-    }
+  try {
+    // FIX: Use compat syntax for signInWithEmailAndPassword.
+    await auth.signInWithEmailAndPassword(email, pass);
+  } catch (err) {
+    console.error("Error signing in with email: ", err);
+    throw err;
+  }
 }
 
 

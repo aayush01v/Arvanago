@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Icon from './common/Icon.tsx';
-import { signInWithGoogle, signInWithEmail, signUpWithEmail } from '../services/authService.ts';
+import { signInWithGoogle, signInWithEmail, signUpWithEmail, sendVerificationEmail, signOutUser, auth } from '../services/authService.ts';
 import { LOGO_URL } from '../constants.ts';
 
 interface LoginPageProps {
@@ -51,11 +51,39 @@ const LoginPage: React.FC<LoginPageProps> = ({ onNavigateHome }) => {
         try {
             if (activeTab === 'signup') {
                 await signUpWithEmail(name, email, password);
+                setError("verification link send to email verify and login...");
+                // Optionally switch to signin tab
+                setTimeout(() => setActiveTab('signin'), 3000);
             } else {
                 await signInWithEmail(email, password);
+                const user = auth.currentUser;
+                if (user && !user.emailVerified) {
+                    await signOutUser();
+                    throw new Error("Email not verified. Please check your inbox.");
+                }
             }
         } catch (err: any) {
             setError(err.message.replace('Firebase: ', '') || "An error occurred.");
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleResendVerification = async () => {
+        setLoading(true);
+        try {
+            // User needs to be signed in to send verification, but we signed them out.
+            // We temporarily sign them in to send the email, then sign out again, 
+            // OR we assume the previous signInWithEmail succeeded (before we signed out) context is lost.
+            // Actually, we can't send verification email if not signed in (security rule usually).
+            // Strategy: Re-attempt sign in to get the user object, send email, then sign out.
+
+            await signInWithEmail(email, password);
+            await sendVerificationEmail();
+            await signOutUser();
+            setError("Verification email resent! Please check your inbox.");
+        } catch (err: any) {
+            setError("Could not resend email. Ensure credentials are correct: " + (err.message || ""));
         } finally {
             setLoading(false);
         }
@@ -268,9 +296,18 @@ const LoginPage: React.FC<LoginPageProps> = ({ onNavigateHome }) => {
                                 <motion.div
                                     initial={{ opacity: 0, y: -10 }}
                                     animate={{ opacity: 1, y: 0 }}
-                                    className="p-3 rounded-lg bg-red-50 border border-red-100 text-red-600 text-sm text-center font-bold"
+                                    className={`p-3 rounded-lg border text-sm text-center font-bold ${error.includes("Account created") || error.includes("resent") ? "bg-green-50 border-green-100 text-green-600" : "bg-red-50 border-red-100 text-red-600"}`}
                                 >
                                     {error}
+                                    {error.includes("Email not verified") && (
+                                        <button
+                                            type="button"
+                                            onClick={handleResendVerification}
+                                            className="block mx-auto mt-2 text-xs underline hover:text-red-800"
+                                        >
+                                            Resend Verification Email
+                                        </button>
+                                    )}
                                 </motion.div>
                             )}
 

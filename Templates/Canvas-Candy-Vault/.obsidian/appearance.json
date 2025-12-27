@@ -1,0 +1,10 @@
+{
+  "accentColor": "#5a81dd",
+  "theme": "moonstone",
+  "enabledCssSnippets": [
+    "playground",
+    "canvas-candy",
+    "extended-colorschemes"
+  ],
+  "cssTheme": ""
+}
