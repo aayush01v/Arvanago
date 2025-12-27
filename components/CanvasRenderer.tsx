@@ -706,9 +706,10 @@ const CanvasRenderer: React.FC<CanvasRendererProps> = ({ content, onNavigate, on
             onMouseLeave={onMouseUp}
         >
             <div
-                className="absolute transition-transform duration-75 ease-out origin-top-left"
+                className={`absolute origin-top-left ${interactionMode === 'pan' || interactionMode.startsWith('drag') ? 'duration-0' : 'transition-transform duration-75 ease-out'}`}
                 style={{
-                    transform: `translate(${transform.x}px, ${transform.y}px) scale(${transform.scale})`
+                    transform: `translate(${transform.x}px, ${transform.y}px) scale(${transform.scale})`,
+                    willChange: 'transform'
                 }}
             >
                 {/* 1. Edges Layer */}
@@ -906,6 +907,7 @@ const CanvasRenderer: React.FC<CanvasRendererProps> = ({ content, onNavigate, on
                                                         e.stopPropagation();
                                                     }
                                                 }}
+                                                onWheel={(e) => e.stopPropagation()} // Stop canvas zoom/pan when scrolling content
                                             >
                                                 {isSelected && isEditingText ? (
                                                     <textarea

@@ -1,9 +1,9 @@
 {
     "nodes": [
         {
-            "id": "4f2da478105e4523",
+            "id": "ef569fc637df490e",
             "type": "text",
-            "text": "# Step 0: The Strategy",
+            "text": "# Step 0: The Grand Strategy",
             "x": 0,
             "y": -100,
             "width": 400,
@@ -11,9 +11,9 @@
             "color": "7"
         },
         {
-            "id": "96b5538bfe8f43c9",
+            "id": "3320ab678cd94de3",
             "type": "text",
-            "text": "\n> [!cc-header]\n> Decision Tree\n>\n> 1. **n-th Term:** Limit $\\ne 0$? -> **DIV**.\n> 2. **Form:** Geometric? P-Series?\n> 3. **Compare:** Similar to P-Series? -> **LCT/DCT**.\n> 4. **Signs:** Alternating? -> **AST**.\n> 5. **Methods:** Factorials ($n!$) -> **Ratio**. Powers ($n^n$) -> **Root**.\n>\n> cssclasses: cc-card-gradient-135deg\n    ",
+            "text": "\n> [!cc-header]\n> Decision Tree\n>\n> 1. **Check First:** Limit $\\ne 0$? -> **DIV**.\n> 2. **Check Form:** Geometric? P-Series?\n> 3. **Compare:** Similar to simple form? -> **LCT/DCT**.\n> 4. **Signs:** Alternating? -> **AST/Leibniz**.\n> 5. **Algebra:** Factors/Products? -> **Ratio**. Powers? -> **Root**.\n> 6. **Stuck?** Ratio=1? -> **Raabe's/Log**.\n>\n> cssclasses: cc-card-gradient-135deg\n    ",
             "x": 0,
             "y": 0,
             "width": 400,
@@ -21,356 +21,444 @@
             "color": "3"
         },
         {
-            "id": "3dcb3884f77b4eb7",
+            "id": "1dc2e1b7e2364bce",
             "type": "sticker",
-            "file": "sticker_strategy_think_1766874395893.png",
+            "file": "https://i.ibb.co/93kWkB4K/b2297e937d77.jpg",
             "x": -250,
             "y": 0,
             "width": 200,
             "height": 200
         },
         {
-            "id": "c79a19c99ca646cb",
+            "id": "56d2618f3c7044e1",
             "type": "text",
-            "text": "\n> [!cc-header]\n> What is a Sequence?\n>\n> An **ordered list** of numbers: $a_n = f(n)$.\n> * Ex: $2, 4, 6...$ ($a_n = 2n$)\n> * Limit approaches $L$? Converges.\n>\n> cssclasses: cc-card-gradient-135deg\n    ",
-            "x": 600,
+            "text": "# Step 1: Sequences",
+            "x": 700,
+            "y": -100,
+            "width": 400,
+            "height": 60,
+            "color": "7"
+        },
+        {
+            "id": "a453e0b353b14e27",
+            "type": "text",
+            "text": "\n> [!cc-header]\n> What is a Sequence?\n>\n> An **ordered list** of numbers: $a_n$.\n>\n> **Convergence:**\n> * Value settles at $L$.\n> * Example: $1/n \\to 0$.\n>\n> **Divergence:**\n> 1. **Unbounded:** goes to $\\infty$. ($n^2$)\n> 2. **Oscillating:** jumps forever. ($(-1)^n$)\n>\n> cssclasses: cc-card-gradient-135deg\n    ",
+            "x": 700,
             "y": 0,
             "width": 400,
             "height": 220,
             "color": "4"
         },
         {
-            "id": "c66e1b9501e34599",
+            "id": "2ce76baa96264389",
             "type": "sticker",
-            "file": "sticker_infinity_loop_1766873740702.png",
-            "x": 700,
+            "file": "https://i.ibb.co/Xr1NysSk/66f23dc2ea8f.jpg",
+            "x": 800,
             "y": -250,
             "width": 200,
             "height": 200
         },
         {
-            "id": "1ca9e3cc003b4f15",
+            "id": "c22786bfc6694a03",
             "type": "text",
-            "text": "\n> [!cc-header]\n> What is a Series?\n>\n> The **SUM** of a sequence: $\\sum_{n=1}^{\\infty} a_n$.\n>\n> Check **Partial Sums** ($S_k$):\n> $$ S_k = a_1 + ... + a_k $$\n> If $S_k \\to L$, Series Converges.\n>\n> cssclasses: cc-card-gradient-135deg\n    ",
-            "x": 600,
-            "y": 350,
-            "width": 400,
-            "height": 220,
-            "color": "4"
-        },
-        {
-            "id": "d60cbdfef48c4f2e",
-            "type": "text",
-            "text": "# Step 1: The Gatekeeper",
-            "x": 1200,
+            "text": "# Step 2: The Transition",
+            "x": 1400,
             "y": -100,
             "width": 400,
             "height": 60,
             "color": "7"
         },
         {
-            "id": "8d985fca5cbd492a",
+            "id": "ae80777cef7b49ce",
             "type": "text",
-            "text": "\n> [!cc-header]\n> n-th Term Test\n>\n> $\\lim_{n \\to \\infty} a_n$\n>\n> * $\\neq 0 \\implies$ **DIVERGES**. (Stop here!)\n> * $= 0 \\implies$ **INCONCLUSIVE**. (Do more tests)\n>\n> > [!warning] Limit = 0 does NOT mean convergence!\n>\n> cssclasses: cc-card-o-red\n    ",
-            "x": 1200,
-            "y": 350,
+            "text": "\n> [!cc-header]\n> List vs. Sum\n>\n> | Feature | Sequence $\\{a_n\\}$ | Series $\\sum a_n$ |\n> | :--- | :--- | :--- |\n> | **Concept** | A **List** | A **Total** |\n> | **Op** | Commas | Plus Signs |\n> | **Goal** | Where terms go | Where total goes |\n>\n> cssclasses: cc-card-o-blue\n    ",
+            "x": 1400,
+            "y": 0,
+            "width": 400,
+            "height": 220,
+            "color": "6"
+        },
+        {
+            "id": "1a367d75d6514040",
+            "type": "text",
+            "text": "\n> [!cc-header]\n> The 'Cup Filling' Analogy\n>\n> How can infinite additions be finite?\n>\n> * Imagine filling a cup.\n> * Add 1/2, then 1/4, then 1/8...\n> * You pour forever, but you **never overflow**.\n> * The **Limit** is the full cup.\n>\n> cssclasses: cc-card-o-cyan\n    ",
+            "x": 1400,
+            "y": 400,
+            "width": 400,
+            "height": 220,
+            "color": "6"
+        },
+        {
+            "id": "caad99bf4b0b460b",
+            "type": "sticker",
+            "file": "https://i.ibb.co/7dZvPSrL/2228890267d2.jpg",
+            "x": 1550,
+            "y": 250,
+            "width": 200,
+            "height": 200
+        },
+        {
+            "id": "7ad96e56114340a0",
+            "type": "text",
+            "text": "# Step 3: The Gatekeeper",
+            "x": 2100,
+            "y": -100,
+            "width": 400,
+            "height": 60,
+            "color": "7"
+        },
+        {
+            "id": "ec5c932a132c4d3a",
+            "type": "text",
+            "text": "\n> [!cc-header]\n> n-th Term Test\n>\n> Check the **Limit of Sequence** ($a_n$).\n>\n> * If $\\lim a_n \\neq 0$: The Total **Diverges**.\n> * If $\\lim a_n = 0$: **INCONCLUSIVE**.\n>\n> > [!warning] Terms going to 0 $\\neq$ Convergence!\n> > (See Harmonic Series)\n>\n> cssclasses: cc-card-o-red\n    ",
+            "x": 2100,
+            "y": 0,
             "width": 400,
             "height": 220,
             "color": "1"
         },
         {
-            "id": "5a899a6d23324318",
+            "id": "5e4f9ad2e66e46e9",
             "type": "sticker",
-            "file": "sticker_warning_trap_1766873711847.png",
-            "x": 1550,
-            "y": 250,
+            "file": "https://i.ibb.co/xKMcGyGF/7c13418d954b.jpg",
+            "x": 2450,
+            "y": -100,
             "width": 150,
             "height": 150
         },
         {
-            "id": "3c1f5236acea4782",
-            "type": "sticker",
-            "file": "sticker_limit_approach_1766873693332.png",
-            "x": 1100,
+            "id": "ee1842cb682e4242",
+            "type": "text",
+            "text": "# Step 4: Known Forms",
+            "x": 2800,
+            "y": -100,
+            "width": 400,
+            "height": 60,
+            "color": "7"
+        },
+        {
+            "id": "fba55a4dbc5c408a",
+            "type": "text",
+            "text": "\n> [!cc-header]\n> Geometric Series\n> $\\sum ar^n$\n>\n> * **Converges:** $|r| < 1$\n>   * $Sum = \\frac{a}{1-r}$\n> * **Diverges:** $|r| \\ge 1$\n>\n> cssclasses: cc-card-o-blue\n    ",
+            "x": 2800,
+            "y": 0,
+            "width": 400,
+            "height": 220,
+            "color": "5"
+        },
+        {
+            "id": "1e5ebea95e2a49ab",
+            "type": "text",
+            "text": "\n> [!cc-header]\n> P-Series\n> $\\sum \\frac{1}{n^p}$\n>\n> * **Converges:** $p > 1$\n> * **Diverges:** $p \\le 1$\n>\n> > [!tip] Harmonic ($p=1$) Diverges.\n>\n> cssclasses: cc-card-o-blue\n    ",
+            "x": 2800,
             "y": 400,
-            "width": 150,
-            "height": 150
+            "width": 400,
+            "height": 220,
+            "color": "5"
         },
         {
-            "id": "0216c608c756442f",
+            "id": "4032cd506330484b",
             "type": "text",
-            "text": "# Step 2: Recognized Forms",
-            "x": 1800,
+            "text": "# Step 5: Compare",
+            "x": 3500,
             "y": -100,
             "width": 400,
             "height": 60,
             "color": "7"
         },
         {
-            "id": "8473e0744d3e40b2",
+            "id": "14e03ba35e6c4c84",
             "type": "text",
-            "text": "\n> [!cc-header]\n> Geometric Series\n> $\\sum ar^n$\n>\n> * **Converges:** $|r| < 1$\n>   * Sum $S = \\frac{a}{1-r}$\n> * **Diverges:** $|r| \\ge 1$\n>\n> cssclasses: cc-card-o-blue\n    ",
-            "x": 1800,
-            "y": 0,
-            "width": 400,
-            "height": 220,
-            "color": "5"
-        },
-        {
-            "id": "12d1702cde1648c3",
-            "type": "text",
-            "text": "\n> [!cc-header]\n> P-Series\n> $\\sum \\frac{1}{n^p}$\n>\n> * **Converges:** $p > 1$\n> * **Diverges:** $p \\le 1$\n>\n> > [!tip] Harmonic Series ($p=1$) Diverges.\n>\n> cssclasses: cc-card-o-blue\n    ",
-            "x": 1800,
-            "y": 525.0,
-            "width": 400,
-            "height": 220,
-            "color": "5"
-        },
-        {
-            "id": "74650e314e2c4ac1",
-            "type": "text",
-            "text": "# Step 3: Comparison & Integral",
-            "x": 2400,
-            "y": -100,
-            "width": 400,
-            "height": 60,
-            "color": "7"
-        },
-        {
-            "id": "b79a0fa1e4cd4403",
-            "type": "text",
-            "text": "\n> [!cc-header]\n> Direct Comparison (DCT)\n>\n> **Intuition:** \"Bounded by\"\n>\n> * $a_n < b_n$ (Big Conv $\\implies$ Small Conv)\n> * $a_n > b_n$ (Small Div $\\implies$ Big Div)\n>\n> cssclasses: cc-card-o-cyan\n    ",
-            "x": 2400,
+            "text": "\n> [!cc-header]\n> Direct Comparison (DCT)\n>\n> * Smaller than Convergent? **Conv.**\n> * Bigger than Divergent? **Div.**\n>\n> cssclasses: cc-card-o-cyan\n    ",
+            "x": 3500,
             "y": 0,
             "width": 400,
             "height": 220,
             "color": "6"
         },
         {
-            "id": "a1aa4c1a51b546b6",
+            "id": "1810cf9c2aff4d29",
             "type": "text",
-            "text": "\n> [!cc-header]\n> Limit Comparison (LCT)\n>\n> **Intuition:** \"Grow at same rate\"\n>\n> $L = \\lim \\frac{a_n}{b_n}$\n>\n> * If $0 < L < \\infty$, both behave the **SAME**.\n>\n> cssclasses: cc-card-o-cyan\n    ",
-            "x": 2400,
-            "y": 350,
+            "text": "\n> [!cc-header]\n> Limit Comparison (LCT)\n>\n> $L = \\lim \\frac{a_n}{b_n}$\n>\n> * $0 < L < \\infty$: **Behave Identically**.\n> * Use when terms look \"messy\" but resemble P-Series.\n>\n> cssclasses: cc-card-o-cyan\n    ",
+            "x": 3500,
+            "y": 400,
             "width": 400,
             "height": 220,
             "color": "6"
         },
         {
-            "id": "f583e55302c343b4",
+            "id": "8c0ca920c0c44389",
             "type": "text",
-            "text": "\n> [!cc-header]\n> Integral Test\n>\n> If $f(x)$ is:\n> 1. Continuous\n> 2. Positive\n> 3. **Decreasing**\n>\n> Then $\\sum a_n$ $\\iff$ $\\int_{1}^{\\infty} f(x) dx$\n>\n> cssclasses: cc-card-o-cyan\n    ",
-            "x": 2400,
-            "y": 700,
+            "text": "\n> [!cc-header]\n> Integral Test\n>\n> If $f(x)$ is continuous, positive, **decreasing**:\n>\n> $\\sum a_n$ behaves like $\\int_{1}^{\\infty} f(x) dx$\n>\n> cssclasses: cc-card-o-cyan\n    ",
+            "x": 3500,
+            "y": 800,
             "width": 400,
             "height": 220,
             "color": "5"
         },
         {
-            "id": "53af9589cc1548c3",
+            "id": "3b179a25dcd4410c",
             "type": "text",
-            "text": "# Step 4: Advanced Tests",
-            "x": 3000,
+            "text": "# Step 6: Advanced Tools",
+            "x": 4200,
             "y": -100,
             "width": 400,
             "height": 60,
             "color": "7"
         },
         {
-            "id": "518c6ffcd2c84ef8",
+            "id": "e81d765b291b4574",
             "type": "text",
-            "text": "\n> [!cc-header]\n> Ratio Test\n> Best for $n!$ and $c^n$.\n>\n> $L = \\lim |\\frac{a_{n+1}}{a_n}|$\n> * $L < 1$: Conv.\n> * $L > 1$: Div.\n> * $L = 1$: **Inconclusive!**\n>\n> cssclasses: cc-card-o-purple\n    ",
-            "x": 3000,
+            "text": "\n> [!cc-header]\n> Ratio Test\n> Best for $n!$ / $c^n$.\n>\n> $L = \\lim |\\frac{a_{n+1}}{a_n}|$\n> * $L < 1$: Conv.\n> * $L > 1$: Div.\n> * $L = 1$: **FAIL** (Raabe needed).\n>\n> cssclasses: cc-card-o-purple\n    ",
+            "x": 4200,
             "y": 0,
             "width": 400,
             "height": 220,
             "color": "5"
         },
         {
-            "id": "c3892b3b5e57403e",
+            "id": "e8eb2936ff534fbc",
             "type": "text",
-            "text": "\n> [!cc-header]\n> Root Test\n> Best for $(g(n))^n$.\n>\n> $L = \\lim \\sqrt[n]{|a_n|}$\n> * $L < 1$: Conv.\n> * $L > 1$: Div.\n>\n> cssclasses: cc-card-o-purple\n    ",
-            "x": 3000,
-            "y": 350,
+            "text": "\n> [!cc-header]\n> Root Test\n> Best for exponents $(...)^n$.\n>\n> $L = \\lim \\sqrt[n]{|a_n|}$\n> * $L < 1$: Conv.\n> * $L > 1$: Div.\n>\n> cssclasses: cc-card-o-purple\n    ",
+            "x": 4200,
+            "y": 400,
             "width": 400,
             "height": 220,
             "color": "5"
         },
         {
-            "id": "66c0ca5a1ddd4697",
+            "id": "c2be4ebb444845a2",
             "type": "text",
-            "text": "\n> [!cc-header]\n> Alternating Series (AST)\n> $\\sum (-1)^n b_n$\n>\n> Converges if:\n> 1. Decreasing ($b_{n+1} \\le b_n$)\n> 2. Limit is 0 ($\\lim b_n = 0$)\n>\n> cssclasses: cc-card-o-green\n    ",
-            "x": 3000,
-            "y": 700,
+            "text": "\n> [!cc-header]\n> Gold Standard: Leibniz\n> (Alternating Series Test)\n>\n> $\\sum (-1)^n b_n$ Converges if:\n> 1. Terms decrease ($b_{n+1} \\le b_n$)\n> 2. Limit is 0 ($\\lim b_n = 0$)\n>\n> cssclasses: cc-card-o-green\n    ",
+            "x": 4200,
+            "y": 800,
             "width": 400,
             "height": 220,
             "color": "5"
         },
         {
-            "id": "eb1e81d3ceb14b6a",
+            "id": "2076f207f2ba4d77",
             "type": "sticker",
-            "file": "sticker_factorial_1766873726961.png",
-            "x": 3350,
+            "file": "https://i.ibb.co/cXcWcFJ3/f11ab2a004bd.jpg",
+            "x": 4550,
             "y": -50,
             "width": 150,
             "height": 150
         },
         {
-            "id": "99da7e1709874da9",
+            "id": "93558ca8e7144526",
             "type": "text",
-            "text": "# Step 5: Power Series",
-            "x": 3600,
+            "text": "# Step 7: The Last Resort",
+            "x": 4900,
             "y": -100,
             "width": 400,
             "height": 60,
             "color": "7"
         },
         {
-            "id": "213b3188f22143a3",
+            "id": "f73b4c8aeca84b4a",
             "type": "text",
-            "text": "\n> [!cc-header]\n> Power Series\n>\n> $\\sum c_n (x-a)^n$\n>\n> * Infinite Polynomial.\n> * Find **Radius of Convergence** ($R$) using Ratio Test.\n> * Converges for $|x-a| < R$.\n>\n> cssclasses: cc-card-gradient-135deg\n    ",
-            "x": 3600,
+            "text": "\n> [!cc-header]\n> Raabe's Test\n> Use when **Ratio Test = 1**.\n>\n> $L = \\lim n(1 - |\\frac{a_{n+1}}{a_n}|)$\n>\n> * $L > 1$: Conv. (Big $L$ is good)\n> * $L < 1$: Div.\n>\n> cssclasses: cc-card-o-purple\n    ",
+            "x": 4900,
+            "y": 0,
+            "width": 400,
+            "height": 220,
+            "color": "5"
+        },
+        {
+            "id": "bdf8743c61da4377",
+            "type": "text",
+            "text": "\n> [!cc-header]\n> Logarithmic Test\n> Use when Raabe is messy.\n>\n> $L = \\lim \\frac{\\ln(1/|a_n|)}{\\ln n}$\n>\n> * $L > 1$: Conv.\n> * $L < 1$: Div.\n>\n> cssclasses: cc-card-o-purple\n    ",
+            "x": 4900,
+            "y": 400,
+            "width": 400,
+            "height": 220,
+            "color": "5"
+        },
+        {
+            "id": "4595b41b51184fe3",
+            "type": "text",
+            "text": "# Step 8: Power Series",
+            "x": 5600,
+            "y": -100,
+            "width": 400,
+            "height": 60,
+            "color": "7"
+        },
+        {
+            "id": "7bc34012f45048b2",
+            "type": "text",
+            "text": "\n> [!cc-header]\n> Power Series\n>\n> $\\sum c_n (x-a)^n$\n>\n> * Finds **Radius of Convergence** ($R$).\n> * \"Where is the function valid?\"\n>\n> cssclasses: cc-card-gradient-135deg\n    ",
+            "x": 5600,
             "y": 0,
             "width": 400,
             "height": 220,
             "color": "6"
         },
         {
-            "id": "129c92536c494ded",
+            "id": "4281786a9d144a90",
             "type": "text",
-            "text": "\n> [!cc-header]\n> Taylor Series\n>\n> Represents function as series:\n> $$ f(x) = \\sum_{n=0}^{\\infty} \\frac{f^{(n)}(a)}{n!} (x-a)^n $$\n>\n> **Maclaurin ($a=0$):**\n> * $e^x = 1 + x + \\frac{x^2}{2!} + ...$\n> * $\\sin x = x - \\frac{x^3}{3!} + ...$\n>\n> cssclasses: cc-card-gradient-135deg\n    ",
-            "x": 3600,
-            "y": 350,
+            "text": "\n> [!cc-header]\n> Taylor Series\n>\n> $f(x) = \\sum \\frac{f^{(n)}(a)}{n!} (x-a)^n$\n>\n> * $e^x = 1 + x + x^2/2! + ...$\n> * $\\sin x = x - x^3/3! + ...$\n> * $\\cos x = 1 - x^2/2! + ...$\n>\n> cssclasses: cc-card-gradient-135deg\n    ",
+            "x": 5600,
+            "y": 400,
             "width": 400,
             "height": 220,
             "color": "6"
         },
         {
-            "id": "723598892e1a4c92",
+            "id": "b7510a76f1b842d4",
             "type": "text",
-            "text": "# Engineering Applications",
-            "x": 2400,
-            "y": 1050,
+            "text": "# Why this matters?",
+            "x": 3500,
+            "y": 1200,
             "width": 400,
             "height": 60,
             "color": "7"
         },
         {
-            "id": "9355b2cf3593414e",
+            "id": "43580432c9124f7f",
             "type": "text",
-            "text": "\n> [!cc-header]\n> Real-World Use\n>\n> 1. **Signal Processing:** Fourier Series (Decomposing waves).\n> 2. **Control Systems:** Z-Transform (Discrete signals).\n> 3. **Approximations:** $\\sin \\theta \\approx \\theta$ (Structural engineering).\n> 4. **Finance:** Compound interest modeling.\n>\n> cssclasses: cc-card-o-purple\n    ",
-            "x": 2400,
-            "y": 1150,
+            "text": "\n> [!cc-header]\n> Engineering Applications\n>\n> 1. **Fourier Series:** Breaking waves into frequencies.\n> 2. **Z-Transform:** Digital Control Systems.\n> 3. **Taylor Approx:** Physics ($\\sin x \\approx x$).\n> 4. **Finance:** Compound Interest ($e^x$).\n>\n> cssclasses: cc-card-gradient-135deg\n    ",
+            "x": 3500,
+            "y": 1300,
             "width": 400,
             "height": 220,
             "color": "3"
         },
         {
-            "id": "74c868184aa6432a",
+            "id": "10a4db82a8864108",
             "type": "sticker",
-            "file": "sticker_application_gears_1766874410019.png",
-            "x": 2250,
-            "y": 1150,
+            "file": "https://i.ibb.co/bR88tKW3/1a70917951b7.jpg",
+            "x": 3350,
+            "y": 1300,
             "width": 200,
             "height": 200
         }
     ],
     "edges": [
         {
-            "id": "505b05a4901d4552",
-            "fromNode": "96b5538bfe8f43c9",
+            "id": "a35e11f4d8f84333",
+            "fromNode": "3320ab678cd94de3",
             "fromSide": "right",
-            "toNode": "c79a19c99ca646cb",
+            "toNode": "a453e0b353b14e27",
             "toSide": "left",
             "label": "Start"
         },
         {
-            "id": "aeb7c129d0d34fd0",
-            "fromNode": "1ca9e3cc003b4f15",
+            "id": "b0cb5845d5ca4b60",
+            "fromNode": "a453e0b353b14e27",
             "fromSide": "right",
-            "toNode": "8d985fca5cbd492a",
-            "toSide": "left",
-            "label": "Always Check First"
-        },
-        {
-            "id": "aaf84ace9bc44180",
-            "fromNode": "8d985fca5cbd492a",
-            "fromSide": "right",
-            "toNode": "8473e0744d3e40b2",
-            "toSide": "left",
-            "label": "Is ratio constant?",
-            "color": "2"
-        },
-        {
-            "id": "28f84713ff514548",
-            "fromNode": "8d985fca5cbd492a",
-            "fromSide": "right",
-            "toNode": "12d1702cde1648c3",
-            "toSide": "left",
-            "label": "Is polynomial?",
-            "color": "2"
-        },
-        {
-            "id": "05bb2ce7bde143e4",
-            "fromNode": "8473e0744d3e40b2",
-            "fromSide": "right",
-            "toNode": "b79a0fa1e4cd4403",
+            "toNode": "ae80777cef7b49ce",
             "toSide": "left"
         },
         {
-            "id": "b41029550ccd42c7",
-            "fromNode": "12d1702cde1648c3",
+            "id": "78899061bd284e6d",
+            "fromNode": "ae80777cef7b49ce",
             "fromSide": "right",
-            "toNode": "a1aa4c1a51b546b6",
+            "toNode": "1a367d75d6514040",
+            "toSide": "left",
+            "label": "Partial Sums"
+        },
+        {
+            "id": "33d066d6c3f84968",
+            "fromNode": "ae80777cef7b49ce",
+            "fromSide": "right",
+            "toNode": "ec5c932a132c4d3a",
+            "toSide": "left",
+            "label": "Check Required"
+        },
+        {
+            "id": "d64da6092c89446d",
+            "fromNode": "ec5c932a132c4d3a",
+            "fromSide": "right",
+            "toNode": "fba55a4dbc5c408a",
+            "toSide": "left",
+            "label": "Constant Ratio?"
+        },
+        {
+            "id": "81b36dbd75234436",
+            "fromNode": "ec5c932a132c4d3a",
+            "fromSide": "right",
+            "toNode": "1e5ebea95e2a49ab",
+            "toSide": "left",
+            "label": "Polynomial?"
+        },
+        {
+            "id": "8589cb7f3f784fd8",
+            "fromNode": "fba55a4dbc5c408a",
+            "fromSide": "right",
+            "toNode": "14e03ba35e6c4c84",
             "toSide": "left"
         },
         {
-            "id": "8a65c6d39f5b44c7",
-            "fromNode": "a1aa4c1a51b546b6",
+            "id": "8cc5cddc80944a4c",
+            "fromNode": "1e5ebea95e2a49ab",
             "fromSide": "right",
-            "toNode": "f583e55302c343b4",
-            "toSide": "left",
-            "label": "Can integrate?"
+            "toNode": "1810cf9c2aff4d29",
+            "toSide": "left"
         },
         {
-            "id": "2e48b85fbc7e426a",
-            "fromNode": "f583e55302c343b4",
+            "id": "3404a398f06c4869",
+            "fromNode": "1810cf9c2aff4d29",
             "fromSide": "right",
-            "toNode": "518c6ffcd2c84ef8",
+            "toNode": "8c0ca920c0c44389",
+            "toSide": "left"
+        },
+        {
+            "id": "bd68e4d5bfa64260",
+            "fromNode": "8c0ca920c0c44389",
+            "fromSide": "right",
+            "toNode": "e81d765b291b4574",
             "toSide": "left",
             "label": "Factorials?"
         },
         {
-            "id": "245e7430fae74bd6",
-            "fromNode": "518c6ffcd2c84ef8",
+            "id": "7fdf11a2cb9c4ef8",
+            "fromNode": "e81d765b291b4574",
             "fromSide": "right",
-            "toNode": "c3892b3b5e57403e",
+            "toNode": "e8eb2936ff534fbc",
             "toSide": "left",
-            "label": "Powers of n?"
+            "label": "Exponents?"
         },
         {
-            "id": "157c8b34fcfd40a1",
-            "fromNode": "66c0ca5a1ddd4697",
+            "id": "9d3478a3aa0648e2",
+            "fromNode": "e81d765b291b4574",
             "fromSide": "right",
-            "toNode": "c3892b3b5e57403e",
+            "toNode": "c2be4ebb444845a2",
             "toSide": "left",
-            "label": "Check Absolute"
+            "label": "Alternating?"
         },
         {
-            "id": "78deaea165374233",
-            "fromNode": "518c6ffcd2c84ef8",
+            "id": "c72b94e59bb942f8",
+            "fromNode": "e81d765b291b4574",
             "fromSide": "right",
-            "toNode": "213b3188f22143a3",
+            "toNode": "f73b4c8aeca84b4a",
             "toSide": "left",
-            "label": "Variable x?"
+            "label": "If Limit=1",
+            "color": "1"
         },
         {
-            "id": "1dd62e2c38074a08",
-            "fromNode": "213b3188f22143a3",
+            "id": "989d3fcec1564ffa",
+            "fromNode": "f73b4c8aeca84b4a",
             "fromSide": "right",
-            "toNode": "129c92536c494ded",
+            "toNode": "bdf8743c61da4377",
             "toSide": "left",
-            "label": "Approximation"
+            "label": "If messy",
+            "color": "1"
+        },
+        {
+            "id": "4c380b4ac1e143de",
+            "fromNode": "f73b4c8aeca84b4a",
+            "fromSide": "right",
+            "toNode": "7bc34012f45048b2",
+            "toSide": "left"
+        },
+        {
+            "id": "e13928b72f504cd0",
+            "fromNode": "7bc34012f45048b2",
+            "fromSide": "right",
+            "toNode": "4281786a9d144a90",
+            "toSide": "left"
         }
     ]
 }
