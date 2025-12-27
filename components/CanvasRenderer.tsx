@@ -42,17 +42,264 @@ interface CanvasRendererProps {
     files?: Note[];
 }
 
+// --- Helpers ---
+const getColor = (colorStr: string) => {
+    const colors: Record<string, string> = {
+        '1': '#ff5959', '2': '#ff9b59', '3': '#ffdf59', '4': '#59ff59',
+        '5': '#59ffff', '6': '#599bff', '7': '#b359ff', '8': '#ff59c8', '9': '#cccccc',
+    };
+    return colors[colorStr] || colorStr;
+};
+
+const hexToRgb = (hex: string) => {
+    const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+    return result ? `${parseInt(result[1], 16)}, ${parseInt(result[2], 16)}, ${parseInt(result[3], 16)}` : '255, 255, 255';
+};
+
+const processNodeText = (text: string) => {
+    let cleanText = text;
+    let classes = "";
+    const frontmatterRegex = /^\s*---\n([\s\S]*?)\n---\n/;
+    const match = text.match(frontmatterRegex);
+    let frontmatterContent = "";
+    if (match) {
+        frontmatterContent = match[1];
+        cleanText = text.replace(frontmatterRegex, '');
+    }
+    const cssClassesRegex = /cssclasses:\s*(.*)/;
+    const classMatch = frontmatterContent.match(cssClassesRegex) || text.match(cssClassesRegex);
+    if (classMatch) {
+        classes = classMatch[1].replace(/[\[\]]/g, '').trim().replace(/,/g, ' ');
+        cleanText = cleanText.replace(/cssclasses:.*(\r\n|\n|\r)?/g, '');
+    }
+    cleanText = cleanText.replace(/>\s*\[!cc-header(-noborder)?\]\s*(.*)/g, (match, noBorder, title) => {
+        const type = noBorder ? 'cc-header-noborder' : 'cc-header';
+        const style = `background-color: rgba(var(--canvas-color), var(--cc-header-opacity-level)); border-bottom: ${noBorder ? 'none' : '2px solid rgba(var(--canvas-color), 1)'}; padding: 8px 16px; margin: -1rem -1rem 1rem -1rem;`;
+        return `<div data-callout="${type}" class="callout" style="${style}"><div class="callout-title" style="font-weight: bold;">${title}</div></div>`;
+    });
+    cleanText = cleanText.replace(/>\s*\[!cc-footer(-noborder)?\]\s*(.*)/g, (match, noBorder, title) => {
+        const type = noBorder ? 'cc-footer-noborder' : 'cc-footer';
+        const style = `background-color: rgba(var(--canvas-color), var(--cc-footers-opacity-level)); border-top: ${noBorder ? 'none' : '2px solid rgba(var(--canvas-color), 1)'}; padding: 8px 16px; margin: 1rem -1rem -1rem -1rem;`;
+        return `<div data-callout="${type}" class="callout" style="${style}"><div class="callout-title" style="font-weight: bold;">${title}</div></div>`;
+    });
+    cleanText = cleanText.replace(/>\s*\[!cc-label-(left|right)(-noborder)?\]\s*(.*)/g, (match, side, noBorder, title) => {
+        const type = `cc-label-${side}${noBorder ? '-noborder' : ''}`;
+        const innerTitle = title.trim() ? title : '';
+        const isLeft = side === 'left';
+        const style = `position: absolute; ${isLeft ? 'left: 0; transform: translateX(-100%); border-right: 2px solid rgba(var(--canvas-color), 1);' : 'right: 0; transform: translateX(100%); border-left: 2px solid rgba(var(--canvas-color), 1);'} top: 20px; background-color: rgba(var(--canvas-color), var(--cc-labels-opacity-level)); padding: 4px 8px; ${noBorder ? 'border: none;' : ''}`;
+        return `<div data-callout="${type}" class="callout" style="${style}"><div class="callout-title"><div class="callout-title-inner">${innerTitle}</div></div></div>`;
+    });
+    cleanText = cleanText.replace(/\[!cc-card\]/g, '');
+    cleanText = cleanText.replace(/(^|\s)#([a-zA-Z0-9_-]+)/g, '$1<span class="text-brand-primary bg-brand-primary/10 px-1 rounded text-xs font-mono">#$2</span>');
+    return { cleanText, classes };
+};
+
+// --- Toolbar Component ---
+const NodeToolbar = ({ node, onColorChange, onEdit, onDelete }: { node: CanvasNode, onColorChange: (color: string) => void, onEdit: () => void, onDelete: () => void }) => {
+    const colors = ['1', '2', '3', '4', '5', '6']; // Red, Orange, Yellow, Green, Cyan, Blue
+    return (
+        <div className="absolute -top-12 left-0 h-10 bg-white dark:bg-slate-800 shadow-lg rounded-full flex items-center px-3 gap-2 border border-slate-200 dark:border-slate-700 z-[100]"
+            onMouseDown={e => e.stopPropagation()}
+            onWheel={e => e.stopPropagation()} // Prevent scroll bubble from toolbar
+        >
+            <button onClick={onDelete} className="p-1 hover:bg-slate-100 dark:hover:bg-slate-700 rounded text-red-500" title="Delete">
+                <Icon name="trash" className="w-4 h-4" />
+            </button>
+            <div className="w-px h-4 bg-slate-300 dark:bg-slate-600 mx-1" />
+            {colors.map(c => (
+                <button
+                    key={c}
+                    onClick={() => onColorChange(c)}
+                    className={`w-6 h-6 rounded-full border-2 ${node.color === c ? 'border-slate-900 dark:border-white' : 'border-transparent hover:scale-110 transition-transform'}`}
+                    style={{ backgroundColor: getColor(c) }}
+                />
+            ))}
+            <div className="w-px h-4 bg-slate-300 dark:bg-slate-600 mx-1" />
+            <button onClick={onEdit} className="p-1 hover:bg-slate-100 dark:hover:bg-slate-700 rounded text-slate-600 dark:text-slate-300">
+                <Icon name="edit" className="w-4 h-4" />
+            </button>
+        </div>
+    );
+};
+
+
+// --- Memoized Node Component ---
+const MemoizedNode = React.memo(({
+    node,
+    minX,
+    minY,
+    isSelected,
+    isEditingText,
+    onMouseDown,
+    onTouchStart,
+    onResize,
+    onConnect,
+    onColorChange,
+    onEdit,
+    onDelete,
+    resolveFileSrc,
+    setText,
+    updateText
+}: {
+    node: CanvasNode,
+    minX: number,
+    minY: number,
+    isSelected: boolean,
+    isEditingText: boolean,
+    onMouseDown: (e: React.MouseEvent, node: CanvasNode) => void,
+    onTouchStart: (e: React.TouchEvent, node: CanvasNode) => void,
+    onResize: (e: React.MouseEvent | React.TouchEvent, handle: string) => void,
+    onConnect: (e: React.MouseEvent | React.TouchEvent, nodeId: string, side: 'top' | 'right' | 'bottom' | 'left') => void,
+    onColorChange: (color: string) => void,
+    onEdit: () => void,
+    onDelete: () => void,
+    resolveFileSrc: (path: string) => string,
+    setText: (text: string) => void,
+    updateText: (text: string) => void
+}) => {
+    const { cleanText, classes } = node.text ? processNodeText(node.text) : { cleanText: '', classes: '' };
+    const nodeColor = node.color ? getColor(node.color) : undefined;
+    const nodeRgb = nodeColor ? hexToRgb(nodeColor) : undefined;
+
+    // Process images in text
+    const processedText = useMemo(() => {
+        let text = cleanText;
+        text = text.replace(/!\[\[([^\]]+)\]\]/g, (match, p1) => {
+            const src = resolveFileSrc(p1);
+            if (/\.(png|jpg|jpeg|gif|svg|webp)$/i.test(p1)) {
+                return `<img src="${src}" alt="${p1}" class="w-full rounded-lg" />`;
+            }
+            return `<div class="p-2 border-l-4 border-brand-primary bg-slate-50 dark:bg-slate-800 my-2 text-sm italic">Embedded: ${p1}</div>`;
+        });
+
+        text = text.replace(/\[\[([^\]|]+)(?:\|([^\]]+))?\]\]/g, (match, p1, p2) => {
+            const label = p2 || p1;
+            const target = p1;
+            return `<a href="#" data-internal-link="${target}" class="text-brand-primary hover:underline">${label}</a>`;
+        });
+
+        return text;
+    }, [cleanText, resolveFileSrc]);
+
+    const nodeStyle: any = {
+        left: node.x - minX,
+        top: node.y - minY,
+        width: node.width,
+        height: node.height,
+        // Defaults for CC variables
+        '--cc-header-opacity-level': 0.2,
+        '--cc-footers-opacity-level': 0.09,
+        '--cc-label-width': '50px',
+        '--cc-labels-opacity-level': 0.3,
+        '--cc-gradient-start': 0.7,
+        '--cc-gradient-end': 0.1,
+    };
+
+    if (nodeRgb) {
+        nodeStyle['--canvas-color'] = nodeRgb;
+    }
+
+    return (
+        <div
+            className={`absolute rounded-lg border shadow-sm transition-shadow group/node flex flex-col hover:shadow-md canvas-node ${isSelected ? 'ring-2 ring-brand-primary z-50' : 'z-10'} ${classes} ${node.type === 'sticker' ? 'border-none shadow-none bg-transparent !p-0 pointer-events-none' : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700'}`}
+            style={nodeStyle}
+            onMouseDown={(e) => onMouseDown(e, node)}
+            onTouchStart={(e) => onTouchStart(e, node)}
+            // STOP SCROLL PROPAGATION at root of node
+            onWheel={(e) => e.stopPropagation()}
+        >
+            {isSelected && (
+                <NodeToolbar
+                    node={node}
+                    onColorChange={onColorChange}
+                    onEdit={onEdit}
+                    onDelete={onDelete}
+                />
+            )}
+
+            {(['top', 'right', 'bottom', 'left'] as const).map(side => (
+                <div
+                    key={side}
+                    className={`absolute w-3 h-3 bg-brand-primary rounded-full opacity-0 group-hover/node:opacity-100 cursor-crosshair transition-opacity z-20
+                        ${side === 'top' ? '-top-1.5 left-1/2 -translate-x-1/2' : ''}
+                        ${side === 'bottom' ? '-bottom-1.5 left-1/2 -translate-x-1/2' : ''}
+                        ${side === 'left' ? '-left-1.5 top-1/2 -translate-y-1/2' : ''}
+                        ${side === 'right' ? '-right-1.5 top-1/2 -translate-y-1/2' : ''}
+                    `}
+                    onMouseDown={(e) => onConnect(e, node.id, side)}
+                    onTouchStart={(e) => onConnect(e, node.id, side)}
+                />
+            ))}
+
+            <div className="flex-1 overflow-hidden relative canvas-node-container">
+                {/* Resize Handles */}
+                {isSelected && (
+                    <>
+                        <div className="absolute top-0 right-0 w-4 h-4 cursor-ne-resize z-20" onMouseDown={e => onResize(e, 'ne')} onTouchStart={e => onResize(e, 'ne')} />
+                        <div className="absolute bottom-0 right-0 w-4 h-4 cursor-se-resize z-20" onMouseDown={e => onResize(e, 'se')} onTouchStart={e => onResize(e, 'se')} />
+                        <div className="absolute bottom-0 left-0 w-4 h-4 cursor-sw-resize z-20" onMouseDown={e => onResize(e, 'sw')} onTouchStart={e => onResize(e, 'sw')} />
+                        <div className="absolute top-0 left-0 w-4 h-4 cursor-nw-resize z-20" onMouseDown={e => onResize(e, 'nw')} onTouchStart={e => onResize(e, 'nw')} />
+
+                        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-4 h-2 cursor-n-resize z-20" onMouseDown={e => onResize(e, 'n')} onTouchStart={e => onResize(e, 'n')} />
+                        <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-4 h-2 cursor-s-resize z-20" onMouseDown={e => onResize(e, 's')} onTouchStart={e => onResize(e, 's')} />
+                        <div className="absolute left-0 top-1/2 -translate-y-1/2 w-2 h-4 cursor-w-resize z-20" onMouseDown={e => onResize(e, 'w')} onTouchStart={e => onResize(e, 'w')} />
+                        <div className="absolute right-0 top-1/2 -translate-y-1/2 w-2 h-4 cursor-e-resize z-20" onMouseDown={e => onResize(e, 'e')} onTouchStart={e => onResize(e, 'e')} />
+                    </>
+                )}
+
+                <div className={`p-4 h-full w-full overflow-auto canvas-node-content ${node.type === 'sticker' ? 'flex items-center justify-center !p-0 !overflow-visible' : ''} ${isEditingText ? 'cursor-text' : 'cursor-default'}`}
+                    onMouseDown={e => { if (isSelected && isEditingText) e.stopPropagation(); }}
+                    onTouchStart={(e) => { if (isSelected && isEditingText) e.stopPropagation(); }}
+                    onWheel={(e) => e.stopPropagation()}
+                >
+                    {node.type === 'sticker' ? (
+                        <div className="relative w-full h-full pointer-events-auto">
+                            <img
+                                src={resolveFileSrc(node.file || node.url || '')}
+                                alt="sticker"
+                                className="w-full h-full object-contain pointer-events-none select-none"
+                            />
+                        </div>
+                    ) : (
+                        isSelected && isEditingText ? (
+                            <textarea
+                                className="w-full h-full resize-none outline-none bg-transparent"
+                                value={node.text}
+                                onChange={(e) => setText(e.target.value)}
+                                onBlur={() => updateText(node.text || '')}
+                                autoFocus
+                                onMouseDown={e => e.stopPropagation()}
+                            />
+                        ) : (
+                            <div className="markdown-body text-sm prose dark:prose-invert max-w-none select-text">
+                                <ReactMarkdown
+                                    remarkPlugins={[remarkGfm, remarkMath]}
+                                    rehypePlugins={[rehypeRaw, rehypeKatex]}
+                                    components={{
+                                        a: ({ node, ...props }) => <a {...props} className="text-brand-primary hover:underline cursor-pointer" onClick={(e) => {
+                                            e.preventDefault();
+                                            // Handle internal link navigation here if passed down
+                                        }} />,
+                                    }}
+                                >
+                                    {processedText}
+                                </ReactMarkdown>
+                            </div>
+                        )
+                    )}
+                </div>
+            </div>
+        </div>
+    );
+});
+
 const CanvasRenderer: React.FC<CanvasRendererProps> = ({ content, onNavigate, onSave, files = [] }) => {
-    const containerRef = useRef<HTMLDivElement>(null);
     const [data, setData] = useState<CanvasData>({ nodes: [], edges: [] });
 
     useEffect(() => {
         try {
             const parsed = JSON.parse(content);
-            setData({
-                nodes: parsed.nodes || [],
-                edges: parsed.edges || []
-            });
+            setData({ nodes: parsed.nodes || [], edges: parsed.edges || [] });
         } catch (e) {
             setData({ nodes: [], edges: [] });
         }
@@ -68,6 +315,7 @@ const CanvasRenderer: React.FC<CanvasRendererProps> = ({ content, onNavigate, on
     const [isEditingText, setIsEditingText] = useState(false);
     const [interactionMode, setInteractionMode] = useState<'none' | 'drag-node' | 'resize-node' | 'connect' | 'pan' | 'zoom'>('none');
     const [transform, setTransform] = useState({ x: 50, y: 50, scale: 0.8 });
+    const containerRef = useRef<HTMLDivElement>(null);
 
     const activeRef = useRef<{
         startMouse: { x: number, y: number };
@@ -78,177 +326,42 @@ const CanvasRenderer: React.FC<CanvasRendererProps> = ({ content, onNavigate, on
         longPressStart?: { x: number, y: number };
     }>({ startMouse: { x: 0, y: 0 } });
 
-    // Timer for mobile long-press
     const longPressTimerRef = useRef<NodeJS.Timeout | null>(null);
-
-    const [tempConnection, setTempConnection] = useState<{
-        start: { x: number, y: number };
-        end: { x: number, y: number };
-    } | null>(null);
+    const [tempConnection, setTempConnection] = useState<{ start: { x: number, y: number }; end: { x: number, y: number }; } | null>(null);
 
     const minX = Math.min(...(data.nodes.length ? data.nodes.map(n => n.x) : [0]));
     const minY = Math.min(...(data.nodes.length ? data.nodes.map(n => n.y) : [0]));
 
-    const getColor = (colorStr: string) => {
-        // Obsidian Canvas Colors
-        const colors: Record<string, string> = {
-            '1': '#ff5959', // Red
-            '2': '#ff9b59', // Orange
-            '3': '#ffdf59', // Yellow
-            '4': '#59ff59', // Green
-            '5': '#59ffff', // Cyan
-            '6': '#599bff', // Blue
-            '7': '#b359ff', // Purple
-            '8': '#ff59c8', // Pink
-            '9': '#cccccc', // Grey
-        };
-        return colors[colorStr] || colorStr;
+    const resolveFileSrc = React.useCallback((path: string) => {
+        if (path.startsWith('http')) return path;
+        // Simple passthrough. In a real app, logic to find file url
+        return path;
+    }, []);
+
+    const deleteSelected = () => {
+        if (selectedNodeId) {
+            const newNodes = data.nodes.filter(n => n.id !== selectedNodeId);
+            const newEdges = data.edges.filter(e => e.fromNode !== selectedNodeId && e.toNode !== selectedNodeId);
+            saveData({ nodes: newNodes, edges: newEdges });
+            setSelectedNodeId(null);
+        } else if (selectedEdgeId) {
+            const newEdges = data.edges.filter(e => e.id !== selectedEdgeId);
+            saveData({ ...data, edges: newEdges });
+            setSelectedEdgeId(null);
+        }
     };
 
-    const hexToRgb = (hex: string) => {
-        const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-        return result ? `${parseInt(result[1], 16)}, ${parseInt(result[2], 16)}, ${parseInt(result[3], 16)}` : '255, 255, 255';
+    const updateText = (text: string) => {
+        if (selectedNodeId) {
+            const updated = data.nodes.map(n => n.id === selectedNodeId ? { ...n, text } : n);
+            saveData({ ...data, nodes: updated });
+        }
     };
 
-    const resolveFileSrc = (filePath: string) => {
-        if (!filePath) return '';
-        if (filePath.startsWith('http')) return filePath;
-
-        // Try to find the file in the passed notes/files
-        // path in canvas JSON is usually "Path/To/File.png"
-        // note in list has path: "Path/To" and title: "File.png"
-
-        const targetName = filePath.split('/').pop();
-        const targetPath = filePath.includes('/') ? filePath.substring(0, filePath.lastIndexOf('/')) : '';
-
-        // Exact match
-        let found = files.find(n => n.title === targetName && (n.path === targetPath || !targetPath));
-
-        // Loose match (just filename)
-        if (!found) {
-            found = files.find(n => n.title === targetName);
+    const setText = (text: string) => {
+        if (selectedNodeId) {
+            setData(prev => ({ ...prev, nodes: prev.nodes.map(n => n.id === selectedNodeId ? { ...n, text } : n) }));
         }
-
-        if (found) {
-            // Check if content is a data URI
-            if (found.content.startsWith('data:')) return found.content;
-            // If not, it might be a text file, but we shouldn't be here for images unless stored wrong
-            return found.content;
-        }
-
-        return filePath; // Fallback to original path (might be 404 but best effort)
-    };
-
-    const processNodeText = (text: string) => {
-        let cleanText = text;
-        let classes = "";
-
-        // 1. Extract Frontmatter (allow optional leading whitespace)
-        // Also look for cssclasses anywhere in the text if strict frontmatter fails or complements it
-        const frontmatterRegex = /^\s*---\n([\s\S]*?)\n---\n/;
-        const match = text.match(frontmatterRegex);
-
-        let frontmatterContent = "";
-        if (match) {
-            frontmatterContent = match[1];
-            cleanText = text.replace(frontmatterRegex, '');
-        }
-
-        // Look for cssclasses in frontmatter OR anywhere in the text (e.g. at the bottom)
-        // This regex looks for 'cssclasses: value' 
-        const cssClassesRegex = /cssclasses:\s*(.*)/;
-        const classMatch = frontmatterContent.match(cssClassesRegex) || text.match(cssClassesRegex);
-
-        if (classMatch) {
-            // Handle comma-separated and bracket syntax [cls1, cls2]
-            classes = classMatch[1]
-                .replace(/[\[\]]/g, '') // Remove brackets
-                .trim()
-                .replace(/,/g, ' '); // Replace commas with spaces
-
-            // Remove the cssclasses line from the text content so it's not visible
-            // We use a global regex to catch it anywhere
-            cleanText = cleanText.replace(/cssclasses:.*(\r\n|\n|\r)?/g, '');
-        }
-
-        // 2. Handle Canvas Candy Callouts (convert to HTML for rehype-raw)
-        // ensure data-callout is passed. React accepts data- attributes.
-
-        // Header
-        cleanText = cleanText.replace(/>\s*\[!cc-header(-noborder)?\]\s*(.*)/g, (match, noBorder, title) => {
-            const type = noBorder ? 'cc-header-noborder' : 'cc-header';
-            const style = `background-color: rgba(var(--canvas-color), var(--cc-header-opacity-level)); border-bottom: ${noBorder ? 'none' : '2px solid rgba(var(--canvas-color), 1)'}; padding: 8px 16px; margin: -1rem -1rem 1rem -1rem;`;
-            return `<div data-callout="${type}" class="callout" style="${style}"><div class="callout-title" style="font-weight: bold;">${title}</div></div>`;
-        });
-
-        // Footer
-        cleanText = cleanText.replace(/>\s*\[!cc-footer(-noborder)?\]\s*(.*)/g, (match, noBorder, title) => {
-            const type = noBorder ? 'cc-footer-noborder' : 'cc-footer';
-            const style = `background-color: rgba(var(--canvas-color), var(--cc-footers-opacity-level)); border-top: ${noBorder ? 'none' : '2px solid rgba(var(--canvas-color), 1)'}; padding: 8px 16px; margin: 1rem -1rem -1rem -1rem;`;
-            return `<div data-callout="${type}" class="callout" style="${style}"><div class="callout-title" style="font-weight: bold;">${title}</div></div>`;
-        });
-
-        // Labels
-        cleanText = cleanText.replace(/>\s*\[!cc-label-(left|right)(-noborder)?\]\s*(.*)/g, (match, side, noBorder, title) => {
-            const type = `cc-label-${side}${noBorder ? '-noborder' : ''}`;
-            const innerTitle = title.trim() ? title : '';
-            const isLeft = side === 'left';
-            const style = `
-                position: absolute;
-                ${isLeft ? 'left: 0; transform: translateX(-100%); border-right: 2px solid rgba(var(--canvas-color), 1);' : 'right: 0; transform: translateX(100%); border-left: 2px solid rgba(var(--canvas-color), 1);'}
-                top: 20px;
-                background-color: rgba(var(--canvas-color), var(--cc-labels-opacity-level));
-                padding: 4px 8px;
-                ${noBorder ? 'border: none;' : ''}
-            `;
-            return `<div data-callout="${type}" class="callout" style="${style}"><div class="callout-title"><div class="callout-title-inner">${innerTitle}</div></div></div>`;
-        });
-
-        // Remove 'cc-card' marker if present
-        cleanText = cleanText.replace(/\[!cc-card\]/g, '');
-
-
-        // 3. Obsidan/Standard Transformations
-        // Image embeds ![[path]] -> need rendering?
-        cleanText = cleanText.replace(/!\[\[([^\]]+)\]\]/g, (match, p1) => {
-            const src = resolveFileSrc(p1);
-            if (/\.(png|jpg|jpeg|gif|svg|webp)$/i.test(p1)) {
-                return `<img src="${src}" alt="${p1}" class="w-full rounded-lg" />`;
-            }
-            return `<div class="p-2 border-l-4 border-brand-primary bg-slate-50 dark:bg-slate-800 my-2 text-sm italic">Embedded: ${p1}</div>`;
-        });
-
-        cleanText = cleanText.replace(/\[\[([^\]|]+)(?:\|([^\]]+))?\]\]/g, (match, p1, p2) => {
-            const label = p2 || p1;
-            const target = p1;
-            return `<a href="#" data-internal-link="${target}" class="text-brand-primary hover:underline">${label}</a>`;
-        });
-        cleanText = cleanText.replace(/(^|\s)#([a-zA-Z0-9_-]+)/g, '$1<span class="text-brand-primary bg-brand-primary/10 px-1 rounded text-xs font-mono">#$2</span>');
-
-        return { cleanText, classes };
-    };
-
-    // --- Toolbar Component ---
-    const NodeToolbar = ({ node, onColorChange, onEdit }: { node: CanvasNode, onColorChange: (color: string) => void, onEdit: () => void }) => {
-        const colors = ['1', '2', '3', '4', '5', '6']; // Red, Orange, Yellow, Green, Cyan, Blue
-        return (
-            <div className="absolute -top-12 left-0 h-10 bg-white dark:bg-slate-800 shadow-lg rounded-full flex items-center px-3 gap-2 border border-slate-200 dark:border-slate-700 z-[100]"
-                onMouseDown={e => e.stopPropagation()} // Prevent dragging node when clicking toolbar
-            >
-                {colors.map(c => (
-                    <button
-                        key={c}
-                        onClick={() => onColorChange(c)}
-                        className={`w-6 h-6 rounded-full border-2 ${node.color === c ? 'border-slate-900 dark:border-white' : 'border-transparent hover:scale-110 transition-transform'}`}
-                        style={{ backgroundColor: getColor(c) }}
-                    />
-                ))}
-                <div className="w-px h-4 bg-slate-300 dark:bg-slate-600 mx-1" />
-                <button onClick={onEdit} className="p-1 hover:bg-slate-100 dark:hover:bg-slate-700 rounded text-slate-600 dark:text-slate-300">
-                    <Icon name="edit" className="w-4 h-4" />
-                </button>
-            </div>
-        );
     };
 
     const getNodeRect = (nodeId: string) => {
@@ -658,37 +771,6 @@ const CanvasRenderer: React.FC<CanvasRendererProps> = ({ content, onNavigate, on
         }
     };
 
-    const deleteSelected = () => {
-        if (selectedNodeId) {
-            const newNodes = data.nodes.filter(n => n.id !== selectedNodeId);
-            const newEdges = data.edges.filter(e => e.fromNode !== selectedNodeId && e.toNode !== selectedNodeId);
-            saveData({ nodes: newNodes, edges: newEdges });
-            setSelectedNodeId(null);
-        } else if (selectedEdgeId) {
-            const newEdges = data.edges.filter(e => e.id !== selectedEdgeId);
-            saveData({ ...data, edges: newEdges });
-            setSelectedEdgeId(null);
-        }
-    };
-
-    const updateColor = (color: string) => {
-        if (!selectedNodeId) return;
-        const updated = data.nodes.map(n => n.id === selectedNodeId ? { ...n, color } : n);
-        saveData({ ...data, nodes: updated });
-    };
-
-    const updateText = (text: string) => {
-        if (!selectedNodeId) return;
-        const updated = data.nodes.map(n => n.id === selectedNodeId ? { ...n, text } : n);
-        saveData({ ...data, nodes: updated });
-    };
-
-    const updateEdgeLabel = (text: string) => {
-        if (!selectedEdgeId) return;
-        const updated = data.edges.map(e => e.id === selectedEdgeId ? { ...e, label: text } : e);
-        saveData({ ...data, edges: updated });
-    };
-
     const selectedNode = data.nodes.find(n => n.id === selectedNodeId);
     const selectedEdge = data.edges.find(e => e.id === selectedEdgeId);
 
@@ -721,7 +803,6 @@ const CanvasRenderer: React.FC<CanvasRendererProps> = ({ content, onNavigate, on
                     </defs>
                     {data.edges?.map((edge, i) => (
                         <g key={edge.id || i}>
-                            {/* Hit Path (Transparent, Wide) - Click to select */}
                             <path
                                 d={calculatePath(edge)}
                                 stroke="transparent"
@@ -734,7 +815,6 @@ const CanvasRenderer: React.FC<CanvasRendererProps> = ({ content, onNavigate, on
                                     setSelectedNodeId(null);
                                 }}
                             />
-                            {/* Visible Path */}
                             <path
                                 d={calculatePath(edge)}
                                 stroke={selectedEdgeId === edge.id ? '#3b82f6' : "#94a3b8"}
@@ -771,185 +851,34 @@ const CanvasRenderer: React.FC<CanvasRendererProps> = ({ content, onNavigate, on
                 </svg>
 
                 {/* 2. Nodes Layer */}
-                {data.nodes.map(node => {
-                    const { cleanText, classes } = node.text ? processNodeText(node.text) : { cleanText: '', classes: '' };
-                    const isSelected = node.id === selectedNodeId;
-                    const nodeColor = node.color ? getColor(node.color) : undefined;
-                    const nodeRgb = nodeColor ? hexToRgb(nodeColor) : undefined;
-
-                    const nodeStyle: any = {
-                        left: node.x - minX,
-                        top: node.y - minY,
-                        width: node.width,
-                        height: node.height,
-                        // Defaults for CC variables in case CSS :root is missed
-                        '--cc-header-opacity-level': 0.2,
-                        '--cc-footers-opacity-level': 0.09,
-                        '--cc-label-width': '50px',
-                        '--cc-labels-opacity-level': 0.3,
-                        '--cc-gradient-start': 0.7,
-                        '--cc-gradient-end': 0.1,
-                    };
-
-                    if (nodeRgb) {
-                        nodeStyle['--canvas-color'] = nodeRgb;
-                    }
-
-                    // --- Wrapper Structure for Canvas Candy ---
-                    // .canvas-node > .canvas-node-container > .canvas-node-content
-
-
-                    if (node.type === 'file') {
-                        const isImage = node.file && /\.(png|jpg|jpeg|gif|svg|webp)$/i.test(node.file);
-                        const isSticker = node.file && node.file.includes('-cc-image');
-
-                        return (
-                            <div
-                                key={node.id}
-                                onMouseDown={(e) => handleNodeMouseDown(e, node)}
-                                onTouchStart={(e) => handleNodeTouchStart(e, node)}
-                                className={`canvas-node absolute overflow-visible flex flex-col ${isSelected ? 'z-50' : 'z-10'}`}
-                                style={nodeStyle}
-                            >
-                                <div
-                                    className={`canvas-node-container w-full h-full border rounded-lg shadow-sm bg-white dark:bg-slate-800 transition-all ${isSelected ? 'ring-2 ring-brand-primary' : isSticker ? 'border-none shadow-none bg-transparent' : 'border-slate-300 dark:border-slate-600'}`}
-                                    style={isSticker ? { backgroundColor: 'transparent', border: 'none', boxShadow: 'none' } : undefined}
-                                >
-                                    <div className={`canvas-node-content w-full h-full flex flex-col ${isSticker ? 'bg-transparent' : ''}`}
-                                        style={isSticker ? { backgroundColor: 'transparent' } : undefined}
-                                    >
-                                        {isSelected && <SelectionOverlay node={node} />}
-
-                                        {isImage ? (
-                                            <img
-                                                src={resolveFileSrc(node.file!)}
-                                                alt={node.file}
-                                                // Ensure the src attribute contains the keyword so CSS selectors might also pick it up if they target img[src*="..."]
-                                                // Although base64 breaks that, inline styles above fix it.
-                                                data-src-path={node.file}
-                                                className="w-full h-full object-contain pointer-events-none"
-                                            />
-                                        ) : (
-                                            <div
-                                                className="p-4 h-full flex flex-col items-center justify-center bg-slate-50 dark:bg-slate-900/50 cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
-                                                onDoubleClick={(e) => {
-                                                    if (node.file) onNavigate?.(node.file);
-                                                }}
-                                            >
-                                                <span className="font-semibold text-slate-700 dark:text-slate-300 truncate w-full text-center">
-                                                    {node.file}
-                                                </span>
-                                                <span className="text-xs text-slate-500">Double click to open</span>
-                                            </div>
-                                        )}
-                                    </div>
-                                </div>
-                            </div>
-                        )
-                    }
-
-                    if (node.type === 'sticker') {
-                        return (
-                            <div
-                                key={node.id}
-                                onMouseDown={(e) => handleNodeMouseDown(e, node)}
-                                onTouchStart={(e) => handleNodeTouchStart(e, node)}
-                                className={`canvas-node absolute ${isSelected ? 'ring-2 ring-brand-primary' : 'hover:ring-1 hover:ring-brand-primary/50'}`}
-                                style={nodeStyle}
-                            >
-                                <div className="canvas-node-container w-full h-full relative" style={{ backgroundColor: 'transparent', border: 'none', boxShadow: 'none' }}>
-                                    <div className="canvas-node-content w-full h-full" style={{ backgroundColor: 'transparent' }}>
-                                        <img
-                                            src={resolveFileSrc(node.file || node.url || '')}
-                                            alt="sticker"
-                                            className="w-full h-full object-contain pointer-events-none"
-                                        />
-                                    </div>
-                                </div>
-                                {isSelected && <SelectionOverlay node={node} />}
-                            </div>
-                        )
-                    }
-
-                    return (
-                        <div
-                            key={node.id}
-                            onMouseDown={(e) => handleNodeMouseDown(e, node)}
-                            onTouchStart={(e) => handleNodeTouchStart(e, node)}
-                            // 'canvas-node' class is crucial for CC selectors
-                            className={`canvas-node absolute overflow-visible flex flex-col ${isSelected ? 'z-50' : 'z-10'} ${classes}`}
-                            style={nodeStyle}
-                        >
-                            {/* Container: holds the actual styled card. CC expects classes here/inside to trigger styles */}
-                            <div
-                                className={`canvas-node-container w-full h-full border rounded-lg shadow-sm bg-white dark:bg-slate-800 transition-all ${isSelected ? 'ring-2 ring-brand-primary' : 'border-slate-300 dark:border-slate-600'}`}
-                                style={{
-                                    borderColor: nodeColor,
-                                    borderWidth: nodeColor ? '2px' : undefined
-                                }}
-                            >
-                                {/* Content: where the text lives. Classes from frontmatter applied HERE so :has() on container works */}
-                                <div className={`canvas-node-content w-full h-full flex flex-col ${classes}`}>
-                                    {isSelected && <SelectionOverlay node={node} />}
-
-                                    {node.type === 'text' && node.text && (
-                                        <div className="w-full h-full text-sm flex flex-col node-content cursor-text overflow-hidden rounded-lg"
-                                            onDoubleClick={() => setIsEditingText(true)}
-                                        >
-                                            <div className={`markdown-preview-view w-full flex-1 overflow-y-auto ${!(isSelected && isEditingText) ? 'p-4 prose dark:prose-invert max-w-none' : ''}`}
-                                                onMouseDown={(e) => {
-                                                    if (isSelected && isEditingText) {
-                                                        e.stopPropagation();
-                                                    }
-                                                }}
-                                                onTouchStart={(e) => {
-                                                    if (isSelected && isEditingText) {
-                                                        e.stopPropagation();
-                                                    }
-                                                }}
-                                                onWheel={(e) => e.stopPropagation()} // Stop canvas zoom/pan when scrolling content
-                                            >
-                                                {isSelected && isEditingText ? (
-                                                    <textarea
-                                                        autoFocus
-                                                        className="w-full h-full p-4 bg-transparent resize-none focus:outline-none font-mono text-sm"
-                                                        value={node.text}
-                                                        onChange={e => updateText(e.target.value)}
-                                                        onBlur={() => setIsEditingText(false)}
-                                                        onMouseDown={e => e.stopPropagation()}
-                                                        onTouchStart={e => e.stopPropagation()}
-                                                    />
-                                                ) : (
-                                                    <div className="markdown-preview-section" onClick={(e) => {
-                                                        const target = e.target as HTMLElement;
-                                                        const link = target.closest('a');
-                                                        if (link && link.dataset.internalLink) {
-                                                            e.preventDefault();
-                                                            onNavigate?.(link.dataset.internalLink);
-                                                        }
-                                                    }}>
-                                                        {/* Processed text includes generic <div>s representing callouts which CC styles */}
-                                                        <ReactMarkdown
-                                                            rehypePlugins={[rehypeRaw, rehypeKatex]}
-                                                            remarkPlugins={[remarkGfm, remarkMath]}
-                                                        >
-                                                            {cleanText}
-                                                        </ReactMarkdown>
-                                                    </div>
-                                                )}
-                                            </div>
-                                        </div>
-                                    )}
-                                    {node.type === 'group' && (
-                                        <div className="w-full h-full bg-slate-100/50 dark:bg-slate-800/50 flex items-start justify-center p-2 font-bold text-slate-500">
-                                            {node.label}
-                                        </div>
-                                    )}
-                                </div>
-                            </div>
-                        </div>
-                    );
-                })}
+                {data.nodes.map(node => (
+                    <MemoizedNode
+                        key={node.id}
+                        node={node}
+                        minX={minX}
+                        minY={minY}
+                        isSelected={node.id === selectedNodeId}
+                        isEditingText={node.id === selectedNodeId && isEditingText}
+                        onMouseDown={handleNodeMouseDown}
+                        onTouchStart={handleNodeTouchStart}
+                        onResize={(e, handle) => {
+                            if ('touches' in e) handleResizeTouchStart(e as React.TouchEvent, handle);
+                            else handleResizeMouseDown(e as React.MouseEvent, handle);
+                        }}
+                        onConnect={(e, nodeId, side) => {
+                            if ('touches' in e) handleConnectTouchStart(e as React.TouchEvent, nodeId, side);
+                            else handleConnectMouseDown(e as React.MouseEvent, nodeId, side);
+                        }}
+                        onColorChange={(color) => {
+                            updateColor(color);
+                        }}
+                        onEdit={() => setIsEditingText(true)}
+                        onDelete={deleteSelected}
+                        resolveFileSrc={resolveFileSrc}
+                        setText={setText}
+                        updateText={updateText}
+                    />
+                ))}
             </div>
 
             {selectedNode && !interactionMode.startsWith('drag') && !interactionMode.startsWith('resize') && (
@@ -980,10 +909,6 @@ const CanvasRenderer: React.FC<CanvasRendererProps> = ({ content, onNavigate, on
                         ))}
                         <button onClick={() => updateColor('')} className="w-6 h-6 rounded-full border border-slate-200 bg-white flex items-center justify-center" aria-label="Remove color">
                             <span className="block w-6 h-px bg-red-500 transform rotate-45"></span>
-                        </button>
-                        <div className="w-px h-6 bg-slate-200 dark:bg-slate-700 my-auto"></div>
-                        <button onClick={() => setIsEditingText(true)} className="p-2 hover:bg-slate-100 dark:hover:bg-slate-700 rounded text-slate-600 dark:text-slate-300" title="Edit Text" aria-label="Edit text">
-                            <Icon name="edit" className="w-5 h-5" />
                         </button>
                     </div>
                 </div>
@@ -1018,7 +943,6 @@ const CanvasRenderer: React.FC<CanvasRendererProps> = ({ content, onNavigate, on
                 </div>
             )}
 
-            {/* Help Text - Hidden on mobile */}
             <div className="absolute top-4 left-4 text-xs text-slate-400 pointer-events-none hidden md:block">
                 Pan: Middle Mouse or Shift+Drag<br />
                 Zoom: Ctrl+Wheel<br />
@@ -1027,84 +951,6 @@ const CanvasRenderer: React.FC<CanvasRendererProps> = ({ content, onNavigate, on
 
         </div>
     );
-
-    const handleColorChange = (nodeId: string, color: string) => {
-        setData(prev => ({
-            ...prev,
-            nodes: prev.nodes.map(n => n.id === nodeId ? { ...n, color } : n)
-        }));
-        saveData({ ...data, nodes: data.nodes.map(n => n.id === nodeId ? { ...n, color } : n) });
-    };
-
-    function SelectionOverlay({ node }: { node: CanvasNode }) {
-        return (
-            <>
-                <NodeToolbar
-                    node={node}
-                    onColorChange={(color) => handleColorChange(node.id, color)}
-                    onEdit={() => setIsEditingText(true)}
-                />
-                <div className="absolute -top-1 -left-1 w-3 h-3 bg-white border border-brand-primary cursor-nw-resize"
-                    onMouseDown={e => handleResizeMouseDown(e, 'nw')}
-                    onTouchStart={e => handleResizeTouchStart(e, 'nw')}
-                />
-                <div className="absolute -top-1 -right-1 w-3 h-3 bg-white border border-brand-primary cursor-ne-resize"
-                    onMouseDown={e => handleResizeMouseDown(e, 'ne')}
-                    onTouchStart={e => handleResizeTouchStart(e, 'ne')}
-                />
-                <div className="absolute -bottom-1 -left-1 w-3 h-3 bg-white border border-brand-primary cursor-sw-resize"
-                    onMouseDown={e => handleResizeMouseDown(e, 'sw')}
-                    onTouchStart={e => handleResizeTouchStart(e, 'sw')}
-                />
-                <div className="absolute -bottom-1 -right-1 w-3 h-3 bg-white border border-brand-primary cursor-se-resize"
-                    onMouseDown={e => handleResizeMouseDown(e, 'se')}
-                    onTouchStart={e => handleResizeTouchStart(e, 'se')}
-                />
-
-                {/* Connection Handles */}
-
-                {/* TOP */}
-                <div className={`absolute -top-3 left-1/2 -translate-x-1/2 w-16 h-16 flex items-center justify-center cursor-crosshair z-10`}
-                    onMouseDown={e => handleConnectMouseDown(e, node.id, 'top')}
-                    onTouchStart={e => handleConnectTouchStart(e, node.id, 'top')}
-                    title="Connect">
-                    <div className="w-4 h-4 rounded-full bg-white border-2 border-brand-primary flex items-center justify-center shadow-sm">
-                        <div className="w-1.5 h-1.5 bg-brand-primary rounded-full"></div>
-                    </div>
-                </div>
-
-                {/* RIGHT */}
-                <div className={`absolute top-1/2 -right-3 -translate-y-1/2 w-16 h-16 flex items-center justify-center cursor-crosshair z-10`}
-                    onMouseDown={e => handleConnectMouseDown(e, node.id, 'right')}
-                    onTouchStart={e => handleConnectTouchStart(e, node.id, 'right')}
-                    title="Connect">
-                    <div className="w-4 h-4 rounded-full bg-white border-2 border-brand-primary flex items-center justify-center shadow-sm">
-                        <div className="w-1.5 h-1.5 bg-brand-primary rounded-full"></div>
-                    </div>
-                </div>
-
-                {/* BOTTOM */}
-                <div className={`absolute -bottom-3 left-1/2 -translate-x-1/2 w-16 h-16 flex items-center justify-center cursor-crosshair z-10`}
-                    onMouseDown={e => handleConnectMouseDown(e, node.id, 'bottom')}
-                    onTouchStart={e => handleConnectTouchStart(e, node.id, 'bottom')}
-                    title="Connect">
-                    <div className="w-4 h-4 rounded-full bg-white border-2 border-brand-primary flex items-center justify-center shadow-sm">
-                        <div className="w-1.5 h-1.5 bg-brand-primary rounded-full"></div>
-                    </div>
-                </div>
-
-                {/* LEFT */}
-                <div className={`absolute top-1/2 -left-3 -translate-y-1/2 w-16 h-16 flex items-center justify-center cursor-crosshair z-10`}
-                    onMouseDown={e => handleConnectMouseDown(e, node.id, 'left')}
-                    onTouchStart={e => handleConnectTouchStart(e, node.id, 'left')}
-                    title="Connect">
-                    <div className="w-4 h-4 rounded-full bg-white border-2 border-brand-primary flex items-center justify-center shadow-sm">
-                        <div className="w-1.5 h-1.5 bg-brand-primary rounded-full"></div>
-                    </div>
-                </div>
-            </>
-        )
-    }
 };
 
 export default CanvasRenderer;
