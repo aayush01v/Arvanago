@@ -266,7 +266,7 @@ const GlassPreviewPlayer: React.FC<GlassPreviewPlayerProps> = ({ videoUrl, poste
   const tapTimestamps = useRef<{ back: number; forward: number }>({ back: 0, forward: 0 });
 
   useEffect(() => {
-    if (isYouTube || isVimeo || !videoUrl || !videoUrl.endsWith('.m3u8')) {
+    if (isYouTube || isVimeo || !videoUrl || !videoUrl.includes('.m3u8')) {
       return;
     }
 
