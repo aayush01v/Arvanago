@@ -265,34 +265,39 @@ const GlassPreviewPlayer: React.FC<GlassPreviewPlayerProps> = ({ videoUrl, poste
   const settingsPanelRef = useRef<HTMLDivElement | null>(null);
   const tapTimestamps = useRef<{ back: number; forward: number }>({ back: 0, forward: 0 });
 
+  const hlsRef = useRef<Hls | null>(null);
+
   useEffect(() => {
     if (isYouTube || isVimeo || !videoUrl || !videoUrl.includes('.m3u8')) {
       return;
     }
 
-    let hls: Hls | null = null;
-
     if (Hls.isSupported()) {
-      hls = new Hls({
+      const hls = new Hls({
         enableWorker: true,
         lowLatencyMode: true,
       });
+      hlsRef.current = hls;
 
       if (htmlVideoRef.current) {
         hls.loadSource(videoUrl);
         hls.attachMedia(htmlVideoRef.current);
-        hls.on(Hls.Events.MANIFEST_PARSED, () => {
-          // Optional: Auto-play logic if needed, but we rely on user interaction or existing props
+
+        hls.on(Hls.Events.MANIFEST_PARSED, (event, data) => {
+          const levels = data.levels.map(l => `${l.height}p`);
+          setAvailableQualities(['Auto', ...levels]);
+          setSelectedQuality('Auto');
         });
       }
     } else if (htmlVideoRef.current?.canPlayType('application/vnd.apple.mpegurl')) {
-      // Native HLS support (Safari)
+      // Native HLS (Safari) - standard quality selection not typically available via JS API
       htmlVideoRef.current.src = videoUrl;
     }
 
     return () => {
-      if (hls) {
-        hls.destroy();
+      if (hlsRef.current) {
+        hlsRef.current.destroy();
+        hlsRef.current = null;
       }
     };
   }, [videoUrl, isYouTube, isVimeo]);
@@ -602,6 +607,19 @@ const GlassPreviewPlayer: React.FC<GlassPreviewPlayerProps> = ({ videoUrl, poste
   };
 
   const changeQuality = (value: string) => {
+    if (hlsRef.current) {
+      if (value === 'Auto') {
+        hlsRef.current.currentLevel = -1;
+      } else {
+        const levelIndex = availableQualities.indexOf(value) - 1; // -1 because 'Auto' is at index 0
+        if (levelIndex >= 0) {
+          hlsRef.current.currentLevel = levelIndex;
+        }
+      }
+      setSelectedQuality(value);
+      return;
+    }
+
     if (!isYouTube || !youtubePlayerRef.current) {
       return;
     }
