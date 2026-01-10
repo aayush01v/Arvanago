@@ -112,7 +112,7 @@ const CourseCardComponent: React.FC<CourseCardProps> = ({
           <div className="flex -space-x-2">
             {[1, 2, 3].map((_, i) => (
               <div key={i} className={`w-8 h-8 rounded-full border-2 border-slate-800 bg-slate-700 flex items-center justify-center text-[10px] text-white overflow-hidden shadow-lg`}>
-                <img src={`https://i.pravatar.cc/100?img=${(course.id.charCodeAt(0) + i) % 70}`} alt="User" className="w-full h-full object-cover" />
+                <img src={`https://i.pravatar.cc/100?img=${(course.id.charCodeAt(0) + i) % 70}`} loading="lazy" decoding="async" alt="User" className="w-full h-full object-cover" />
               </div>
             ))}
           </div>

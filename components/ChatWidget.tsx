@@ -311,7 +311,7 @@ const ChatWidget: React.FC<ChatWidgetProps> = ({
                                     <Icon name="arrowLeft" className="w-5 h-5 text-slate-900 dark:text-white" />
                                 </button>
                                 <div className="flex items-center gap-2">
-                                    <img src={activeChatUser?.avatar || 'https://i.pravatar.cc/150'} className="w-8 h-8 rounded-full border border-slate-200 dark:border-slate-700" />
+                                    <img src={activeChatUser?.avatar || 'https://i.pravatar.cc/150'} loading="lazy" decoding="async" className="w-8 h-8 rounded-full border border-slate-200 dark:border-slate-700" />
                                     <div className="flex flex-col">
                                         <h3 className="font-bold text-sm leading-none text-slate-900 dark:text-gray-100">{activeChatUser?.name}</h3>
                                         <span className="text-[10px] text-green-500">@{activeChatUser?.username}</span>
@@ -353,7 +353,7 @@ const ChatWidget: React.FC<ChatWidgetProps> = ({
                                     <div className="absolute top-12 left-0 right-0 bg-white dark:bg-slate-900 shadow-xl rounded-xl border border-slate-200 dark:border-slate-800 z-20 max-h-60 overflow-y-auto">
                                         {searchResults.map(u => (
                                             <div key={u.uid} onClick={() => !creatingChat && handleUserSelect(u)} className="p-3 hover:bg-slate-50 dark:hover:bg-slate-800 cursor-pointer flex items-center gap-3">
-                                                <img src={u.avatar || 'https://i.pravatar.cc/150'} className="w-8 h-8 rounded-full" />
+                                                <img src={u.avatar || 'https://i.pravatar.cc/150'} loading="lazy" decoding="async" className="w-8 h-8 rounded-full" />
                                                 <p className="text-sm font-bold flex-1 text-slate-900 dark:text-white">{u.name}</p>
                                                 {creatingChat && <Icon name="spinner" className="w-4 h-4 animate-spin" />}
                                             </div>
@@ -403,7 +403,7 @@ const ChatWidget: React.FC<ChatWidgetProps> = ({
                                             >
                                                 <div className={`max-w-[80%] px-4 py-2 rounded-2xl text-sm ${isMe ? 'bg-brand-primary text-white rounded-br-none' : 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 rounded-bl-none shadow-sm'}`}>
                                                     {msg.imageUrl && (
-                                                        <img src={msg.imageUrl} alt="Attachment" className="mb-2 rounded-lg max-h-48 object-cover" />
+                                                        <img src={msg.imageUrl} loading="lazy" decoding="async" alt="Attachment" className="mb-2 rounded-lg max-h-48 object-cover" />
                                                     )}
                                                     {msg.text && <p>{msg.text}</p>}
                                                     {msg.callId && (
@@ -500,7 +500,7 @@ const ChatListItem: React.FC<{
             onClick={() => onSelect(chat)}
             className={`p-3 rounded-xl cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors flex items-center gap-3 ${selectedChatId === chat.id ? 'bg-slate-100 dark:bg-slate-800' : ''}`}
         >
-            <img src={otherUser.avatar || 'https://i.pravatar.cc/150'} className="w-10 h-10 rounded-full" />
+            <img src={otherUser.avatar || 'https://i.pravatar.cc/150'} loading="lazy" decoding="async" className="w-10 h-10 rounded-full" />
             <div className="flex-1 min-w-0">
                 <div className="flex justify-between items-baseline">
                     <h4 className={`font-bold text-sm truncate ${unreadCount > 0 ? 'text-black dark:text-white' : 'text-slate-700 dark:text-slate-300'}`}>{otherUser.name}</h4>

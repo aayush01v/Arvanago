@@ -255,7 +255,7 @@ const Profile: React.FC<ProfileProps> = ({ user, onProfileUpdate, isDarkMode }) 
               <div className="w-full h-full rounded-full p-[4px] bg-white dark:bg-slate-900">
                 {/* Avatar image */}
                 <div className="w-full h-full rounded-full overflow-hidden relative">
-                  <img src={avatarUrl} className="w-full h-full object-cover" alt="Profile" />
+                  <img src={avatarUrl} loading="lazy" decoding="async" className="w-full h-full object-cover" alt="Profile" />
                   {uploading && (
                     <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
                       <Icon name="spinner" className="w-8 h-8 text-white animate-spin" />
@@ -421,7 +421,7 @@ const Profile: React.FC<ProfileProps> = ({ user, onProfileUpdate, isDarkMode }) 
                 {/* Post Input */}
                 <div className="bg-white dark:bg-slate-800 rounded-3xl p-6 shadow-sm border border-slate-100 dark:border-slate-700">
                   <div className="flex gap-4">
-                    <img src={user.avatar} className="w-10 h-10 rounded-full object-cover" alt="" />
+                    <img src={user.avatar} loading="lazy" decoding="async" className="w-10 h-10 rounded-full object-cover" alt="" />
                     <textarea
                       value={newPostContent}
                       onChange={(e) => setNewPostContent(e.target.value)}
@@ -499,7 +499,7 @@ const Profile: React.FC<ProfileProps> = ({ user, onProfileUpdate, isDarkMode }) 
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         {friends.map(friend => (
                           <Link to={`/u/${friend.username}`} key={friend.uid} className="flex items-center gap-4 p-4 rounded-2xl bg-slate-50 dark:bg-slate-700/50 hover:bg-white dark:hover:bg-slate-700 hover:shadow-md transition-all border border-transparent hover:border-slate-100 dark:hover:border-slate-600">
-                            <img src={friend.avatar} alt={friend.name} className="w-12 h-12 rounded-full object-cover" />
+                            <img src={friend.avatar} loading="lazy" decoding="async" alt={friend.name} className="w-12 h-12 rounded-full object-cover" />
                             <div className="overflow-hidden">
                               <h4 className="font-bold text-slate-900 dark:text-white truncate">{friend.name}</h4>
                               <p className="text-xs text-slate-500 dark:text-slate-400 truncate">@{friend.username}</p>
@@ -536,7 +536,7 @@ const Profile: React.FC<ProfileProps> = ({ user, onProfileUpdate, isDarkMode }) 
                         key={post.id}
                         className="aspect-square rounded-2xl overflow-hidden cursor-pointer shadow-sm hover:shadow-lg transition-all"
                       >
-                        <img src={post.imageUrl} className="w-full h-full object-cover" alt="Gallery" />
+                        <img src={post.imageUrl} loading="lazy" decoding="async" className="w-full h-full object-cover" alt="Gallery" />
                       </motion.div>
                     ))}
                   </div>

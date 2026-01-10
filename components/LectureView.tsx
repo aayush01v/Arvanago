@@ -31,7 +31,7 @@ const LectureHeader: React.FC<{ user: User, onExit: () => void }> = ({ user, onE
                 <Icon name="search" className="w-5 h-5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
                 <input type="text" placeholder="Search..." className="bg-slate-100 dark:bg-slate-800 rounded-full pl-10 pr-4 py-2 w-40 sm:w-64 text-sm focus:ring-2 focus:ring-brand-primary focus:border-transparent outline-none transition" />
             </div>
-            <img src={user.avatar} alt={user.name} className="w-9 h-9 rounded-full" />
+            <img src={user.avatar} loading="lazy" decoding="async" alt={user.name} className="w-9 h-9 rounded-full" />
         </div>
     </header>
 );
@@ -134,7 +134,7 @@ const InfoSidebar: React.FC<{ course: Course }> = ({ course }) => (
 
 const CommentItem: React.FC<{ comment: Comment }> = ({ comment }) => (
     <div className="flex items-start space-x-4">
-        <img src={comment.user.avatar} alt={comment.user.name} className="w-10 h-10 rounded-full" />
+        <img src={comment.user.avatar} loading="lazy" decoding="async" alt={comment.user.name} className="w-10 h-10 rounded-full" />
         <div className="flex-1">
             <div className="flex items-baseline space-x-2">
                 <p className="font-semibold text-slate-800 dark:text-white">{comment.user.name}</p>
@@ -147,7 +147,7 @@ const CommentItem: React.FC<{ comment: Comment }> = ({ comment }) => (
             </div>
             {comment.replies?.map(reply => (
                 <div key={reply.id} className="mt-4 flex items-start space-x-4">
-                    <img src={reply.user.avatar} alt={reply.user.name} className="w-8 h-8 rounded-full" />
+                    <img src={reply.user.avatar} loading="lazy" decoding="async" alt={reply.user.name} className="w-8 h-8 rounded-full" />
                     <div className="flex-1">
                         <div className="flex items-baseline space-x-2">
                             <p className="font-semibold text-sm text-slate-800 dark:text-white">{reply.user.name}</p>

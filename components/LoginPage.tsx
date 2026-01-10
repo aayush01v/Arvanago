@@ -47,6 +47,22 @@ const LoginPage: React.FC<LoginPageProps> = ({ onNavigateHome }) => {
         if (!email.trim()) return setError("Please enter your email.");
         if (activeTab === 'signup' && !name.trim()) return setError("Please enter your name.");
 
+        // Enforce minimum password requirements for signup
+        if (activeTab === 'signup') {
+            if (password.length < 8) {
+                return setError("Password must be at least 8 characters long.");
+            }
+            if (!/[A-Z]/.test(password)) {
+                return setError("Password must contain at least one uppercase letter.");
+            }
+            if (!/[0-9]/.test(password)) {
+                return setError("Password must contain at least one number.");
+            }
+            if (!/[^A-Za-z0-9]/.test(password)) {
+                return setError("Password must contain at least one special character.");
+            }
+        }
+
         setLoading(true);
         try {
             if (activeTab === 'signup') {

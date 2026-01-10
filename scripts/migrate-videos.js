@@ -9,16 +9,16 @@ import async from 'async';
 import axios from 'axios';
 import { URL } from 'url';
 
-// Initialize environment
-dotenv.config();
-
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+
+// Initialize environment
+dotenv.config({ path: path.join(__dirname, '..', '.env') });
 const ffmpegPath = ffmpegInstaller.path;
 
 // Configuration
 const CONCURRENCY = 5; // User requested 5-10 parallel videos
-const INPUT_FILE = path.join(__dirname, 'videos.txt');
+const INPUT_FILE = path.join(__dirname, 'links_stable.txt');
 const OUTPUT_LINKS_FILE = path.join(__dirname, 'migrated_links.txt');
 const STATUS_FILE = path.join(__dirname, 'migration_status.json');
 const TEMP_DIR = path.join(__dirname, 'temp');
@@ -236,18 +236,21 @@ async function main() {
         if (cleanLine.startsWith('├')) {
             const parts = cleanLine.split('|');
             if (parts.length >= 2) {
-                // Extract Title
-                const titlePart = parts[0].replace('├', '').trim();
+                // Extract URL from the LAST part (handles lines with multiple pipes)
+                let rawUrl = parts[parts.length - 1].trim();
+
+                // Extract Title from all parts EXCEPT the last one
+                const titlePart = parts.slice(0, -1).join('|').replace('├', '').trim();
                 if (titlePart.startsWith('Title :')) {
                     title = titlePart.replace('Title :', '').trim();
                 } else if (titlePart.startsWith('Main Topic :')) {
                     title = titlePart.replace('Main Topic :', '').trim();
+                } else if (titlePart.startsWith('𝖳𝗂𝗍𝗅𝖾 :')) {
+                    // Handle special Unicode title format
+                    title = titlePart.replace('𝖳𝗂𝗍𝗅𝖾 :', '').trim();
                 } else {
                     title = titlePart.trim();
                 }
-
-                // Extract URL
-                let rawUrl = parts[1].trim();
 
                 // Decode nested params
                 try {

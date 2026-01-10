@@ -11,7 +11,8 @@ export const signInWithGoogle = async () => {
     // FIX: Use compat syntax for signInWithPopup.
     await auth.signInWithPopup(googleProvider);
   } catch (error) {
-    console.error("Error signing in with Google: ", error);
+    // Log generic error without exposing system details
+    console.error("Authentication error occurred");
     throw error;
   }
 };
@@ -25,7 +26,7 @@ export const sendVerificationEmail = async () => {
       throw new Error("No user logged in to send verification email.");
     }
   } catch (error) {
-    console.error("Error sending verification email: ", error);
+    console.error("Verification email error");
     throw error;
   }
 };
@@ -44,7 +45,7 @@ export const signUpWithEmail = async (name: string, email: string, pass: string)
     }
     return user;
   } catch (err) {
-    console.error("Error signing up with email: ", err);
+    console.error("Sign up error");
     throw err;
   }
 }
@@ -54,7 +55,7 @@ export const signInWithEmail = async (email: string, pass: string) => {
     // FIX: Use compat syntax for signInWithEmailAndPassword.
     await auth.signInWithEmailAndPassword(email, pass);
   } catch (err) {
-    console.error("Error signing in with email: ", err);
+    console.error("Sign in error");
     throw err;
   }
 }
@@ -65,6 +66,6 @@ export const signOutUser = async () => {
     // FIX: Use compat syntax for signOut.
     await auth.signOut();
   } catch (error) {
-    console.error("Error signing out: ", error);
+    console.error("Sign out error");
   }
 };

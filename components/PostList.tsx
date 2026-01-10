@@ -154,7 +154,7 @@ const PostItem: React.FC<{
             {/* Header */}
             <div className="flex justify-between items-start mb-4">
                 <div className="flex items-center gap-3">
-                    <img src={post.user.avatar} className="w-10 h-10 rounded-full bg-slate-100 object-cover" alt={post.user.name} />
+                    <img loading="lazy" decoding="async" src={post.user.avatar} className="w-10 h-10 rounded-full bg-slate-100 object-cover" alt={post.user.name} />
                     <div>
                         <h4 className="font-bold text-slate-900 dark:text-white">{post.user.name}</h4>
                         <p className="text-xs text-slate-500">
@@ -195,7 +195,7 @@ const PostItem: React.FC<{
                     <p className="text-slate-700 dark:text-slate-300 leading-relaxed mb-4 whitespace-pre-wrap">{post.content}</p>
                     {post.imageUrl && (
                         <div className="mb-4">
-                            <img src={post.imageUrl} className="w-full rounded-2xl object-cover max-h-96" alt="Post content" loading="lazy" />
+                            <img loading="lazy" decoding="async" src={post.imageUrl} className="w-full rounded-2xl object-cover max-h-96" alt="Post content" loading="lazy" />
                         </div>
                     )}
                 </>
@@ -260,7 +260,7 @@ const PostItem: React.FC<{
                             {comments.length > 0 ? (
                                 comments.map(comment => (
                                     <div key={comment.id} className="flex gap-3 group">
-                                        <img src={comment.user.avatar} className="w-8 h-8 rounded-full bg-slate-100 object-cover flex-shrink-0" alt={comment.user.name} />
+                                        <img loading="lazy" decoding="async" src={comment.user.avatar} className="w-8 h-8 rounded-full bg-slate-100 object-cover flex-shrink-0" alt={comment.user.name} />
                                         <div className="flex-1">
                                             <div className="bg-slate-50 dark:bg-slate-900 rounded-2xl px-4 py-2 inline-block max-w-full">
                                                 <div className="flex justify-between items-baseline gap-2 mb-0.5">

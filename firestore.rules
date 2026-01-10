@@ -6,6 +6,7 @@ service cloud.firestore {
     function isAuthenticated() { return request.auth != null; }
     function isOwner(userId) { return request.auth.uid == userId; }
     function isAdmin() { return isAuthenticated() && exists(/databases/$(database)/documents/admins/$(request.auth.uid)); }
+    function isEmailVerified() { return request.auth != null && request.auth.token.email_verified == true; }
 
     // 1. USERS
     match /users/{userId} {
@@ -77,12 +78,15 @@ service cloud.firestore {
 
     // 6. CHATS
     match /chats/{chatId} {
-      allow create: if isAuthenticated() && request.resource.data.participants.hasAll([request.auth.uid]);
-      allow read: if isAuthenticated() && (resource == null || resource.data.participants.hasAny([request.auth.uid]));
-      allow update, delete: if isAuthenticated() && resource.data.participants.hasAny([request.auth.uid]);
+      // Only allow creating chats with exactly 2 participants, one being the creator
+      allow create: if isEmailVerified() && 
+                      request.resource.data.participants.size() == 2 &&
+                      request.resource.data.participants.hasAll([request.auth.uid]);
+      allow read: if isEmailVerified() && (resource == null || resource.data.participants.hasAny([request.auth.uid]));
+      allow update, delete: if isEmailVerified() && resource.data.participants.hasAny([request.auth.uid]);
       
       match /messages/{messageId} {
-         allow read, write: if isAuthenticated() && get(/databases/$(database)/documents/chats/$(chatId)).data.participants.hasAny([request.auth.uid]);
+         allow read, write: if isEmailVerified() && get(/databases/$(database)/documents/chats/$(chatId)).data.participants.hasAny([request.auth.uid]);
       }
     }
 

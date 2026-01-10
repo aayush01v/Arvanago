@@ -16,7 +16,8 @@ import type {
   Note,
 } from '../types.ts';
 
-const COURSE_CACHE_TTL_MS = 1000 * 60 * 5;
+// Increased cache TTL for better performance
+const COURSE_CACHE_TTL_MS = 1000 * 60 * 30; // 30 minutes (was 5 minutes)
 let cachedCourses: Course[] | null = null;
 let coursesCacheTimestamp = 0;
 let inflightCoursesPromise: Promise<Course[]> | null = null;

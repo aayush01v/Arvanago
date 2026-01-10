@@ -1,4 +1,5 @@
 import React, { useCallback, useMemo, useState } from 'react';
+import DOMPurify from 'dompurify';
 import Icon from './common/Icon.tsx';
 import { Course, CourseInstructor, Lecture, SuggestedCourseSummary } from '../types.ts';
 
@@ -247,7 +248,7 @@ const InstructorCard: React.FC<{ instructor: CourseInstructor }> = ({ instructor
     <div className="flex items-center gap-4">
       <span className="relative inline-flex h-16 w-16 flex-shrink-0 overflow-hidden rounded-full bg-brand-primary/10">
         {instructor.avatar ? (
-          <img src={instructor.avatar} alt={instructor.name} className="h-full w-full object-cover" />
+          <img src={instructor.avatar} loading="lazy" decoding="async" alt={instructor.name} className="h-full w-full object-cover" />
         ) : (
           <span className="flex h-full w-full items-center justify-center text-lg font-semibold text-brand-primary">
             {instructor.name[0]}
@@ -583,7 +584,7 @@ const CourseDetail: React.FC<CourseDetailProps> = ({ course, navigateToLecture, 
                     <div
                       key={`description-html-${index}`}
                       className="prose prose-slate max-w-none dark:prose-invert"
-                      dangerouslySetInnerHTML={{ __html: block.content }}
+                      dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(block.content) }}
                     />
                   );
                 }

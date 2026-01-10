@@ -1,1 +1,0 @@
-All the notes in this folder were generated with gpt4 and may not be correct. These notes serve as a part of a sample designed to show the use of embedded content in a card.

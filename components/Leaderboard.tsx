@@ -55,7 +55,7 @@ const LeaderboardRow: React.FC<{ entry: LeaderboardEntry; isMe?: boolean; index:
 
       <div className="flex items-center gap-2 sm:gap-4 flex-grow ml-2 sm:ml-4 overflow-hidden">
         <div className="relative h-10 w-10 sm:h-14 sm:w-14 overflow-hidden rounded-full border-2 border-white dark:border-slate-700 shadow-md flex-shrink-0">
-          <img src={entry.user.avatar} alt={entry.user.name} className="h-full w-full object-cover" />
+          <img src={entry.user.avatar} loading="lazy" decoding="async" alt={entry.user.name} className="h-full w-full object-cover" />
         </div>
 
         <div className="flex-grow min-w-0">
@@ -185,7 +185,7 @@ const Leaderboard: React.FC = () => {
                   </div>
                   <div className="interactive-card relative flex flex-col items-center p-6 bg-white/80 dark:bg-slate-900/80 rounded-[32px] border border-white/50 shadow-xl backdrop-blur-sm">
                     <div className="mt-8 mb-4 h-20 w-20 rounded-full p-1 bg-gradient-to-br from-slate-200 to-slate-400">
-                      <img src={spotlight[1].user.avatar} className="w-full h-full rounded-full object-cover border-4 border-white dark:border-slate-900" alt="" />
+                      <img src={spotlight[1].user.avatar} loading="lazy" decoding="async" className="w-full h-full rounded-full object-cover border-4 border-white dark:border-slate-900" alt="" />
                     </div>
                     <h3 className="text-xl font-bold text-slate-900 dark:text-white line-clamp-1">{spotlight[1].user.name}</h3>
                     <p className="text-slate-500 text-xs font-semibold uppercase">{spotlight[1].user.title || 'Learner'}</p>
@@ -215,7 +215,7 @@ const Leaderboard: React.FC = () => {
                   <div className="interactive-card relative flex flex-col items-center p-8 bg-gradient-to-b from-brand-primary/10 to-transparent dark:from-brand-primary/20 rounded-[32px] border border-brand-primary/30 shadow-2xl shadow-brand-primary/20 backdrop-blur-sm">
                     {/* Spacer for crown */}
                     <div className="mt-6 mb-4 h-24 w-24 rounded-full p-1 bg-gradient-to-br from-yellow-300 to-amber-500 shadow-xl shadow-amber-500/30">
-                      <img src={spotlight[0].user.avatar} className="w-full h-full rounded-full object-cover border-4 border-white dark:border-slate-900" alt="" />
+                      <img src={spotlight[0].user.avatar} loading="lazy" decoding="async" className="w-full h-full rounded-full object-cover border-4 border-white dark:border-slate-900" alt="" />
                     </div>
                     <h3 className="text-2xl font-black text-slate-900 dark:text-white line-clamp-1">{spotlight[0].user.name}</h3>
                     <p className="text-brand-primary text-xs font-bold uppercase tracking-wider mb-2">Top Learner</p>
@@ -241,7 +241,7 @@ const Leaderboard: React.FC = () => {
                   </div>
                   <div className="interactive-card relative flex flex-col items-center p-6 bg-white/80 dark:bg-slate-900/80 rounded-[32px] border border-white/50 shadow-xl backdrop-blur-sm">
                     <div className="mt-8 mb-4 h-20 w-20 rounded-full p-1 bg-gradient-to-br from-amber-600 to-amber-800">
-                      <img src={spotlight[2].user.avatar} className="w-full h-full rounded-full object-cover border-4 border-white dark:border-slate-900" alt="" />
+                      <img src={spotlight[2].user.avatar} loading="lazy" decoding="async" className="w-full h-full rounded-full object-cover border-4 border-white dark:border-slate-900" alt="" />
                     </div>
                     <h3 className="text-xl font-bold text-slate-900 dark:text-white line-clamp-1">{spotlight[2].user.name}</h3>
                     <p className="text-slate-500 text-xs font-semibold uppercase">{spotlight[2].user.title || 'Learner'}</p>
