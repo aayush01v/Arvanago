@@ -285,8 +285,7 @@ const App: React.FC = () => {
     }
 
     // DEBUG: IGNORE ENROLLMENT CHECK TO TEST PAYMENT
-    // if (!user || !isEnrolled) {
-    if (true) {
+    if (!user || !isEnrolled) {
       return (
         <CoursePreviewPage
           courses={courses}
