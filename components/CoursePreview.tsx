@@ -20,7 +20,7 @@ interface CoursePreviewProps {
     onProfileUpdate: (updates: Partial<User>) => void;
 }
 
-const Toast: React.FC<{ message: string; isVisible: boolean; onClose: () => void }> = ({ message, isVisible, onClose }) => {
+const Toast: React.FC<{ message: string; isVisible: boolean; onClose: () => void; type?: 'success' | 'error' }> = ({ message, isVisible, onClose, type = 'success' }) => {
     useEffect(() => {
         if (isVisible) {
             const timer = setTimeout(onClose, 4000);
@@ -28,11 +28,13 @@ const Toast: React.FC<{ message: string; isVisible: boolean; onClose: () => void
         }
     }, [isVisible, onClose]);
 
+    const isError = type === 'error';
+
     return (
         <div className={`fixed bottom-6 right-6 z-[9999] transition-all duration-500 ease-out ${isVisible ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0 pointer-events-none'}`}>
-            <div className="glass-reflection flex items-center gap-3 px-6 py-3 rounded-full bg-white/90 dark:bg-slate-800/90 border border-white/40 dark:border-slate-700 shadow-2xl backdrop-blur-md text-slate-800 dark:text-white">
-                <span className="flex items-center justify-center w-6 h-6 rounded-full bg-gradient-to-br from-green-400 to-green-600 text-white shadow-md">
-                    <Icon name="check" className="w-3.5 h-3.5" />
+            <div className={`glass-reflection flex items-center gap-3 px-6 py-3 rounded-full border shadow-2xl backdrop-blur-md ${isError ? 'bg-red-500/90 border-red-400 text-white' : 'bg-white/90 dark:bg-slate-800/90 border-white/40 dark:border-slate-700 text-slate-800 dark:text-white'}`}>
+                <span className={`flex items-center justify-center w-6 h-6 rounded-full shadow-md ${isError ? 'bg-white text-red-500' : 'bg-gradient-to-br from-green-400 to-green-600 text-white'}`}>
+                    <Icon name={isError ? "x" : "check"} className="w-3.5 h-3.5" />
                 </span>
                 <span className="text-sm font-semibold tracking-wide">{message}</span>
             </div>
@@ -111,6 +113,7 @@ const CoursePreview: React.FC<CoursePreviewProps> = ({ course, onLoginClick, onB
 
     const [isWishlisted, setIsWishlisted] = useState(false);
     const [activeTab, setActiveTab] = useState<'overview' | 'curriculum' | 'instructor'>('overview');
+    const [toastType, setToastType] = useState<'success' | 'error'>('success');
 
     const [showCouponInput, setShowCouponInput] = useState(false);
     const [couponCode, setCouponCode] = useState('');
