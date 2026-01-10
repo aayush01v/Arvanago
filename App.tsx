@@ -329,7 +329,7 @@ const App: React.FC = () => {
           {!authReady ? (
             <SuspenseFallback />
           ) : (
-            <Routes>
+            <Routes key={location.pathname}>
               {/* PUBLIC ROUTES */}
               <Route
                 path="/"

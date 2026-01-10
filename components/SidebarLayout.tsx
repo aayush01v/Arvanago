@@ -238,7 +238,7 @@ const SidebarLayout: React.FC<SidebarLayoutProps> = ({
             <main className={`relative ${location.pathname === '/chat' ? 'z-40 p-0 sm:p-4 h-[calc(100vh-4rem)] md:h-auto overflow-hidden' : 'z-10 px-2 pb-24 pt-4 sm:px-6 sm:pb-6 lg:px-10'}`}>
               {location.pathname === '/chat' ? (
                 <div className="h-full w-full max-w-7xl mx-auto">
-                  {children || <Outlet key={location.pathname} context={sidebarContext} />}
+                  {children || <Outlet context={sidebarContext} />}
                 </div>
               ) : (
                 <div className="relative mx-auto max-w-6xl">
@@ -249,7 +249,7 @@ const SidebarLayout: React.FC<SidebarLayoutProps> = ({
                     <div className="relative z-10 p-3 sm:p-6 lg:p-10">
                       <div className="animate-fade-in-up">
                         <div className="animate-fade-in-up">
-                          {children || <Outlet key={location.pathname} context={sidebarContext} />}
+                          {children || <Outlet context={sidebarContext} />}
                         </div>
                       </div>
                     </div>
