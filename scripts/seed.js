@@ -114,6 +114,11 @@ async function main() {
             // Ensure course is published so it appears in Explore Courses
             migratedData.isPublished = true;
 
+            // Fix empty thumbnail with a high-res Unsplash image
+            if (!migratedData.thumbnail || migratedData.thumbnail.trim() === "") {
+              migratedData.thumbnail = "https://images.unsplash.com/photo-1635070041078-e363dbe005cb?q=80&w=2940&auto=format&fit=crop";
+            }
+
             console.log("  -> Loaded migrated course:", migratedData.title);
             console.log(`     - Sections: ${migratedData.sections?.length || 0}`);
             console.log(`     - Total Lectures: ${migratedData.lectures?.length || 0}`);
