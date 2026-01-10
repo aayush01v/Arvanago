@@ -39,7 +39,7 @@ export const useRazorpayEnrollment = ({ user, onProfileUpdate }: UseRazorpayEnro
 
             setToastMessage(`Enrolled in ${course.title}`);
             setShowToast(true);
-            navigate(`/courses/${course.id}`);
+            navigate(`/courses/${course.id}/learn`);
         } catch (error) {
             console.error('Failed to enroll user', error);
             setToastMessage('Enrollment failed');
@@ -57,7 +57,7 @@ export const useRazorpayEnrollment = ({ user, onProfileUpdate }: UseRazorpayEnro
         const alreadyEnrolled = user.enrolledCourses.includes(course.id) || user.ongoingCourses.includes(course.id);
 
         if (alreadyEnrolled) {
-            navigate(`/courses/${course.id}`);
+            navigate(`/courses/${course.id}/learn`);
             return;
         }
 
