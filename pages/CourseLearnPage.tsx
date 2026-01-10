@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState, useRef } from 'react';
-import { Navigate, useNavigate, useOutletContext, useParams } from 'react-router-dom';
+import { Navigate, useNavigate, useOutletContext, useParams, useLocation } from 'react-router-dom';
 import {
   ArrowLeft, Award, Check, CheckCircle, ChevronDown, ChevronLeft, ChevronRight,
   Clock, Cpu, Download, File, Inbox, Layout, Layers, MessageCircle, Play,
@@ -122,6 +122,15 @@ const CourseLearnPage: React.FC = () => {
   const { courseId } = useParams<{ courseId: string }>();
   const { courses, user, coursesLoading, onProfileUpdate } = useOutletContext<SidebarLayoutContext>();
   const navigate = useNavigate();
+  const location = useLocation();
+
+  const handleBack = useCallback(() => {
+    if (location.key !== 'default') {
+      navigate(-1);
+    } else {
+      navigate('/dashboard');
+    }
+  }, [navigate, location]);
 
   const [isPlaylistOpen, setIsPlaylistOpen] = useState(false); // Mobile drawer state
 
@@ -329,12 +338,12 @@ const CourseLearnPage: React.FC = () => {
         {/* Top Navbar */}
         <header className="flex flex-wrap items-center justify-between gap-4">
           <GlassButton
-            onClick={() => navigate('/dashboard')}
+            onClick={handleBack}
             className="flex items-center gap-3 px-5 py-2.5 rounded-full"
-            aria-label="Back to Dashboard"
+            aria-label="Back"
           >
             <ArrowLeft className="h-4 w-4" />
-            <span className="font-medium text-sm">Dashboard</span>
+            <span className="font-medium text-sm">Back</span>
           </GlassButton>
 
           <div className="flex items-center gap-6">

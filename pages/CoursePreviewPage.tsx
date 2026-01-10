@@ -1,6 +1,6 @@
 
 import React, { useMemo } from 'react';
-import { Navigate, useNavigate, useParams } from 'react-router-dom';
+import { Navigate, useNavigate, useParams, useLocation } from 'react-router-dom';
 import CoursePreview from '@/components/CoursePreview.tsx';
 import { Course, User } from '@/types';
 
@@ -16,8 +16,18 @@ interface CoursePreviewPageProps {
 const CoursePreviewPage: React.FC<CoursePreviewPageProps> = ({ courses, isDarkMode, onToggleTheme, user, isLoading, onProfileUpdate }) => {
   const { courseId } = useParams<{ courseId: string }>();
   const navigate = useNavigate();
+  const location = useLocation();
 
   const course = useMemo(() => courses.find((c) => c.id === courseId), [courses, courseId]);
+
+  const handleBack = () => {
+    if (location.key !== 'default') {
+      navigate(-1);
+    } else {
+      // If user came via valid link but has no history, go to explore or home
+      navigate(user ? '/explore' : '/');
+    }
+  };
 
   if (isLoading) {
     return (
@@ -35,7 +45,7 @@ const CoursePreviewPage: React.FC<CoursePreviewPageProps> = ({ courses, isDarkMo
     <CoursePreview
       course={course}
       onLoginClick={() => navigate('/login')}
-      onBack={() => navigate('/')}
+      onBack={handleBack}
       isDarkMode={isDarkMode}
       setDarkMode={onToggleTheme}
       user={user}
