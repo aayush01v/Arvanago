@@ -1,15 +1,14 @@
-
 import React, { useState, useEffect, useMemo } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useRazorpayEnrollment } from '@/hooks/useRazorpayEnrollment';
 import { Course } from '@/types';
-import { Lecture, User } from '../types.ts';
+import { Lecture, User, Coupon } from '../types.ts';
 import { SidebarLayoutContext } from './SidebarLayout.tsx';
 import Icon from './common/Icon.tsx';
 import GlassPreviewPlayer from './media/GlassPreviewPlayer.tsx';
 import { LOGO_URL, PENDING_ACTION_STORAGE_KEY, PENDING_COURSE_STORAGE_KEY } from '../constants.ts';
 import { safeLocalStorage } from '@/utils/safeStorage';
-import { updateUserProfile } from '@/services/firestoreService.ts';
+import { updateUserProfile, validateCoupon, incrementCouponUsage } from '@/services/firestoreService.ts';
 
 interface CoursePreviewProps {
     course: Course;
@@ -111,30 +110,74 @@ const CoursePreview: React.FC<CoursePreviewProps> = ({ course, onLoginClick, onB
     const navigate = useNavigate();
 
     const [isWishlisted, setIsWishlisted] = useState(false);
-    // const [toastMessage, setToastMessage] = useState(''); // Removed, using hook's toast
-    // const [showToast, setShowToast] = useState(false); // Removed, using hook's toast
     const [activeTab, setActiveTab] = useState<'overview' | 'curriculum' | 'instructor'>('overview');
 
     const [showCouponInput, setShowCouponInput] = useState(false);
     const [couponCode, setCouponCode] = useState('');
+    const [appliedCoupon, setAppliedCoupon] = useState<Coupon | null>(null);
+    const [validatingCoupon, setValidatingCoupon] = useState(false);
+    const [discountedPrice, setDiscountedPrice] = useState<number | null>(null);
 
     const { handleEnroll, enrollingCourseId, toastMessage, showToast, setShowToast, setToastMessage } = useRazorpayEnrollment({
         user,
         onProfileUpdate
     });
 
-    // Derived state for back-compat with the component code
     const isLoading = enrollingCourseId === course.id;
 
+    // Calculate discounted price
+    useEffect(() => {
+        if (!appliedCoupon || !course.price) {
+            setDiscountedPrice(null);
+            return;
+        }
+
+        let finalPrice = course.price;
+        if (appliedCoupon.discountType === 'percentage') {
+            finalPrice = course.price * (1 - appliedCoupon.discountValue / 100);
+        } else {
+            finalPrice = Math.max(0, course.price - appliedCoupon.discountValue);
+        }
+
+        setDiscountedPrice(Math.round(finalPrice));
+    }, [appliedCoupon, course.price]);
+
+
     const onEnrollClick = async () => {
-        await handleEnroll(course);
+        await handleEnroll(course, discountedPrice ?? undefined);
+        if (appliedCoupon) {
+            // Increment usage in background
+            void incrementCouponUsage(appliedCoupon.id);
+        }
     };
 
-    const handleApplyCoupon = () => {
+    const handleApplyCoupon = async () => {
         if (!couponCode.trim()) return;
-        setToastMessage(`Coupon "${couponCode}" applied!`);
-        setShowCouponInput(false);
-        setCouponCode('');
+        setValidatingCoupon(true);
+        try {
+            const coupon = await validateCoupon(couponCode, course.id);
+            if (coupon) {
+                setAppliedCoupon(coupon);
+                setToastMessage(`Coupon "${coupon.code}" applied!`);
+                setShowCouponInput(false);
+                setCouponCode('');
+            } else {
+                setToastMessage('Invalid or expired coupon code.');
+            }
+            setShowToast(true);
+        } catch (error) {
+            console.error(error);
+            setToastMessage('Error validating coupon.');
+            setShowToast(true);
+        } finally {
+            setValidatingCoupon(false);
+        }
+    };
+
+    const removeCoupon = () => {
+        setAppliedCoupon(null);
+        setDiscountedPrice(null);
+        setToastMessage('Coupon removed.');
         setShowToast(true);
     };
 
@@ -225,10 +268,21 @@ const CoursePreview: React.FC<CoursePreviewProps> = ({ course, onLoginClick, onB
 
     const previewVideoSource = course.previewVideoUrl || course.lectures[0]?.videoUrl;
     const previewPoster = course.previewImageUrl ?? course.thumbnailUrl ?? course.thumbnail;
-    const priceText = course.isFree ? 'Free' : course.price ? (course.currency === 'INR' || !course.currency ? `₹${course.price}` : `${course.currency}${course.price}`) : 'Premium';
-    const price = priceText;
+
+    // Price Formatting with Coupon
+    const finalPriceDisplay = discountedPrice !== null
+        ? (course.currency === 'INR' || !course.currency ? `₹${discountedPrice}` : `${course.currency}${discountedPrice}`)
+        : (course.isFree ? 'Free' : course.price ? (course.currency === 'INR' || !course.currency ? `₹${course.price}` : `${course.currency}${course.price}`) : 'Premium');
+
+    const originalPriceDisplay = (course.price && discountedPrice !== null)
+        ? (course.currency === 'INR' || !course.currency ? `₹${course.price}` : `${course.currency}${course.price}`)
+        : (course.originalPrice ? `$${course.originalPrice}` : null);
+
 
     const discount = course.originalPrice && course.price ? Math.round(100 - (course.price / course.originalPrice) * 100) : 0;
+    const couponDiscount = appliedCoupon && course.price && discountedPrice !== null
+        ? Math.round(100 - (discountedPrice / course.price) * 100)
+        : 0;
 
     const isEnrolled = user?.enrolledCourses.includes(course.id) ?? false;
 
@@ -433,22 +487,33 @@ const CoursePreview: React.FC<CoursePreviewProps> = ({ course, onLoginClick, onB
 
                                 <div className="space-y-6 relative z-10">
                                     <div>
-                                        <div className="flex items-end gap-3">
+                                        <div className="flex items-end gap-3 flex-wrap">
                                             <span className="text-4xl font-extrabold text-slate-900 dark:text-white tracking-tight">
-                                                {price}
+                                                {finalPriceDisplay}
                                             </span>
-                                            {discount > 0 && (
+                                            {originalPriceDisplay && (
                                                 <>
                                                     <span className="text-lg text-slate-400 line-through font-medium mb-1">
-                                                        ${course.originalPrice}
+                                                        {originalPriceDisplay}
                                                     </span>
                                                     <span className="text-sm font-bold text-amber-500 bg-amber-100 dark:bg-amber-900/30 px-2 py-1 rounded-lg mb-1">
-                                                        {discount}% OFF
+                                                        {couponDiscount > 0 ? `${couponDiscount}% OFF` : (discount > 0 ? `${discount}% OFF` : '')}
                                                     </span>
                                                 </>
                                             )}
                                         </div>
-                                        {discount > 0 && (
+                                        {appliedCoupon && (
+                                            <div className="mt-2 text-sm text-green-500 font-medium flex items-center justify-between bg-green-500/10 p-2 rounded-lg border border-green-500/20">
+                                                <span className="flex items-center gap-1">
+                                                    <Icon name="check" className="w-3.5 h-3.5" />
+                                                    Code <b>{appliedCoupon.code}</b> applied
+                                                </span>
+                                                <button onClick={removeCoupon} className="text-slate-400 hover:text-red-400">
+                                                    <Icon name="x" className="w-3.5 h-3.5" />
+                                                </button>
+                                            </div>
+                                        )}
+                                        {!appliedCoupon && discount > 0 && (
                                             <p className="text-red-500 text-sm mt-2 flex items-center gap-1 font-medium">
                                                 <Icon name="clock" className="w-3.5 h-3.5" />
                                                 <span className="animate-pulse">Offer ends in 5 hours!</span>
@@ -496,7 +561,7 @@ const CoursePreview: React.FC<CoursePreviewProps> = ({ course, onLoginClick, onB
 
                                         {/* Coupon Code Section */}
                                         <div className="pt-2">
-                                            {!showCouponInput ? (
+                                            {!showCouponInput && !appliedCoupon ? (
                                                 <button
                                                     onClick={() => setShowCouponInput(true)}
                                                     className="w-full py-2.5 border-2 border-dashed border-slate-300 dark:border-slate-600 rounded-xl text-slate-500 dark:text-slate-400 text-sm font-semibold hover:border-brand-primary hover:text-brand-primary dark:hover:border-brand-primary dark:hover:text-brand-primary transition-all duration-300 flex justify-center items-center gap-2 group"
@@ -504,7 +569,7 @@ const CoursePreview: React.FC<CoursePreviewProps> = ({ course, onLoginClick, onB
                                                     <Icon name="ticket" className="w-4 h-4 group-hover:rotate-12 transition-transform" />
                                                     Apply Coupon Code
                                                 </button>
-                                            ) : (
+                                            ) : showCouponInput && !appliedCoupon ? (
                                                 <div className="flex items-center gap-2 animate-fade-in">
                                                     <div className="relative flex-1">
                                                         <input
@@ -519,10 +584,14 @@ const CoursePreview: React.FC<CoursePreviewProps> = ({ course, onLoginClick, onB
                                                     </div>
                                                     <button
                                                         onClick={handleApplyCoupon}
-                                                        className="p-2.5 bg-brand-primary text-white rounded-xl shadow-lg hover:shadow-brand-primary/30 hover:scale-105 active:scale-95 transition-all disabled:opacity-50 disabled:hover:scale-100"
-                                                        disabled={!couponCode.trim()}
+                                                        className="p-2.5 bg-brand-primary text-white rounded-xl shadow-lg hover:shadow-brand-primary/30 hover:scale-105 active:scale-95 transition-all disabled:opacity-50 disabled:hover:scale-100 flex items-center justify-center"
+                                                        disabled={!couponCode.trim() || validatingCoupon}
                                                     >
-                                                        <Icon name="check" className="w-4 h-4" />
+                                                        {validatingCoupon ? (
+                                                            <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                                                        ) : (
+                                                            <Icon name="check" className="w-4 h-4" />
+                                                        )}
                                                     </button>
                                                     <button
                                                         onClick={() => setShowCouponInput(false)}
@@ -531,7 +600,7 @@ const CoursePreview: React.FC<CoursePreviewProps> = ({ course, onLoginClick, onB
                                                         <Icon name="x" className="w-4 h-4" />
                                                     </button>
                                                 </div>
-                                            )}
+                                            ) : null}
                                         </div>
                                     </div>
 
