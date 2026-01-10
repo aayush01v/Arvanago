@@ -1,0 +1,13 @@
+{
+  "type": "service_account",
+  "project_id": "forward-alchemy-418702",
+  "private_key_id": "f36f97e5ac48f8898a252d5013cd6cb58c0389e2",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEuwIBADANBgkqhkiG9w0BAQEFAASCBKUwggShAgEAAoIBAQCPEu1ARtkCOfjh\nU+n8IUKqk5F2NoUlBnD1CQmlsBbgHQIIF/L/xMqCEIRnF0l57Kk0FNMdjMqUZMWm\n0yKQJqaN2Ps9aG3pxq9/+H+vQ1otEjfIrlUBj4rR11hkv6Ekw4GtYldkqVELq4A/\nXxJhR3HOUM/ctjZ5elv5jViHIqyhgT+04kOm8p0HmycLf74WHSRbkV7O1l6pA+yZ\ng5ccos7nyMx4rh8+IJEY4oO7iie1o7re90ZBxjg50gTQIvcDb+A7ZxDWllFjUkEg\n9MpwuTTW41fwzdluaKthnxSDblHhin9RfS7Mq5qoFNaAdrKUFBcAta/0L5EoVv1H\n9UYf/e+fAgMBAAECgf8Tir3/RUejDr+A1EIp8j7tHqE/ru5voDXel4gXqoaojU3C\nRLZbFuPneZ5Xy7zfnZ5LqXtwyY57lDcEmtIVM7rQYNtFf2z7VrkZY74vGJUN6ERy\nCxmANqwMMJlzS4YmEGwD07ekqkiSRvQj1eEKrMAJVIjtlBftxAR2s60F+2mp+sCb\nNDw4oMQM83LHByFjRv3CkbAb42wW3EECjUtPSZsgSQpiNCnaXz8wW3nghfxPH1Mf\nGWopsS3B3iZK56bUeO4cE6Pg7gOn/8WKiZ1b5TkESQw98ZIbczW8qcT0dEZ9RX4Y\ncFadn7dZ135qMO57wquFiIIDBwWClQglAWWCTjkCgYEAwMtNsDGsvmDRUonj54am\n7EKqy+NeZZPIeQCikKeKJf0aFsiSwZh9XDRCiVC2eoFZWijgXi0W3eRdFQGXQFav\nfKyRZJQkJ2OQVNDIwiGpedKvdFAb+1M9NdkOYn4vSOONrnXGC7NXmbVCk9cIgoMe\nJcBjvJKUcYNrGbE09Kr4NRkCgYEAvfq9BvL6zL/NQSQSJA0WOE/bPap7pkWuFCZh\nXGWckl1yL++4rA6PMkAcNTlKT3+kLpsRwsaKr6GAWzs71OzCJTbt9NKmr1k5Di8o\nsfGFATYsGGKG0sB6ZzrpuXQc5E+kmuxTE5GsW22jUhw9hyGdNTnziOSkZadVvZEc\nBXRGaXcCgYBnGBAKCPYrs5Abh/rj4sA+FIRKlOH0hWstMWa83aplGAwsZML9XTKj\n7Jor3YpGxgZmzPb1xTy2GRihVAFyeShMDeeNlh4jJf2XLTI9hUygBUandvMPmPph\nYhlsF7fnTS+FPBtURGmymxfoAJPfXofvfgqXWvagILtTuMvtjcM+eQKBgQCHoS66\ne1XaP0SGMP5ShpVKdpiLGd9VAYIaGJyBnnl9dQFEf9xT2cEZmvOIe/I1d2b7bvHr\nIFt6r843U76PcMfaUbDojEs7/HLjUX+4KjlOeCJa9lxSsd+xOzoJkH/f74wQno9g\n9SsbytZClK7IfpMBoPHg1XsYp7Jqt+JNcomiWQKBgBdMKhUblNS4tjm2bNJgp42M\nVAjp0/hwJRJd5FHoPDzsOYyRhDOfYLo2runC548+aoDYJRSZaNapaBmQAq7Wc5dw\nmbd9ovAY22lXPw5VVH5ziTz95Y04iYHRyBoOahRx/mW91qk6cQEIuV1sZbj8RHAE\nFETuUtQS6ZmH0AQtZIsy\n-----END PRIVATE KEY-----\n",
+  "client_email": "firestore-admin@forward-alchemy-418702.iam.gserviceaccount.com",
+  "client_id": "112845599109375678688",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/firestore-admin%40forward-alchemy-418702.iam.gserviceaccount.com",
+  "universe_domain": "googleapis.com"
+}

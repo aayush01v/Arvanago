@@ -1,5 +1,6 @@
 
 import React, { CSSProperties, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import Hls from 'hls.js';
 import Icon from '@/components/common/Icon.tsx';
 
 const playbackSpeeds = [0.5, 0.75, 1, 1.25, 1.5, 1.75, 2];
@@ -263,6 +264,38 @@ const GlassPreviewPlayer: React.FC<GlassPreviewPlayerProps> = ({ videoUrl, poste
   const [areControlsVisible, setAreControlsVisible] = useState(false);
   const settingsPanelRef = useRef<HTMLDivElement | null>(null);
   const tapTimestamps = useRef<{ back: number; forward: number }>({ back: 0, forward: 0 });
+
+  useEffect(() => {
+    if (isYouTube || isVimeo || !videoUrl || !videoUrl.endsWith('.m3u8')) {
+      return;
+    }
+
+    let hls: Hls | null = null;
+
+    if (Hls.isSupported()) {
+      hls = new Hls({
+        enableWorker: true,
+        lowLatencyMode: true,
+      });
+
+      if (htmlVideoRef.current) {
+        hls.loadSource(videoUrl);
+        hls.attachMedia(htmlVideoRef.current);
+        hls.on(Hls.Events.MANIFEST_PARSED, () => {
+          // Optional: Auto-play logic if needed, but we rely on user interaction or existing props
+        });
+      }
+    } else if (htmlVideoRef.current?.canPlayType('application/vnd.apple.mpegurl')) {
+      // Native HLS support (Safari)
+      htmlVideoRef.current.src = videoUrl;
+    }
+
+    return () => {
+      if (hls) {
+        hls.destroy();
+      }
+    };
+  }, [videoUrl, isYouTube, isVimeo]);
 
   useEffect(() => {
     setPlayerReady(false);

@@ -1080,6 +1080,7 @@ const normalizeSkillLevel = (value: unknown): AllowedSkillLevel | undefined => {
 
 const hydrateCourseFromDoc = async (
   courseDoc: firebase.firestore.QueryDocumentSnapshot<firebase.firestore.DocumentData>,
+  includeDrafts: boolean = false,
 ): Promise<Course | null> => {
   const rawData = courseDoc.data();
 
@@ -1088,7 +1089,7 @@ const hydrateCourseFromDoc = async (
   }
 
   const isPublished = coerceBoolean(rawData.isPublished, true);
-  if (!isPublished) {
+  if (!isPublished && !includeDrafts) {
     return null;
   }
 
@@ -1659,7 +1660,7 @@ export const getLeaderboard = async (limit = 50): Promise<User[]> => {
   }
 };
 
-export const getCourses = async ({ forceRefresh = false }: { forceRefresh?: boolean } = {}): Promise<Course[]> => {
+export const getCourses = async ({ forceRefresh = false, includeDrafts = false }: { forceRefresh?: boolean; includeDrafts?: boolean } = {}): Promise<Course[]> => {
   const now = Date.now();
 
   if (!forceRefresh && cachedCourses && now - coursesCacheTimestamp < COURSE_CACHE_TTL_MS) {
@@ -1684,7 +1685,7 @@ export const getCourses = async ({ forceRefresh = false }: { forceRefresh?: bool
         return [];
       }
 
-      const hydratedCourses = await Promise.all(documents.map(doc => hydrateCourseFromDoc(doc)));
+      const hydratedCourses = await Promise.all(documents.map(doc => hydrateCourseFromDoc(doc, includeDrafts)));
       const courseMap = new Map<string, Course>();
 
       hydratedCourses.forEach((course) => {

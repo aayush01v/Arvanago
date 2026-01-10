@@ -17,7 +17,7 @@ const CourseManager: React.FC = () => {
 
     const fetchCourses = async () => {
         try {
-            const data = await getCourses({ forceRefresh: true });
+            const data = await getCourses({ forceRefresh: true, includeDrafts: true });
             setCourses(data);
         } catch (error) {
             console.error(error);
