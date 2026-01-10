@@ -1,5 +1,6 @@
 
 import React, { Suspense, useCallback, useEffect, useRef, useState } from 'react';
+import ErrorBoundary from '@/components/ErrorBoundary';
 import { HelmetProvider } from 'react-helmet-async';
 import SEO from './components/SEO';
 import { Navigate, Outlet, Route, Routes, useLocation, useNavigate, useParams } from 'react-router-dom';
@@ -323,65 +324,45 @@ const App: React.FC = () => {
   return (
     <HelmetProvider>
       <SEO />
-      <Suspense fallback={<SuspenseFallback />}>
-        {!authReady ? (
-          <SuspenseFallback />
-        ) : (
-          <Routes>
-            {/* PUBLIC ROUTES */}
-            <Route
-              path="/"
-              element={
-                user ? (
-                  <Navigate to="/dashboard" replace />
-                ) : (
-                  <HomePage
-                    user={user}
-                    courses={courses}
-                    isLoading={coursesLoading}
-                    error={coursesError}
-                    onCourseSelect={handlePublicCourseSelect}
-                    onRefreshCourses={() => fetchCourseData({ forceRefresh: true })}
-                  />
-                )
-              }
-            />
+      <ErrorBoundary>
+        <Suspense fallback={<SuspenseFallback />}>
+          {!authReady ? (
+            <SuspenseFallback />
+          ) : (
+            <Routes>
+              {/* PUBLIC ROUTES */}
+              <Route
+                path="/"
+                element={
+                  user ? (
+                    <Navigate to="/dashboard" replace />
+                  ) : (
+                    <HomePage
+                      user={user}
+                      courses={courses}
+                      isLoading={coursesLoading}
+                      error={coursesError}
+                      onCourseSelect={handlePublicCourseSelect}
+                      onRefreshCourses={() => fetchCourseData({ forceRefresh: true })}
+                    />
+                  )
+                }
+              />
 
 
-            <Route path="/about" element={<AboutPage />} />
+              <Route path="/about" element={<AboutPage />} />
 
-            <Route path="/login" element={<LoginRoute user={user} authError={authError} />} />
+              <Route path="/login" element={<LoginRoute user={user} authError={authError} />} />
 
-            <Route element={<CourseRouteWrapper />}>
-              <Route path="/courses/:courseId" element={<CourseDetailPage />} />
-            </Route>
+              <Route element={<CourseRouteWrapper />}>
+                <Route path="/courses/:courseId" element={<CourseDetailPage />} />
+              </Route>
 
-            {/* PUBLIC PROFILE (Shared Layout, No Auth Required) */}
-            <Route
-              element={
-                <SidebarLayout
-                  user={user}
-                  courses={courses}
-                  isDarkMode={isDarkMode}
-                  onThemeToggle={handleThemeToggle}
-                  onProfileUpdate={handleProfileUpdate}
-                  coursesLoading={coursesLoading}
-                  coursesError={coursesError}
-                  onRefreshCourses={fetchCourseData}
-                />
-              }
-            >
-              <Route path="/u/:username" element={<PublicProfilePage />} />
-              <Route path="/blog" element={<BlogPage />} />
-              <Route path="/blog/:id" element={<BlogPostPage />} />
-            </Route>
-
-            {/* PRIVATE ROUTES (AUTH REQUIRED) */}
-            <Route element={<ProtectedRoute user={user} authReady={authReady} />}>
+              {/* PUBLIC PROFILE (Shared Layout, No Auth Required) */}
               <Route
                 element={
                   <SidebarLayout
-                    user={user!}
+                    user={user}
                     courses={courses}
                     isDarkMode={isDarkMode}
                     onThemeToggle={handleThemeToggle}
@@ -392,79 +373,101 @@ const App: React.FC = () => {
                   />
                 }
               >
-                <Route path="/dashboard" element={<DashboardPage />} />
-                <Route path="/my-learnings" element={<MyLearningsPage />} />
-                <Route path="/mynotes" element={<MyNotesPage />} />
-                <Route path="/note/:noteId" element={<PublicNotePage />} />
-                <Route path="/explore" element={<ExploreCoursesPage />} />
-                <Route path="/leaderboard" element={<LeaderboardPage />} />
-                <Route path="/chat" element={<ChatPage />} />
-                <Route path="/profile" element={<ProfilePage />} />
-                <Route path="/settings" element={<SettingsPage />} />
-                {/* Public Profile moved out to allow guest access */}
-                <Route path="/courses/:courseId/learn" element={<CourseLearnPage />} />
-                <Route
-                  path="/courses/:courseId/lectures/:lectureId"
-                  element={<CourseLecturePage />}
-                />
+                <Route path="/u/:username" element={<PublicProfilePage />} />
+                <Route path="/blog" element={<BlogPage />} />
+                <Route path="/blog/:id" element={<BlogPostPage />} />
               </Route>
-            </Route>
 
-            {/* ADMIN ROUTES */}
-            <Route path="/admin/login" element={<AdminLoginPage />} />
-            <Route
-              path="/admin"
-              element={
-                <AdminRoute user={user} authReady={authReady}>
-                  <AdminPage />
-                </AdminRoute>
-              }
-            />
-            <Route
-              path="/admin/blog"
-              element={
-                <AdminRoute user={user} authReady={authReady}>
-                  <SidebarLayout
-                    user={user}
-                    courses={courses}
-                    isDarkMode={isDarkMode}
-                    onThemeToggle={handleThemeToggle}
-                    onProfileUpdate={handleProfileUpdate}
-                    coursesLoading={coursesLoading}
-                    coursesError={coursesError}
-                    onRefreshCourses={fetchCourseData}
-                  >
-                    <AdminBlogPage />
-                  </SidebarLayout>
-                </AdminRoute>
-              }
-            />
+              {/* PRIVATE ROUTES (AUTH REQUIRED) */}
+              <Route element={<ProtectedRoute user={user} authReady={authReady} />}>
+                <Route
+                  element={
+                    <SidebarLayout
+                      user={user!}
+                      courses={courses}
+                      isDarkMode={isDarkMode}
+                      onThemeToggle={handleThemeToggle}
+                      onProfileUpdate={handleProfileUpdate}
+                      coursesLoading={coursesLoading}
+                      coursesError={coursesError}
+                      onRefreshCourses={fetchCourseData}
+                    />
+                  }
+                >
+                  <Route path="/dashboard" element={<DashboardPage />} />
+                  <Route path="/my-learnings" element={<MyLearningsPage />} />
+                  <Route path="/mynotes" element={<MyNotesPage />} />
+                  <Route path="/note/:noteId" element={<PublicNotePage />} />
+                  <Route path="/explore" element={<ExploreCoursesPage />} />
+                  <Route path="/leaderboard" element={<LeaderboardPage />} />
+                  <Route path="/chat" element={<ChatPage />} />
+                  <Route path="/profile" element={<ProfilePage />} />
+                  <Route path="/settings" element={<SettingsPage />} />
+                  {/* Public Profile moved out to allow guest access */}
+                  <Route path="/courses/:courseId/learn" element={<CourseLearnPage />} />
+                  <Route
+                    path="/courses/:courseId/lectures/:lectureId"
+                    element={<CourseLecturePage />}
+                  />
+                </Route>
+              </Route>
 
-            <Route
-              path="/preview"
-              element={
-                <AdminRoute user={user} authReady={authReady}>
-                  <SidebarLayout
-                    user={user}
-                    courses={courses}
-                    isDarkMode={isDarkMode}
-                    onThemeToggle={handleThemeToggle}
-                    onProfileUpdate={handleProfileUpdate}
-                    coursesLoading={coursesLoading}
-                    coursesError={coursesError}
-                    onRefreshCourses={fetchCourseData}
-                  >
-                    <VideoPreviewPage />
-                  </SidebarLayout>
-                </AdminRoute>
-              }
-            />
+              {/* ADMIN ROUTES */}
+              <Route path="/admin/login" element={<AdminLoginPage />} />
+              <Route
+                path="/admin"
+                element={
+                  <AdminRoute user={user} authReady={authReady}>
+                    <AdminPage />
+                  </AdminRoute>
+                }
+              />
+              <Route
+                path="/admin/blog"
+                element={
+                  <AdminRoute user={user} authReady={authReady}>
+                    <SidebarLayout
+                      user={user}
+                      courses={courses}
+                      isDarkMode={isDarkMode}
+                      onThemeToggle={handleThemeToggle}
+                      onProfileUpdate={handleProfileUpdate}
+                      coursesLoading={coursesLoading}
+                      coursesError={coursesError}
+                      onRefreshCourses={fetchCourseData}
+                    >
+                      <AdminBlogPage />
+                    </SidebarLayout>
+                  </AdminRoute>
+                }
+              />
 
-            {/* CATCH-ALL */}
-            <Route path="*" element={<NotFoundPage />} />
-          </Routes>
-        )}
-      </Suspense>
+              <Route
+                path="/preview"
+                element={
+                  <AdminRoute user={user} authReady={authReady}>
+                    <SidebarLayout
+                      user={user}
+                      courses={courses}
+                      isDarkMode={isDarkMode}
+                      onThemeToggle={handleThemeToggle}
+                      onProfileUpdate={handleProfileUpdate}
+                      coursesLoading={coursesLoading}
+                      coursesError={coursesError}
+                      onRefreshCourses={fetchCourseData}
+                    >
+                      <VideoPreviewPage />
+                    </SidebarLayout>
+                  </AdminRoute>
+                }
+              />
+
+              {/* CATCH-ALL */}
+              <Route path="*" element={<NotFoundPage />} />
+            </Routes>
+          )}
+        </Suspense>
+      </ErrorBoundary>
     </HelmetProvider>
   );
 };
