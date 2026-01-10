@@ -1,4 +1,5 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState, useRef, useCallback } from 'react';
+import { ArrowLeft } from 'lucide-react';
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import { createNoteInVault, createVault, getNotesForVault, getUserVaults, deleteNote, updateNote, updateVault, deleteVault } from '../services/firestoreService';
 import { Note, Vault } from '../types';
@@ -10,6 +11,7 @@ import { Helmet } from 'react-helmet-async';
 import JSZip from 'jszip';
 import { uploadToImgBB } from '../utils/uploadToImgBB';
 
+
 const MyNotesPage: React.FC = () => {
     const [vaults, setVaults] = useState<Vault[]>([]);
     const [notes, setNotes] = useState<Note[]>([]);
@@ -19,6 +21,15 @@ const MyNotesPage: React.FC = () => {
     const [searchParams, setSearchParams] = useSearchParams();
     const vaultId = searchParams.get('vaultId');
     const navigate = useNavigate();
+    const location = useLocation();
+
+    const handleBack = useCallback(() => {
+        if (location.key !== 'default') {
+            navigate(-1);
+        } else {
+            navigate('/dashboard');
+        }
+    }, [navigate, location]);
 
     const [currentUserId, setCurrentUserId] = useState<string | null>(null);
     const viewerRef = useRef<HTMLDivElement>(null);
@@ -246,8 +257,11 @@ const MyNotesPage: React.FC = () => {
 
                 {/* Left Sidebar: File Explorer */}
                 <div className={`fixed inset-y-0 left-0 w-72 z-40 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 flex flex-col transform transition-transform duration-300 md:relative md:translate-x-0 ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
-                    <div className="p-4 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
-                        <h2 className="font-semibold text-slate-700 dark:text-slate-300 truncate" title={activeVault.name}>{activeVault.name}</h2>
+                    <div className="p-4 border-b border-slate-200 dark:border-slate-800 flex items-center gap-2">
+                        <button onClick={handleBack} className="p-1.5 text-slate-500 hover:text-slate-700 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors" aria-label="Go Back">
+                            <ArrowLeft className="w-5 h-5" />
+                        </button>
+                        <h2 className="font-semibold text-slate-700 dark:text-slate-300 truncate flex-1" title={activeVault.name}>{activeVault.name}</h2>
                         <button onClick={() => setSearchParams({})} className="text-slate-400 hover:text-slate-600" aria-label="Close vault">
                             <Icon name="x" className="w-5 h-5" />
                         </button>
@@ -386,9 +400,14 @@ const MyNotesPage: React.FC = () => {
             </Helmet>
 
             <div className="mb-8 flex items-center justify-between">
-                <div>
-                    <h1 className="text-2xl font-bold text-slate-900 dark:text-white">My Vaults</h1>
-                    <p className="text-slate-500 dark:text-slate-400">Organize your knowledge base.</p>
+                <div className="flex items-center gap-4">
+                    <button onClick={handleBack} className="p-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400 hover:text-brand-primary hover:border-brand-primary/50 rounded-full hover:shadow-md transition-all group" aria-label="Go Back">
+                        <ArrowLeft className="w-5 h-5 group-hover:-translate-x-0.5 transition-transform" />
+                    </button>
+                    <div>
+                        <h1 className="text-2xl font-bold text-slate-900 dark:text-white">My Vaults</h1>
+                        <p className="text-slate-500 dark:text-slate-400">Organize your knowledge base.</p>
+                    </div>
                 </div>
                 <button
                     onClick={handleCreateVault}

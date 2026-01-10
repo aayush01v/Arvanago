@@ -1,6 +1,7 @@
 import React, { useRef, useState } from 'react';
-import { useOutletContext } from 'react-router-dom';
+import { useOutletContext, useLocation, useNavigate } from 'react-router-dom';
 import Icon from '../components/common/Icon';
+import { ArrowLeft } from 'lucide-react';
 import { SidebarLayoutContext } from '../components/SidebarLayout';
 import { requestAccountDeletion, updateUserProfile } from '../services/firestoreService';
 import { User } from '../types';
@@ -18,6 +19,16 @@ interface SettingsPageProps {
 
 const SettingsPage: React.FC = () => {
     const { user, onProfileUpdate, isDarkMode, onThemeToggle } = useOutletContext<SidebarLayoutContext>();
+    const location = useLocation();
+    const navigate = useNavigate();
+
+    const handleBack = () => {
+        if (location.key !== 'default') {
+            navigate(-1);
+        } else {
+            navigate('/dashboard');
+        }
+    };
 
     const [activeTab, setActiveTab] = useState<'general' | 'appearance' | 'account'>('general');
     const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
@@ -183,7 +194,12 @@ const SettingsPage: React.FC = () => {
     return (
         <div className="w-full h-full p-4 sm:p-6 lg:p-8 animate-fade-in overflow-y-auto">
             <div className="max-w-6xl mx-auto">
-                <h1 className="text-2xl font-bold text-slate-900 dark:text-white mb-6">Settings</h1>
+                <div className="flex items-center gap-4 mb-6">
+                    <button onClick={handleBack} className="p-2 -ml-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-500 hover:text-brand-primary hover:border-brand-primary/50 text-slate-900 dark:text-white rounded-full hover:shadow-md transition-all group" aria-label="Go Back">
+                        <ArrowLeft className="w-5 h-5 group-hover:-translate-x-0.5 transition-transform" />
+                    </button>
+                    <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Settings</h1>
+                </div>
 
                 <div className="flex flex-col lg:flex-row gap-6 lg:gap-8">
                     {/* Sidebar Navigation for Settings */}

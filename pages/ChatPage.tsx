@@ -18,6 +18,14 @@ const ChatPage: React.FC = () => {
     const navigate = useNavigate();
     const [searchParams, setSearchParams] = useSearchParams();
 
+    const handleBack = () => {
+        if (location.key !== 'default') {
+            navigate(-1);
+        } else {
+            navigate('/dashboard');
+        }
+    };
+
     const [chats, setChats] = useState<Chat[]>([]);
     const [messages, setMessages] = useState<ChatMessage[]>([]);
     const [selectedChatId, setSelectedChatId] = useState<string | null>(null);
@@ -116,6 +124,7 @@ const ChatPage: React.FC = () => {
         const timeout = setTimeout(search, 300);
         return () => clearTimeout(timeout);
     }, [searchTerm, currentUser]);
+
 
 
     const handleChatSelect = async (chat: Chat) => {
@@ -244,8 +253,11 @@ const ChatPage: React.FC = () => {
                 w-full md:w-80 flex-shrink-0 flex-col gap-4 transition-all
             `}>
                 {/* Search Header */}
-                <div className="relative z-20 px-2">
-                    <div className="relative group">
+                <div className="relative z-20 px-2 flex gap-2">
+                    <button onClick={handleBack} className="hidden md:flex items-center justify-center p-3 bg-white/50 dark:bg-slate-800/50 backdrop-blur-sm border border-slate-200 dark:border-slate-700/50 rounded-2xl hover:bg-white dark:hover:bg-slate-800 transition-colors group h-[46px] w-[46px]" aria-label="Back">
+                        <Icon name="arrowLeft" className="w-5 h-5 text-slate-500 dark:text-slate-400 group-hover:text-brand-primary" />
+                    </button>
+                    <div className="relative group flex-1">
                         <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
                             <Icon name="search" className="w-5 h-5 text-slate-400 group-focus-within:text-brand-primary transition-colors" />
                         </div>
@@ -330,7 +342,7 @@ const ChatPage: React.FC = () => {
                             {/* Left: User Info */}
                             <div className="flex items-center gap-3 md:gap-4 overflow-hidden">
                                 <button
-                                    onClick={() => navigate(-1)}
+                                    onClick={handleBack}
                                     className="md:hidden p-2 -ml-2 text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full"
                                 >
                                     <Icon name="arrowLeft" className="w-5 h-5" />
