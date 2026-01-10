@@ -11,6 +11,16 @@ import { BrowserRouter } from 'react-router-dom';
 import App from './App.tsx';
 import ErrorBoundary from './components/ErrorBoundary.tsx';
 
+// Unregister any existing Service Workers to fix navigation issues
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.getRegistrations().then((registrations) => {
+    registrations.forEach((registration) => {
+      console.log('Unregistering Service Worker:', registration);
+      registration.unregister();
+    });
+  });
+}
+
 const rootElement = document.getElementById('root');
 if (!rootElement) {
   throw new Error("Could not find root element to mount to");
