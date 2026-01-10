@@ -249,7 +249,7 @@ const GlassPreviewPlayer: React.FC<GlassPreviewPlayerProps> = ({ videoUrl, poste
   const youtubePlayerRef = useRef<YouTubePlayer | null>(null);
   const progressIntervalRef = useRef<number | null>(null);
   const playerShellRef = useRef<HTMLDivElement | null>(null);
-  const hideControlsTimeoutRef = useRef<ReturnType<typeof window.setTimeout> | null>(null);
+  const hideControlsTimeoutRef = useRef<number | null>(null);
   const [playerReady, setPlayerReady] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
@@ -396,6 +396,7 @@ const GlassPreviewPlayer: React.FC<GlassPreviewPlayerProps> = ({ videoUrl, poste
           disablekb: 1,
           playsinline: 1,
           cc_load_policy: 0,
+          origin: window.location.origin,
         },
         events: {
           onReady: ({ target }) => {
