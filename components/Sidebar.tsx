@@ -2,7 +2,7 @@ import React from 'react';
 import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 import Icon from './common/Icon.tsx';
 import { ArrowLeft } from 'lucide-react';
-import Icon from './common/Icon.tsx';
+
 import { signOutUser } from '../services/authService.ts';
 import { LOGO_URL } from '../constants.ts';
 
