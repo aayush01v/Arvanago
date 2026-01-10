@@ -575,7 +575,7 @@ const CourseLearnPage: React.FC = () => {
                 {course.resources && course.resources.length > 0 ? (
                   <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
                     {course.resources.map(res => (
-                      <div key={res.id} className="interactive-card p-4 rounded-2xl bg-white/5 border border-white/10 hover:border-brand-primary/30 hover:bg-white/10 cursor-pointer">
+                      <div key={res.id} onClick={() => window.open(res.url, '_blank')} className="interactive-card p-4 rounded-2xl bg-white/5 border border-white/10 hover:border-brand-primary/30 hover:bg-white/10 cursor-pointer">
                         <div className="flex items-start gap-4">
                           <div className="p-3 rounded-xl bg-teal-500/10 text-teal-500 group-hover:scale-110 transition-transform">
                             <File className="h-6 w-6" />
