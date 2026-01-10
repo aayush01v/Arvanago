@@ -900,23 +900,24 @@ const GlassPreviewPlayer: React.FC<GlassPreviewPlayerProps> = ({ videoUrl, poste
               <Icon name={isPlaying ? 'pause' : 'play'} className="h-5 w-5 sm:h-7 sm:w-7" />
             </button>
 
+            {/* Mobile: Play Button + Progress Bar inline */}
             <div className="flex items-center gap-3 sm:hidden">
               <button
                 type="button"
                 onClick={handlePlayPause}
                 disabled={!videoUrl || (isYouTube && !playerReady)}
-                className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-white text-slate-900 shadow-md"
+                className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-white text-slate-900 shadow-md"
               >
-                <Icon name={isPlaying ? 'pause' : 'play'} className="h-4 w-4" />
+                <Icon name={isPlaying ? 'pause' : 'play'} className="h-5 w-5 ml-0.5" />
               </button>
-              <div className="flex-1 flex flex-col">
+              <div className="flex-1 flex flex-col justify-center h-10">
                 <input
                   type="range"
                   min={0}
                   max={100}
                   value={progressPercent}
                   onChange={(event) => handleSeek(Number(event.target.value))}
-                  className="h-1.5 w-full cursor-pointer appearance-none rounded-full bg-white/20 accent-white"
+                  className="h-2 w-full cursor-pointer appearance-none rounded-full bg-white/30 accent-white"
                 />
               </div>
             </div>
@@ -947,19 +948,19 @@ const GlassPreviewPlayer: React.FC<GlassPreviewPlayerProps> = ({ videoUrl, poste
               <button
                 type="button"
                 onClick={() => skipSeconds(-10)}
-                className="flex items-center gap-1 rounded-full border border-white/20 px-2 py-1.5 sm:px-3 text-[10px] sm:text-xs font-semibold uppercase tracking-widest hover:bg-white/10 transition"
+                className="flex items-center gap-1 rounded-full border border-white/20 px-3 py-2 sm:px-3 text-xs sm:text-xs font-semibold uppercase tracking-widest hover:bg-white/10 transition backdrop-blur-sm bg-black/20"
                 disabled={!videoUrl}
               >
-                <Icon name="rewind" className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
+                <Icon name="rewind" className="h-3.5 w-3.5" />
                 <span className="hidden xs:inline">10s</span>
               </button>
               <button
                 type="button"
                 onClick={() => skipSeconds(10)}
-                className="flex items-center gap-1 rounded-full border border-white/20 px-2 py-1.5 sm:px-3 text-[10px] sm:text-xs font-semibold uppercase tracking-widest hover:bg-white/10 transition"
+                className="flex items-center gap-1 rounded-full border border-white/20 px-3 py-2 sm:px-3 text-xs sm:text-xs font-semibold uppercase tracking-widest hover:bg-white/10 transition backdrop-blur-sm bg-black/20"
                 disabled={!videoUrl}
               >
-                <Icon name="fast-forward" className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
+                <Icon name="fast-forward" className="h-3.5 w-3.5" />
                 <span className="hidden xs:inline">10s</span>
               </button>
             </div>
