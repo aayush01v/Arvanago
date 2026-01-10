@@ -1,7 +1,6 @@
 import React from 'react';
-import { NavLink, useLocation, useNavigate } from 'react-router-dom';
+import { NavLink } from 'react-router-dom';
 import Icon from './common/Icon.tsx';
-import { ArrowLeft } from 'lucide-react';
 
 import { signOutUser } from '../services/authService.ts';
 import { LOGO_URL } from '../constants.ts';
@@ -25,20 +24,9 @@ const navItems = [
 ];
 
 const Sidebar: React.FC<SidebarProps> = ({ isSidebarOpen, setSidebarOpen, isDarkMode, setDarkMode, onExploreClick, user }) => {
-  const navigate = useNavigate();
-  const location = useLocation();
-
   const handleNavigate = () => {
     if (typeof window === 'undefined' || window.innerWidth < 768) {
       setSidebarOpen(false);
-    }
-  };
-
-  const handleBack = () => {
-    if (location.key !== 'default') {
-      navigate(-1);
-    } else {
-      navigate('/dashboard');
     }
   };
 
@@ -60,15 +48,6 @@ const Sidebar: React.FC<SidebarProps> = ({ isSidebarOpen, setSidebarOpen, isDark
 
         <nav className="flex-1 overflow-y-auto py-4 max-h-[calc(100dvh-8rem)]">
           <div className="px-3 mb-2">
-            <button
-              onClick={handleBack}
-              className="mb-4 flex w-full items-center gap-3 rounded-lg px-2 py-2 text-sm font-medium text-slate-600 hover:bg-slate-50 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-slate-200 transition-colors"
-            >
-              <div className="p-1 rounded-md bg-slate-100 dark:bg-slate-800 group-hover:bg-slate-200 dark:group-hover:bg-slate-700">
-                <ArrowLeft className="h-4 w-4" />
-              </div>
-              <span>Back</span>
-            </button>
             <p className="text-xs font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500 pl-3 mb-2">Menu</p>
           </div>
           <ul className="space-y-1">
