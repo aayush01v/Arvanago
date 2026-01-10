@@ -38,7 +38,7 @@ const CourseEditor: React.FC<CourseEditorProps> = ({ onBack, courseId }) => {
 
     const loadCourseData = async () => {
         try {
-            const courses = await getCourses();
+            const courses = await getCourses({ forceRefresh: true });
             const course = courses.find(c => c.id === courseId);
             if (course) {
                 setTitle(course.title);

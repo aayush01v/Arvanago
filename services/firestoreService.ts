@@ -1049,11 +1049,13 @@ const sanitizeResources = (value: unknown): Course['resources'] => {
       const type = resource.type;
       const size = typeof resource.size === 'string' ? resource.size : undefined;
 
+      const url = typeof resource.url === 'string' ? resource.url : undefined;
+
       if (!id || !name || !size || (type !== 'PDF' && type !== 'ZIP' && type !== 'Blend File')) {
         return null;
       }
 
-      return { id, name, type, size };
+      return { id, name, type, size, url };
     })
     .filter((resource): resource is NonNullable<Course['resources']>[number] => Boolean(resource));
 
