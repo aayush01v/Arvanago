@@ -15,67 +15,67 @@ export default defineConfig(({ mode }) => {
     plugins: [
       react(),
       viteCompression(),
-      VitePWA({
-        registerType: 'autoUpdate',
-        includeAssets: ['favicon.svg', 'favicon.ico', 'robots.txt'],
-        manifest: {
-          name: 'Edusimulate - Smart Learning',
-          short_name: 'Edusimulate',
-          description: 'Interactive learning platform for IIT JEE, NEET, UPSC, and more',
-          theme_color: '#2B83C6',
-          background_color: '#ffffff',
-          display: 'standalone',
-          icons: [
-            {
-              src: '/favicon.svg',
-              sizes: 'any',
-              type: 'image/svg+xml'
-            }
-          ]
-        },
-        workbox: {
-          globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}'],
-          navigateFallback: '/index.html',
-          cleanupOutdatedCaches: true,
-          skipWaiting: true,
-          clientsClaim: true,
-          runtimeCaching: [
-            {
-              urlPattern: /^https:\/\/fonts\.googleapis\.com\/.*/i,
-              handler: 'CacheFirst',
-              options: {
-                cacheName: 'google-fonts-cache',
-                expiration: {
-                  maxEntries: 10,
-                  maxAgeSeconds: 60 * 60 * 24 * 365 // 1 year
-                }
-              }
-            },
-            {
-              urlPattern: /^https:\/\/fonts\.gstatic\.com\/.*/i,
-              handler: 'CacheFirst',
-              options: {
-                cacheName: 'gstatic-fonts-cache',
-                expiration: {
-                  maxEntries: 10,
-                  maxAgeSeconds: 60 * 60 * 24 * 365
-                }
-              }
-            },
-            {
-              urlPattern: /^https:\/\/firebasestorage\.googleapis\.com\/.*/i,
-              handler: 'CacheFirst',
-              options: {
-                cacheName: 'firebase-storage-cache',
-                expiration: {
-                  maxEntries: 50,
-                  maxAgeSeconds: 60 * 60 * 24 * 30 // 30 days
-                }
-              }
-            }
-          ]
-        }
-      })
+      // VitePWA({
+      //   registerType: 'autoUpdate',
+      //   includeAssets: ['favicon.svg', 'favicon.ico', 'robots.txt'],
+      //   manifest: {
+      //     name: 'Edusimulate - Smart Learning',
+      //     short_name: 'Edusimulate',
+      //     description: 'Interactive learning platform for IIT JEE, NEET, UPSC, and more',
+      //     theme_color: '#2B83C6',
+      //     background_color: '#ffffff',
+      //     display: 'standalone',
+      //     icons: [
+      //       {
+      //         src: '/favicon.svg',
+      //         sizes: 'any',
+      //         type: 'image/svg+xml'
+      //       }
+      //     ]
+      //   },
+      //   workbox: {
+      //     globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}'],
+      //     navigateFallback: '/index.html',
+      //     cleanupOutdatedCaches: true,
+      //     skipWaiting: true,
+      //     clientsClaim: true,
+      //     runtimeCaching: [
+      //       {
+      //         urlPattern: /^https:\/\/fonts\.googleapis\.com\/.*/i,
+      //         handler: 'CacheFirst',
+      //         options: {
+      //           cacheName: 'google-fonts-cache',
+      //           expiration: {
+      //             maxEntries: 10,
+      //             maxAgeSeconds: 60 * 60 * 24 * 365 // 1 year
+      //           }
+      //         }
+      //       },
+      //       {
+      //         urlPattern: /^https:\/\/fonts\.gstatic\.com\/.*/i,
+      //         handler: 'CacheFirst',
+      //         options: {
+      //           cacheName: 'gstatic-fonts-cache',
+      //           expiration: {
+      //             maxEntries: 10,
+      //             maxAgeSeconds: 60 * 60 * 24 * 365
+      //           }
+      //         }
+      //       },
+      //       {
+      //         urlPattern: /^https:\/\/firebasestorage\.googleapis\.com\/.*/i,
+      //         handler: 'CacheFirst',
+      //         options: {
+      //           cacheName: 'firebase-storage-cache',
+      //           expiration: {
+      //             maxEntries: 50,
+      //             maxAgeSeconds: 60 * 60 * 24 * 30 // 30 days
+      //           }
+      //         }
+      //       }
+      //     ]
+      //   }
+      // })
     ],
     define: {
       "import.meta.env.VITE_GEMINI_API_KEY": JSON.stringify(env.VITE_GEMINI_API_KEY),
