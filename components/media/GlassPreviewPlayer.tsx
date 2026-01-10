@@ -1,4 +1,3 @@
-
 import React, { CSSProperties, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import Hls from 'hls.js';
 import Icon from '@/components/common/Icon.tsx';
@@ -887,104 +886,100 @@ const GlassPreviewPlayer: React.FC<GlassPreviewPlayerProps> = ({ videoUrl, poste
 
         <div
           onClick={(e) => e.stopPropagation()}
-          className={`absolute bottom-0 left-0 right-0 z-30 flex flex-col gap-2 px-4 pb-4 pt-4 transition-all duration-300 sm:gap-4 sm:px-6 sm:pb-6 sm:pt-5 ${areControlsVisible && !isPosterVisible && !isSettingsOpen ? 'pointer-events-auto opacity-100 translate-y-0' : 'pointer-events-none opacity-0 translate-y-3'}`}
+          className={`absolute bottom-0 left-0 right-0 z-30 flex flex-col transition-all duration-300 ${areControlsVisible && !isPosterVisible && !isSettingsOpen ? 'pointer-events-auto opacity-100 translate-y-0' : 'pointer-events-none opacity-0 translate-y-3'}`}
         >
-          <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-6">
-            <button
-              type="button"
-              onClick={handlePlayPause}
-              disabled={!videoUrl || (isYouTube && !playerReady)}
-              className="hidden sm:flex h-10 w-10 flex-shrink-0 items-center justify-center self-center rounded-2xl bg-white text-slate-900 shadow-lg shadow-black/20 transition hover:scale-[1.02] disabled:cursor-not-allowed disabled:opacity-60 sm:h-14 sm:w-14 sm:self-auto"
-              aria-label={isPlaying ? 'Pause preview' : 'Play preview'}
-            >
-              <Icon name={isPlaying ? 'pause' : 'play'} className="h-5 w-5 sm:h-7 sm:w-7" />
-            </button>
-
-            {/* Mobile: Play Button + Progress Bar inline */}
-            <div className="flex items-center gap-3 sm:hidden">
+          {/* ==========================================
+              DESKTOP CONTROLS (hidden on mobile)
+              ========================================== */}
+          <div className="hidden sm:flex flex-col gap-4 px-6 pb-6 pt-5">
+            <div className="flex items-center gap-6">
               <button
                 type="button"
                 onClick={handlePlayPause}
                 disabled={!videoUrl || (isYouTube && !playerReady)}
-                className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-white text-slate-900 shadow-md"
+                className="h-14 w-14 flex-shrink-0 items-center justify-center rounded-2xl bg-white text-slate-900 shadow-lg shadow-black/20 transition hover:scale-[1.02] flex"
+                aria-label={isPlaying ? 'Pause preview' : 'Play preview'}
               >
-                <Icon name={isPlaying ? 'pause' : 'play'} className="h-5 w-5 ml-0.5" />
+                <Icon name={isPlaying ? 'pause' : 'play'} className="h-7 w-7" />
               </button>
-              <div className="flex-1 flex flex-col justify-center h-10">
+
+              <div className="flex-1 flex flex-col">
                 <input
                   type="range"
                   min={0}
                   max={100}
                   value={progressPercent}
                   onChange={(event) => handleSeek(Number(event.target.value))}
-                  className="h-2 w-full cursor-pointer appearance-none rounded-full bg-white/30 accent-white"
+                  className="h-2 w-full cursor-pointer appearance-none rounded-full bg-white/20 accent-white"
                 />
+                <div className="mt-1 flex items-center justify-between text-[10px] sm:text-xs font-semibold text-white/70">
+                  <span>{formatTime(currentTime)}</span>
+                  <span>{formatTime(duration)}</span>
+                </div>
               </div>
             </div>
 
-            <div className="hidden sm:flex flex-1 flex-col">
+            <div className="flex items-center justify-between gap-3 text-sm text-white/80">
+              <div className="flex flex-wrap items-center gap-2">
+                <button onClick={() => skipSeconds(-10)} className="flex items-center gap-1 rounded-full border border-white/20 px-3 py-1.5 text-xs font-semibold uppercase tracking-widest hover:bg-white/10 transition">
+                  <Icon name="rewind" className="h-3.5 w-3.5" /> <span>10s</span>
+                </button>
+                <button onClick={() => skipSeconds(10)} className="flex items-center gap-1 rounded-full border border-white/20 px-3 py-1.5 text-xs font-semibold uppercase tracking-widest hover:bg-white/10 transition">
+                  <Icon name="fast-forward" className="h-3.5 w-3.5" /> <span>10s</span>
+                </button>
+              </div>
+              <div className="flex items-center gap-2">
+                <button onClick={() => setIsSettingsOpen(true)} className="flex h-9 w-9 items-center justify-center rounded-full border border-white/30 bg-white/15 text-white hover:bg-white/30"><Icon name="settings" className="h-4 w-4" /></button>
+                <button onClick={toggleFullscreen} className="flex h-9 w-9 items-center justify-center rounded-full border border-white/30 bg-white/15 text-white hover:bg-white/30"><Icon name={isFullscreen ? 'minimize' : 'maximize'} className="h-4 w-4" /></button>
+              </div>
+            </div>
+          </div>
+
+
+          {/* ==========================================
+              MOBILE CONTROLS (visible only on mobile)
+              ========================================== */}
+          <div className="flex sm:hidden flex-col gap-3 px-4 pb-4 pt-2">
+            {/* Progress Bar Row */}
+            <div className="flex flex-col gap-1 w-full">
               <input
                 type="range"
                 min={0}
                 max={100}
                 value={progressPercent}
                 onChange={(event) => handleSeek(Number(event.target.value))}
-                className="h-1.5 sm:h-2 w-full cursor-pointer appearance-none rounded-full bg-white/20 accent-white"
+                className="h-1.5 w-full cursor-pointer appearance-none rounded-full bg-white/30 accent-white"
               />
-              <div className="mt-1 flex items-center justify-between text-[10px] sm:text-xs font-semibold text-white/70">
+              <div className="flex items-center justify-between text-[10px] font-semibold text-white/70">
                 <span>{formatTime(currentTime)}</span>
                 <span>{formatTime(duration)}</span>
               </div>
             </div>
-          </div>
 
-          <div className="flex sm:hidden items-center justify-between text-[10px] font-semibold text-white/70 -mt-1">
-            <span>{formatTime(currentTime)}</span>
-            <span>{formatTime(duration)}</span>
-          </div>
+            {/* Controls Row */}
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-4">
+                <button
+                  onClick={handlePlayPause}
+                  disabled={!videoUrl || (isYouTube && !playerReady)}
+                  className="flex h-10 w-10 items-center justify-center rounded-full bg-white text-slate-900 shadow-md"
+                >
+                  <Icon name={isPlaying ? 'pause' : 'play'} className="h-5 w-5 ml-0.5" />
+                </button>
 
-          <div className="flex items-center justify-between gap-3 text-sm text-white/80">
-            <div className="flex flex-wrap items-center gap-2">
-              <button
-                type="button"
-                onClick={() => skipSeconds(-10)}
-                className="flex items-center gap-1 rounded-full border border-white/20 px-3 py-2 sm:px-3 text-xs sm:text-xs font-semibold uppercase tracking-widest hover:bg-white/10 transition backdrop-blur-sm bg-black/20"
-                disabled={!videoUrl}
-              >
-                <Icon name="rewind" className="h-3.5 w-3.5" />
-                <span className="hidden xs:inline">10s</span>
-              </button>
-              <button
-                type="button"
-                onClick={() => skipSeconds(10)}
-                className="flex items-center gap-1 rounded-full border border-white/20 px-3 py-2 sm:px-3 text-xs sm:text-xs font-semibold uppercase tracking-widest hover:bg-white/10 transition backdrop-blur-sm bg-black/20"
-                disabled={!videoUrl}
-              >
-                <Icon name="fast-forward" className="h-3.5 w-3.5" />
-                <span className="hidden xs:inline">10s</span>
-              </button>
-            </div>
+                <div className="flex items-center gap-2">
+                  <button onClick={() => skipSeconds(-10)} className="p-2 rounded-full bg-white/10 text-white hover:bg-white/20 backdrop-blur-sm"><Icon name="rewind" className="h-4 w-4" /></button>
+                  <button onClick={() => skipSeconds(10)} className="p-2 rounded-full bg-white/10 text-white hover:bg-white/20 backdrop-blur-sm"><Icon name="fast-forward" className="h-4 w-4" /></button>
+                </div>
+              </div>
 
-            <div className="flex flex-shrink-0 items-center gap-2">
-              <button
-                type="button"
-                onClick={() => setIsSettingsOpen(true)}
-                className={`flex h-8 w-8 sm:h-9 sm:w-9 flex-shrink-0 items-center justify-center rounded-full border transition hover:bg-white/30 ${isSettingsOpen ? 'bg-white text-black border-white' : 'bg-white/15 text-white border-white/30'}`}
-                aria-label="Playback settings"
-              >
-                <Icon name="settings" className="h-4 w-4" />
-              </button>
-
-              <button
-                type="button"
-                onClick={toggleFullscreen}
-                className="flex h-8 w-8 sm:h-9 sm:w-9 flex-shrink-0 items-center justify-center rounded-full border border-white/30 bg-white/15 text-white transition hover:bg-white/30"
-                aria-label={isFullscreen ? 'Exit full screen' : 'Enter full screen'}
-              >
-                <Icon name={isFullscreen ? 'minimize' : 'maximize'} className="h-4 w-4" />
-              </button>
+              <div className="flex items-center gap-3">
+                <button onClick={() => setIsSettingsOpen(true)} className="p-2 text-white/80 hover:text-white"><Icon name="settings" className="h-5 w-5" /></button>
+                <button onClick={toggleFullscreen} className="p-2 text-white/80 hover:text-white"><Icon name={isFullscreen ? 'minimize' : 'maximize'} className="h-5 w-5" /></button>
+              </div>
             </div>
           </div>
+
         </div>
       </div>
     </div>
