@@ -313,7 +313,7 @@ const App: React.FC = () => {
         {isEnrolled && location.pathname === `/courses/${courseId}` ? (
           <Navigate to={`/courses/${courseId}/learn`} replace />
         ) : (
-          <Outlet />
+          <Outlet key={location.pathname} />
         )}
       </SidebarLayout>
     );
