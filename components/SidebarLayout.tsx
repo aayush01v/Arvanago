@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Outlet, useLocation, useNavigate } from 'react-router-dom';
+import { Outlet, useLocation, useNavigate, useOutlet } from 'react-router-dom';
 import Sidebar from './Sidebar.tsx';
 import Header from './Header.tsx';
 import { Course, User } from '@/types';
