@@ -798,7 +798,6 @@ const GlassPreviewPlayer: React.FC<GlassPreviewPlayerProps> = ({ videoUrl, poste
 
           <div className={`pointer-events-none absolute top-4 left-4 right-4 flex items-center justify-between text-white transition-opacity duration-300 ${areControlsVisible && !isPosterVisible ? 'opacity-100' : 'opacity-0'}`}>
             <div>
-              <p className="text-[10px] sm:text-xs uppercase tracking-[0.3em] text-white/70">Preview</p>
               <h3 className="text-base sm:text-xl font-semibold drop-shadow-xl line-clamp-1">{title}</h3>
             </div>
             {caption && <span className="rounded-full border border-white/30 bg-white/10 px-3 py-1 text-[10px] sm:text-xs font-semibold backdrop-blur-sm">{caption}</span>}
