@@ -14,6 +14,8 @@ import type {
   BlogPost,
   Comment,
   Note,
+  Coupon,
+  Vault,
 } from '../types.ts';
 
 // Increased cache TTL for better performance
@@ -2262,4 +2264,95 @@ export const getPublicNote = async (userId: string, noteId: string): Promise<Not
   const note = snapshot.docs[0].data() as Note;
   if (!note.isPublic) return null;
   return note;
+};
+// =========================================================================
+// COUPON SERVICE
+// =========================================================================
+
+export const createCoupon = async (couponData: Omit<Coupon, 'id' | 'usageCount' | 'isActive'>) => {
+  try {
+    const docRef = await db.collection('coupons').add({
+      ...couponData,
+      code: couponData.code.toUpperCase().trim(),
+      isActive: true,
+      usageCount: 0,
+      createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+    });
+    return docRef.id;
+  } catch (error) {
+    console.error('Error creating coupon:', error);
+    throw error;
+  }
+};
+
+export const getCoupons = async (): Promise<Coupon[]> => {
+  try {
+    const snapshot = await db.collection('coupons').orderBy('createdAt', 'desc').get();
+    return snapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data()
+    })) as Coupon[];
+  } catch (error) {
+    console.error('Error fetching coupons:', error);
+    return [];
+  }
+};
+
+export const deleteCoupon = async (couponId: string) => {
+  try {
+    await db.collection('coupons').doc(couponId).delete();
+  } catch (error) {
+    console.error('Error deleting coupon:', error);
+    throw error;
+  }
+};
+
+export const validateCoupon = async (code: string, courseId: string): Promise<Coupon | null> => {
+  try {
+    const uppercasedCode = code.toUpperCase().trim();
+    const snapshot = await db.collection('coupons')
+      .where('code', '==', uppercasedCode)
+      .where('isActive', '==', true)
+      .limit(1)
+      .get();
+
+    if (snapshot.empty) {
+      return null;
+    }
+
+    const coupon = { id: snapshot.docs[0].id, ...snapshot.docs[0].data() } as Coupon;
+
+    // Check course restriction
+    if (coupon.courseId && coupon.courseId !== courseId) {
+      return null;
+    }
+
+    // Check expiry
+    if (coupon.expiryDate) {
+      const expiry = new Date(coupon.expiryDate);
+      if (expiry < new Date()) {
+        return null;
+      }
+    }
+
+    // Check usage limits
+    if (coupon.maxUses && coupon.usageCount >= coupon.maxUses) {
+      return null;
+    }
+
+    return coupon;
+  } catch (error) {
+    console.error('Error validating coupon:', error);
+    return null;
+  }
+};
+
+export const incrementCouponUsage = async (couponId: string) => {
+  try {
+    await db.collection('coupons').doc(couponId).update({
+      usageCount: firebase.firestore.FieldValue.increment(1)
+    });
+  } catch (error) {
+    console.error('Error incrementing coupon usage:', error);
+  }
 };

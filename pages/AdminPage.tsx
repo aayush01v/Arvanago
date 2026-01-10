@@ -4,13 +4,14 @@ import AdminSidebar from '../components/admin/AdminSidebar';
 import CourseManager from '../components/admin/CourseManager';
 import UserManagement from '../components/admin/UserManagement';
 import AdminSettings from '../components/admin/AdminSettings';
+import CouponManager from '../components/admin/CouponManager';
 import { useAdminStats } from '../hooks/useAdminStats';
 import { Users, BookOpen, DollarSign, TrendingUp, Clock, Menu } from 'lucide-react';
 
 const AdminBlogPage = React.lazy(() => import('./AdminBlogPage'));
 
 const AdminPage: React.FC = () => {
-    const [activeTab, setActiveTab] = useState<'dashboard' | 'courses' | 'users' | 'settings' | 'blog'>('dashboard');
+    const [activeTab, setActiveTab] = useState<'dashboard' | 'courses' | 'users' | 'settings' | 'blog' | 'coupons'>('dashboard');
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const {
         totalCourses,
@@ -212,6 +213,8 @@ const AdminPage: React.FC = () => {
                 );
             case 'courses':
                 return <CourseManager />;
+            case 'coupons':
+                return <CouponManager />;
             case 'blog':
                 return <React.Suspense fallback={<div>Loading...</div>}><AdminBlogPage /></React.Suspense>;
             case 'users':

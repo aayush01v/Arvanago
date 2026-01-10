@@ -267,3 +267,15 @@ export interface Vault {
   updatedAt: Timestamp;
   isDefault?: boolean;
 }
+
+export interface Coupon {
+  id: string;
+  code: string;
+  discountType: 'percentage' | 'fixed';
+  discountValue: number;
+  courseId?: string; // Optional: If linked to specific course
+  expiryDate?: string; // ISO String
+  isActive: boolean;
+  usageCount: number;
+  maxUses?: number;
+}

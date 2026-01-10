@@ -4,8 +4,8 @@ import { useNavigate } from 'react-router-dom';
 import { signOutUser } from '@/services/authService';
 
 interface AdminSidebarProps {
-    activeTab: 'dashboard' | 'courses' | 'users' | 'settings' | 'blog';
-    setActiveTab: (tab: 'dashboard' | 'courses' | 'users' | 'settings' | 'blog') => void;
+    activeTab: 'dashboard' | 'courses' | 'users' | 'settings' | 'blog' | 'coupons';
+    setActiveTab: (tab: 'dashboard' | 'courses' | 'users' | 'settings' | 'blog' | 'coupons') => void;
     isOpen?: boolean;
     onClose?: () => void;
 }
@@ -15,6 +15,7 @@ const AdminSidebar: React.FC<AdminSidebarProps> = ({ activeTab, setActiveTab, is
     const menuItems = [
         { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
         { id: 'courses', label: 'Courses', icon: BookOpen },
+        { id: 'coupons', label: 'Coupons', icon: BookOpen },
         { id: 'blog', label: 'Blog', icon: BookOpen },
         { id: 'users', label: 'Users', icon: Users },
         { id: 'settings', label: 'Settings', icon: Settings },

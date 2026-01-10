@@ -47,7 +47,7 @@ export const useRazorpayEnrollment = ({ user, onProfileUpdate }: UseRazorpayEnro
         }
     }, [user, onProfileUpdate, navigate]);
 
-    const handleEnroll = useCallback(async (course: Course) => {
+    const handleEnroll = useCallback(async (course: Course, discountedPrice?: number) => {
         if (!user) {
             safeLocalStorage.setItem(PENDING_COURSE_STORAGE_KEY, course.id);
             navigate('/login');
@@ -62,8 +62,9 @@ export const useRazorpayEnrollment = ({ user, onProfileUpdate }: UseRazorpayEnro
         }
 
         // Logic for Paid vs Free courses
-        const priceValue = Number(course.price);
-        const isPaidCourse = course.isPaid === true || (!isNaN(priceValue) && priceValue > 0);
+        // If discountedPrice is provided (even if 0), use it. Otherwise fallback to course.price
+        const priceValue = discountedPrice !== undefined ? discountedPrice : Number(course.price);
+        const isPaidCourse = priceValue > 0;
 
         if (isPaidCourse) {
             setToastMessage('Processing Payment...');
