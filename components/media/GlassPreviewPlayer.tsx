@@ -837,7 +837,7 @@ const GlassPreviewPlayer: React.FC<GlassPreviewPlayerProps> = ({ videoUrl, poste
               </div>
 
               <div className="space-y-6">
-                {isYouTube && availableQualities.length > 0 && (
+                {availableQualities.length > 0 && (
                   <div>
                     <div className="flex items-center gap-2 text-xs font-bold text-white/50 uppercase tracking-widest mb-3 pl-1">
                       <Icon name="settings" className="w-3.5 h-3.5 text-brand-secondary" />
