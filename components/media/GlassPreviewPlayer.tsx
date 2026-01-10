@@ -706,7 +706,7 @@ const GlassPreviewPlayer: React.FC<GlassPreviewPlayerProps> = ({ videoUrl, poste
           }`}
         onMouseMove={revealControlsTemporarily}
       >
-        {!isFullscreen && <div className="absolute inset-x-0 bottom-0 h-64 bg-gradient-to-t from-black/60 via-black/30 to-transparent pointer-events-none" />}
+        {!isFullscreen && <div className={`absolute inset-x-0 bottom-0 h-64 bg-gradient-to-t from-black/60 via-black/30 to-transparent pointer-events-none transition-opacity duration-300 ${areControlsVisible && !isPosterVisible ? 'opacity-100' : 'opacity-0'}`} />}
 
         <div className="relative w-full h-full flex items-center justify-center bg-black" style={{ ...responsivePlayerStyle, height: isFullscreen ? '100%' : undefined }}>
           {videoUrl ? (
@@ -812,7 +812,7 @@ const GlassPreviewPlayer: React.FC<GlassPreviewPlayerProps> = ({ videoUrl, poste
             </div>
           )}
 
-          <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-black/10 via-transparent to-black/60" />
+          <div className={`pointer-events-none absolute inset-0 bg-gradient-to-b from-black/10 via-transparent to-black/60 transition-opacity duration-300 ${areControlsVisible && !isPosterVisible ? 'opacity-100' : 'opacity-0'}`} />
 
           <div className={`pointer-events-none absolute top-4 left-4 right-4 flex items-center justify-between text-white transition-opacity duration-300 ${areControlsVisible && !isPosterVisible ? 'opacity-100' : 'opacity-0'}`}>
             <div>
