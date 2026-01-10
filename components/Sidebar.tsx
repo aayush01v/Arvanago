@@ -13,7 +13,7 @@ interface SidebarProps {
   user: import('../types').User | null;
 }
 
-const navItems = [
+export const navItems = [
   { to: '/dashboard', icon: 'dashboard', label: 'Dashboard' },
   { to: '/my-learnings', icon: 'bookmark', label: 'My Learnings' },
   { to: '/mynotes', icon: 'file-text', label: 'My Notes' },
