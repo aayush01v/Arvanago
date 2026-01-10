@@ -159,15 +159,18 @@ const CoursePreview: React.FC<CoursePreviewProps> = ({ course, onLoginClick, onB
             if (coupon) {
                 setAppliedCoupon(coupon);
                 setToastMessage(`Coupon "${coupon.code}" applied!`);
+                setToastType('success');
                 setShowCouponInput(false);
                 setCouponCode('');
             } else {
                 setToastMessage('Invalid or expired coupon code.');
+                setToastType('error');
             }
             setShowToast(true);
         } catch (error) {
             console.error(error);
             setToastMessage('Error validating coupon.');
+            setToastType('error');
             setShowToast(true);
         } finally {
             setValidatingCoupon(false);
@@ -178,6 +181,7 @@ const CoursePreview: React.FC<CoursePreviewProps> = ({ course, onLoginClick, onB
         setAppliedCoupon(null);
         setDiscountedPrice(null);
         setToastMessage('Coupon removed.');
+        setToastType('success');
         setShowToast(true);
     };
 
@@ -185,6 +189,7 @@ const CoursePreview: React.FC<CoursePreviewProps> = ({ course, onLoginClick, onB
     useEffect(() => {
         if (location.state && (location.state as any).showWishlistToast) {
             setToastMessage(`(${course.title}) added to wishlist`);
+            setToastType('success');
             setShowToast(true);
             setIsWishlisted(true); // Optimistically set true
             // Clear state to prevent showing on reload
@@ -224,6 +229,7 @@ const CoursePreview: React.FC<CoursePreviewProps> = ({ course, onLoginClick, onB
             }
 
             setToastMessage(message); // Ensure toastMessage is set
+            setToastType('success');
             setShowToast(true);
 
             // Optimistic update handled by local state, sync DB in background
@@ -236,6 +242,7 @@ const CoursePreview: React.FC<CoursePreviewProps> = ({ course, onLoginClick, onB
         } catch (error) {
             console.error("Wishlist update failed", error);
             setToastMessage('Something went wrong');
+            setToastType('error');
             setShowToast(true);
             setIsWishlisted(!isWishlisted); // Revert on error
         }
@@ -258,9 +265,11 @@ const CoursePreview: React.FC<CoursePreviewProps> = ({ course, onLoginClick, onB
             try {
                 await navigator.clipboard.writeText(window.location.href);
                 setToastMessage('Link copied to clipboard');
+                setToastType('success');
                 setShowToast(true);
             } catch (err) {
                 setToastMessage('Failed to copy link');
+                setToastType('error');
                 setShowToast(true);
             }
         }
@@ -337,7 +346,7 @@ const CoursePreview: React.FC<CoursePreviewProps> = ({ course, onLoginClick, onB
                 </div>
             </nav>
 
-            <Toast message={toastMessage} isVisible={showToast} onClose={() => setShowToast(false)} />
+            <Toast message={toastMessage} isVisible={showToast} onClose={() => setShowToast(false)} type={toastType} />
 
             <div className="relative z-10 pt-24 pb-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 {/* Breadcrumbs */}
