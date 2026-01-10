@@ -195,7 +195,7 @@ const PostItem: React.FC<{
                     <p className="text-slate-700 dark:text-slate-300 leading-relaxed mb-4 whitespace-pre-wrap">{post.content}</p>
                     {post.imageUrl && (
                         <div className="mb-4">
-                            <img loading="lazy" decoding="async" src={post.imageUrl} className="w-full rounded-2xl object-cover max-h-96" alt="Post content" loading="lazy" />
+                            <img loading="lazy" decoding="async" src={post.imageUrl} className="w-full rounded-2xl object-cover max-h-96" alt="Post content" />
                         </div>
                     )}
                 </>
