@@ -152,7 +152,22 @@ service cloud.firestore {
       }
     }
 
-    // 10. COLLECTION GROUP QUERIES (NOTES)
+    // 10. COUPONS
+    match /coupons/{couponId} {
+      // Anyone can read (to validate)
+      allow read: if true;
+      
+      // Only admins can create or delete
+      allow create, delete: if isAdmin();
+      
+      // Admins can update anything. 
+      // Authenticated users can ONLY update 'usageCount' (when applying/using a coupon)
+      allow update: if isAdmin() || (
+        isAuthenticated() && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['usageCount'])
+      );
+    }
+    
+    // 11. COLLECTION GROUP QUERIES (NOTES)
     match /{path=**}/notes/{noteId} {
       allow read: if resource.data.isPublic == true;
     }
