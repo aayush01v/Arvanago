@@ -21,30 +21,31 @@ import { safeLocalStorage } from '@/utils/safeStorage';
 
 const GLOBAL_THEME_KEY = 'edusimulate:theme';
 
-const DashboardPage = React.lazy(() => import('@/pages/DashboardPage'));
-const MyLearningsPage = React.lazy(() => import('@/pages/MyLearningsPage'));
-const PublicExplorePage = React.lazy(() => import('@/pages/PublicExplorePage'));
-const LeaderboardPage = React.lazy(() => import('@/pages/LeaderboardPage'));
-const ChatPage = React.lazy(() => import('./pages/ChatPage'));
-const ProfilePage = React.lazy(() => import('@/pages/ProfilePage'));
-const PublicProfilePage = React.lazy(() => import('@/pages/PublicProfilePage'));
-const CourseDetailPage = React.lazy(() => import('@/pages/CourseDetailPage'));
-const CourseLecturePage = React.lazy(() => import('@/pages/CourseLecturePage'));
-const CourseLearnPage = React.lazy(() => import('@/pages/CourseLearnPage'));
-const LoginRoute = React.lazy(() => import('@/pages/LoginRoute'));
-const CoursePreviewPage = React.lazy(() => import('@/pages/CoursePreviewPage'));
-const ExploreCoursesPage = React.lazy(() => import('@/pages/ExploreCoursesPage'));
-const SettingsPage = React.lazy(() => import('@/pages/SettingsPage'));
-const AdminPage = React.lazy(() => import('@/pages/AdminPage'));
-const AboutPage = React.lazy(() => import('@/pages/AboutPage'));
-const AdminLoginPage = React.lazy(() => import('@/pages/AdminLoginPage'));
-const NotFoundPage = React.lazy(() => import('@/pages/NotFoundPage'));
-const BlogPage = React.lazy(() => import('@/pages/BlogPage'));
-const BlogPostPage = React.lazy(() => import('@/pages/BlogPostPage'));
-const AdminBlogPage = React.lazy(() => import('@/pages/AdminBlogPage'));
-const MyNotesPage = React.lazy(() => import('@/pages/MyNotesPage'));
-const PublicNotePage = React.lazy(() => import('@/pages/PublicNotePage'));
-const VideoPreviewPage = React.lazy(() => import('@/pages/VideoPreviewPage'));
+// Temporarily using direct imports instead of lazy to test navigation
+import DashboardPage from '@/pages/DashboardPage';
+import MyLearningsPage from '@/pages/MyLearningsPage';
+import PublicExplorePage from '@/pages/PublicExplorePage';
+import LeaderboardPage from '@/pages/LeaderboardPage';
+import ChatPage from './pages/ChatPage';
+import ProfilePage from '@/pages/ProfilePage';
+import PublicProfilePage from '@/pages/PublicProfilePage';
+import CourseDetailPage from '@/pages/CourseDetailPage';
+import CourseLecturePage from '@/pages/CourseLecturePage';
+import CourseLearnPage from '@/pages/CourseLearnPage';
+import LoginRoute from '@/pages/LoginRoute';
+import CoursePreviewPage from '@/pages/CoursePreviewPage';
+import ExploreCoursesPage from '@/pages/ExploreCoursesPage';
+import SettingsPage from '@/pages/SettingsPage';
+import AdminPage from '@/pages/AdminPage';
+import AboutPage from '@/pages/AboutPage';
+import AdminLoginPage from '@/pages/AdminLoginPage';
+import NotFoundPage from '@/pages/NotFoundPage';
+import BlogPage from '@/pages/BlogPage';
+import BlogPostPage from '@/pages/BlogPostPage';
+import AdminBlogPage from '@/pages/AdminBlogPage';
+import MyNotesPage from '@/pages/MyNotesPage';
+import PublicNotePage from '@/pages/PublicNotePage';
+import VideoPreviewPage from '@/pages/VideoPreviewPage';
 import AdminRoute from '@/components/AdminRoute';
 
 const SuspenseFallback: React.FC = () => (
