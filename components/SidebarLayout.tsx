@@ -1,7 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Outlet, useLocation, useNavigate, useOutlet, NavLink } from 'react-router-dom';
+import { Outlet, useLocation, useNavigate, useOutlet } from 'react-router-dom';
 import Sidebar from './Sidebar.tsx';
-import Icon from './common/Icon.tsx';
 import Header from './Header.tsx';
 import { Course, User } from '@/types';
 import IncomingCallListener from '@/components/IncomingCallListener';
@@ -264,38 +263,7 @@ const SidebarLayout: React.FC<SidebarLayoutProps> = ({
         </React.Suspense>
 
         {/* Mobile Bottom Navigation */}
-        <div className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-white/90 backdrop-blur-md dark:bg-slate-900/90 border-t border-slate-200 dark:border-slate-800 pb-safe-area-inset-bottom transition-transform duration-300">
-          <div className="flex justify-around items-center h-16 px-2">
-            {[
-              { to: '/dashboard', icon: 'dashboard', label: 'Home' },
-              { to: '/explore', icon: 'courses', label: 'Explore' },
-              { to: '/mynotes', icon: 'file-text', label: 'Notes' },
-              { to: '/chat', icon: 'message-circle', label: 'Chat' },
-              { to: '/settings', icon: 'settings', label: 'Settings' }
-            ].map((item) => (
-              <NavLink
-                key={item.to}
-                to={item.to}
-                className={({ isActive }) =>
-                  `flex flex-col items-center justify-center w-full h-full space-y-1 ${isActive
-                    ? 'text-brand-primary'
-                    : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'
-                  }`
-                }
-              >
-                {({ isActive }) => (
-                  <>
-                    <Icon
-                      name={item.icon}
-                      className={`h-6 w-6 transition-transform duration-200 ${isActive ? 'scale-110' : ''}`}
-                    />
-                    <span className="text-[10px] font-medium">{item.label}</span>
-                  </>
-                )}
-              </NavLink>
-            ))}
-          </div>
-        </div>
+
       </div>
     </>
   );
