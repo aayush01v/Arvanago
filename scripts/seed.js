@@ -111,6 +111,9 @@ async function main() {
               migratedData.category = "Mathematics";
             }
 
+            // Ensure course is published so it appears in Explore Courses
+            migratedData.isPublished = true;
+
             console.log("  -> Loaded migrated course:", migratedData.title);
             console.log(`     - Sections: ${migratedData.sections?.length || 0}`);
             console.log(`     - Total Lectures: ${migratedData.lectures?.length || 0}`);
