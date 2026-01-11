@@ -93,7 +93,7 @@ const Homepage: React.FC<HomepageProps> = ({ onNavigateToLogin }) => {
 
                     <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-brand-primary/10 border border-brand-primary/20 text-brand-primary font-bold text-xs uppercase tracking-widest mb-8 animate-fade-in-down">
                         <span className="w-2 h-2 rounded-full bg-brand-primary animate-ping"></span>
-                        Arvanago Platform 2.0 Live
+                        EduSimulate Platform Live
                     </div>
 
                     <h1 className="relative text-6xl md:text-8xl font-black text-slate-900 dark:text-white tracking-tighter mb-8 leading-[1.1] animate-fade-in-up">
