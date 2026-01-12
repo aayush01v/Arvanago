@@ -11,8 +11,11 @@ export const signInWithGoogle = async () => {
     // FIX: Use compat syntax for signInWithPopup.
     await auth.signInWithPopup(googleProvider);
   } catch (error) {
-    // Log generic error without exposing system details
-    console.error("Authentication error occurred");
+  } catch (error: any) {
+    // Log detailed error for debugging
+    console.error("Authentication error details:", error);
+    console.error("Auth Error Code:", error.code);
+    console.error("Auth Error Message:", error.message);
     throw error;
   }
 };
