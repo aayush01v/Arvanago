@@ -18,6 +18,9 @@ const ChatPage: React.FC = () => {
     const navigate = useNavigate();
     const [searchParams, setSearchParams] = useSearchParams();
 
+    // Fix: Use location.search directly to ensure updates catch query param changes
+    const chatIdParam = new URLSearchParams(location.search).get('chatId');
+
     const handleBack = () => {
         if (location.key !== 'default') {
             navigate(-1);
@@ -74,7 +77,7 @@ const ChatPage: React.FC = () => {
                 setSelectedChatId(null);
             }
         }
-    }, [chatIdParam, chats, currentUser]);
+    }, [location.search, chatIdParam, chats, currentUser]);
 
     // Cleanup local preview
     useEffect(() => {
