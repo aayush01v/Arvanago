@@ -51,8 +51,6 @@ const ChatPage: React.FC = () => {
     const [isCaller, setIsCaller] = useState(false);
     const [showCallTypeSelection, setShowCallTypeSelection] = useState(false);
 
-    const chatIdParam = searchParams.get('chatId');
-
     // Sync URL with State
     useEffect(() => {
         if (chatIdParam) {
