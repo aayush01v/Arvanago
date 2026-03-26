@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 import Icon from '@/components/common/Icon';
@@ -21,7 +21,18 @@ const ChatPage: React.FC = () => {
     // Fix: Use location.search directly to ensure updates catch query param changes
     const chatIdParam = new URLSearchParams(location.search).get('chatId');
 
+    const hasAutoSelectedDesktopRef = useRef(false);
+
     const handleBack = () => {
+        const isMobileViewport = window.innerWidth < 768;
+
+        if (isMobileViewport && selectedChatId) {
+            setSearchParams({}, { replace: false });
+            setSelectedChatId(null);
+            setShowChatOnMobile(false);
+            return;
+        }
+
         if (location.key !== 'default') {
             navigate(-1);
         } else {
@@ -105,13 +116,20 @@ const ChatPage: React.FC = () => {
         return () => unsubscribe();
     }, [selectedChatId]);
 
-    // Initial Selection fallback (Desktop only)
+    // Initial Selection fallback (Desktop only, one-time to avoid hijacking browser back)
     useEffect(() => {
         const chatIdParam = searchParams.get('chatId');
-        if (!chatIdParam && !selectedChatId && chats.length > 0 && window.innerWidth >= 768) {
+        if (
+            !hasAutoSelectedDesktopRef.current &&
+            !chatIdParam &&
+            !selectedChatId &&
+            chats.length > 0 &&
+            window.innerWidth >= 768
+        ) {
+            hasAutoSelectedDesktopRef.current = true;
             setSearchParams({ chatId: chats[0].id }, { replace: true });
         }
-    }, [chats, selectedChatId, searchParams]);
+    }, [chats, selectedChatId, searchParams, setSearchParams]);
 
     // Search Users
     useEffect(() => {
