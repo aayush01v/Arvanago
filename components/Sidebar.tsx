@@ -1,6 +1,5 @@
 import React from 'react';
-import { NavLink } from 'react-router-dom';
-import Icon from './common/Icon.tsx';
+import NavItem from './common/NavItem.tsx';
 
 import { signOutUser } from '../services/authService.ts';
 import { LOGO_URL } from '../constants.ts';
@@ -53,8 +52,10 @@ const Sidebar: React.FC<SidebarProps> = ({ isSidebarOpen, setSidebarOpen, isDark
           <ul className="space-y-1">
             {navItems.map((item) => (
               <li key={item.to} className="px-2">
-                <NavLink
+                <NavItem
                   to={item.to}
+                  icon={item.icon}
+                  label={item.label}
                   onClick={async () => {
                     if (item.to === '/explore' && onExploreClick) {
                       try {
@@ -65,23 +66,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isSidebarOpen, setSidebarOpen, isDark
                     }
                     handleNavigate();
                   }}
-                  className={({ isActive }) =>
-                    `group flex items-center gap-3 rounded-lg px-4 py-2.5 text-sm font-medium transition-all duration-200 ${isActive
-                      ? 'bg-brand-primary/10 text-brand-primary'
-                      : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-slate-200'
-                    }`
-                  }
-                >
-                  {({ isActive }) => (
-                    <>
-                      <Icon
-                        name={item.icon}
-                        className={`h-5 w-5 transition-colors ${isActive ? 'text-brand-primary' : 'text-slate-400 group-hover:text-slate-600 dark:text-slate-500 dark:group-hover:text-slate-300'}`}
-                      />
-                      <span>{item.label}</span>
-                    </>
-                  )}
-                </NavLink>
+                />
               </li>
             ))}
           </ul>
@@ -92,19 +77,12 @@ const Sidebar: React.FC<SidebarProps> = ({ isSidebarOpen, setSidebarOpen, isDark
 
 
             {/* Settings Link */}
-            <NavLink
+            <NavItem
               to="/settings"
+              icon="settings"
+              label="Settings"
               onClick={handleNavigate}
-              className={({ isActive }) =>
-                `group flex w-full items-center gap-3 rounded-lg px-4 py-2.5 text-sm font-medium transition-colors ${isActive
-                  ? 'bg-brand-primary/10 text-brand-primary'
-                  : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-slate-200'
-                }`
-              }
-            >
-              <Icon name="settings" className="h-5 w-5 text-slate-400 group-hover:text-slate-600 dark:text-slate-500 dark:group-hover:text-slate-300" />
-              <span>Settings</span>
-            </NavLink>
+            />
 
             <div className="h-px bg-slate-100 dark:bg-slate-800 my-2" />
 
@@ -112,14 +90,12 @@ const Sidebar: React.FC<SidebarProps> = ({ isSidebarOpen, setSidebarOpen, isDark
               // Logout moved to Settings > Account
               null
             ) : (
-              <NavLink
+              <NavItem
                 to="/login"
+                icon="login"
+                label="Login"
                 onClick={handleNavigate}
-                className="group flex w-full items-center gap-3 rounded-lg px-4 py-2.5 text-sm font-medium text-slate-600 hover:bg-brand-primary/10 hover:text-brand-primary dark:text-slate-400 dark:hover:bg-brand-primary/20 dark:hover:text-brand-primary transition-colors"
-              >
-                <Icon name="login" className="h-5 w-5 text-slate-400 group-hover:text-brand-primary dark:text-slate-500" />
-                <span>Login</span>
-              </NavLink>
+              />
             )}
           </div>
         </div>

@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import Icon from './common/Icon.tsx';
+import HeaderAction from './common/HeaderAction.tsx';
 import { User } from '../types.ts';
 import { LOGO_URL } from '../constants.ts';
 
@@ -49,7 +49,7 @@ const Header: React.FC<HeaderProps> = ({
           {/* Left Section: Menu & Logo (Mobile) / Title (Desktop) */}
           <div className="flex items-center gap-4 flex-1">
             {isSubPage ? (
-              <button
+              <HeaderAction
                 onClick={() => {
                   if (window.history.state && window.history.state.idx > 0) {
                     navigate(-1);
@@ -57,19 +57,17 @@ const Header: React.FC<HeaderProps> = ({
                     navigate('/dashboard');
                   }
                 }}
-                className="flex h-9 w-9 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-500 shadow-sm transition-colors hover:bg-slate-50 hover:text-slate-700 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-400 dark:hover:bg-slate-700 dark:hover:text-slate-200 md:hidden"
+                icon="arrowLeft"
+                className="md:hidden"
                 aria-label="Go Back"
-              >
-                <Icon name="arrowLeft" className="h-5 w-5" />
-              </button>
+              />
             ) : (
-              <button
+              <HeaderAction
                 onClick={onMenuClick}
-                className="flex h-9 w-9 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-500 shadow-sm transition-colors hover:bg-slate-50 hover:text-slate-700 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-400 dark:hover:bg-slate-700 dark:hover:text-slate-200 md:hidden"
+                icon="menu"
+                className="md:hidden"
                 aria-label="Open menu"
-              >
-                <Icon name="menu" className="h-5 w-5" />
-              </button>
+              />
             )}
 
             {/* Mobile Logo */}
@@ -99,13 +97,11 @@ const Header: React.FC<HeaderProps> = ({
 
             {/* Search Button */}
             {user && (
-              <button
+              <HeaderAction
                 onClick={onSearchClick}
-                className="relative flex h-9 w-9 items-center justify-center rounded-full text-slate-500 hover:bg-slate-100 hover:text-brand-primary dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-white transition-colors"
+                icon="search"
                 aria-label="Search"
-              >
-                <Icon name="search" className="h-5 w-5" />
-              </button>
+              />
             )}
 
             {/* Profile Dropdown / Info */}

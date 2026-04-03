@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 import Sidebar from './Sidebar.tsx';
 import Header from './Header.tsx';
+import Card from './common/Card';
 import { Course, User } from '@/types';
 import IncomingCallListener from '@/components/IncomingCallListener';
 
@@ -242,7 +243,7 @@ const SidebarLayout: React.FC<SidebarLayoutProps> = ({
                 </div>
               ) : (
                 <div className="relative mx-auto max-w-6xl">
-                  <div className="glass-panel relative overflow-hidden rounded-[1.5rem] md:rounded-[2rem] border border-white/50 bg-white/90 shadow-xl transition-colors duration-500 dark:border-white/10 dark:bg-slate-900/90 dark:shadow-[0_4px_20px_rgba(0,0,0,0.4)]">
+                  <Card variant="glass" className="glass-panel relative overflow-hidden rounded-[1.5rem] md:rounded-[2rem] transition-colors duration-500">
                     <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(255,255,255,0.25),_transparent_65%)] dark:bg-[radial-gradient(circle_at_top,_rgba(148,163,184,0.2),_transparent_70%)]" />
                     <div className="pointer-events-none absolute -top-20 -left-10 h-40 w-40 rounded-full bg-brand-primary/30 blur-3xl opacity-70" style={{ animation: 'pulseGlow 16s ease-in-out infinite' }} />
                     <div className="pointer-events-none absolute bottom-[-3rem] right-[-2rem] h-48 w-48 rounded-full bg-sky-500/40 blur-3xl opacity-80" style={{ animation: 'pulseGlow 20s ease-in-out infinite alternate' }} />
@@ -253,7 +254,7 @@ const SidebarLayout: React.FC<SidebarLayoutProps> = ({
                         </div>
                       </div>
                     </div>
-                  </div>
+                  </Card>
                 </div>
               )}
             </main>
