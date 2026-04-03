@@ -8,6 +8,7 @@ import { LOGO_URL } from '../constants.ts';
 interface HeaderProps {
   user: User | null;
   onMenuClick: () => void;
+  menuButtonRef?: React.RefObject<HTMLButtonElement | null>;
   isScrolled: boolean;
   pageTitle: string;
   pageSubtitle?: string;
@@ -20,6 +21,7 @@ interface HeaderProps {
 const Header: React.FC<HeaderProps> = ({
   user,
   onMenuClick,
+  menuButtonRef,
   isScrolled,
   pageTitle,
   pageSubtitle,
@@ -64,6 +66,7 @@ const Header: React.FC<HeaderProps> = ({
               </button>
             ) : (
               <button
+                ref={menuButtonRef}
                 onClick={onMenuClick}
                 className="flex h-9 w-9 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-500 shadow-sm transition-colors hover:bg-slate-50 hover:text-slate-700 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-400 dark:hover:bg-slate-700 dark:hover:text-slate-200 md:hidden"
                 aria-label="Open menu"
@@ -92,9 +95,10 @@ const Header: React.FC<HeaderProps> = ({
           {/* Right Section: Actions & Profile */}
           <div className="flex items-center gap-3 md:gap-4 justify-end">
 
-            {/* Mobile Page Title (Center-ish if needed, or just hidden/simplified) */}
-            <div className="md:hidden hidden sm:block">
+            {/* Mobile Page Title + Subtitle */}
+            <div className="md:hidden hidden sm:flex flex-col leading-tight">
               <span className="text-sm font-semibold text-slate-900 dark:text-white">{pageTitle}</span>
+              {pageSubtitle && <span className="text-[11px] text-slate-500 dark:text-slate-400">{pageSubtitle}</span>}
             </div>
 
             {/* Search Button */}

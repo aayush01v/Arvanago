@@ -43,6 +43,7 @@ const SidebarLayout: React.FC<SidebarLayoutProps> = ({
   const [isScrolled, setIsScrolled] = useState(false);
   const mainPanelRef = useRef<HTMLDivElement>(null);
   const animationFrameRef = useRef<number | null>(null);
+  const menuButtonRef = useRef<HTMLButtonElement>(null);
 
   const backgroundRef = useRef<HTMLDivElement>(null);
   const location = useLocation();
@@ -116,12 +117,15 @@ const SidebarLayout: React.FC<SidebarLayoutProps> = ({
     const segments = location.pathname.split('?')[0]?.split('/').filter(Boolean) ?? [];
     const [first, second, third, fourth] = segments;
 
-    const staticPages = new Map<string, { title: string; subtitle: string }>([
-      ['dashboard', { title: 'Dashboard', subtitle: 'Your learning HQ' }],
-      ['my-learnings', { title: 'My Learnings', subtitle: 'Progress tracker' }],
-      ['explore', { title: 'Explore Courses', subtitle: 'Discover new skills' }],
-      ['leaderboard', { title: 'Leaderboard', subtitle: 'Global rankings' }],
-      ['profile', { title: 'Profile', subtitle: 'Personal hub' }],
+    const staticPages = new Map<string, { title: string; subtitle: string; trail: string[] }>([
+      ['dashboard', { title: 'Dashboard', subtitle: 'Track progress', trail: ['Dashboard'] }],
+      ['my-learnings', { title: 'My Learnings', subtitle: 'Resume courses', trail: ['My Learnings'] }],
+      ['mynotes', { title: 'My Notes', subtitle: 'Capture insights', trail: ['My Notes'] }],
+      ['explore', { title: 'Explore Courses', subtitle: 'Discover new skills', trail: ['Explore Courses'] }],
+      ['leaderboard', { title: 'Leaderboard', subtitle: 'See top performers', trail: ['Leaderboard'] }],
+      ['profile', { title: 'Profile', subtitle: 'Manage your account', trail: ['Profile'] }],
+      ['settings', { title: 'Settings', subtitle: 'Update preferences', trail: ['Settings'] }],
+      ['chat', { title: 'Chat', subtitle: 'Stay connected', trail: ['Chat'] }],
     ]);
 
     if (!first) {
@@ -136,9 +140,9 @@ const SidebarLayout: React.FC<SidebarLayoutProps> = ({
     if (first === 'courses' && second && !third) {
       const matchedCourse = courses.find((course) => course.id === second);
       if (matchedCourse) {
-        return { title: matchedCourse.title, subtitle: 'Course overview' };
+        return { title: matchedCourse.title, subtitle: 'Course overview', trail: ['Courses', matchedCourse.title] };
       }
-      return { title: 'Course overview', subtitle: 'Course details' };
+      return { title: 'Course overview', subtitle: 'Course details', trail: ['Courses', 'Overview'] };
     }
 
     if (first === 'courses' && second && third === 'lectures' && fourth) {
@@ -146,17 +150,25 @@ const SidebarLayout: React.FC<SidebarLayoutProps> = ({
       const matchedLecture = matchedCourse?.lectures.find((lecture) => lecture.id === fourth);
 
       if (matchedCourse && matchedLecture) {
-        return { title: matchedLecture.title, subtitle: matchedCourse.title };
+        return {
+          title: matchedLecture.title,
+          subtitle: `${matchedCourse.title} • Lesson`,
+          trail: ['Courses', matchedCourse.title, matchedLecture.title],
+        };
       }
 
       if (matchedCourse) {
-        return { title: 'Course lecture', subtitle: matchedCourse.title };
+        return {
+          title: 'Course lecture',
+          subtitle: `${matchedCourse.title} • Learning session`,
+          trail: ['Courses', matchedCourse.title, 'Lecture'],
+        };
       }
 
-      return { title: 'Course lecture', subtitle: 'Learning session' };
+      return { title: 'Course lecture', subtitle: 'Learning session', trail: ['Courses', 'Lecture'] };
     }
 
-    return staticPages.get('dashboard')!;
+    return { title: 'Dashboard', subtitle: 'Track progress', trail: ['Dashboard'] };
   }, [courses, location.pathname]);
 
   const [isSearchModalOpen, setIsSearchModalOpen] = useState(false);
@@ -210,6 +222,7 @@ const SidebarLayout: React.FC<SidebarLayoutProps> = ({
             isDarkMode={isDarkMode}
             setDarkMode={onThemeToggle}
             user={user}
+            triggerButtonRef={menuButtonRef}
           />
           <div
             ref={mainPanelRef}
@@ -227,6 +240,7 @@ const SidebarLayout: React.FC<SidebarLayoutProps> = ({
             <Header
               user={user}
               onMenuClick={() => setSidebarOpen(true)}
+              menuButtonRef={menuButtonRef}
               isScrolled={isScrolled}
               pageTitle={currentPage.title}
               pageSubtitle={currentPage.subtitle}
@@ -247,6 +261,10 @@ const SidebarLayout: React.FC<SidebarLayoutProps> = ({
                     <div className="pointer-events-none absolute -top-20 -left-10 h-40 w-40 rounded-full bg-brand-primary/30 blur-3xl opacity-70" style={{ animation: 'pulseGlow 16s ease-in-out infinite' }} />
                     <div className="pointer-events-none absolute bottom-[-3rem] right-[-2rem] h-48 w-48 rounded-full bg-sky-500/40 blur-3xl opacity-80" style={{ animation: 'pulseGlow 20s ease-in-out infinite alternate' }} />
                     <div className="relative z-10 p-3 sm:p-6 lg:p-10">
+                      <div className="mb-4 rounded-xl border border-slate-200/70 bg-slate-50/80 px-3 py-2 text-xs font-medium text-slate-600 dark:border-slate-700 dark:bg-slate-800/60 dark:text-slate-300">
+                        <span className="font-semibold text-slate-700 dark:text-slate-200">You are here:</span>{' '}
+                        {currentPage.trail.join(' • ')}
+                      </div>
                       <div className="animate-fade-in-up">
                         <div className="animate-fade-in-up">
                           {children || <Outlet context={sidebarContext} />}
