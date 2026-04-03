@@ -2,8 +2,8 @@ import React from 'react';
 import { NavLink } from 'react-router-dom';
 import Icon from './common/Icon.tsx';
 
-import { signOutUser } from '../services/authService.ts';
 import { LOGO_URL } from '../constants.ts';
+import { NAV_COLOR_TOKENS, NAV_ICON_SIZE_CLASS } from './layoutTokens.ts';
 
 interface SidebarProps {
   isSidebarOpen: boolean;
@@ -23,7 +23,9 @@ const navItems = [
   { to: '/chat', icon: 'message-circle', label: 'Chat' },
 ];
 
-const Sidebar: React.FC<SidebarProps> = ({ isSidebarOpen, setSidebarOpen, isDarkMode, setDarkMode, onExploreClick, user }) => {
+const navItemBase = `group flex items-center gap-3 rounded-lg px-4 py-2.5 text-sm font-medium transition-all duration-200 ${NAV_COLOR_TOKENS.navItem.base} ${NAV_COLOR_TOKENS.navItem.hoverFocus}`;
+
+const Sidebar: React.FC<SidebarProps> = ({ isSidebarOpen, setSidebarOpen, onExploreClick, user }) => {
   const handleNavigate = () => {
     if (typeof window === 'undefined' || window.innerWidth < 768) {
       setSidebarOpen(false);
@@ -33,22 +35,30 @@ const Sidebar: React.FC<SidebarProps> = ({ isSidebarOpen, setSidebarOpen, isDark
   return (
     <>
       <div
-        className={`fixed inset-0 z-30 bg-slate-900/60 backdrop-blur-sm transition-opacity md:hidden ${isSidebarOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'
-          }`}
+        className={`fixed inset-0 z-30 transition-opacity md:hidden ${NAV_COLOR_TOKENS.overlay.backdrop} ${NAV_COLOR_TOKENS.overlay.blur} ${isSidebarOpen ? NAV_COLOR_TOKENS.overlay.open : NAV_COLOR_TOKENS.overlay.closed}`}
         onClick={() => setSidebarOpen(false)}
+        aria-hidden="true"
       />
       <aside
-        className={`fixed inset-y-0 left-0 z-40 flex w-56 flex-col overflow-hidden border-r border-slate-200 bg-white text-slate-800 transition-transform duration-300 dark:border-slate-800 dark:bg-slate-900 dark:text-white ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'
-          } md:translate-x-0 h-[100dvh]`}
+        className={`fixed inset-y-0 left-0 z-40 flex h-[100dvh] w-56 flex-col overflow-hidden border-r text-slate-800 transition-transform duration-300 dark:text-white md:translate-x-0 ${NAV_COLOR_TOKENS.shell.border} ${NAV_COLOR_TOKENS.shell.background} ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}
       >
-        <div className="relative flex h-14 items-center border-b border-slate-100 px-4 dark:border-slate-800/50 md:h-16 shrink-0">
-          <img src={LOGO_URL} alt="Edusimulate Logo" className="mr-2 h-6 w-auto" />
-          <span className="text-base font-bold tracking-tight text-slate-900 dark:text-white">Edusimulate</span>
+        <div className="relative flex h-14 shrink-0 items-center justify-between border-b border-slate-100 px-4 dark:border-slate-800/50 md:h-16">
+          <div className="flex items-center">
+            <img src={LOGO_URL} alt="Edusimulate Logo" className="mr-2 h-6 w-auto" />
+            <span className="text-base font-bold tracking-tight text-slate-900 dark:text-white">Edusimulate</span>
+          </div>
+          <button
+            onClick={() => setSidebarOpen(false)}
+            className="inline-flex h-8 w-8 items-center justify-center rounded-lg text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-700 dark:text-slate-300 dark:hover:bg-slate-800 md:hidden"
+            aria-label="Close menu"
+          >
+            <Icon name="x" className={NAV_ICON_SIZE_CLASS} />
+          </button>
         </div>
 
-        <nav className="flex-1 overflow-y-auto py-4 max-h-[calc(100dvh-8rem)]">
-          <div className="px-3 mb-2">
-            <p className="text-xs font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500 pl-3 mb-2">Menu</p>
+        <nav className="max-h-[calc(100dvh-8rem)] flex-1 overflow-y-auto py-4">
+          <div className="mb-2 px-3">
+            <p className="mb-2 pl-3 text-xs font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500">Menu</p>
           </div>
           <ul className="space-y-1">
             {navItems.map((item) => (
@@ -65,18 +75,13 @@ const Sidebar: React.FC<SidebarProps> = ({ isSidebarOpen, setSidebarOpen, isDark
                     }
                     handleNavigate();
                   }}
-                  className={({ isActive }) =>
-                    `group flex items-center gap-3 rounded-lg px-4 py-2.5 text-sm font-medium transition-all duration-200 ${isActive
-                      ? 'bg-brand-primary/10 text-brand-primary'
-                      : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-slate-200'
-                    }`
-                  }
+                  className={({ isActive }) => `${navItemBase} ${isActive ? NAV_COLOR_TOKENS.navItem.active : ''}`}
                 >
                   {({ isActive }) => (
                     <>
                       <Icon
                         name={item.icon}
-                        className={`h-5 w-5 transition-colors ${isActive ? 'text-brand-primary' : 'text-slate-400 group-hover:text-slate-600 dark:text-slate-500 dark:group-hover:text-slate-300'}`}
+                        className={`${NAV_ICON_SIZE_CLASS} transition-colors ${isActive ? NAV_COLOR_TOKENS.navItem.iconActive : `${NAV_COLOR_TOKENS.navItem.icon} group-hover:text-slate-600 dark:group-hover:text-slate-200`}`}
                       />
                       <span>{item.label}</span>
                     </>
@@ -89,35 +94,24 @@ const Sidebar: React.FC<SidebarProps> = ({ isSidebarOpen, setSidebarOpen, isDark
 
         <div className="border-t border-slate-100 p-3 dark:border-slate-800">
           <div className="space-y-1">
-
-
-            {/* Settings Link */}
             <NavLink
               to="/settings"
               onClick={handleNavigate}
-              className={({ isActive }) =>
-                `group flex w-full items-center gap-3 rounded-lg px-4 py-2.5 text-sm font-medium transition-colors ${isActive
-                  ? 'bg-brand-primary/10 text-brand-primary'
-                  : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-slate-200'
-                }`
-              }
+              className={({ isActive }) => `${navItemBase} w-full ${isActive ? NAV_COLOR_TOKENS.navItem.active : ''}`}
             >
-              <Icon name="settings" className="h-5 w-5 text-slate-400 group-hover:text-slate-600 dark:text-slate-500 dark:group-hover:text-slate-300" />
+              <Icon name="settings" className={`${NAV_ICON_SIZE_CLASS} ${NAV_COLOR_TOKENS.navItem.icon} group-hover:text-slate-600 dark:group-hover:text-slate-200`} />
               <span>Settings</span>
             </NavLink>
 
-            <div className="h-px bg-slate-100 dark:bg-slate-800 my-2" />
+            <div className="my-2 h-px bg-slate-100 dark:bg-slate-800" />
 
-            {user ? (
-              // Logout moved to Settings > Account
-              null
-            ) : (
+            {!user && (
               <NavLink
                 to="/login"
                 onClick={handleNavigate}
-                className="group flex w-full items-center gap-3 rounded-lg px-4 py-2.5 text-sm font-medium text-slate-600 hover:bg-brand-primary/10 hover:text-brand-primary dark:text-slate-400 dark:hover:bg-brand-primary/20 dark:hover:text-brand-primary transition-colors"
+                className={`${navItemBase} w-full hover:text-brand-primary dark:hover:text-brand-primary`}
               >
-                <Icon name="login" className="h-5 w-5 text-slate-400 group-hover:text-brand-primary dark:text-slate-500" />
+                <Icon name="login" className={`${NAV_ICON_SIZE_CLASS} ${NAV_COLOR_TOKENS.navItem.icon} group-hover:text-brand-primary`} />
                 <span>Login</span>
               </NavLink>
             )}
