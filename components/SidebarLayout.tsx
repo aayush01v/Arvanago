@@ -5,6 +5,7 @@ import Header from './Header.tsx';
 import MobileBottomNav from './MobileBottomNav.tsx';
 import { Course, User } from '@/types';
 import IncomingCallListener from '@/components/IncomingCallListener';
+import AuthenticatedLayoutShell from '@/components/AuthenticatedLayoutShell';
 
 export interface SidebarLayoutContext {
   user: User | null;
@@ -42,6 +43,7 @@ const SidebarLayout: React.FC<SidebarLayoutProps> = ({
 }) => {
   const [isSidebarOpen, setSidebarOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
+  const [isSearchModalOpen, setIsSearchModalOpen] = useState(false);
   const mainPanelRef = useRef<HTMLDivElement>(null);
   const animationFrameRef = useRef<number | null>(null);
   const menuButtonRef = useRef<HTMLButtonElement>(null);
@@ -49,10 +51,6 @@ const SidebarLayout: React.FC<SidebarLayoutProps> = ({
 
   const backgroundRef = useRef<HTMLDivElement>(null);
   const location = useLocation();
-  const navigate = useNavigate();
-
-
-
 
   useEffect(() => {
     if (typeof window !== 'undefined' && window.innerWidth < 768) {
@@ -116,11 +114,14 @@ const SidebarLayout: React.FC<SidebarLayoutProps> = ({
     });
   }, []);
 
-  useEffect(() => () => {
-    if (animationFrameRef.current) {
-      cancelAnimationFrame(animationFrameRef.current);
-    }
-  }, []);
+  useEffect(
+    () => () => {
+      if (animationFrameRef.current) {
+        cancelAnimationFrame(animationFrameRef.current);
+      }
+    },
+    [],
+  );
 
   const currentPage = useMemo(() => {
     const segments = location.pathname.split('?')[0]?.split('/').filter(Boolean) ?? [];
@@ -131,6 +132,7 @@ const SidebarLayout: React.FC<SidebarLayoutProps> = ({
       ['my-learnings', { title: 'My Learnings', subtitle: 'Progress tracker' }],
       ['explore', { title: 'Explore Courses', subtitle: 'Discover new skills' }],
       ['leaderboard', { title: 'Leaderboard', subtitle: 'Global rankings' }],
+      ['mynotes', { title: 'My Notes', subtitle: 'Vaults and linked notes' }],
       ['profile', { title: 'Profile', subtitle: 'Personal hub' }],
     ]);
 
@@ -169,40 +171,32 @@ const SidebarLayout: React.FC<SidebarLayoutProps> = ({
     return staticPages.get('dashboard')!;
   }, [courses, location.pathname]);
 
-  const [isSearchModalOpen, setIsSearchModalOpen] = useState(false);
-
-  // Detect mobile
   const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
-
-
-
-  // Calculate unread count (Deprecated, chat moved to separate page)
   const unreadCount = 0;
-
   const UserSearchModal = React.lazy(() => import('./UserSearchModal'));
 
-
-
-  // Memoize context to prevent unnecessary re-renders
-  const sidebarContext = useMemo(() => ({
-    user,
-    courses,
-    onProfileUpdate,
-    coursesLoading,
-    coursesError,
-    refreshCourses: onRefreshCourses,
-    isDarkMode,
-    onThemeToggle,
-  }), [
-    user,
-    courses,
-    onProfileUpdate,
-    coursesLoading,
-    coursesError,
-    onRefreshCourses,
-    isDarkMode,
-    onThemeToggle
-  ]);
+  const sidebarContext = useMemo(
+    () => ({
+      user,
+      courses,
+      onProfileUpdate,
+      coursesLoading,
+      coursesError,
+      refreshCourses: onRefreshCourses,
+      isDarkMode,
+      onThemeToggle,
+    }),
+    [
+      user,
+      courses,
+      onProfileUpdate,
+      coursesLoading,
+      coursesError,
+      onRefreshCourses,
+      isDarkMode,
+      onThemeToggle,
+    ],
+  );
 
   return (
     <>
@@ -270,14 +264,14 @@ const SidebarLayout: React.FC<SidebarLayoutProps> = ({
                     </div>
                   </Card>
                 </div>
-              )}
-            </main>
-          </div>
-        </div>
+              </div>
+            </div>
+          )}
+        </main>
+      </AuthenticatedLayoutShell>
 
-        {/* Global Chat Widget */}
+      {isSearchModalOpen && user && (
         <React.Suspense fallback={null}>
-
           <UserSearchModal
             isOpen={isSearchModalOpen}
             onClose={() => setIsSearchModalOpen(false)}

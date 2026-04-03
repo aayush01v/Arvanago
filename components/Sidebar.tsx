@@ -3,8 +3,8 @@ import { NavLink } from 'react-router-dom';
 import Icon from './common/Icon.tsx';
 import { SHELL_TOKENS } from './shell/tokens.ts';
 
-import { signOutUser } from '../services/authService.ts';
 import { LOGO_URL } from '../constants.ts';
+import { NAV_COLOR_TOKENS, NAV_ICON_SIZE_CLASS } from './layoutTokens.ts';
 
 interface SidebarProps {
   isSidebarOpen: boolean;
