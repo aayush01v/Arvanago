@@ -100,7 +100,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isSidebarOpen, setSidebarOpen, isDark
         className={`fixed inset-y-0 left-0 z-40 flex w-56 flex-col overflow-hidden border-r border-slate-200 bg-white text-slate-800 transition-transform duration-300 dark:border-slate-800 dark:bg-slate-900 dark:text-white ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'
           } md:translate-x-0 h-[100dvh]`}
       >
-        <div className="relative flex h-14 items-center border-b border-slate-100 px-4 dark:border-slate-800/50 md:h-16 shrink-0">
+        <div className="relative flex h-14 items-center border-b border-border-subtle/60 px-4 dark:border-border-subtle/50 md:h-16 shrink-0">
           <img src={LOGO_URL} alt="Edusimulate Logo" className="mr-2 h-6 w-auto" />
           <span className="text-base font-bold tracking-tight text-slate-900 dark:text-white">Edusimulate</span>
           <button
@@ -115,7 +115,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isSidebarOpen, setSidebarOpen, isDark
 
         <nav className="flex-1 overflow-y-auto py-4 max-h-[calc(100dvh-8rem)]" role="menu" aria-label="Main menu">
           <div className="px-3 mb-2">
-            <p className="text-xs font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500 pl-3 mb-2">Menu</p>
+            <p className="text-xs font-semibold uppercase tracking-wider text-text-secondary pl-3 mb-2">Menu</p>
           </div>
           <ul className="space-y-1">
             {navItems.map((item) => (
@@ -144,7 +144,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isSidebarOpen, setSidebarOpen, isDark
                     <>
                       <Icon
                         name={item.icon}
-                        className={`h-5 w-5 transition-colors ${isActive ? 'text-brand-primary' : 'text-slate-400 group-hover:text-slate-600 dark:text-slate-500 dark:group-hover:text-slate-300'}`}
+                        className={`h-5 w-5 transition-colors ${isActive ? 'text-brand-primary' : 'text-text-secondary group-hover:text-text-primary'}`}
                       />
                       <span>{item.label}</span>
                     </>
@@ -155,7 +155,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isSidebarOpen, setSidebarOpen, isDark
           </ul>
         </nav>
 
-        <div className="border-t border-slate-100 p-3 dark:border-slate-800">
+        <div className="border-t border-border-subtle/60 p-3 dark:border-border-subtle/50">
           <div className="space-y-1">
 
 
@@ -171,11 +171,11 @@ const Sidebar: React.FC<SidebarProps> = ({ isSidebarOpen, setSidebarOpen, isDark
                 }`
               }
             >
-              <Icon name="settings" className="h-5 w-5 text-slate-400 group-hover:text-slate-600 dark:text-slate-500 dark:group-hover:text-slate-300" />
+              <Icon name="settings" className="h-5 w-5 text-text-secondary group-hover:text-text-primary" />
               <span>Settings</span>
             </NavLink>
 
-            <div className="h-px bg-slate-100 dark:bg-slate-800 my-2" />
+            <div className="h-px bg-border-subtle/60 dark:bg-border-subtle/50 my-2" />
 
             {user ? (
               // Logout moved to Settings > Account
@@ -187,7 +187,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isSidebarOpen, setSidebarOpen, isDark
                 onClick={handleNavigate}
                 className="group flex min-h-11 w-full items-center gap-3 rounded-lg px-4 py-2.5 text-sm font-medium text-slate-600 transition-colors hover:bg-brand-primary/10 hover:text-brand-primary active:scale-[0.99] active:bg-brand-primary/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2 dark:text-slate-400 dark:hover:bg-brand-primary/20 dark:hover:text-brand-primary dark:active:bg-brand-primary/25 dark:focus-visible:ring-offset-slate-900"
               >
-                <Icon name="login" className="h-5 w-5 text-slate-400 group-hover:text-brand-primary dark:text-slate-500" />
+                <Icon name="login" className="h-5 w-5 text-text-secondary group-hover:text-brand-primary" />
                 <span>Login</span>
               </NavLink>
             )}
