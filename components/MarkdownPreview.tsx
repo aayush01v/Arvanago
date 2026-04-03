@@ -2,6 +2,7 @@ import React from 'react';
 import ReactMarkdown from 'react-markdown';
 import rehypeRaw from 'rehype-raw';
 import remarkGfm from 'remark-gfm';
+import DOMPurify from 'dompurify';
 
 interface MarkdownPreviewProps {
     content: string;
@@ -52,6 +53,9 @@ const MarkdownPreview: React.FC<MarkdownPreviewProps> = ({ content, className = 
     };
 
     const { cleanText, classes } = content ? processText(content) : { cleanText: '', classes: '' };
+    const sanitizedText = DOMPurify.sanitize(cleanText, {
+        ALLOWED_URI_REGEXP: /^(?:(?:https?|mailto|tel):|[^a-z]|[a-z+.-]+(?:[^a-z+.-:]|$))/i,
+    });
 
     const handleClick = (e: React.MouseEvent) => {
         const target = e.target as HTMLElement;
@@ -71,7 +75,7 @@ const MarkdownPreview: React.FC<MarkdownPreviewProps> = ({ content, className = 
                 rehypePlugins={[rehypeRaw]}
                 remarkPlugins={[remarkGfm]}
             >
-                {cleanText}
+                {sanitizedText}
             </ReactMarkdown>
         </div>
     );

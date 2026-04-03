@@ -107,7 +107,10 @@ export default defineConfig(({ mode }) => {
               }
               // Firebase (already good)
               if (id.includes('firebase')) {
-                return 'firebase';
+                if (id.includes('/auth')) return 'firebase-auth';
+                if (id.includes('/firestore')) return 'firebase-firestore';
+                if (id.includes('/storage')) return 'firebase-storage';
+                return 'firebase-core';
               }
               // React core (already good)
               if (id.includes('react') || id.includes('react-dom') || id.includes('react-router-dom')) {

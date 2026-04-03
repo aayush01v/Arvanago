@@ -10,27 +10,34 @@ service cloud.firestore {
 
     // 1. USERS
     match /users/{userId} {
-      allow read: if true;
+      // Public profiles are visible only when explicitly public.
+      // Owner/admin can always read.
+      allow read: if isOwner(userId) || isAdmin() || resource.data.isPublic == true;
       allow create: if isOwner(userId);
       // Allow update:
-      // 1. Own profile (except role)
+      // 1. Own profile (except role + follower counters reserved for trusted backend)
       // 2. Admin
-      // 3. ANY logged in user can update 'followers' count (needed for Follow feature)
       allow update: if 
-        (isOwner(userId) && request.resource.data.role == resource.data.role) || 
+        (isOwner(userId) &&
+         request.resource.data.role == resource.data.role &&
+         request.resource.data.followers == resource.data.followers &&
+         request.resource.data.following == resource.data.following) || 
         isAdmin() ||
-        (isAuthenticated() && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['followers']));
+        false;
       allow delete: if isAdmin();
 
       // Follow System Subcollections (Nested)
       match /following/{followingId} {
         allow read: if true;
-        allow write: if isOwner(userId);
+        // Client can only create/delete own outgoing follows.
+        allow create, delete: if isOwner(userId);
+        allow update: if false;
       }
       match /followers/{followerId} {
         allow read: if true;
-        // Allow write if the authenticated user is adding specifically THEMSELVES as a follower.
-        allow write: if isAuthenticated() && request.auth.uid == followerId;
+        // Client can only create/delete their own follower edge.
+        allow create, delete: if isAuthenticated() && request.auth.uid == followerId;
+        allow update: if false;
       }
       
       // Notes & Vaults

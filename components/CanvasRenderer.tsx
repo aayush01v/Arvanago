@@ -6,6 +6,7 @@ import remarkGfm from 'remark-gfm';
 import remarkMath from 'remark-math';
 import rehypeKatex from 'rehype-katex';
 import Icon from './common/Icon';
+import DOMPurify from 'dompurify';
 
 interface CanvasNode {
     id: string;
@@ -180,6 +181,9 @@ const MemoizedNode = React.memo(({
 
         return text;
     }, [cleanText, resolveFileSrc]);
+    const sanitizedProcessedText = useMemo(() => DOMPurify.sanitize(processedText, {
+        ALLOWED_URI_REGEXP: /^(?:(?:https?|mailto|tel):|[^a-z]|[a-z+.-]+(?:[^a-z+.-:]|$))/i,
+    }), [processedText]);
 
     const nodeStyle: any = {
         left: node.x - minX,
@@ -282,7 +286,7 @@ const MemoizedNode = React.memo(({
                                         }} />,
                                     }}
                                 >
-                                    {processedText}
+                                    {sanitizedProcessedText}
                                 </ReactMarkdown>
                             </div>
                         )
