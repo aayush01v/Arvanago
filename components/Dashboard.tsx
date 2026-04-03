@@ -163,17 +163,17 @@ const CategoryCardComponent: React.FC<CategoryCardProps> = ({ category, navigate
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: index * 0.05 }}
       onClick={() => navigateToFilteredCourses(category.name)}
-      className="ui-focus-ring ui-transition flex h-full flex-col items-center rounded-2xl border border-slate-200 bg-white p-4 text-center dark:border-slate-700 dark:bg-slate-800/40 hover:border-brand-primary/30 hover:bg-white hover:shadow-lg dark:hover:bg-slate-800 active:translate-y-[1px] group"
+      className="ui-focus-ring ui-transition flex h-full min-h-[11.5rem] w-full flex-col items-center justify-center rounded-2xl border border-slate-200/80 bg-white/95 px-3 py-4 text-center dark:border-slate-700/80 dark:bg-slate-800/40 hover:border-brand-primary/30 hover:bg-white hover:shadow-lg dark:hover:bg-slate-800 active:translate-y-[1px] group"
     >
-      <div className={`ui-transition mb-3 rounded-full bg-slate-50 p-4 dark:bg-slate-900 group-hover:scale-110 ${category.color.replace('bg-', 'bg-opacity-10 ')}`}>
+      <div className={`ui-transition mb-3 rounded-full bg-slate-50 p-4 dark:bg-slate-900 group-hover:scale-110 ${category.color.replace('bg-', 'bg-opacity-10 ')}`.trim()}>
         <div className={`${activeColorClass}-600 dark:${activeColorClass}-400`}>
           <Icon name={category.icon} className="w-5 h-5" />
         </div>
       </div>
-      <span className="font-bold text-sm text-text-primary mb-1">
+      <span className="mb-1 text-lg font-bold leading-tight text-text-primary">
         {category.name}
       </span>
-      <span className="text-xs text-text-secondary font-medium">
+      <span className="text-sm font-medium leading-tight text-text-secondary">
         {category.desc}
       </span>
     </motion.button>
@@ -549,7 +549,7 @@ const Dashboard: React.FC<DashboardProps> = ({ user, courses, navigateToFiltered
         <div className="space-y-6">
           <h3 className="text-xl font-bold text-primary">Explore Categories</h3>
           <motion.div
-            className="grid grid-cols-2 lg:grid-cols-1 xl:grid-cols-2 gap-3"
+            className="grid grid-cols-2 gap-4 lg:grid-cols-1 xl:grid-cols-2"
             variants={{
               hidden: { opacity: 0 },
               show: {
