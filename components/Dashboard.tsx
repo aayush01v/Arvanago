@@ -2,7 +2,10 @@ import React, { memo, useMemo } from 'react';
 import { User, Course } from '../types.ts';
 import Icon from './common/Icon.tsx';
 import StudentAnalytics from './StudentAnalytics.tsx';
-import { motion } from 'framer-motion';
+import { motion, useReducedMotion } from 'framer-motion';
+import Button from '@/components/ui/Button.tsx';
+import Card from '@/components/ui/Card.tsx';
+import { MOTION } from '@/utils/motion.ts';
 
 interface DashboardProps {
   user: User;
@@ -55,10 +58,8 @@ interface DashboardCourseCardProps {
 
 const DashboardCourseCardComponent: React.FC<DashboardCourseCardProps> = ({ course, navigateToCourse }) => {
   return (
-    <motion.div
-      whileHover={{ scale: 1.02 }}
-      className="group bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 overflow-hidden shadow-sm hover:shadow-xl hover:border-brand-primary/20 transition-all duration-300"
-    >
+    <motion.div whileHover={{ scale: 1.02 }}>
+      <Card interactive className="group overflow-hidden">
       <div className="flex flex-col sm:flex-row lg:flex-col xl:flex-row h-full">
         <div className="relative w-full sm:w-48 lg:w-full xl:w-48 h-48 sm:h-auto lg:h-48 xl:h-auto flex-shrink-0 overflow-hidden">
           <img
@@ -94,16 +95,17 @@ const DashboardCourseCardComponent: React.FC<DashboardCourseCardProps> = ({ cour
               />
             </div>
 
-            <button
+            <Button
               onClick={() => navigateToCourse(course)}
-              className="w-full py-2.5 rounded-xl bg-slate-900 dark:bg-white text-white dark:text-slate-900 text-sm font-bold hover:opacity-90 transition-opacity flex items-center justify-center gap-2"
+              className="w-full"
             >
               <span>Continue Learning</span>
               <Icon name="arrowRight" className="w-4 h-4" />
-            </button>
+            </Button>
           </div>
         </div>
       </div>
+    </Card>
     </motion.div>
   );
 };
@@ -125,9 +127,9 @@ const CategoryCardComponent: React.FC<CategoryCardProps> = ({ category, navigate
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: index * 0.05 }}
       onClick={() => navigateToFilteredCourses(category.name)}
-      className="flex flex-col items-center text-center p-4 rounded-2xl bg-white dark:bg-slate-800/40 border border-slate-200 dark:border-slate-700 hover:border-brand-primary/30 hover:bg-white dark:hover:bg-slate-800 hover:shadow-lg transition-all group h-full"
+      className="ui-focus-ring ui-transition flex h-full flex-col items-center rounded-2xl border border-slate-200 bg-white p-4 text-center dark:border-slate-700 dark:bg-slate-800/40 hover:border-brand-primary/30 hover:bg-white hover:shadow-lg dark:hover:bg-slate-800 active:translate-y-[1px] group"
     >
-      <div className={`p-4 rounded-full bg-slate-50 dark:bg-slate-900 mb-3 group-hover:scale-110 transition-transform ${category.color.replace('bg-', 'bg-opacity-10 ')}`}>
+      <div className={`ui-transition mb-3 rounded-full bg-slate-50 p-4 dark:bg-slate-900 group-hover:scale-110 ${category.color.replace('bg-', 'bg-opacity-10 ')}`}>
         <div className={`${activeColorClass}-600 dark:${activeColorClass}-400`}>
           <Icon name={category.icon} className="w-6 h-6" />
         </div>
@@ -154,6 +156,7 @@ const CATEGORY_DETAILS = [
 ] as const;
 
 const Dashboard: React.FC<DashboardProps> = ({ user, courses, navigateToFilteredCourses, navigateToCourse }) => {
+  const shouldReduceMotion = useReducedMotion();
   const ongoingCourses = useMemo(() =>
     user.ongoingCourses
       .map(courseId => courses.find(c => c.id === courseId))
@@ -172,7 +175,7 @@ const Dashboard: React.FC<DashboardProps> = ({ user, courses, navigateToFiltered
         <motion.div
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.5 }}
+          transition={{ duration: MOTION.duration.slow, ease: MOTION.easing.standard }}
         >
           <h2 className="text-3xl font-black text-slate-900 dark:text-white tracking-tight">
             Hello, <span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-primary to-brand-secondary">{firstName}</span> 👋
@@ -185,7 +188,7 @@ const Dashboard: React.FC<DashboardProps> = ({ user, courses, navigateToFiltered
         <motion.div
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
-          transition={{ delay: 0.2 }}
+          transition={{ delay: MOTION.duration.fast, duration: MOTION.duration.standard, ease: MOTION.easing.standard }}
           className="text-sm font-bold text-slate-600 dark:text-slate-300 bg-white/80 dark:bg-slate-800/80 backdrop-blur border border-slate-200 dark:border-slate-700 px-5 py-2.5 rounded-full shadow-sm"
         >
           {currentDate}
@@ -237,7 +240,7 @@ const Dashboard: React.FC<DashboardProps> = ({ user, courses, navigateToFiltered
                 show: {
                   opacity: 1,
                   transition: {
-                    staggerChildren: 0.15
+                    staggerChildren: shouldReduceMotion ? 0 : 0.15
                   }
                 }
               }}
@@ -246,7 +249,7 @@ const Dashboard: React.FC<DashboardProps> = ({ user, courses, navigateToFiltered
             >
               {ongoingCourses.length > 0 ? (
                 ongoingCourses.slice(0, 3).map((course) => (
-                  <motion.div key={course.id} variants={{ hidden: { opacity: 0, x: -20 }, show: { opacity: 1, x: 0 } }}>
+                  <motion.div key={course.id} variants={{ hidden: { opacity: 0, x: shouldReduceMotion ? 0 : -20 }, show: { opacity: 1, x: 0 } }}>
                     <DashboardCourseCard course={course} navigateToCourse={navigateToCourse} />
                   </motion.div>
                 ))
@@ -256,9 +259,9 @@ const Dashboard: React.FC<DashboardProps> = ({ user, courses, navigateToFiltered
                     <Icon name="book-open" className="w-8 h-8 text-slate-400" />
                   </div>
                   <p className="text-slate-600 dark:text-slate-400 font-bold">No active courses yet.</p>
-                  <button onClick={() => navigateToFilteredCourses('all')} className="text-brand-primary text-sm font-bold mt-2 hover:underline">
+                  <Button variant="ghost" onClick={() => navigateToFilteredCourses('all')} className="mt-2 p-0 text-sm hover:underline">
                     Find something new
-                  </button>
+                  </Button>
                 </div>
               )}
             </motion.div>
@@ -275,7 +278,7 @@ const Dashboard: React.FC<DashboardProps> = ({ user, courses, navigateToFiltered
               show: {
                 opacity: 1,
                 transition: {
-                  staggerChildren: 0.1
+                  staggerChildren: shouldReduceMotion ? 0 : 0.1
                 }
               }
             }}
