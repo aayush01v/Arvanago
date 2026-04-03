@@ -54,7 +54,7 @@ const MobileBottomNav: React.FC<MobileBottomNavProps> = ({ user, unreadChatCount
                                     name={item.icon}
                                     className={`w-6 h-6 transition-transform duration-300 ${isActive ? 'scale-110' : 'scale-100'}`}
                                     fill={isActive ? 'currentColor' : 'none'}
-                                    strokeWidth={isActive ? 2.5 : 2}
+                                    strokeWidth={isActive ? uiTokens.icon.activeStrokeWidth : uiTokens.icon.strokeWidth}
                                 />
 
                                 {/* Unread Badge for Chat */}

@@ -121,7 +121,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isSidebarOpen, setSidebarOpen, isDark
           <ul className="space-y-1">
             {navItems.map((item) => (
               <li key={item.to} className="px-2">
-                <NavLink
+                <NavItem
                   to={item.to}
                   role="menuitem"
                   onClick={async () => {
@@ -161,7 +161,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isSidebarOpen, setSidebarOpen, isDark
             <p className={`px-3 ${SHELL_TOKENS.drawer.navHeader}`}>Settings</p>
 
             {/* Settings Link */}
-            <NavLink
+            <NavItem
               to="/settings"
               role="menuitem"
               onClick={handleNavigate}
@@ -182,7 +182,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isSidebarOpen, setSidebarOpen, isDark
               // Logout moved to Settings > Account
               null
             ) : (
-              <NavLink
+              <NavItem
                 to="/login"
                 role="menuitem"
                 onClick={handleNavigate}

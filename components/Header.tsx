@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import Icon from './common/Icon.tsx';
+import HeaderAction from './common/HeaderAction.tsx';
 import { User } from '../types.ts';
 import { LOGO_URL } from '../constants.ts';
 import { SHELL_TOKENS } from './shell/tokens.ts';
@@ -54,7 +54,7 @@ const Header: React.FC<HeaderProps> = ({
           {/* Left Section: Menu & Logo (Mobile) / Title (Desktop) */}
           <div className="flex items-center gap-4 flex-1">
             {isSubPage ? (
-              <button
+              <HeaderAction
                 onClick={() => {
                   if (window.history.state && window.history.state.idx > 0) {
                     navigate(-1);
@@ -64,9 +64,7 @@ const Header: React.FC<HeaderProps> = ({
                 }}
                 className="flex h-9 w-9 items-center justify-center rounded-lg border border-slate-200 bg-white text-secondary shadow-sm transition-colors hover:surface-muted hover:text-primary dark:border-slate-700 dark:bg-slate-800 md:hidden"
                 aria-label="Go Back"
-              >
-                <Icon name="arrowLeft" className="h-5 w-5" />
-              </button>
+              />
             ) : (
               <button
                 ref={menuButtonRef}
@@ -107,13 +105,11 @@ const Header: React.FC<HeaderProps> = ({
 
             {/* Search Button */}
             {user && (
-              <button
+              <HeaderAction
                 onClick={onSearchClick}
                 className="relative flex h-11 w-11 items-center justify-center rounded-full text-slate-500 transition-colors hover:bg-slate-100 hover:text-brand-primary active:scale-[0.98] active:bg-slate-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-white dark:active:bg-slate-700 dark:focus-visible:ring-offset-slate-900"
                 aria-label="Search"
-              >
-                <Icon name="search" className="h-5 w-5" />
-              </button>
+              />
             )}
 
             {/* Profile Dropdown / Info */}
