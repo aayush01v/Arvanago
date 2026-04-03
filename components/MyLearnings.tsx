@@ -237,7 +237,7 @@ const MyLearnings: React.FC<MyLearningsProps> = ({ user, courses, navigateToCour
     ];
 
     return (
-        <div className="p-4 sm:p-6 lg:p-8 rhythm-stack-lg animate-fade-in pb-24">
+        <div className="w-full rhythm-stack-lg animate-fade-in pb-24">
             <div className="rounded-2xl bg-white dark:bg-slate-900 p-6 md:p-8 border border-slate-200 dark:border-slate-700 rhythm-stack-md">
                 <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
                     <div>
