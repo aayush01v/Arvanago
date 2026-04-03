@@ -23,24 +23,24 @@ const StatCardComponent: React.FC<StatCardProps> = ({ icon, value, label, trend,
   return (
     <motion.div
       whileHover={{ y: -5 }}
-      className={`relative overflow-hidden rounded-2xl p-6 shadow-sm border border-slate-100 dark:border-slate-700/50 ${bgGradient} dark:bg-slate-800`}
+      className={`relative overflow-hidden rounded-2xl p-6 shadow-sm border border-border-subtle/70 dark:border-border-subtle/60 ${bgGradient} dark:bg-slate-800`}
     >
       <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full blur-2xl -translate-y-1/2 translate-x-1/2" />
 
       <div className="relative z-10 flex justify-between items-start">
-        <div className="p-3 rounded-xl bg-white/90 dark:bg-slate-900/50 backdrop-blur-sm shadow-sm text-slate-700 dark:text-white">
+        <div className="p-3 rounded-xl bg-white/90 dark:bg-slate-900/50 backdrop-blur-sm shadow-sm text-text-primary">
           <Icon name={icon} className="w-6 h-6" />
         </div>
         {trend && (
-          <span className="flex items-center gap-1 text-xs font-bold bg-white/80 dark:bg-black/20 px-2 py-1 rounded-lg backdrop-blur text-slate-700 dark:text-white/90">
+          <span className="flex items-center gap-1 text-xs font-bold bg-white/80 dark:bg-black/20 px-2 py-1 rounded-lg backdrop-blur text-text-primary">
             <Icon name="trending-up" className="w-3 h-3" /> {trend}
           </span>
         )}
       </div>
 
       <div className="relative z-10 mt-6">
-        <h3 className="text-3xl font-black text-slate-900 dark:text-white tracking-tight">{value}</h3>
-        <p className="font-medium text-slate-600 dark:text-slate-300 mt-1 opacity-90">{label}</p>
+        <h3 className="text-3xl font-black text-text-primary tracking-tight">{value}</h3>
+        <p className="font-medium text-text-secondary mt-1 opacity-90">{label}</p>
       </div>
     </motion.div>
   );
@@ -57,7 +57,7 @@ const DashboardCourseCardComponent: React.FC<DashboardCourseCardProps> = ({ cour
   return (
     <motion.div
       whileHover={{ scale: 1.02 }}
-      className="group bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 overflow-hidden shadow-sm hover:shadow-xl hover:border-brand-primary/20 transition-all duration-300"
+      className="group bg-white dark:bg-slate-800 rounded-2xl border border-border-subtle/80 dark:border-border-subtle/60 overflow-hidden shadow-sm hover:shadow-xl hover:border-brand-primary/20 transition-all duration-300"
     >
       <div className="flex flex-col sm:flex-row lg:flex-col xl:flex-row h-full">
         <div className="relative w-full sm:w-48 lg:w-full xl:w-48 h-48 sm:h-auto lg:h-48 xl:h-auto flex-shrink-0 overflow-hidden">
@@ -76,12 +76,12 @@ const DashboardCourseCardComponent: React.FC<DashboardCourseCardProps> = ({ cour
 
         <div className="p-5 flex flex-col flex-grow justify-between">
           <div>
-            <h3 className="font-bold text-lg text-slate-900 dark:text-white mb-2 line-clamp-1 group-hover:text-brand-primary transition-colors">{course.title}</h3>
-            <p className="text-sm text-slate-500 dark:text-slate-400 line-clamp-2">{course.description}</p>
+            <h3 className="font-bold text-lg text-text-primary mb-2 line-clamp-1 group-hover:text-brand-primary transition-colors">{course.title}</h3>
+            <p className="text-sm text-text-secondary line-clamp-2">{course.description}</p>
           </div>
 
-          <div className="mt-4 pt-4 border-t border-slate-100 dark:border-slate-700">
-            <div className="flex justify-between text-xs font-bold text-slate-500 dark:text-slate-400 mb-2">
+          <div className="mt-4 pt-4 border-t border-border-subtle/70 dark:border-border-subtle/60">
+            <div className="flex justify-between text-xs font-bold text-text-secondary mb-2">
               <span>Progress</span>
               <span className="text-brand-primary">{course.progress}%</span>
             </div>
@@ -94,9 +94,9 @@ const DashboardCourseCardComponent: React.FC<DashboardCourseCardProps> = ({ cour
               />
             </div>
 
-            <button
+              <button
               onClick={() => navigateToCourse(course)}
-              className="w-full py-2.5 rounded-xl bg-slate-900 dark:bg-white text-white dark:text-slate-900 text-sm font-bold hover:opacity-90 transition-opacity flex items-center justify-center gap-2"
+              className="w-full py-2.5 rounded-xl bg-slate-900 dark:bg-slate-50 text-slate-50 dark:text-slate-950 text-sm font-bold hover:opacity-90 transition-opacity flex items-center justify-center gap-2"
             >
               <span>Continue Learning</span>
               <Icon name="arrowRight" className="w-4 h-4" />
@@ -132,10 +132,10 @@ const CategoryCardComponent: React.FC<CategoryCardProps> = ({ category, navigate
           <Icon name={category.icon} className="w-6 h-6" />
         </div>
       </div>
-      <span className="font-bold text-sm text-slate-800 dark:text-white mb-1">
+      <span className="font-bold text-sm text-text-primary mb-1">
         {category.name}
       </span>
-      <span className="text-xs text-slate-500 dark:text-slate-400 font-medium">
+      <span className="text-xs text-text-secondary font-medium">
         {category.desc}
       </span>
     </motion.button>
