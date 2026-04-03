@@ -30,7 +30,7 @@ const ChatPage: React.FC = () => {
     };
 
     const handleMobileChatBack = () => {
-        setSearchParams({});
+        setSearchParams({}, { replace: true });
         setShowChatOnMobile(false);
     };
 
@@ -135,7 +135,7 @@ const ChatPage: React.FC = () => {
 
 
     const handleChatSelect = async (chat: Chat) => {
-        setSearchParams({ chatId: chat.id });
+        setSearchParams({ chatId: chat.id }, { replace: window.innerWidth < 768 });
     };
 
     const handleUserSelect = async (otherUser: User) => {
@@ -146,7 +146,7 @@ const ChatPage: React.FC = () => {
             setSearchTerm(''); // Clear search
             setSearchResults([]);
 
-            setSearchParams({ chatId });
+            setSearchParams({ chatId }, { replace: window.innerWidth < 768 });
             setActiveChatUser(otherUser);
         } catch (error) {
             console.error("Failed to create chat:", error);
