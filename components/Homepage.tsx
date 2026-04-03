@@ -7,6 +7,7 @@ import { Course } from '../types.ts';
 import { LOGO_URL } from '../constants.ts';
 import InfoModal from './InfoModal.tsx';
 import PretextHeroHeadline from './PretextHeroHeadline.tsx';
+import PretextButtonLabel from './common/PretextButtonLabel.tsx';
 
 interface HomepageProps {
     onNavigateToLogin: () => void;
@@ -80,7 +81,10 @@ const Homepage: React.FC<HomepageProps> = ({ onNavigateToLogin }) => {
                             className="group relative px-6 py-2 rounded-full bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-bold text-sm shadow-xl hover:shadow-2xl hover:-translate-y-0.5 transition-all duration-300 overflow-hidden"
                         >
                             <div className="absolute inset-0 bg-gradient-to-r from-brand-primary to-purple-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                            <span className="relative z-10 group-hover:text-white transition-colors">Start Learning</span>
+                            <PretextButtonLabel
+                                text="Start Learning"
+                                className="relative z-10 group-hover:text-white transition-colors"
+                            />
                         </button>
                     </div>
                 </div>
