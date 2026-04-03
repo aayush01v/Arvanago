@@ -295,23 +295,25 @@ const MyLearnings: React.FC<MyLearningsProps> = ({ user, courses, navigateToCour
                 )}
             </div>
 
-            <div className="flex flex-wrap gap-3">
-                {tabs.map((tab) => (
-                    <button
-                        key={tab.id}
-                        onClick={() => setActiveTab(tab.id)}
-                        className={`px-4 py-2 rounded-xl font-semibold text-sm transition-all duration-200 outline-none border whitespace-nowrap ${
-                            activeTab === tab.id
-                                ? 'text-white bg-slate-900 dark:bg-brand-primary border-transparent'
-                                : 'text-slate-600 dark:text-slate-400 bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700 hover:border-brand-primary/40'
-                        }`}
-                    >
-                        {tab.label}
-                    </button>
-                ))}
+            <div className="-mx-1 overflow-x-auto pb-1">
+                <div className="px-1 flex flex-nowrap sm:flex-wrap gap-3 min-w-max sm:min-w-0">
+                    {tabs.map((tab) => (
+                        <button
+                            key={tab.id}
+                            onClick={() => setActiveTab(tab.id)}
+                            className={`px-4 py-2 rounded-xl font-semibold text-sm transition-all duration-200 outline-none border whitespace-nowrap ${
+                                activeTab === tab.id
+                                    ? 'text-white bg-slate-900 dark:bg-brand-primary border-transparent'
+                                    : 'text-slate-600 dark:text-slate-400 bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700 hover:border-brand-primary/40'
+                            }`}
+                        >
+                            {tab.label}
+                        </button>
+                    ))}
+                </div>
             </div>
 
-            <div className="min-h-[400px]">
+            <div className="min-h-[400px] pt-1">
                 {renderContent()}
             </div>
 
