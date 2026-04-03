@@ -1,5 +1,5 @@
 
-import React, { useMemo, useState, useEffect } from 'react';
+import React, { useMemo, useState, useEffect, useRef } from 'react';
 import { useOutletContext } from 'react-router-dom';
 import { dailyLeaderboard, allTimeLeaderboard } from '../constants.ts';
 import { LeaderboardEntry, User } from '../types.ts';
@@ -85,10 +85,14 @@ const Leaderboard: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'daily' | 'allTime'>('allTime'); // Default to allTime for real data
   const [realData, setRealData] = useState<LeaderboardEntry[]>([]);
   const [loading, setLoading] = useState(false);
+  const [srMessage, setSrMessage] = useState('');
+  const dailyTabRef = useRef<HTMLButtonElement>(null);
+  const allTimeTabRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
     const fetchLeaderboard = async () => {
       setLoading(true);
+      let loadedCount = 0;
       if (activeTab === 'allTime') {
         try {
           const users = await getLeaderboard(50);
@@ -99,23 +103,54 @@ const Leaderboard: React.FC = () => {
               points: u.points
             }));
             setRealData(mapped);
+            loadedCount = mapped.length;
           } else {
             // Fallback to constants if no data
             setRealData(allTimeLeaderboard);
+            loadedCount = allTimeLeaderboard.length;
           }
         } catch (err) {
           console.error(err);
           setRealData(allTimeLeaderboard);
+          loadedCount = allTimeLeaderboard.length;
         }
       } else {
         // Daily is still mocked for now
         setRealData(dailyLeaderboard);
+        loadedCount = dailyLeaderboard.length;
       }
       setLoading(false);
+      setSrMessage(`Loading complete. Showing ${activeTab === 'allTime' ? 'all-time legends' : 'daily pulse'} leaderboard with ${loadedCount} learners.`);
     };
 
     fetchLeaderboard();
   }, [activeTab]);
+
+  useEffect(() => {
+    setSrMessage(`Switched to ${activeTab === 'allTime' ? 'all-time legends' : 'daily pulse'} tab.`);
+  }, [activeTab]);
+
+  const handleTabKeyDown = (event: React.KeyboardEvent<HTMLButtonElement>) => {
+    const orderedTabs: Array<'daily' | 'allTime'> = ['daily', 'allTime'];
+    const currentIndex = orderedTabs.indexOf(activeTab);
+
+    if (event.key === 'ArrowRight' || event.key === 'ArrowLeft') {
+      event.preventDefault();
+      const direction = event.key === 'ArrowRight' ? 1 : -1;
+      const nextIndex = (currentIndex + direction + orderedTabs.length) % orderedTabs.length;
+      const nextTab = orderedTabs[nextIndex];
+      setActiveTab(nextTab);
+      (nextTab === 'daily' ? dailyTabRef : allTimeTabRef).current?.focus();
+    } else if (event.key === 'Home') {
+      event.preventDefault();
+      setActiveTab('daily');
+      dailyTabRef.current?.focus();
+    } else if (event.key === 'End') {
+      event.preventDefault();
+      setActiveTab('allTime');
+      allTimeTabRef.current?.focus();
+    }
+  };
 
   const spotlight = useMemo(() => realData.slice(0, 3), [realData]);
   const others = useMemo(() => realData.slice(3), [realData]);
@@ -146,16 +181,34 @@ const Leaderboard: React.FC = () => {
         <p className="text-lg text-slate-500 dark:text-slate-400 max-w-2xl mx-auto">
           Celebrate the top learners making waves in the community.
         </p>
-
-        <div className="inline-flex items-center gap-1 p-1 rounded-full bg-white/80 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 mx-auto mt-6 shadow-sm">
+        <div className="sr-only" role="status" aria-live="polite">{srMessage}</div>
+        <div
+          className="inline-flex items-center gap-1 p-1 rounded-full bg-white/80 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 mx-auto mt-6 shadow-sm"
+          role="tablist"
+          aria-label="Leaderboard views"
+        >
           <button
+            ref={dailyTabRef}
             onClick={() => setActiveTab('daily')}
+            onKeyDown={handleTabKeyDown}
+            role="tab"
+            id="leaderboard-tab-daily"
+            aria-controls="leaderboard-panel"
+            aria-selected={activeTab === 'daily'}
+            tabIndex={activeTab === 'daily' ? 0 : -1}
             className={`px-6 py-2 rounded-full text-sm font-bold transition-all ${activeTab === 'daily' ? 'bg-slate-900 dark:bg-slate-600 text-white shadow-lg' : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'}`}
           >
             Daily Pulse
           </button>
           <button
+            ref={allTimeTabRef}
             onClick={() => setActiveTab('allTime')}
+            onKeyDown={handleTabKeyDown}
+            role="tab"
+            id="leaderboard-tab-all-time"
+            aria-controls="leaderboard-panel"
+            aria-selected={activeTab === 'allTime'}
+            tabIndex={activeTab === 'allTime' ? 0 : -1}
             className={`px-6 py-2 rounded-full text-sm font-bold transition-all ${activeTab === 'allTime' ? 'bg-brand-primary text-white shadow-lg' : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'}`}
           >
             All-Time Legends
@@ -166,9 +219,10 @@ const Leaderboard: React.FC = () => {
       {loading ? (
         <div className="flex justify-center py-20">
           <Icon name="spinner" className="w-10 h-10 animate-spin text-brand-primary" />
+          <span className="sr-only">Loading leaderboard data</span>
         </div>
       ) : (
-        <>
+        <div role="tabpanel" id="leaderboard-panel" aria-labelledby={activeTab === 'daily' ? 'leaderboard-tab-daily' : 'leaderboard-tab-all-time'}>
           {/* Top 3 Spotlight */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-end py-10">
             {/* Rank 2 */}
@@ -258,7 +312,7 @@ const Leaderboard: React.FC = () => {
               <LeaderboardRow key={entry.rank} entry={entry} isMe={user && entry.user.uid === user.uid} index={idx + 4} />
             ))}
           </div>
-        </>
+        </div>
       )}
 
       {/* Sticky User Rank Bar */}

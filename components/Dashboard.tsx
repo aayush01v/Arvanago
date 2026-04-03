@@ -163,6 +163,7 @@ const Dashboard: React.FC<DashboardProps> = ({ user, courses, navigateToFiltered
 
   const currentDate = new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
   const firstName = user.name.split(' ')[0];
+  const metricAnnouncement = `Dashboard metrics updated. Total points ${user.points.toLocaleString()}, current streak ${user.streak} days, completed courses 8.`;
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
@@ -174,9 +175,9 @@ const Dashboard: React.FC<DashboardProps> = ({ user, courses, navigateToFiltered
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.5 }}
         >
-          <h2 className="text-3xl font-black text-slate-900 dark:text-white tracking-tight">
+          <h1 className="text-3xl font-black text-slate-900 dark:text-white tracking-tight">
             Hello, <span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-primary to-brand-secondary">{firstName}</span> 👋
-          </h2>
+          </h1>
           <p className="text-slate-500 dark:text-slate-400 mt-2 font-medium">
             Let's make today productive. You're doing great!
           </p>
@@ -193,6 +194,9 @@ const Dashboard: React.FC<DashboardProps> = ({ user, courses, navigateToFiltered
       </div>
 
       {/* Stats Grid */}
+      <p className="sr-only" aria-live="polite" role="status">
+        {metricAnnouncement}
+      </p>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
         <StatCard
           icon="star"
@@ -225,9 +229,9 @@ const Dashboard: React.FC<DashboardProps> = ({ user, courses, navigateToFiltered
 
           <section>
             <div className="flex items-center justify-between mb-6">
-              <h3 className="text-xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
+              <h2 className="text-xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
                 <Icon name="play" className="w-5 h-5 text-brand-primary" /> Continue Learning
-              </h3>
+              </h2>
             </div>
 
             <motion.div
@@ -267,7 +271,7 @@ const Dashboard: React.FC<DashboardProps> = ({ user, courses, navigateToFiltered
 
         {/* Right Column: Discover (1/3 width) */}
         <div className="space-y-6">
-          <h3 className="text-xl font-bold text-slate-900 dark:text-white">Explore Categories</h3>
+          <h2 className="text-xl font-bold text-slate-900 dark:text-white">Explore Categories</h2>
           <motion.div
             className="grid grid-cols-2 lg:grid-cols-1 xl:grid-cols-2 gap-3"
             variants={{
@@ -292,7 +296,7 @@ const Dashboard: React.FC<DashboardProps> = ({ user, courses, navigateToFiltered
           <div className="bg-gradient-to-br from-brand-primary to-brand-secondary rounded-3xl p-6 text-white relative overflow-hidden shadow-xl">
             <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full blur-2xl translate-x-10 -translate-y-10" />
             <div className="relative z-10">
-              <h4 className="font-bold text-lg mb-2">Weekly Goal</h4>
+              <h2 className="font-bold text-lg mb-2">Weekly Goal</h2>
               <p className="text-white/90 text-sm mb-4">Complete 3 lessons to maintain your streak!</p>
               <div className="w-full bg-black/20 rounded-full h-2 mb-2">
                 <div className="bg-white h-full rounded-full w-[60%]" />

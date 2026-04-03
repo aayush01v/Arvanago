@@ -251,6 +251,8 @@ const icons: { [key: string]: React.ReactNode } = {
 };
 
 const Icon: React.FC<IconProps> = ({ name, className = "w-6 h-6", ...props }) => {
+  const isDecorative = props['aria-label'] === undefined && props['aria-labelledby'] === undefined;
+
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -264,6 +266,8 @@ const Icon: React.FC<IconProps> = ({ name, className = "w-6 h-6", ...props }) =>
       strokeLinejoin="round"
       className={className}
       {...props}
+      aria-hidden={isDecorative ? true : props['aria-hidden']}
+      focusable={isDecorative ? false : props.focusable}
     >
       {icons[name]}
     </svg>

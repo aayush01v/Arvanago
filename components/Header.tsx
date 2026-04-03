@@ -66,7 +66,7 @@ const Header: React.FC<HeaderProps> = ({
               <button
                 onClick={onMenuClick}
                 className="flex h-9 w-9 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-500 shadow-sm transition-colors hover:bg-slate-50 hover:text-slate-700 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-400 dark:hover:bg-slate-700 dark:hover:text-slate-200 md:hidden"
-                aria-label="Open menu"
+                aria-label="Open navigation menu"
               >
                 <Icon name="menu" className="h-5 w-5" />
               </button>
@@ -102,7 +102,7 @@ const Header: React.FC<HeaderProps> = ({
               <button
                 onClick={onSearchClick}
                 className="relative flex h-9 w-9 items-center justify-center rounded-full text-slate-500 hover:bg-slate-100 hover:text-brand-primary dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-white transition-colors"
-                aria-label="Search"
+                aria-label="Search courses and content"
               >
                 <Icon name="search" className="h-5 w-5" />
               </button>
@@ -115,7 +115,7 @@ const Header: React.FC<HeaderProps> = ({
                   <Link to="/profile" className="hidden text-right md:block hover:opacity-80 transition-opacity">
                     <p className="text-sm font-medium text-slate-900 dark:text-white leading-none">{user.name}</p>
                   </Link>
-                  <Link to="/profile" className="hover:opacity-80 transition-opacity">
+                  <Link to="/profile" className="hover:opacity-80 transition-opacity" aria-label="Open your profile">
                     <img
                       src={user.avatar}
                       alt={user.name}
