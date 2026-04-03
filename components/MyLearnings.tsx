@@ -239,8 +239,8 @@ const MyLearnings: React.FC<MyLearningsProps> = ({ user, courses, navigateToCour
     return (
         <div className="w-full rhythm-stack-lg animate-fade-in pb-24">
             <div className="rounded-2xl bg-white dark:bg-slate-900 p-6 md:p-8 border border-slate-200 dark:border-slate-700 rhythm-stack-md">
-                <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
-                    <div>
+                <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-4">
+                    <div className="min-w-0">
                         <motion.h1
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
@@ -258,7 +258,7 @@ const MyLearnings: React.FC<MyLearningsProps> = ({ user, courses, navigateToCour
                         </motion.p>
                     </div>
 
-                    <div className="relative w-full md:w-80">
+                    <div className="relative w-full lg:w-80 lg:flex-shrink-0">
                         <input
                             type="text"
                             placeholder="Search your library..."
@@ -277,7 +277,7 @@ const MyLearnings: React.FC<MyLearningsProps> = ({ user, courses, navigateToCour
                         onClick={() => navigateToCourse(resumeCourse)}
                         className="w-full rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 p-4 md:p-5 text-left hover:border-brand-primary/40 transition-colors"
                     >
-                        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+                        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3">
                             <div className="rhythm-stack-xs">
                                 <p className="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Resume next</p>
                                 <h2 className="text-lg font-semibold text-slate-900 dark:text-white">{resumeCourse.title}</h2>
@@ -300,7 +300,7 @@ const MyLearnings: React.FC<MyLearningsProps> = ({ user, courses, navigateToCour
                     <button
                         key={tab.id}
                         onClick={() => setActiveTab(tab.id)}
-                        className={`px-4 py-2 rounded-xl font-semibold text-sm transition-all duration-200 outline-none border ${
+                        className={`px-4 py-2 rounded-xl font-semibold text-sm transition-all duration-200 outline-none border whitespace-nowrap ${
                             activeTab === tab.id
                                 ? 'text-white bg-slate-900 dark:bg-brand-primary border-transparent'
                                 : 'text-slate-600 dark:text-slate-400 bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700 hover:border-brand-primary/40'
