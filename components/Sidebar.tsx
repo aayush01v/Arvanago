@@ -1,6 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import { NavLink } from 'react-router-dom';
 import Icon from './common/Icon.tsx';
+import { SHELL_TOKENS } from './shell/tokens.ts';
 
 import { signOutUser } from '../services/authService.ts';
 import { LOGO_URL } from '../constants.ts';
@@ -146,7 +147,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isSidebarOpen, setSidebarOpen, isDark
                         name={item.icon}
                         className={`h-5 w-5 transition-colors ${isActive ? 'text-brand-primary' : 'text-text-secondary group-hover:text-text-primary'}`}
                       />
-                      <span>{item.label}</span>
+                      <span className={SHELL_TOKENS.drawer.navLabel}>{item.label}</span>
                     </>
                   )}
                 </NavLink>
@@ -157,7 +158,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isSidebarOpen, setSidebarOpen, isDark
 
         <div className="border-t border-border-subtle/60 p-3 dark:border-border-subtle/50">
           <div className="space-y-1">
-
+            <p className={`px-3 ${SHELL_TOKENS.drawer.navHeader}`}>Settings</p>
 
             {/* Settings Link */}
             <NavLink

@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 import Sidebar from './Sidebar.tsx';
 import Header from './Header.tsx';
+import MobileBottomNav from './MobileBottomNav.tsx';
 import { Course, User } from '@/types';
 import IncomingCallListener from '@/components/IncomingCallListener';
 
@@ -205,7 +206,10 @@ const SidebarLayout: React.FC<SidebarLayoutProps> = ({
 
   return (
     <>
-      <div className="relative min-h-screen overflow-hidden bg-gradient-to-br from-slate-100 via-white to-slate-200 text-slate-800 dark:from-slate-950 dark:via-slate-950 dark:to-slate-900 dark:text-gray-200">
+      <div
+        className="relative min-h-screen overflow-hidden bg-gradient-to-br from-slate-100 via-white to-slate-200 text-slate-800 dark:from-slate-950 dark:via-slate-950 dark:to-slate-900 dark:text-gray-200"
+        style={{ '--app-shell-header-height': '4rem' } as React.CSSProperties}
+      >
 
         <div className="pointer-events-none fixed -top-24 -left-24 h-72 w-72 rounded-full opacity-70 dark:opacity-40 will-change-transform" style={{ background: 'radial-gradient(circle, rgba(124, 58, 237, 0.4) 0%, transparent 70%)', animation: 'pulseGlow 14s ease-in-out infinite' }} />
         <div className="pointer-events-none fixed bottom-[-6rem] left-1/2 h-80 w-80 -translate-x-1/2 rounded-full opacity-70 dark:opacity-40 will-change-transform" style={{ background: 'radial-gradient(circle, rgba(56, 189, 248, 0.25) 0%, transparent 70%)', animation: 'pulseGlow 18s ease-in-out infinite reverse' }} />
@@ -246,7 +250,7 @@ const SidebarLayout: React.FC<SidebarLayoutProps> = ({
               unreadChatCount={unreadCount}
               onSearchClick={() => setIsSearchModalOpen(true)}
             />
-            <main className={`relative ${location.pathname === '/chat' ? 'z-40 p-0 sm:p-4 h-[calc(100vh-4rem)] md:h-auto overflow-hidden' : 'z-10 px-2 pb-24 pt-4 sm:px-6 sm:pb-6 lg:px-10'}`}>
+            <main className={`relative ${location.pathname === '/chat' ? 'z-40 p-0 sm:p-4 h-[calc(100dvh-var(--app-shell-header-height))] md:h-auto overflow-hidden' : 'z-10 px-2 pb-24 pt-4 sm:px-6 sm:pb-6 lg:px-10'}`}>
               {location.pathname === '/chat' ? (
                 <div className="h-full w-full max-w-7xl mx-auto">
                   {children || <Outlet context={sidebarContext} />}
@@ -280,7 +284,10 @@ const SidebarLayout: React.FC<SidebarLayoutProps> = ({
           />
         </React.Suspense>
 
-        {/* Mobile Bottom Navigation */}
+        <MobileBottomNav
+          user={user}
+          unreadChatCount={unreadCount}
+        />
 
       </div>
     </>

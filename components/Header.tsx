@@ -4,6 +4,7 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import Icon from './common/Icon.tsx';
 import { User } from '../types.ts';
 import { LOGO_URL } from '../constants.ts';
+import { SHELL_TOKENS } from './shell/tokens.ts';
 
 interface HeaderProps {
   user: User | null;
@@ -48,7 +49,7 @@ const Header: React.FC<HeaderProps> = ({
         }`}
     >
       <div className="relative mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="flex h-16 items-center justify-between gap-4 md:h-18">
+        <div className={`flex ${SHELL_TOKENS.header.height} items-center justify-between gap-4`}>
 
           {/* Left Section: Menu & Logo (Mobile) / Title (Desktop) */}
           <div className="flex items-center gap-4 flex-1">
@@ -80,7 +81,7 @@ const Header: React.FC<HeaderProps> = ({
             )}
 
             {/* Mobile Logo */}
-            <div className="flex items-center gap-2 md:hidden">
+            <div className={SHELL_TOKENS.header.mobileLogoWrap}>
               <img src={LOGO_URL} alt="Edusimulate" className="h-7 w-auto" />
               <span className="text-base font-bold text-slate-900 dark:text-white">Edusimulate</span>
             </div>
@@ -97,7 +98,7 @@ const Header: React.FC<HeaderProps> = ({
           </div>
 
           {/* Right Section: Actions & Profile */}
-          <div className="flex items-center gap-3 md:gap-4 justify-end">
+          <div className={SHELL_TOKENS.header.actionCluster}>
 
             {/* Mobile Page Title (Center-ish if needed, or just hidden/simplified) */}
             <div className="md:hidden hidden sm:block">
@@ -116,7 +117,7 @@ const Header: React.FC<HeaderProps> = ({
             )}
 
             {/* Profile Dropdown / Info */}
-            <div className="flex items-center gap-3 pl-3 border-l border-slate-200 dark:border-slate-700">
+            <div className={SHELL_TOKENS.header.avatarCluster}>
               {user ? (
                 <>
                   <Link to="/profile" className="hidden text-right md:block hover:opacity-80 transition-opacity">
