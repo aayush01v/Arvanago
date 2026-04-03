@@ -1,6 +1,7 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
 import Icon from './common/Icon.tsx';
+import { SHELL_TOKENS } from './shell/tokens.ts';
 
 import { signOutUser } from '../services/authService.ts';
 import { LOGO_URL } from '../constants.ts';
@@ -38,17 +39,17 @@ const Sidebar: React.FC<SidebarProps> = ({ isSidebarOpen, setSidebarOpen, isDark
         onClick={() => setSidebarOpen(false)}
       />
       <aside
-        className={`fixed inset-y-0 left-0 z-40 flex w-56 flex-col overflow-hidden border-r border-slate-200 bg-white text-slate-800 transition-transform duration-300 dark:border-slate-800 dark:bg-slate-900 dark:text-white ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'
+        className={`${SHELL_TOKENS.drawer.container} ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'
           } md:translate-x-0 h-[100dvh]`}
       >
-        <div className="relative flex h-14 items-center border-b border-slate-100 px-4 dark:border-slate-800/50 md:h-16 shrink-0">
+        <div className={SHELL_TOKENS.drawer.topBar}>
           <img src={LOGO_URL} alt="Edusimulate Logo" className="mr-2 h-6 w-auto" />
-          <span className="text-base font-bold tracking-tight text-slate-900 dark:text-white">Edusimulate</span>
+          <span className="text-base font-bold tracking-tight text-white">Edusimulate</span>
         </div>
 
         <nav className="flex-1 overflow-y-auto py-4 max-h-[calc(100dvh-8rem)]">
           <div className="px-3 mb-2">
-            <p className="text-xs font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500 pl-3 mb-2">Menu</p>
+            <p className={SHELL_TOKENS.drawer.navHeader}>Menu</p>
           </div>
           <ul className="space-y-1">
             {navItems.map((item) => (
@@ -66,9 +67,9 @@ const Sidebar: React.FC<SidebarProps> = ({ isSidebarOpen, setSidebarOpen, isDark
                     handleNavigate();
                   }}
                   className={({ isActive }) =>
-                    `group flex items-center gap-3 rounded-lg px-4 py-2.5 text-sm font-medium transition-all duration-200 ${isActive
-                      ? 'bg-brand-primary/10 text-brand-primary'
-                      : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-slate-200'
+                    `${SHELL_TOKENS.drawer.navLinkBase} ${SHELL_TOKENS.drawer.navLabel} ${isActive
+                      ? SHELL_TOKENS.drawer.navLinkActive
+                      : SHELL_TOKENS.drawer.navLinkInactive
                     }`
                   }
                 >
@@ -76,9 +77,9 @@ const Sidebar: React.FC<SidebarProps> = ({ isSidebarOpen, setSidebarOpen, isDark
                     <>
                       <Icon
                         name={item.icon}
-                        className={`h-5 w-5 transition-colors ${isActive ? 'text-brand-primary' : 'text-slate-400 group-hover:text-slate-600 dark:text-slate-500 dark:group-hover:text-slate-300'}`}
+                        className={`h-5 w-5 transition-colors ${isActive ? SHELL_TOKENS.drawer.iconActive : SHELL_TOKENS.drawer.iconInactive}`}
                       />
-                      <span>{item.label}</span>
+                      <span className={SHELL_TOKENS.drawer.navLabel}>{item.label}</span>
                     </>
                   )}
                 </NavLink>
@@ -87,26 +88,30 @@ const Sidebar: React.FC<SidebarProps> = ({ isSidebarOpen, setSidebarOpen, isDark
           </ul>
         </nav>
 
-        <div className="border-t border-slate-100 p-3 dark:border-slate-800">
+        <div className="border-t border-slate-800 p-3">
           <div className="space-y-1">
-
+            <p className={`px-3 ${SHELL_TOKENS.drawer.navHeader}`}>Settings</p>
 
             {/* Settings Link */}
             <NavLink
               to="/settings"
               onClick={handleNavigate}
               className={({ isActive }) =>
-                `group flex w-full items-center gap-3 rounded-lg px-4 py-2.5 text-sm font-medium transition-colors ${isActive
-                  ? 'bg-brand-primary/10 text-brand-primary'
-                  : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-slate-200'
+                `${SHELL_TOKENS.drawer.navLinkBase} ${SHELL_TOKENS.drawer.navLabel} ${isActive
+                  ? SHELL_TOKENS.drawer.navLinkActive
+                  : SHELL_TOKENS.drawer.navLinkInactive
                 }`
               }
             >
-              <Icon name="settings" className="h-5 w-5 text-slate-400 group-hover:text-slate-600 dark:text-slate-500 dark:group-hover:text-slate-300" />
-              <span>Settings</span>
+              {({ isActive }) => (
+                <>
+                  <Icon name="settings" className={`h-5 w-5 transition-colors ${isActive ? SHELL_TOKENS.drawer.iconActive : SHELL_TOKENS.drawer.iconInactive}`} />
+                  <span className={SHELL_TOKENS.drawer.navLabel}>Settings</span>
+                </>
+              )}
             </NavLink>
 
-            <div className="h-px bg-slate-100 dark:bg-slate-800 my-2" />
+            <div className="h-px bg-slate-800 my-2" />
 
             {user ? (
               // Logout moved to Settings > Account
@@ -115,10 +120,10 @@ const Sidebar: React.FC<SidebarProps> = ({ isSidebarOpen, setSidebarOpen, isDark
               <NavLink
                 to="/login"
                 onClick={handleNavigate}
-                className="group flex w-full items-center gap-3 rounded-lg px-4 py-2.5 text-sm font-medium text-slate-600 hover:bg-brand-primary/10 hover:text-brand-primary dark:text-slate-400 dark:hover:bg-brand-primary/20 dark:hover:text-brand-primary transition-colors"
+                className={`${SHELL_TOKENS.drawer.navLinkBase} ${SHELL_TOKENS.drawer.navLabel} text-slate-300 hover:bg-brand-primary/20 hover:text-brand-primary`}
               >
-                <Icon name="login" className="h-5 w-5 text-slate-400 group-hover:text-brand-primary dark:text-slate-500" />
-                <span>Login</span>
+                <Icon name="login" className="h-5 w-5 text-slate-500 group-hover:text-brand-primary" />
+                <span className={SHELL_TOKENS.drawer.navLabel}>Login</span>
               </NavLink>
             )}
           </div>
