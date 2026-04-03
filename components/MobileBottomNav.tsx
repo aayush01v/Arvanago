@@ -3,6 +3,7 @@ import { NavLink, matchPath, useLocation } from 'react-router-dom';
 import Icon from './common/Icon';
 import { User } from '../types';
 import { SHELL_TOKENS } from './shell/tokens';
+import { uiTokens } from './common/uiTokens';
 
 interface MobileBottomNavProps {
     user: User | null;

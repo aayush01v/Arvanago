@@ -4,7 +4,6 @@ import Icon from './common/Icon.tsx';
 import StudentAnalytics from './StudentAnalytics.tsx';
 import { motion, useReducedMotion } from 'framer-motion';
 import Button from '@/components/ui/Button.tsx';
-import Card from '@/components/ui/Card.tsx';
 import { MOTION } from '@/utils/motion.ts';
 
 interface DashboardProps {
@@ -139,11 +138,10 @@ const DashboardCourseCardComponent: React.FC<DashboardCourseCardProps> = ({ cour
             >
               <span>Continue Learning</span>
               <Icon name="arrowRight" className="w-4 h-4" />
-            </Button>
+            </button>
           </div>
         </div>
       </div>
-    </Card>
     </motion.div>
   );
 };
@@ -340,6 +338,9 @@ const Dashboard: React.FC<DashboardProps> = ({ user, courses, navigateToFiltered
     };
   }, [goalType, goalValue, lectureProgress]);
 
+  const shouldReduceMotion = useReducedMotion();
+  const completedCoursesCount = ongoingCourses.filter((course) => course.progress >= 100).length;
+
   const currentDate = new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
   const firstName = user.name.split(' ')[0];
   const primaryCourse = ongoingCourses[0];
@@ -367,7 +368,7 @@ const Dashboard: React.FC<DashboardProps> = ({ user, courses, navigateToFiltered
           className="text-sm font-bold text-slate-600 dark:text-slate-300 bg-white/80 dark:bg-slate-800/80 backdrop-blur border border-slate-200 dark:border-slate-700 px-5 py-2.5 rounded-full shadow-sm"
         >
           {currentDate}
-        </div>
+        </motion.div>
       </div>
 
       {/* Stats Grid */}
@@ -413,6 +414,7 @@ const Dashboard: React.FC<DashboardProps> = ({ user, courses, navigateToFiltered
         />
       </div>
 
+      <section className="rhythm-stack-sm">
         {primaryCourse ? (
           <div className="rhythm-stack-sm">
             <DashboardCourseCard course={primaryCourse} navigateToCourse={navigateToCourse} isPrimary />

@@ -5,7 +5,7 @@ import Header from './Header.tsx';
 import MobileBottomNav from './MobileBottomNav.tsx';
 import { Course, User } from '@/types';
 import IncomingCallListener from '@/components/IncomingCallListener';
-import AuthenticatedLayoutShell from '@/components/AuthenticatedLayoutShell';
+import Card from '@/components/ui/Card';
 
 export interface SidebarLayoutContext {
   user: User | null;
@@ -47,6 +47,7 @@ const SidebarLayout: React.FC<SidebarLayoutProps> = ({
   const mainPanelRef = useRef<HTMLDivElement>(null);
   const animationFrameRef = useRef<number | null>(null);
   const menuButtonRef = useRef<HTMLButtonElement>(null);
+  const wasSidebarOpenRef = useRef(false);
 
   const backgroundRef = useRef<HTMLDivElement>(null);
   const location = useLocation();
@@ -126,13 +127,13 @@ const SidebarLayout: React.FC<SidebarLayoutProps> = ({
     const segments = location.pathname.split('?')[0]?.split('/').filter(Boolean) ?? [];
     const [first, second, third, fourth] = segments;
 
-    const staticPages = new Map<string, { title: string; subtitle: string }>([
-      ['dashboard', { title: 'Dashboard', subtitle: 'Your learning HQ' }],
-      ['my-learnings', { title: 'My Learnings', subtitle: 'Progress tracker' }],
-      ['explore', { title: 'Explore Courses', subtitle: 'Discover new skills' }],
-      ['leaderboard', { title: 'Leaderboard', subtitle: 'Global rankings' }],
-      ['mynotes', { title: 'My Notes', subtitle: 'Vaults and linked notes' }],
-      ['profile', { title: 'Profile', subtitle: 'Personal hub' }],
+    const staticPages = new Map<string, { title: string; subtitle: string; trail: string[] }>([
+      ['dashboard', { title: 'Dashboard', subtitle: 'Your learning HQ', trail: ['Dashboard'] }],
+      ['my-learnings', { title: 'My Learnings', subtitle: 'Progress tracker', trail: ['My Learnings'] }],
+      ['explore', { title: 'Explore Courses', subtitle: 'Discover new skills', trail: ['Explore Courses'] }],
+      ['leaderboard', { title: 'Leaderboard', subtitle: 'Global rankings', trail: ['Leaderboard'] }],
+      ['mynotes', { title: 'My Notes', subtitle: 'Vaults and linked notes', trail: ['My Notes'] }],
+      ['profile', { title: 'Profile', subtitle: 'Personal hub', trail: ['Profile'] }],
     ]);
 
     if (!first) {
@@ -258,7 +259,7 @@ const SidebarLayout: React.FC<SidebarLayoutProps> = ({
                 </div>
               ) : (
                 <div className="relative mx-auto max-w-6xl">
-                  <Card variant="glass" className="glass-panel relative overflow-hidden rounded-[1.5rem] md:rounded-[2rem] transition-colors duration-500">
+                  <Card className="glass-panel relative overflow-hidden rounded-[1.5rem] md:rounded-[2rem] transition-colors duration-500">
                     <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(255,255,255,0.25),_transparent_65%)] dark:bg-[radial-gradient(circle_at_top,_rgba(148,163,184,0.2),_transparent_70%)]" />
                     <div className="pointer-events-none absolute -top-20 -left-10 h-40 w-40 rounded-full bg-brand-primary/30 blur-3xl opacity-70" style={{ animation: 'pulseGlow 16s ease-in-out infinite' }} />
                     <div className="pointer-events-none absolute bottom-[-3rem] right-[-2rem] h-48 w-48 rounded-full bg-sky-500/40 blur-3xl opacity-80" style={{ animation: 'pulseGlow 20s ease-in-out infinite alternate' }} />
@@ -267,33 +268,30 @@ const SidebarLayout: React.FC<SidebarLayoutProps> = ({
                         <span className="font-semibold text-slate-700 dark:text-slate-200">You are here:</span>{' '}
                         {currentPage.trail.join(' • ')}
                       </div>
-                      <div className="animate-fade-in-up">
-                        <div className="animate-fade-in-up">
-                          {children || <Outlet context={sidebarContext} />}
-                        </div>
-                      </div>
+                      <div className="animate-fade-in-up">{children || <Outlet context={sidebarContext} />}</div>
                     </div>
                   </Card>
                 </div>
-              </div>
-            </div>
-          )}
-        </main>
-      </AuthenticatedLayoutShell>
+              )}
+            </main>
+          </div>
+        </div>
 
-      {isSearchModalOpen && user && (
-        <React.Suspense fallback={null}>
-          <UserSearchModal
-            isOpen={isSearchModalOpen}
-            onClose={() => setIsSearchModalOpen(false)}
-          />
-        </React.Suspense>
+        {isSearchModalOpen && user && (
+          <>
+            <React.Suspense fallback={null}>
+              <UserSearchModal
+                isOpen={isSearchModalOpen}
+                onClose={() => setIsSearchModalOpen(false)}
+              />
+            </React.Suspense>
 
-        <MobileBottomNav
-          user={user}
-          unreadChatCount={unreadCount}
-        />
-
+            <MobileBottomNav
+              user={user}
+              unreadChatCount={unreadCount}
+            />
+          </>
+        )}
       </div>
     </>
   );
