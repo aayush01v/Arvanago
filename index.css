@@ -236,3 +236,28 @@ body {
   background-color: #000;
   pointer-events: none;
 }
+
+/* Spacing rhythm utilities (8/12/16/24) */
+.rhythm-stack-xs {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem; /* 8px */
+}
+
+.rhythm-stack-sm {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem; /* 12px */
+}
+
+.rhythm-stack-md {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem; /* 16px */
+}
+
+.rhythm-stack-lg {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem; /* 24px */
+}
