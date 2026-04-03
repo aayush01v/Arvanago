@@ -2,8 +2,10 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 import Sidebar from './Sidebar.tsx';
 import Header from './Header.tsx';
+import MobileBottomNav from './MobileBottomNav.tsx';
 import { Course, User } from '@/types';
 import IncomingCallListener from '@/components/IncomingCallListener';
+import AuthenticatedLayoutShell from '@/components/AuthenticatedLayoutShell';
 
 export interface SidebarLayoutContext {
   user: User | null;
@@ -41,16 +43,13 @@ const SidebarLayout: React.FC<SidebarLayoutProps> = ({
 }) => {
   const [isSidebarOpen, setSidebarOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
+  const [isSearchModalOpen, setIsSearchModalOpen] = useState(false);
   const mainPanelRef = useRef<HTMLDivElement>(null);
   const animationFrameRef = useRef<number | null>(null);
   const menuButtonRef = useRef<HTMLButtonElement>(null);
 
   const backgroundRef = useRef<HTMLDivElement>(null);
   const location = useLocation();
-  const navigate = useNavigate();
-
-
-
 
   useEffect(() => {
     if (typeof window !== 'undefined' && window.innerWidth < 768) {
@@ -114,25 +113,26 @@ const SidebarLayout: React.FC<SidebarLayoutProps> = ({
     });
   }, []);
 
-  useEffect(() => () => {
-    if (animationFrameRef.current) {
-      cancelAnimationFrame(animationFrameRef.current);
-    }
-  }, []);
+  useEffect(
+    () => () => {
+      if (animationFrameRef.current) {
+        cancelAnimationFrame(animationFrameRef.current);
+      }
+    },
+    [],
+  );
 
   const currentPage = useMemo(() => {
     const segments = location.pathname.split('?')[0]?.split('/').filter(Boolean) ?? [];
     const [first, second, third, fourth] = segments;
 
-    const staticPages = new Map<string, { title: string; subtitle: string; trail: string[] }>([
-      ['dashboard', { title: 'Dashboard', subtitle: 'Track progress', trail: ['Dashboard'] }],
-      ['my-learnings', { title: 'My Learnings', subtitle: 'Resume courses', trail: ['My Learnings'] }],
-      ['mynotes', { title: 'My Notes', subtitle: 'Capture insights', trail: ['My Notes'] }],
-      ['explore', { title: 'Explore Courses', subtitle: 'Discover new skills', trail: ['Explore Courses'] }],
-      ['leaderboard', { title: 'Leaderboard', subtitle: 'See top performers', trail: ['Leaderboard'] }],
-      ['profile', { title: 'Profile', subtitle: 'Manage your account', trail: ['Profile'] }],
-      ['settings', { title: 'Settings', subtitle: 'Update preferences', trail: ['Settings'] }],
-      ['chat', { title: 'Chat', subtitle: 'Stay connected', trail: ['Chat'] }],
+    const staticPages = new Map<string, { title: string; subtitle: string }>([
+      ['dashboard', { title: 'Dashboard', subtitle: 'Your learning HQ' }],
+      ['my-learnings', { title: 'My Learnings', subtitle: 'Progress tracker' }],
+      ['explore', { title: 'Explore Courses', subtitle: 'Discover new skills' }],
+      ['leaderboard', { title: 'Leaderboard', subtitle: 'Global rankings' }],
+      ['mynotes', { title: 'My Notes', subtitle: 'Vaults and linked notes' }],
+      ['profile', { title: 'Profile', subtitle: 'Personal hub' }],
     ]);
 
     if (!first) {
@@ -178,44 +178,39 @@ const SidebarLayout: React.FC<SidebarLayoutProps> = ({
     return { title: 'Dashboard', subtitle: 'Track progress', trail: ['Dashboard'] };
   }, [courses, location.pathname]);
 
-  const [isSearchModalOpen, setIsSearchModalOpen] = useState(false);
-
-  // Detect mobile
   const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
-
-
-
-  // Calculate unread count (Deprecated, chat moved to separate page)
   const unreadCount = 0;
-
   const UserSearchModal = React.lazy(() => import('./UserSearchModal'));
 
-
-
-  // Memoize context to prevent unnecessary re-renders
-  const sidebarContext = useMemo(() => ({
-    user,
-    courses,
-    onProfileUpdate,
-    coursesLoading,
-    coursesError,
-    refreshCourses: onRefreshCourses,
-    isDarkMode,
-    onThemeToggle,
-  }), [
-    user,
-    courses,
-    onProfileUpdate,
-    coursesLoading,
-    coursesError,
-    onRefreshCourses,
-    isDarkMode,
-    onThemeToggle
-  ]);
+  const sidebarContext = useMemo(
+    () => ({
+      user,
+      courses,
+      onProfileUpdate,
+      coursesLoading,
+      coursesError,
+      refreshCourses: onRefreshCourses,
+      isDarkMode,
+      onThemeToggle,
+    }),
+    [
+      user,
+      courses,
+      onProfileUpdate,
+      coursesLoading,
+      coursesError,
+      onRefreshCourses,
+      isDarkMode,
+      onThemeToggle,
+    ],
+  );
 
   return (
     <>
-      <div className="relative min-h-screen overflow-hidden bg-gradient-to-br from-slate-100 via-white to-slate-200 text-slate-800 dark:from-slate-950 dark:via-slate-950 dark:to-slate-900 dark:text-gray-200">
+      <div
+        className="relative min-h-screen overflow-hidden bg-gradient-to-br from-slate-100 via-white to-slate-200 text-slate-800 dark:from-slate-950 dark:via-slate-950 dark:to-slate-900 dark:text-gray-200"
+        style={{ '--app-shell-header-height': '4rem' } as React.CSSProperties}
+      >
 
         <div className="pointer-events-none fixed -top-24 -left-24 h-72 w-72 rounded-full opacity-70 dark:opacity-40 will-change-transform" style={{ background: 'radial-gradient(circle, rgba(124, 58, 237, 0.4) 0%, transparent 70%)', animation: 'pulseGlow 14s ease-in-out infinite' }} />
         <div className="pointer-events-none fixed bottom-[-6rem] left-1/2 h-80 w-80 -translate-x-1/2 rounded-full opacity-70 dark:opacity-40 will-change-transform" style={{ background: 'radial-gradient(circle, rgba(56, 189, 248, 0.25) 0%, transparent 70%)', animation: 'pulseGlow 18s ease-in-out infinite reverse' }} />
@@ -256,14 +251,14 @@ const SidebarLayout: React.FC<SidebarLayoutProps> = ({
               unreadChatCount={unreadCount}
               onSearchClick={() => setIsSearchModalOpen(true)}
             />
-            <main className={`relative ${location.pathname === '/chat' ? 'z-40 p-0 sm:p-4 h-[calc(100vh-4rem)] md:h-auto overflow-hidden' : 'z-10 px-2 pb-24 pt-4 sm:px-6 sm:pb-6 lg:px-10'}`}>
+            <main className={`relative ${location.pathname === '/chat' ? 'z-40 p-0 sm:p-4 h-[calc(100dvh-var(--app-shell-header-height))] md:h-auto overflow-hidden' : 'z-10 px-2 pb-24 pt-4 sm:px-6 sm:pb-6 lg:px-10'}`}>
               {location.pathname === '/chat' ? (
                 <div className="h-full w-full max-w-7xl mx-auto">
                   {children || <Outlet context={sidebarContext} />}
                 </div>
               ) : (
                 <div className="relative mx-auto max-w-6xl">
-                  <div className="glass-panel relative overflow-hidden rounded-[1.5rem] md:rounded-[2rem] border border-white/50 bg-white/90 shadow-xl transition-colors duration-500 dark:border-white/10 dark:bg-slate-900/90 dark:shadow-[0_4px_20px_rgba(0,0,0,0.4)]">
+                  <Card variant="glass" className="glass-panel relative overflow-hidden rounded-[1.5rem] md:rounded-[2rem] transition-colors duration-500">
                     <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(255,255,255,0.25),_transparent_65%)] dark:bg-[radial-gradient(circle_at_top,_rgba(148,163,184,0.2),_transparent_70%)]" />
                     <div className="pointer-events-none absolute -top-20 -left-10 h-40 w-40 rounded-full bg-brand-primary/30 blur-3xl opacity-70" style={{ animation: 'pulseGlow 16s ease-in-out infinite' }} />
                     <div className="pointer-events-none absolute bottom-[-3rem] right-[-2rem] h-48 w-48 rounded-full bg-sky-500/40 blur-3xl opacity-80" style={{ animation: 'pulseGlow 20s ease-in-out infinite alternate' }} />
@@ -278,23 +273,26 @@ const SidebarLayout: React.FC<SidebarLayoutProps> = ({
                         </div>
                       </div>
                     </div>
-                  </div>
+                  </Card>
                 </div>
-              )}
-            </main>
-          </div>
-        </div>
+              </div>
+            </div>
+          )}
+        </main>
+      </AuthenticatedLayoutShell>
 
-        {/* Global Chat Widget */}
+      {isSearchModalOpen && user && (
         <React.Suspense fallback={null}>
-
           <UserSearchModal
             isOpen={isSearchModalOpen}
             onClose={() => setIsSearchModalOpen(false)}
           />
         </React.Suspense>
 
-        {/* Mobile Bottom Navigation */}
+        <MobileBottomNav
+          user={user}
+          unreadChatCount={unreadCount}
+        />
 
       </div>
     </>

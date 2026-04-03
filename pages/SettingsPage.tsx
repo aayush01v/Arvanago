@@ -1,8 +1,10 @@
 import React, { useRef, useState } from 'react';
 import { useOutletContext, useLocation, useNavigate } from 'react-router-dom';
 import Icon from '../components/common/Icon';
-import { ArrowLeft } from 'lucide-react';
 import { SidebarLayoutContext } from '../components/SidebarLayout';
+import Chip from '../components/common/Chip';
+import Card from '../components/common/Card';
+import HeaderAction from '../components/common/HeaderAction';
 import { requestAccountDeletion, updateUserProfile } from '../services/firestoreService';
 import { User } from '../types';
 import { uploadToImgBB } from '../utils/uploadToImgBB';
@@ -195,9 +197,7 @@ const SettingsPage: React.FC = () => {
         <div className="w-full h-full p-4 sm:p-6 lg:p-8 animate-fade-in overflow-y-auto">
             <div className="max-w-6xl mx-auto">
                 <div className="flex items-center gap-4 mb-6">
-                    <button onClick={handleBack} className="p-2 -ml-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-500 hover:text-brand-primary hover:border-brand-primary/50 text-slate-900 dark:text-white rounded-full hover:shadow-md transition-all group" aria-label="Go Back">
-                        <ArrowLeft className="w-5 h-5 group-hover:-translate-x-0.5 transition-transform" />
-                    </button>
+                    <HeaderAction onClick={handleBack} icon="arrowLeft" className="-ml-2" aria-label="Go Back" />
                     <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Settings</h1>
                 </div>
 
@@ -206,27 +206,33 @@ const SettingsPage: React.FC = () => {
                     <aside className="w-full lg:w-64 flex-shrink-0">
                         {/* Mobile: Horizontal scroll tabs */}
                         <nav className="lg:hidden flex gap-2 overflow-x-auto pb-2 -mx-4 px-4">
-                            <button
+                            <Chip
                                 onClick={() => setActiveTab('general')}
-                                className={`flex-shrink-0 flex items-center gap-2 px-4 py-2.5 text-sm font-medium rounded-xl transition-colors whitespace-nowrap ${activeTab === 'general' ? 'bg-brand-primary text-white shadow-md' : 'bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-700'}`}
+                                active={activeTab === 'general'}
+                                variant="brand"
+                                className="flex-shrink-0 whitespace-nowrap"
                             >
                                 <Icon name="user" className="w-4 h-4" />
                                 General
-                            </button>
-                            <button
+                            </Chip>
+                            <Chip
                                 onClick={() => setActiveTab('appearance')}
-                                className={`flex-shrink-0 flex items-center gap-2 px-4 py-2.5 text-sm font-medium rounded-xl transition-colors whitespace-nowrap ${activeTab === 'appearance' ? 'bg-brand-primary text-white shadow-md' : 'bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-700'}`}
+                                active={activeTab === 'appearance'}
+                                variant="brand"
+                                className="flex-shrink-0 whitespace-nowrap"
                             >
                                 <Icon name="moon" className="w-4 h-4" />
                                 Appearance
-                            </button>
-                            <button
+                            </Chip>
+                            <Chip
                                 onClick={() => setActiveTab('account')}
-                                className={`flex-shrink-0 flex items-center gap-2 px-4 py-2.5 text-sm font-medium rounded-xl transition-colors whitespace-nowrap ${activeTab === 'account' ? 'bg-red-500 text-white shadow-md' : 'bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-700'}`}
+                                active={activeTab === 'account'}
+                                variant="danger"
+                                className="flex-shrink-0 whitespace-nowrap"
                             >
                                 <Icon name="trash" className="w-4 h-4" />
                                 Account
-                            </button>
+                            </Chip>
                         </nav>
 
                         {/* Desktop: Vertical nav */}
@@ -256,7 +262,7 @@ const SettingsPage: React.FC = () => {
                     </aside>
 
                     {/* Content Area */}
-                    <div className="flex-1 min-w-0 bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800 p-4 sm:p-6">
+                    <Card variant="surface" className="flex-1 min-w-0 p-4 sm:p-6">
                         {activeTab === 'general' && (
                             <div className="space-y-6">
                                 <div>
@@ -307,7 +313,6 @@ const SettingsPage: React.FC = () => {
                                                 </div>
                                             </div>
                                         </div>
-
                                         <div className="space-y-4">
                                             <label className="block text-sm font-medium text-slate-700 dark:text-slate-300">Cover Photo</label>
                                             <div className="relative w-full h-32 rounded-xl overflow-hidden cursor-pointer group border-2 border-slate-200 dark:border-slate-700" onClick={() => coverInputRef.current?.click()}>
@@ -552,7 +557,7 @@ const SettingsPage: React.FC = () => {
                                 </div>
                             </div>
                         )}
-                    </div>
+                    </Card>
                 </div>
 
 
