@@ -30,9 +30,15 @@ const PublicProfilePage: React.FC = () => {
 
             setLoading(true);
             try {
+                const { getFollowCounts } = await import('../services/firestoreService');
                 const user = await getUserByUsername(username);
                 if (user) {
-                    setProfileUser(user);
+                    const counts = await getFollowCounts(user.uid);
+                    setProfileUser({
+                        ...user,
+                        followers: counts.followers,
+                        following: counts.following,
+                    });
                 } else {
                     setError('User not found.');
                 }
@@ -144,16 +150,18 @@ const PublicProfilePage: React.FC = () => {
         setIsFollowing(newStatus);
         setProfileUser(prev => prev ? ({
             ...prev,
-            followers: (prev.followers || 0) + (newStatus ? 1 : -1)
+            followers: Math.max(0, (prev.followers || 0) + (newStatus ? 1 : -1))
         }) : null);
 
         try {
-            const { followUser, unfollowUser } = await import('../services/firestoreService');
+            const { followUser, unfollowUser, getFollowCounts } = await import('../services/firestoreService');
             if (newStatus) {
                 await followUser(currentUser.uid, profileUser.uid);
             } else {
                 await unfollowUser(currentUser.uid, profileUser.uid);
             }
+            const counts = await getFollowCounts(profileUser.uid);
+            setProfileUser(prev => prev ? ({ ...prev, followers: counts.followers, following: counts.following }) : prev);
         } catch (error) {
             console.error("Follow action failed:", error);
             setIsFollowing(!newStatus);

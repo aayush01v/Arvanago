@@ -1513,14 +1513,6 @@ export const followUser = async (currentUserId: string, targetUserId: string): P
   const followerRef = db.collection('users').doc(targetUserId).collection('followers').doc(currentUserId);
   batch.set(followerRef, { timestamp: firebase.firestore.FieldValue.serverTimestamp() });
 
-  // 3. Increment my 'following' count
-  const currentUserRef = db.collection('users').doc(currentUserId);
-  batch.update(currentUserRef, { following: firebase.firestore.FieldValue.increment(1) });
-
-  // 4. Increment target's 'followers' count
-  const targetUserRef = db.collection('users').doc(targetUserId);
-  batch.update(targetUserRef, { followers: firebase.firestore.FieldValue.increment(1) });
-
   await batch.commit();
 };
 
@@ -1535,15 +1527,20 @@ export const unfollowUser = async (currentUserId: string, targetUserId: string):
   const followerRef = db.collection('users').doc(targetUserId).collection('followers').doc(currentUserId);
   batch.delete(followerRef);
 
-  // 3. Decrement my 'following' count
-  const currentUserRef = db.collection('users').doc(currentUserId);
-  batch.update(currentUserRef, { following: firebase.firestore.FieldValue.increment(-1) });
-
-  // 4. Decrement target's 'followers' count
-  const targetUserRef = db.collection('users').doc(targetUserId);
-  batch.update(targetUserRef, { followers: firebase.firestore.FieldValue.increment(-1) });
-
   await batch.commit();
+};
+
+export const getFollowCounts = async (userId: string): Promise<{ followers: number; following: number }> => {
+  const userRef = db.collection('users').doc(userId);
+  const [followersSnapshot, followingSnapshot] = await Promise.all([
+    userRef.collection('followers').get(),
+    userRef.collection('following').get(),
+  ]);
+
+  return {
+    followers: followersSnapshot.size,
+    following: followingSnapshot.size,
+  };
 };
 
 // --- Post System ---
