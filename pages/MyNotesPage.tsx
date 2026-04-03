@@ -9,7 +9,6 @@ import CanvasRenderer from '../components/CanvasRenderer';
 import MarkdownPreview from '../components/MarkdownPreview';
 import { Helmet } from 'react-helmet-async';
 import JSZip from 'jszip';
-import { uploadToImgBB } from '../utils/uploadToImgBB';
 
 
 const MyNotesPage: React.FC = () => {
@@ -37,16 +36,24 @@ const MyNotesPage: React.FC = () => {
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
     useEffect(() => {
+        let unsubscribeAuth: (() => void) | null = null;
+        let cancelled = false;
+
         import('../services/firebase').then(({ auth }) => {
-            const unsubscribe = auth.onAuthStateChanged(user => {
+            if (cancelled) return;
+            unsubscribeAuth = auth.onAuthStateChanged(user => {
                 if (user) {
                     setCurrentUserId(user.uid);
                 } else {
                     setLoading(false);
                 }
             });
-            return () => unsubscribe();
         });
+
+        return () => {
+            cancelled = true;
+            unsubscribeAuth?.();
+        };
     }, []);
 
     useEffect(() => {
