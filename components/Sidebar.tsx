@@ -109,12 +109,64 @@ const Sidebar: React.FC<SidebarProps> = ({ isSidebarOpen, setSidebarOpen, isDark
     }
   };
 
+  useEffect(() => {
+    if (!isSidebarOpen || typeof window === 'undefined' || window.innerWidth >= 768) {
+      return;
+    }
+
+    closeButtonRef.current?.focus();
+    const drawerEl = drawerRef.current;
+    if (!drawerEl) return;
+
+    const getFocusableElements = () =>
+      Array.from(
+        drawerEl.querySelectorAll<HTMLElement>(
+          'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
+        )
+      );
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        event.preventDefault();
+        setSidebarOpen(false);
+        return;
+      }
+
+      if (event.key !== 'Tab') {
+        return;
+      }
+
+      const focusableElements = getFocusableElements();
+      if (!focusableElements.length) {
+        return;
+      }
+
+      const firstElement = focusableElements[0];
+      const lastElement = focusableElements[focusableElements.length - 1];
+      const activeElement = document.activeElement as HTMLElement | null;
+
+      if (event.shiftKey && activeElement === firstElement) {
+        event.preventDefault();
+        lastElement.focus();
+      } else if (!event.shiftKey && activeElement === lastElement) {
+        event.preventDefault();
+        firstElement.focus();
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [isSidebarOpen, setSidebarOpen]);
+
   return (
     <>
       <div
-        className={`fixed inset-0 z-30 bg-slate-900/60 backdrop-blur-sm transition-opacity md:hidden ${isSidebarOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'
+        className={`fixed inset-0 z-30 bg-slate-900/40 backdrop-blur-[1px] transition-opacity md:hidden ${isSidebarOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'
           }`}
         onClick={() => setSidebarOpen(false)}
+        aria-hidden="true"
       />
       <aside
         ref={drawerRef}
@@ -152,7 +204,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isSidebarOpen, setSidebarOpen, isDark
           </NavLink>
         </div>
 
-        <nav className="flex-1 overflow-y-auto py-4 max-h-[calc(100dvh-8rem)]">
+        <nav className="flex-1 overflow-y-auto py-4 max-h-[calc(100dvh-8rem)]" role="menu" aria-label="Main menu">
           <div className="px-3 mb-2">
             <p className="text-xs font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500 pl-3 mb-2">Menu</p>
           </div>
@@ -161,6 +213,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isSidebarOpen, setSidebarOpen, isDark
               <li key={item.to} className="px-2">
                 <NavLink
                   to={item.to}
+                  role="menuitem"
                   onClick={async () => {
                     if (item.to === '/explore' && onExploreClick) {
                       try {
@@ -172,9 +225,9 @@ const Sidebar: React.FC<SidebarProps> = ({ isSidebarOpen, setSidebarOpen, isDark
                     handleNavigate();
                   }}
                   className={({ isActive }) =>
-                    `group flex items-center gap-3 rounded-lg px-4 py-2.5 text-sm font-medium transition-all duration-200 ${isActive
+                    `group flex min-h-11 items-center gap-3 rounded-lg px-4 py-2.5 text-sm font-medium transition-all duration-200 active:scale-[0.99] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2 dark:focus-visible:ring-offset-slate-900 ${isActive
                       ? 'bg-brand-primary/10 text-brand-primary'
-                      : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-slate-200'
+                      : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900 active:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-slate-200 dark:active:bg-slate-700'
                     }`
                   }
                 >
@@ -201,11 +254,12 @@ const Sidebar: React.FC<SidebarProps> = ({ isSidebarOpen, setSidebarOpen, isDark
             {/* Settings Link */}
             <NavLink
               to="/settings"
+              role="menuitem"
               onClick={handleNavigate}
               className={({ isActive }) =>
-                `group flex w-full items-center gap-3 rounded-lg px-4 py-2.5 text-sm font-medium transition-colors ${isActive
+                `group flex min-h-11 w-full items-center gap-3 rounded-lg px-4 py-2.5 text-sm font-medium transition-colors active:scale-[0.99] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2 dark:focus-visible:ring-offset-slate-900 ${isActive
                   ? 'bg-brand-primary/10 text-brand-primary'
-                  : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-slate-200'
+                  : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900 active:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-slate-200 dark:active:bg-slate-700'
                 }`
               }
             >
@@ -221,8 +275,9 @@ const Sidebar: React.FC<SidebarProps> = ({ isSidebarOpen, setSidebarOpen, isDark
             ) : (
               <NavLink
                 to="/login"
+                role="menuitem"
                 onClick={handleNavigate}
-                className="group flex w-full items-center gap-3 rounded-lg px-4 py-2.5 text-sm font-medium text-slate-600 hover:bg-brand-primary/10 hover:text-brand-primary dark:text-slate-400 dark:hover:bg-brand-primary/20 dark:hover:text-brand-primary transition-colors"
+                className="group flex min-h-11 w-full items-center gap-3 rounded-lg px-4 py-2.5 text-sm font-medium text-slate-600 transition-colors hover:bg-brand-primary/10 hover:text-brand-primary active:scale-[0.99] active:bg-brand-primary/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2 dark:text-slate-400 dark:hover:bg-brand-primary/20 dark:hover:text-brand-primary dark:active:bg-brand-primary/25 dark:focus-visible:ring-offset-slate-900"
               >
                 <Icon name="login" className="h-5 w-5 text-slate-400 group-hover:text-brand-primary dark:text-slate-500" />
                 <span>Login</span>

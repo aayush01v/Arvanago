@@ -59,6 +59,13 @@ const SidebarLayout: React.FC<SidebarLayoutProps> = ({
   }, [location.pathname]);
 
   useEffect(() => {
+    if (wasSidebarOpenRef.current && !isSidebarOpen) {
+      menuButtonRef.current?.focus();
+    }
+    wasSidebarOpenRef.current = isSidebarOpen;
+  }, [isSidebarOpen]);
+
+  useEffect(() => {
     const panel = mainPanelRef.current;
     if (!panel) return;
 
