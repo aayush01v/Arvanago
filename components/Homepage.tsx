@@ -61,23 +61,23 @@ const Homepage: React.FC<HomepageProps> = ({ onNavigateToLogin }) => {
             </div>
 
             {/* Header */}
-            <header className="absolute top-0 left-0 right-0 z-50 pt-6 px-6">
-                <div className="container mx-auto flex justify-between items-center backdrop-blur-sm bg-white/30 dark:bg-black/20 rounded-full px-6 py-3 border border-white/40 dark:border-white/5">
-                    <div className="flex items-center gap-3">
+            <header className="absolute top-0 left-0 right-0 z-50 pt-6 px-4 sm:px-6">
+                <div className="container mx-auto flex justify-between items-center backdrop-blur-sm bg-white/30 dark:bg-black/20 rounded-full px-4 sm:px-6 py-3 border border-white/40 dark:border-white/5 gap-3">
+                    <div className="flex items-center gap-2 sm:gap-3 min-w-0">
                         <div className="relative">
                             <div className="absolute inset-0 bg-brand-primary blur-md opacity-50"></div>
                             <img src={LOGO_URL} alt="Logo" className="relative h-8 w-8" />
                         </div>
-                        <span className="text-lg font-bold tracking-tight text-slate-900 dark:text-white">Edusimulate</span>
+                        <span className="text-base sm:text-lg font-bold tracking-tight text-slate-900 dark:text-white whitespace-nowrap">Edusimulate</span>
                     </div>
-                    <div className="flex items-center gap-4">
+                    <div className="flex items-center gap-2 sm:gap-4 shrink-0">
                         <button onClick={() => setIsInfoModalOpen(true)} className="hidden md:flex items-center gap-2 text-sm font-medium text-slate-600 dark:text-slate-300 hover:text-brand-primary transition-colors">
                             <Icon name="mail" className="w-4 h-4" /> Contact
                         </button>
                         <div className="h-4 w-px bg-slate-300 dark:bg-slate-700 hidden md:block"></div>
                         <button
                             onClick={onNavigateToLogin}
-                            className="group relative min-w-[170px] px-6 py-2.5 rounded-full bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-semibold text-sm tracking-tight shadow-xl hover:shadow-2xl hover:-translate-y-0.5 transition-all duration-300 overflow-hidden"
+                            className="group relative min-w-[132px] sm:min-w-[170px] px-4 sm:px-6 py-2.5 rounded-full bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-semibold text-xs sm:text-sm tracking-tight shadow-xl hover:shadow-2xl hover:-translate-y-0.5 transition-all duration-300 overflow-hidden"
                         >
                             <div className="absolute inset-0 bg-gradient-to-r from-brand-primary to-purple-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                             <span className="relative z-10 whitespace-nowrap leading-none group-hover:text-white transition-colors">Start Learning</span>
