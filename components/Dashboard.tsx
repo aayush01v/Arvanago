@@ -15,15 +15,29 @@ interface StatCardProps {
   icon: string;
   value: string;
   label: string;
-  trend?: string;
+  meaning: string;
+  ctaLabel: string;
+  onCtaClick: () => void;
+  emptyStateCopy?: string;
+  isEmpty?: boolean;
   bgGradient: string;
 }
 
-const StatCardComponent: React.FC<StatCardProps> = ({ icon, value, label, trend, bgGradient }) => {
+const StatCardComponent: React.FC<StatCardProps> = ({
+  icon,
+  value,
+  label,
+  meaning,
+  ctaLabel,
+  onCtaClick,
+  emptyStateCopy,
+  isEmpty,
+  bgGradient,
+}) => {
   return (
     <motion.div
       whileHover={{ y: -5 }}
-      className={`relative overflow-hidden rounded-2xl p-6 shadow-sm border border-slate-100 dark:border-slate-700/50 ${bgGradient} dark:bg-slate-800`}
+      className={`relative overflow-hidden rounded-2xl p-6 shadow-sm border border-slate-100 dark:border-slate-700/50 ${bgGradient} dark:bg-slate-800 h-full flex flex-col`}
     >
       <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full blur-2xl -translate-y-1/2 translate-x-1/2" />
 
@@ -31,17 +45,26 @@ const StatCardComponent: React.FC<StatCardProps> = ({ icon, value, label, trend,
         <div className="p-3 rounded-xl bg-white/90 dark:bg-slate-900/50 backdrop-blur-sm shadow-sm text-slate-700 dark:text-white">
           <Icon name={icon} className="w-6 h-6" />
         </div>
-        {trend && (
-          <span className="flex items-center gap-1 text-xs font-bold bg-white/80 dark:bg-black/20 px-2 py-1 rounded-lg backdrop-blur text-slate-700 dark:text-white/90">
-            <Icon name="trending-up" className="w-3 h-3" /> {trend}
-          </span>
+        <span className="text-[11px] font-bold uppercase tracking-wider bg-white/80 dark:bg-black/20 px-2 py-1 rounded-lg backdrop-blur text-slate-700 dark:text-white/90">
+          {label}
+        </span>
+      </div>
+
+      <div className="relative z-10 mt-6 space-y-2">
+        <h3 className="text-3xl font-black text-slate-900 dark:text-white tracking-tight">{value}</h3>
+        <p className="text-sm font-semibold text-slate-700 dark:text-slate-300">{meaning}</p>
+        {isEmpty && emptyStateCopy && (
+          <p className="text-xs font-medium text-slate-500 dark:text-slate-400">{emptyStateCopy}</p>
         )}
       </div>
 
-      <div className="relative z-10 mt-6">
-        <h3 className="text-3xl font-black text-slate-900 dark:text-white tracking-tight">{value}</h3>
-        <p className="font-medium text-slate-600 dark:text-slate-300 mt-1 opacity-90">{label}</p>
-      </div>
+      <button
+        onClick={onCtaClick}
+        className="relative z-10 mt-5 inline-flex items-center justify-center gap-2 rounded-xl bg-slate-900 dark:bg-white px-4 py-2.5 text-sm font-bold text-white dark:text-slate-900 hover:opacity-90 transition-opacity"
+      >
+        {ctaLabel}
+        <Icon name="arrowRight" className="w-4 h-4" />
+      </button>
     </motion.div>
   );
 };
@@ -161,6 +184,17 @@ const Dashboard: React.FC<DashboardProps> = ({ user, courses, navigateToFiltered
     [user.ongoingCourses, courses]
   );
 
+  const completedCoursesCount = useMemo(() => {
+    const trackedCourseIds = Array.from(new Set([...user.enrolledCourses, ...user.ongoingCourses]));
+    return trackedCourseIds.reduce((count, courseId) => {
+      const course = courses.find((c) => c.id === courseId);
+      if (course && course.progress >= 100) {
+        return count + 1;
+      }
+      return count;
+    }, 0);
+  }, [courses, user.enrolledCourses, user.ongoingCourses]);
+
   const currentDate = new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
   const firstName = user.name.split(' ')[0];
 
@@ -198,20 +232,39 @@ const Dashboard: React.FC<DashboardProps> = ({ user, courses, navigateToFiltered
           icon="star"
           value={user.points.toLocaleString()}
           label="Total Points"
-          trend="+12%"
+          meaning={user.points > 0 ? '+12% vs last 7 days' : 'Today: 0 points, 7 days: 0 points'}
+          isEmpty={user.points === 0}
+          emptyStateCopy="No points yet—finish your first module to earn points."
+          ctaLabel="Review Notes"
+          onCtaClick={() => navigateToFilteredCourses('all')}
           bgGradient="bg-gradient-to-br from-yellow-50 to-orange-50 dark:from-yellow-900/10 dark:to-orange-900/10"
         />
         <StatCard
           icon="zap"
           value={`${user.streak} Days`}
           label="Current Streak"
-          trend="Rolling 🔥"
+          meaning={user.streak > 0 ? `${user.streak}-day streak; complete 1 lesson today to extend.` : 'No active streak yet; complete 1 lesson today to begin.'}
+          isEmpty={user.streak === 0}
+          emptyStateCopy="No streak yet—complete today\'s lesson to start your streak."
+          ctaLabel="Continue Lesson"
+          onCtaClick={() => {
+            if (ongoingCourses[0]) {
+              navigateToCourse(ongoingCourses[0]);
+              return;
+            }
+            navigateToFilteredCourses('all');
+          }}
           bgGradient="bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/10 dark:to-indigo-900/10"
         />
         <StatCard
           icon="check"
-          value="8"
+          value={completedCoursesCount.toString()}
           label="Completed Courses"
+          meaning={completedCoursesCount > 0 ? `${completedCoursesCount} finished all-time` : 'All-time completions: 0'}
+          isEmpty={completedCoursesCount === 0}
+          emptyStateCopy="No completions yet—start a daily quiz to finish your first course faster."
+          ctaLabel="Start Daily Quiz"
+          onCtaClick={() => navigateToFilteredCourses('all')}
           bgGradient="bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-900/10 dark:to-emerald-900/10"
         />
       </div>
