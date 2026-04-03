@@ -1,5 +1,8 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Outlet, useLocation } from 'react-router-dom';
+import { Outlet, useLocation, useNavigate } from 'react-router-dom';
+import Sidebar from './Sidebar.tsx';
+import Header from './Header.tsx';
+import MobileBottomNav from './MobileBottomNav.tsx';
 import { Course, User } from '@/types';
 import IncomingCallListener from '@/components/IncomingCallListener';
 import AuthenticatedLayoutShell from '@/components/AuthenticatedLayoutShell';
@@ -43,6 +46,9 @@ const SidebarLayout: React.FC<SidebarLayoutProps> = ({
   const [isSearchModalOpen, setIsSearchModalOpen] = useState(false);
   const mainPanelRef = useRef<HTMLDivElement>(null);
   const animationFrameRef = useRef<number | null>(null);
+  const menuButtonRef = useRef<HTMLButtonElement>(null);
+  const wasSidebarOpenRef = useRef(false);
+
   const backgroundRef = useRef<HTMLDivElement>(null);
   const location = useLocation();
 
@@ -51,6 +57,13 @@ const SidebarLayout: React.FC<SidebarLayoutProps> = ({
       setSidebarOpen(false);
     }
   }, [location.pathname]);
+
+  useEffect(() => {
+    if (wasSidebarOpenRef.current && !isSidebarOpen) {
+      menuButtonRef.current?.focus();
+    }
+    wasSidebarOpenRef.current = isSidebarOpen;
+  }, [isSidebarOpen]);
 
   useEffect(() => {
     const panel = mainPanelRef.current;
@@ -187,38 +200,69 @@ const SidebarLayout: React.FC<SidebarLayoutProps> = ({
 
   return (
     <>
-      <IncomingCallListener currentUser={user} />
-      <AuthenticatedLayoutShell
-        user={user}
-        isSidebarOpen={isSidebarOpen}
-        setSidebarOpen={setSidebarOpen}
-        isDarkMode={isDarkMode}
-        onThemeToggle={onThemeToggle}
-        isScrolled={isScrolled}
-        pageTitle={currentPage.title}
-        pageSubtitle={currentPage.subtitle}
-        isMobile={isMobile}
-        pathname={location.pathname}
-        unreadCount={unreadCount}
-        onSearchClick={() => setIsSearchModalOpen(true)}
-        mainPanelRef={mainPanelRef}
-        backgroundRef={backgroundRef}
-        onPanelPointerMove={handlePanelPointerMove}
-        onPanelPointerLeave={handlePanelPointerLeave}
+      <div
+        className="relative min-h-screen overflow-hidden bg-gradient-to-br from-slate-100 via-white to-slate-200 text-slate-800 dark:from-slate-950 dark:via-slate-950 dark:to-slate-900 dark:text-gray-200"
+        style={{ '--app-shell-header-height': '4rem' } as React.CSSProperties}
       >
-        <main
-          className={`relative ${location.pathname === '/chat' ? 'z-40 h-[calc(100vh-4rem)] overflow-hidden p-0 sm:p-4 md:h-auto' : 'z-10 px-2 pb-24 pt-4 sm:px-6 sm:pb-6 lg:px-10'}`}
-        >
-          {location.pathname === '/chat' ? (
-            <div className="mx-auto h-full w-full max-w-7xl">{children || <Outlet context={sidebarContext} />}</div>
-          ) : (
-            <div className="relative mx-auto max-w-6xl">
-              <div className="glass-panel relative overflow-hidden rounded-[1.5rem] border border-white/50 bg-white/90 shadow-xl transition-colors duration-500 dark:border-white/10 dark:bg-slate-900/90 dark:shadow-[0_4px_20px_rgba(0,0,0,0.4)] md:rounded-[2rem]">
-                <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(255,255,255,0.25),_transparent_65%)] dark:bg-[radial-gradient(circle_at_top,_rgba(148,163,184,0.2),_transparent_70%)]" />
-                <div className="pointer-events-none absolute -left-10 -top-20 h-40 w-40 rounded-full bg-brand-primary/30 opacity-70 blur-3xl" style={{ animation: 'pulseGlow 16s ease-in-out infinite' }} />
-                <div className="pointer-events-none absolute bottom-[-3rem] right-[-2rem] h-48 w-48 rounded-full bg-sky-500/40 opacity-80 blur-3xl" style={{ animation: 'pulseGlow 20s ease-in-out infinite alternate' }} />
-                <div className="relative z-10 p-3 sm:p-6 lg:p-10">
-                  <div className="animate-fade-in-up">{children || <Outlet context={sidebarContext} />}</div>
+
+        <div className="pointer-events-none fixed -top-24 -left-24 h-72 w-72 rounded-full opacity-70 dark:opacity-40 will-change-transform" style={{ background: 'radial-gradient(circle, rgba(124, 58, 237, 0.4) 0%, transparent 70%)', animation: 'pulseGlow 14s ease-in-out infinite' }} />
+        <div className="pointer-events-none fixed bottom-[-6rem] left-1/2 h-80 w-80 -translate-x-1/2 rounded-full opacity-70 dark:opacity-40 will-change-transform" style={{ background: 'radial-gradient(circle, rgba(56, 189, 248, 0.25) 0%, transparent 70%)', animation: 'pulseGlow 18s ease-in-out infinite reverse' }} />
+        <div className="pointer-events-none fixed top-1/3 right-[-8rem] h-96 w-96 rounded-full opacity-60 dark:opacity-30 will-change-transform" style={{ background: 'radial-gradient(circle, rgba(168, 85, 247, 0.35) 0%, transparent 70%)', animation: 'driftGlow 22s ease-in-out infinite' }} />
+        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(43,131,198,0.12),_transparent_55%)] dark:bg-[radial-gradient(circle_at_top,_rgba(43,131,198,0.15),_transparent_60%)]" />
+        <div className="relative z-10 flex min-h-screen">
+          <IncomingCallListener currentUser={user} />
+          <Sidebar
+            isSidebarOpen={isSidebarOpen}
+            setSidebarOpen={setSidebarOpen}
+            isDarkMode={isDarkMode}
+            setDarkMode={onThemeToggle}
+            user={user}
+          />
+          <div
+            ref={mainPanelRef}
+            className={`relative flex flex-1 flex-col md:ml-56 ${location.pathname === '/chat' && isMobile ? 'overflow-hidden' : 'overflow-y-auto'}`}
+            onMouseMove={handlePanelPointerMove}
+            onMouseLeave={handlePanelPointerLeave}
+          >
+            <div
+              ref={backgroundRef}
+              className="pointer-events-none absolute inset-0 opacity-90 transition-[background] duration-700 ease-out"
+              style={{
+                background: `radial-gradient(ellipse at 50% 50%, rgba(43,131,198,0.16), rgba(43,131,198,0) 55%)`,
+              }}
+            />
+            <Header
+              user={user}
+              onMenuClick={() => setSidebarOpen(true)}
+              menuButtonRef={menuButtonRef}
+              isMenuOpen={isSidebarOpen}
+              isScrolled={isScrolled}
+              pageTitle={currentPage.title}
+              pageSubtitle={currentPage.subtitle}
+              isDarkMode={isDarkMode}
+              onThemeToggle={onThemeToggle}
+              unreadChatCount={unreadCount}
+              onSearchClick={() => setIsSearchModalOpen(true)}
+            />
+            <main className={`relative ${location.pathname === '/chat' ? 'z-40 p-0 sm:p-4 h-[calc(100dvh-var(--app-shell-header-height))] md:h-auto overflow-hidden' : 'z-10 px-2 pb-24 pt-4 sm:px-6 sm:pb-6 lg:px-10'}`}>
+              {location.pathname === '/chat' ? (
+                <div className="h-full w-full max-w-7xl mx-auto">
+                  {children || <Outlet context={sidebarContext} />}
+                </div>
+              ) : (
+                <div className="relative mx-auto max-w-6xl">
+                  <Card variant="glass" className="glass-panel relative overflow-hidden rounded-[1.5rem] md:rounded-[2rem] transition-colors duration-500">
+                    <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(255,255,255,0.25),_transparent_65%)] dark:bg-[radial-gradient(circle_at_top,_rgba(148,163,184,0.2),_transparent_70%)]" />
+                    <div className="pointer-events-none absolute -top-20 -left-10 h-40 w-40 rounded-full bg-brand-primary/30 blur-3xl opacity-70" style={{ animation: 'pulseGlow 16s ease-in-out infinite' }} />
+                    <div className="pointer-events-none absolute bottom-[-3rem] right-[-2rem] h-48 w-48 rounded-full bg-sky-500/40 blur-3xl opacity-80" style={{ animation: 'pulseGlow 20s ease-in-out infinite alternate' }} />
+                    <div className="relative z-10 p-3 sm:p-6 lg:p-10">
+                      <div className="animate-fade-in-up">
+                        <div className="animate-fade-in-up">
+                          {children || <Outlet context={sidebarContext} />}
+                        </div>
+                      </div>
+                    </div>
+                  </Card>
                 </div>
               </div>
             </div>
@@ -233,7 +277,13 @@ const SidebarLayout: React.FC<SidebarLayoutProps> = ({
             onClose={() => setIsSearchModalOpen(false)}
           />
         </React.Suspense>
-      )}
+
+        <MobileBottomNav
+          user={user}
+          unreadChatCount={unreadCount}
+        />
+
+      </div>
     </>
   );
 };

@@ -7,6 +7,8 @@ import { updateUserProfile } from '@/services/firestoreService.ts';
 import { useRazorpayEnrollment } from '@/hooks/useRazorpayEnrollment';
 import Icon from '@/components/common/Icon';
 import SEO from '@/components/SEO';
+import Card from '@/components/common/Card';
+import Chip from '@/components/common/Chip';
 
 const Toast: React.FC<{ message: string; isVisible: boolean; onClose: () => void }> = ({ message, isVisible, onClose }) => {
   useEffect(() => {
@@ -18,12 +20,12 @@ const Toast: React.FC<{ message: string; isVisible: boolean; onClose: () => void
 
   return (
     <div className={`fixed bottom-6 right-6 z-[9999] transition-all duration-500 ease-out ${isVisible ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0 pointer-events-none'}`}>
-      <div className="glass-reflection flex items-center gap-3 px-6 py-3 rounded-full bg-white/90 dark:bg-slate-800/90 border border-white/40 dark:border-slate-700 shadow-2xl backdrop-blur-md text-slate-800 dark:text-white">
-        <span className="flex items-center justify-center w-6 h-6 rounded-full bg-gradient-to-br from-green-400 to-green-600 text-white shadow-md">
+      <Card variant="glass" className="glass-reflection flex items-center gap-3 rounded-full px-4 py-2 backdrop-blur-md text-slate-800 dark:text-white">
+        <Chip variant="success" active className="w-8 justify-center p-0">
           <Icon name="check" className="w-3.5 h-3.5" />
-        </span>
+        </Chip>
         <span className="text-sm font-semibold tracking-wide">{message}</span>
-      </div>
+      </Card>
     </div>
   );
 };

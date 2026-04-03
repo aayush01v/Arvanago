@@ -19,6 +19,14 @@ export const dailyLeaderboard: LeaderboardEntry[] = [
   { rank: 5, user: { uid: 'mock-5', name: 'Liam Goldberg', avatar: 'https://i.pravatar.cc/150?u=liam' }, points: 820 },
 ];
 
+export const weeklyLeaderboard: LeaderboardEntry[] = [
+  { rank: 1, user: { uid: 'mock-weekly-1', name: 'Aarav Mehta', avatar: 'https://i.pravatar.cc/150?u=aarav' }, points: 5180 },
+  { rank: 2, user: { uid: 'mock-weekly-2', name: 'Sophia Chen', avatar: 'https://i.pravatar.cc/150?u=sophia' }, points: 4920 },
+  { rank: 3, user: { uid: 'mock-weekly-3', name: 'Noah Patel', avatar: 'https://i.pravatar.cc/150?u=noah' }, points: 4610 },
+  { rank: 4, user: { uid: 'mock-weekly-4', name: 'Alex Johnson', avatar: 'https://i.pravatar.cc/150?u=alexjohnson' }, points: 4360 },
+  { rank: 5, user: { uid: 'mock-weekly-5', name: 'Olivia Rodriguez', avatar: 'https://i.pravatar.cc/150?u=olivia' }, points: 4080 },
+];
+
 export const allTimeLeaderboard: LeaderboardEntry[] = [
   { rank: 1, user: { uid: 'mock-legend-1', name: 'Ethan Williams', avatar: 'https://i.pravatar.cc/150?u=ethan' }, points: 95200 },
   { rank: 2, user: { uid: 'mock-legend-2', name: 'Chloe Kim', avatar: 'https://i.pravatar.cc/150?u=chloe' }, points: 89750 },

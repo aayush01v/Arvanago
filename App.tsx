@@ -45,6 +45,7 @@ const AdminBlogPage = React.lazy(() => import('@/pages/AdminBlogPage'));
 const MyNotesPage = React.lazy(() => import('@/pages/MyNotesPage'));
 const PublicNotePage = React.lazy(() => import('@/pages/PublicNotePage'));
 const VideoPreviewPage = React.lazy(() => import('@/pages/VideoPreviewPage'));
+const DesignSystemReferencePage = React.lazy(() => import('@/pages/DesignSystemReferencePage'));
 import AdminRoute from '@/components/AdminRoute';
 
 const SuspenseFallback: React.FC = () => (
@@ -402,6 +403,7 @@ const App: React.FC = () => {
                   <Route path="/chat" element={<ChatPage />} />
                   <Route path="/profile" element={<ProfilePage />} />
                   <Route path="/settings" element={<SettingsPage />} />
+                  <Route path="/design-system/reference" element={<DesignSystemReferencePage />} />
                   {/* Public Profile moved out to allow guest access */}
                   <Route path="/courses/:courseId/learn" element={<CourseLearnPage />} />
                   <Route

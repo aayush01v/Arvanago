@@ -1,7 +1,8 @@
 import React from 'react';
-import { NavLink, useLocation } from 'react-router-dom';
+import { NavLink, matchPath, useLocation } from 'react-router-dom';
 import Icon from './common/Icon';
 import { User } from '../types';
+import { SHELL_TOKENS } from './shell/tokens';
 
 interface MobileBottomNavProps {
     user: User | null;
@@ -14,11 +15,12 @@ const MobileBottomNav: React.FC<MobileBottomNavProps> = ({ user, unreadChatCount
     // Don't show on login page or if no user (though layout might handle that)
     if (!user) return null;
 
-    const navItems: { name: string; icon: string; path: string; exact?: boolean }[] = [
-        { name: 'Home', icon: 'layout', path: '/dashboard' },
-        { name: 'Explore', icon: 'compass', path: '/explore' },
-        { name: 'Chat', icon: 'message-circle', path: '/chat' },
-        { name: 'Profile', icon: 'user', path: '/profile' },
+    const navItems: { name: string; icon: string; path: string; patterns: string[] }[] = [
+        { name: 'Dashboard', icon: 'dashboard', path: '/dashboard', patterns: ['/dashboard'] },
+        { name: 'Learnings', icon: 'bookmark', path: '/my-learnings', patterns: ['/my-learnings'] },
+        { name: 'Leaderboard', icon: 'leaderboard', path: '/leaderboard', patterns: ['/leaderboard'] },
+        { name: 'Notes', icon: 'file-text', path: '/mynotes', patterns: ['/mynotes'] },
+        { name: 'Chat', icon: 'message-circle', path: '/chat', patterns: ['/chat'] },
     ];
 
     return (
@@ -28,7 +30,9 @@ const MobileBottomNav: React.FC<MobileBottomNavProps> = ({ user, unreadChatCount
 
             <div className="relative flex items-center justify-around h-[4.5rem] px-2 pb-safe-area-bottom">
                 {navItems.map((item) => {
-                    const isActive = location.pathname === item.path || (item.path !== '/dashboard' && location.pathname.startsWith(item.path));
+                    const isActive = item.patterns.some((pattern) =>
+                        Boolean(matchPath({ path: `${pattern}/*`, end: false }, location.pathname) || matchPath({ path: pattern, end: true }, location.pathname))
+                    );
 
                     return (
                         <NavLink
@@ -50,7 +54,7 @@ const MobileBottomNav: React.FC<MobileBottomNavProps> = ({ user, unreadChatCount
                                     name={item.icon}
                                     className={`w-6 h-6 transition-transform duration-300 ${isActive ? 'scale-110' : 'scale-100'}`}
                                     fill={isActive ? 'currentColor' : 'none'}
-                                    strokeWidth={isActive ? 2.5 : 2}
+                                    strokeWidth={isActive ? uiTokens.icon.activeStrokeWidth : uiTokens.icon.strokeWidth}
                                 />
 
                                 {/* Unread Badge for Chat */}
@@ -61,7 +65,7 @@ const MobileBottomNav: React.FC<MobileBottomNavProps> = ({ user, unreadChatCount
                                 )}
                             </div>
 
-                            <span className={`text-[10px] font-medium transition-opacity duration-300 ${isActive ? 'opacity-100' : 'opacity-70'}`}>
+                            <span className={`${SHELL_TOKENS.drawer.navLabel} text-[10px] transition-opacity duration-300 ${isActive ? 'opacity-100' : 'opacity-70'}`}>
                                 {item.name}
                             </span>
                         </NavLink>
