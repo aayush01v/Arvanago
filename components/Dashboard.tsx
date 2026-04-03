@@ -28,19 +28,19 @@ const StatCardComponent: React.FC<StatCardProps> = ({ icon, value, label, trend,
       <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full blur-2xl -translate-y-1/2 translate-x-1/2" />
 
       <div className="relative z-10 flex justify-between items-start">
-        <div className="p-3 rounded-xl bg-white/90 dark:bg-slate-900/50 backdrop-blur-sm shadow-sm text-slate-700 dark:text-white">
+        <div className="p-3 rounded-xl bg-white/90 dark:bg-slate-900/50 backdrop-blur-sm shadow-sm text-primary">
           <Icon name={icon} className="w-6 h-6" />
         </div>
         {trend && (
-          <span className="flex items-center gap-1 text-xs font-bold bg-white/80 dark:bg-black/20 px-2 py-1 rounded-lg backdrop-blur text-slate-700 dark:text-white/90">
+          <span className="flex items-center gap-1 text-xs font-bold bg-white/80 dark:bg-black/20 px-2 py-1 rounded-lg backdrop-blur text-primary">
             <Icon name="trending-up" className="w-3 h-3" /> {trend}
           </span>
         )}
       </div>
 
       <div className="relative z-10 mt-6">
-        <h3 className="text-3xl font-black text-slate-900 dark:text-white tracking-tight">{value}</h3>
-        <p className="font-medium text-slate-600 dark:text-slate-300 mt-1 opacity-90">{label}</p>
+        <h3 className="text-3xl font-black text-primary tracking-tight">{value}</h3>
+        <p className="font-medium text-secondary mt-1 opacity-90">{label}</p>
       </div>
     </motion.div>
   );
@@ -76,14 +76,14 @@ const DashboardCourseCardComponent: React.FC<DashboardCourseCardProps> = ({ cour
 
         <div className="p-5 flex flex-col flex-grow justify-between">
           <div>
-            <h3 className="font-bold text-lg text-slate-900 dark:text-white mb-2 line-clamp-1 group-hover:text-brand-primary transition-colors">{course.title}</h3>
-            <p className="text-sm text-slate-500 dark:text-slate-400 line-clamp-2">{course.description}</p>
+            <h3 className="font-bold text-lg text-primary mb-2 line-clamp-1 group-hover:accent-strong transition-colors">{course.title}</h3>
+            <p className="text-sm text-secondary line-clamp-2">{course.description}</p>
           </div>
 
           <div className="mt-4 pt-4 border-t border-slate-100 dark:border-slate-700">
-            <div className="flex justify-between text-xs font-bold text-slate-500 dark:text-slate-400 mb-2">
+            <div className="flex justify-between text-xs font-bold text-secondary mb-2">
               <span>Progress</span>
-              <span className="text-brand-primary">{course.progress}%</span>
+              <span className="accent-strong">{course.progress}%</span>
             </div>
             <div className="w-full bg-slate-100 dark:bg-slate-900 rounded-full h-2 overflow-hidden mb-4">
               <motion.div
@@ -132,10 +132,10 @@ const CategoryCardComponent: React.FC<CategoryCardProps> = ({ category, navigate
           <Icon name={category.icon} className="w-6 h-6" />
         </div>
       </div>
-      <span className="font-bold text-sm text-slate-800 dark:text-white mb-1">
+              <span className="font-bold text-sm text-primary mb-1">
         {category.name}
       </span>
-      <span className="text-xs text-slate-500 dark:text-slate-400 font-medium">
+      <span className="text-xs text-secondary font-medium">
         {category.desc}
       </span>
     </motion.button>
@@ -174,10 +174,10 @@ const Dashboard: React.FC<DashboardProps> = ({ user, courses, navigateToFiltered
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.5 }}
         >
-          <h2 className="text-3xl font-black text-slate-900 dark:text-white tracking-tight">
+          <h2 className="text-3xl font-black text-primary tracking-tight">
             Hello, <span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-primary to-brand-secondary">{firstName}</span> 👋
           </h2>
-          <p className="text-slate-500 dark:text-slate-400 mt-2 font-medium">
+          <p className="text-secondary mt-2 font-medium">
             Let's make today productive. You're doing great!
           </p>
         </motion.div>
@@ -186,7 +186,7 @@ const Dashboard: React.FC<DashboardProps> = ({ user, courses, navigateToFiltered
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ delay: 0.2 }}
-          className="text-sm font-bold text-slate-600 dark:text-slate-300 bg-white/80 dark:bg-slate-800/80 backdrop-blur border border-slate-200 dark:border-slate-700 px-5 py-2.5 rounded-full shadow-sm"
+          className="text-sm font-bold text-secondary bg-white/80 dark:bg-slate-800/80 backdrop-blur border border-slate-200 dark:border-slate-700 px-5 py-2.5 rounded-full shadow-sm"
         >
           {currentDate}
         </motion.div>
@@ -225,8 +225,8 @@ const Dashboard: React.FC<DashboardProps> = ({ user, courses, navigateToFiltered
 
           <section>
             <div className="flex items-center justify-between mb-6">
-              <h3 className="text-xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                <Icon name="play" className="w-5 h-5 text-brand-primary" /> Continue Learning
+              <h3 className="text-xl font-bold text-primary flex items-center gap-2">
+                <Icon name="play" className="w-5 h-5 accent-strong" /> Continue Learning
               </h3>
             </div>
 
@@ -255,7 +255,7 @@ const Dashboard: React.FC<DashboardProps> = ({ user, courses, navigateToFiltered
                   <div className="w-16 h-16 bg-slate-100 dark:bg-slate-800 rounded-full flex items-center justify-center mx-auto mb-4">
                     <Icon name="book-open" className="w-8 h-8 text-slate-400" />
                   </div>
-                  <p className="text-slate-600 dark:text-slate-400 font-bold">No active courses yet.</p>
+                  <p className="text-secondary font-bold">No active courses yet.</p>
                   <button onClick={() => navigateToFilteredCourses('all')} className="text-brand-primary text-sm font-bold mt-2 hover:underline">
                     Find something new
                   </button>
@@ -267,7 +267,7 @@ const Dashboard: React.FC<DashboardProps> = ({ user, courses, navigateToFiltered
 
         {/* Right Column: Discover (1/3 width) */}
         <div className="space-y-6">
-          <h3 className="text-xl font-bold text-slate-900 dark:text-white">Explore Categories</h3>
+          <h3 className="text-xl font-bold text-primary">Explore Categories</h3>
           <motion.div
             className="grid grid-cols-2 lg:grid-cols-1 xl:grid-cols-2 gap-3"
             variants={{

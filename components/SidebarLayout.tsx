@@ -196,7 +196,7 @@ const SidebarLayout: React.FC<SidebarLayoutProps> = ({
 
   return (
     <>
-      <div className="relative min-h-screen overflow-hidden bg-gradient-to-br from-slate-100 via-white to-slate-200 text-slate-800 dark:from-slate-950 dark:via-slate-950 dark:to-slate-900 dark:text-gray-200">
+      <div className="relative min-h-screen overflow-hidden bg-gradient-to-br from-slate-100 via-white to-slate-200 text-primary dark:from-slate-950 dark:via-slate-950 dark:to-slate-900">
 
         <div className="pointer-events-none fixed -top-24 -left-24 h-72 w-72 rounded-full opacity-70 dark:opacity-40 will-change-transform" style={{ background: 'radial-gradient(circle, rgba(124, 58, 237, 0.4) 0%, transparent 70%)', animation: 'pulseGlow 14s ease-in-out infinite' }} />
         <div className="pointer-events-none fixed bottom-[-6rem] left-1/2 h-80 w-80 -translate-x-1/2 rounded-full opacity-70 dark:opacity-40 will-change-transform" style={{ background: 'radial-gradient(circle, rgba(56, 189, 248, 0.25) 0%, transparent 70%)', animation: 'pulseGlow 18s ease-in-out infinite reverse' }} />

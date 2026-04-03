@@ -57,7 +57,7 @@ const Header: React.FC<HeaderProps> = ({
                     navigate('/dashboard');
                   }
                 }}
-                className="flex h-9 w-9 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-500 shadow-sm transition-colors hover:bg-slate-50 hover:text-slate-700 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-400 dark:hover:bg-slate-700 dark:hover:text-slate-200 md:hidden"
+                className="flex h-9 w-9 items-center justify-center rounded-lg border border-slate-200 bg-white text-secondary shadow-sm transition-colors hover:surface-muted hover:text-primary dark:border-slate-700 dark:bg-slate-800 md:hidden"
                 aria-label="Go Back"
               >
                 <Icon name="arrowLeft" className="h-5 w-5" />
@@ -65,7 +65,7 @@ const Header: React.FC<HeaderProps> = ({
             ) : (
               <button
                 onClick={onMenuClick}
-                className="flex h-9 w-9 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-500 shadow-sm transition-colors hover:bg-slate-50 hover:text-slate-700 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-400 dark:hover:bg-slate-700 dark:hover:text-slate-200 md:hidden"
+                className="flex h-9 w-9 items-center justify-center rounded-lg border border-slate-200 bg-white text-secondary shadow-sm transition-colors hover:surface-muted hover:text-primary dark:border-slate-700 dark:bg-slate-800 md:hidden"
                 aria-label="Open menu"
               >
                 <Icon name="menu" className="h-5 w-5" />
@@ -75,16 +75,16 @@ const Header: React.FC<HeaderProps> = ({
             {/* Mobile Logo */}
             <div className="flex items-center gap-2 md:hidden">
               <img src={LOGO_URL} alt="Edusimulate" className="h-7 w-auto" />
-              <span className="text-base font-bold text-slate-900 dark:text-white">Edusimulate</span>
+              <span className="text-base font-bold text-primary">Edusimulate</span>
             </div>
 
             {/* Desktop Page Title */}
             <div className="hidden md:flex flex-col">
-              <h1 className="text-xl font-bold text-slate-900 dark:text-white leading-tight">
+              <h1 className="text-xl font-bold text-primary leading-tight">
                 {pageTitle}
               </h1>
               {pageSubtitle && (
-                <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">{pageSubtitle}</p>
+                <p className="text-xs text-secondary font-medium">{pageSubtitle}</p>
               )}
             </div>
           </div>
@@ -94,14 +94,14 @@ const Header: React.FC<HeaderProps> = ({
 
             {/* Mobile Page Title (Center-ish if needed, or just hidden/simplified) */}
             <div className="md:hidden hidden sm:block">
-              <span className="text-sm font-semibold text-slate-900 dark:text-white">{pageTitle}</span>
+              <span className="text-sm font-semibold text-primary">{pageTitle}</span>
             </div>
 
             {/* Search Button */}
             {user && (
               <button
                 onClick={onSearchClick}
-                className="relative flex h-9 w-9 items-center justify-center rounded-full text-slate-500 hover:bg-slate-100 hover:text-brand-primary dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-white transition-colors"
+                className="relative flex h-9 w-9 items-center justify-center rounded-full text-secondary hover:surface-muted hover:accent-strong transition-colors"
                 aria-label="Search"
               >
                 <Icon name="search" className="h-5 w-5" />
@@ -113,7 +113,7 @@ const Header: React.FC<HeaderProps> = ({
               {user ? (
                 <>
                   <Link to="/profile" className="hidden text-right md:block hover:opacity-80 transition-opacity">
-                    <p className="text-sm font-medium text-slate-900 dark:text-white leading-none">{user.name}</p>
+                    <p className="text-sm font-medium text-primary leading-none">{user.name}</p>
                   </Link>
                   <Link to="/profile" className="hover:opacity-80 transition-opacity">
                     <img

@@ -27,12 +27,20 @@
   /* Used for header left margin */
   --size-4-9: 1rem;
   /* Used for header right margin */
+  --color-text-primary: #0f172a;
+  --color-text-secondary: #334155;
+  --color-surface-muted: #e2e8f0;
+  --color-accent-strong: #1d4ed8;
 }
 
 .dark:root {
   --canvas-color: 30, 41, 59;
   /* RGB value for dark mode */
   --canvas-background: #020617;
+  --color-text-primary: #f8fafc;
+  --color-text-secondary: #cbd5e1;
+  --color-surface-muted: #1e293b;
+  --color-accent-strong: #60a5fa;
 }
 
 *,
@@ -235,4 +243,26 @@ body {
   display: block;
   background-color: #000;
   pointer-events: none;
+}
+
+@layer utilities {
+  .text-primary {
+    color: var(--color-text-primary);
+  }
+
+  .text-secondary {
+    color: var(--color-text-secondary);
+  }
+
+  .surface-muted {
+    background-color: var(--color-surface-muted);
+  }
+
+  .accent-strong {
+    color: var(--color-accent-strong);
+  }
+
+  .bg-accent-strong {
+    background-color: var(--color-accent-strong);
+  }
 }
