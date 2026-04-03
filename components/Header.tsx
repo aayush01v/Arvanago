@@ -4,10 +4,13 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import HeaderAction from './common/HeaderAction.tsx';
 import { User } from '../types.ts';
 import { LOGO_URL } from '../constants.ts';
+import { SHELL_TOKENS } from './shell/tokens.ts';
 
 interface HeaderProps {
   user: User | null;
   onMenuClick: () => void;
+  menuButtonRef?: React.RefObject<HTMLButtonElement>;
+  isMenuOpen?: boolean;
   isScrolled: boolean;
   pageTitle: string;
   pageSubtitle?: string;
@@ -20,6 +23,8 @@ interface HeaderProps {
 const Header: React.FC<HeaderProps> = ({
   user,
   onMenuClick,
+  menuButtonRef,
+  isMenuOpen = false,
   isScrolled,
   pageTitle,
   pageSubtitle,
@@ -44,7 +49,7 @@ const Header: React.FC<HeaderProps> = ({
         }`}
     >
       <div className="relative mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="flex h-16 items-center justify-between gap-4 md:h-18">
+        <div className={`flex ${SHELL_TOKENS.header.height} items-center justify-between gap-4`}>
 
           {/* Left Section: Menu & Logo (Mobile) / Title (Desktop) */}
           <div className="flex items-center gap-4 flex-1">
@@ -57,59 +62,62 @@ const Header: React.FC<HeaderProps> = ({
                     navigate('/dashboard');
                   }
                 }}
-                icon="arrowLeft"
-                className="md:hidden"
+                className="flex h-9 w-9 items-center justify-center rounded-lg border border-slate-200 bg-white text-secondary shadow-sm transition-colors hover:surface-muted hover:text-primary dark:border-slate-700 dark:bg-slate-800 md:hidden"
                 aria-label="Go Back"
               />
             ) : (
-              <HeaderAction
+              <button
+                ref={menuButtonRef}
                 onClick={onMenuClick}
-                icon="menu"
-                className="md:hidden"
+                className="flex h-11 w-11 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-500 shadow-sm transition-colors hover:bg-slate-50 hover:text-slate-700 active:scale-[0.98] active:bg-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-400 dark:hover:bg-slate-700 dark:hover:text-slate-200 dark:active:bg-slate-700 dark:focus-visible:ring-offset-slate-900 md:hidden"
                 aria-label="Open menu"
-              />
+                aria-expanded={isMenuOpen}
+                aria-controls="mobile-navigation-drawer"
+              >
+                <Icon name="menu" className="h-5 w-5" />
+              </button>
             )}
 
             {/* Mobile Logo */}
-            <div className="flex items-center gap-2 md:hidden">
+            <div className={SHELL_TOKENS.header.mobileLogoWrap}>
               <img src={LOGO_URL} alt="Edusimulate" className="h-7 w-auto" />
-              <span className="text-base font-bold text-slate-900 dark:text-white">Edusimulate</span>
+              <span className="text-base font-bold text-primary">Edusimulate</span>
             </div>
 
             {/* Desktop Page Title */}
             <div className="hidden md:flex flex-col">
-              <h1 className="text-xl font-bold text-slate-900 dark:text-white leading-tight">
+              <h1 className="text-xl font-bold text-primary leading-tight">
                 {pageTitle}
               </h1>
               {pageSubtitle && (
-                <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">{pageSubtitle}</p>
+                <p className="text-xs text-secondary font-medium">{pageSubtitle}</p>
               )}
             </div>
           </div>
 
           {/* Right Section: Actions & Profile */}
-          <div className="flex items-center gap-3 md:gap-4 justify-end">
+          <div className={SHELL_TOKENS.header.actionCluster}>
 
             {/* Mobile Page Title (Center-ish if needed, or just hidden/simplified) */}
             <div className="md:hidden hidden sm:block">
-              <span className="text-sm font-semibold text-slate-900 dark:text-white">{pageTitle}</span>
+              <span className="text-sm font-semibold text-primary">{pageTitle}</span>
             </div>
 
             {/* Search Button */}
             {user && (
               <HeaderAction
                 onClick={onSearchClick}
-                icon="search"
+                className="relative flex h-11 w-11 items-center justify-center rounded-full text-slate-500 transition-colors hover:bg-slate-100 hover:text-brand-primary active:scale-[0.98] active:bg-slate-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-white dark:active:bg-slate-700 dark:focus-visible:ring-offset-slate-900"
                 aria-label="Search"
               />
             )}
 
             {/* Profile Dropdown / Info */}
-            <div className="flex items-center gap-3 pl-3 border-l border-slate-200 dark:border-slate-700">
+            <div className={SHELL_TOKENS.header.avatarCluster}>
               {user ? (
                 <>
                   <Link to="/profile" className="hidden text-right md:block hover:opacity-80 transition-opacity">
-                    <p className="text-sm font-medium text-slate-900 dark:text-white leading-none">{user.name}</p>
+                    <p className="text-sm font-medium text-primary leading-none">{user.name}</p>
                   </Link>
                   <Link to="/profile" className="hover:opacity-80 transition-opacity">
                     <img
