@@ -118,7 +118,7 @@ const Leaderboard: React.FC = () => {
   const showStickyBar = user && !!userRankEntry;
 
   return (
-    <div className="p-4 sm:p-6 lg:p-8 rhythm-stack-lg animate-fade-in max-w-5xl mx-auto pb-32">
+    <div className="w-full rhythm-stack-lg animate-fade-in pb-32">
       <div className="text-center rhythm-stack-sm">
         <h1 className="text-3xl md:text-4xl font-black text-slate-900 dark:text-white tracking-tight">Leaderboard</h1>
         <p className="text-slate-500 dark:text-slate-400 max-w-2xl mx-auto">

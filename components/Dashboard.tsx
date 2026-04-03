@@ -346,7 +346,7 @@ const Dashboard: React.FC<DashboardProps> = ({ user, courses, navigateToFiltered
   const primaryCourse = ongoingCourses[0];
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 rhythm-stack-lg">
+    <div className="w-full rhythm-stack-lg pb-20 sm:pb-8">
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
         <motion.div
           initial={{ opacity: 0, x: -20 }}
