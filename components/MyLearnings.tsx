@@ -2,6 +2,7 @@ import React, { useState, useMemo } from 'react';
 import { User, Course, Task } from '../types.ts';
 import Icon from './common/Icon.tsx';
 import { motion, AnimatePresence } from 'framer-motion';
+import { allTimeLeaderboard } from '../constants.ts';
 
 interface MyLearningsProps {
     user: User;
@@ -142,6 +143,24 @@ const MyLearnings: React.FC<MyLearningsProps> = ({ user, courses, navigateToCour
             task.courseTitle.toLowerCase().includes(searchTerm.toLowerCase())
         );
     }, [user.pendingTasks, searchTerm]);
+
+    const motivationLeaders = useMemo(() => {
+        const withUser = allTimeLeaderboard.some((entry) => entry.user.uid === user.uid)
+            ? allTimeLeaderboard
+            : [
+                ...allTimeLeaderboard,
+                {
+                    rank: allTimeLeaderboard.length + 1,
+                    user: { uid: user.uid, name: user.name, avatar: user.avatar || `https://i.pravatar.cc/150?u=${user.uid}` },
+                    points: user.points,
+                },
+            ];
+
+        return withUser
+            .sort((a, b) => b.points - a.points)
+            .slice(0, 5)
+            .map((entry, idx) => ({ ...entry, rank: idx + 1 }));
+    }, [user.avatar, user.name, user.points, user.uid]);
 
     const renderContent = () => {
         let content;
@@ -285,6 +304,42 @@ const MyLearnings: React.FC<MyLearningsProps> = ({ user, courses, navigateToCour
             <div className="min-h-[400px]">
                 {renderContent()}
             </div>
+
+            <section className="bg-white/60 dark:bg-slate-900/50 backdrop-blur rounded-[28px] border border-white/40 dark:border-white/10 shadow-xl p-6 md:p-8">
+                <div className="flex items-center justify-between mb-5">
+                    <div>
+                        <h3 className="text-2xl font-black text-slate-900 dark:text-white flex items-center gap-2">
+                            <Icon name="leaderboard" className="w-6 h-6 text-brand-primary" />
+                            Leaderboard Motivation
+                        </h3>
+                        <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
+                            Positioned below your modules so learning progress remains the primary focus.
+                        </p>
+                    </div>
+                </div>
+
+                <div className="space-y-3">
+                    {motivationLeaders.map((entry) => {
+                        const isUser = entry.user.uid === user.uid;
+                        return (
+                            <div
+                                key={entry.user.uid}
+                                className={`rounded-2xl px-4 py-3 border flex items-center justify-between ${isUser
+                                    ? 'bg-brand-primary/10 border-brand-primary/40'
+                                    : 'bg-white/80 dark:bg-slate-800/70 border-slate-200 dark:border-slate-700'
+                                    }`}
+                            >
+                                <div className="flex items-center gap-3">
+                                    <span className="w-8 text-sm font-black text-slate-700 dark:text-slate-200">#{entry.rank}</span>
+                                    <img src={entry.user.avatar} alt={entry.user.name} className="w-9 h-9 rounded-full object-cover border border-white/70 dark:border-slate-700" />
+                                    <p className="font-semibold text-slate-900 dark:text-white">{entry.user.name}{isUser ? ' (You)' : ''}</p>
+                                </div>
+                                <div className="text-sm font-bold text-slate-700 dark:text-slate-200">{entry.points.toLocaleString()} pts</div>
+                            </div>
+                        );
+                    })}
+                </div>
+            </section>
         </div>
     );
 };

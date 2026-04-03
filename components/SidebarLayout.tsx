@@ -44,6 +44,8 @@ const SidebarLayout: React.FC<SidebarLayoutProps> = ({
   const [isScrolled, setIsScrolled] = useState(false);
   const mainPanelRef = useRef<HTMLDivElement>(null);
   const animationFrameRef = useRef<number | null>(null);
+  const menuButtonRef = useRef<HTMLButtonElement>(null);
+  const wasSidebarOpenRef = useRef(false);
 
   const backgroundRef = useRef<HTMLDivElement>(null);
   const location = useLocation();
@@ -57,6 +59,13 @@ const SidebarLayout: React.FC<SidebarLayoutProps> = ({
       setSidebarOpen(false);
     }
   }, [location.pathname]);
+
+  useEffect(() => {
+    if (wasSidebarOpenRef.current && !isSidebarOpen) {
+      menuButtonRef.current?.focus();
+    }
+    wasSidebarOpenRef.current = isSidebarOpen;
+  }, [isSidebarOpen]);
 
   useEffect(() => {
     const panel = mainPanelRef.current;
@@ -231,6 +240,8 @@ const SidebarLayout: React.FC<SidebarLayoutProps> = ({
             <Header
               user={user}
               onMenuClick={() => setSidebarOpen(true)}
+              menuButtonRef={menuButtonRef}
+              isMenuOpen={isSidebarOpen}
               isScrolled={isScrolled}
               pageTitle={currentPage.title}
               pageSubtitle={currentPage.subtitle}

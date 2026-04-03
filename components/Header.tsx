@@ -9,6 +9,8 @@ import { SHELL_TOKENS } from './shell/tokens.ts';
 interface HeaderProps {
   user: User | null;
   onMenuClick: () => void;
+  menuButtonRef?: React.RefObject<HTMLButtonElement>;
+  isMenuOpen?: boolean;
   isScrolled: boolean;
   pageTitle: string;
   pageSubtitle?: string;
@@ -21,6 +23,8 @@ interface HeaderProps {
 const Header: React.FC<HeaderProps> = ({
   user,
   onMenuClick,
+  menuButtonRef,
+  isMenuOpen = false,
   isScrolled,
   pageTitle,
   pageSubtitle,
@@ -65,9 +69,12 @@ const Header: React.FC<HeaderProps> = ({
               </button>
             ) : (
               <button
+                ref={menuButtonRef}
                 onClick={onMenuClick}
-                className="flex h-9 w-9 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-500 shadow-sm transition-colors hover:bg-slate-50 hover:text-slate-700 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-400 dark:hover:bg-slate-700 dark:hover:text-slate-200 md:hidden"
+                className="flex h-11 w-11 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-500 shadow-sm transition-colors hover:bg-slate-50 hover:text-slate-700 active:scale-[0.98] active:bg-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-400 dark:hover:bg-slate-700 dark:hover:text-slate-200 dark:active:bg-slate-700 dark:focus-visible:ring-offset-slate-900 md:hidden"
                 aria-label="Open menu"
+                aria-expanded={isMenuOpen}
+                aria-controls="mobile-navigation-drawer"
               >
                 <Icon name="menu" className="h-5 w-5" />
               </button>
@@ -102,7 +109,7 @@ const Header: React.FC<HeaderProps> = ({
             {user && (
               <button
                 onClick={onSearchClick}
-                className={SHELL_TOKENS.header.searchButton}
+                className="relative flex h-11 w-11 items-center justify-center rounded-full text-slate-500 transition-colors hover:bg-slate-100 hover:text-brand-primary active:scale-[0.98] active:bg-slate-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-white dark:active:bg-slate-700 dark:focus-visible:ring-offset-slate-900"
                 aria-label="Search"
               >
                 <Icon name="search" className="h-5 w-5" />

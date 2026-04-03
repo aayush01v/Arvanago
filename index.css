@@ -13,6 +13,10 @@
   --glass-dark: rgba(15, 23, 42, 0.65);
   --neon-primary: #7c3aed;
   --neon-secondary: #22d3ee;
+  --color-text-primary: 15 23 42;
+  --color-text-secondary: 51 65 85;
+  --color-surface-muted: 226 232 240;
+  --color-border-subtle: 203 213 225;
 
   /* Canvas Candy Required Variables */
   --canvas-color: 255, 255, 255;
@@ -33,6 +37,25 @@
   --canvas-color: 30, 41, 59;
   /* RGB value for dark mode */
   --canvas-background: #020617;
+  --color-text-primary: 248 250 252;
+  --color-text-secondary: 203 213 225;
+  --color-surface-muted: 30 41 59;
+  --color-border-subtle: 71 85 105;
+}
+
+/* Simulated dim mobile conditions: boosted contrast to offset perceived washout. */
+:root.reduced-brightness {
+  --color-text-primary: 2 6 23;
+  --color-text-secondary: 30 41 59;
+  --color-surface-muted: 226 232 240;
+  --color-border-subtle: 148 163 184;
+}
+
+.dark:root.reduced-brightness {
+  --color-text-primary: 248 250 252;
+  --color-text-secondary: 226 232 240;
+  --color-surface-muted: 15 23 42;
+  --color-border-subtle: 100 116 139;
 }
 
 *,
