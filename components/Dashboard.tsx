@@ -95,27 +95,22 @@ const StatCard = memo(StatCardComponent);
 interface DashboardCourseCardProps {
   course: Course;
   navigateToCourse: (course: Course) => void;
+  isPrimary?: boolean;
 }
 
-const DashboardCourseCardComponent: React.FC<DashboardCourseCardProps> = ({ course, navigateToCourse }) => {
+const DashboardCourseCardComponent: React.FC<DashboardCourseCardProps> = ({ course, navigateToCourse, isPrimary = false }) => {
   return (
     <motion.div
       whileHover={{ scale: 1.02 }}
       className="group bg-white dark:bg-slate-800 rounded-2xl border border-border-subtle/80 dark:border-border-subtle/60 overflow-hidden shadow-sm hover:shadow-xl hover:border-brand-primary/20 transition-all duration-300"
     >
-      <div className="flex flex-col sm:flex-row lg:flex-col xl:flex-row h-full">
-        <div className="relative w-full sm:w-48 lg:w-full xl:w-48 h-48 sm:h-auto lg:h-48 xl:h-auto flex-shrink-0 overflow-hidden">
+      <div className="flex flex-col sm:flex-row h-full">
+        <div className={`relative w-full sm:w-52 ${isPrimary ? 'h-52' : 'h-44'} sm:h-auto flex-shrink-0 overflow-hidden`}>
           <img
             src={course.thumbnailUrl ?? course.thumbnail}
             alt={course.title}
-            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent sm:bg-gradient-to-r lg:bg-gradient-to-t xl:bg-gradient-to-r" />
-          <div className="absolute bottom-3 left-3 sm:top-3 sm:left-3 sm:bottom-auto lg:bottom-3 lg:top-auto lg:left-3 xl:top-3 xl:left-3 xl:bottom-auto">
-            <span className="px-2.5 py-1 rounded-lg bg-white/20 backdrop-blur-md border border-white/20 text-xs font-bold text-white shadow-sm">
-              {course.category}
-            </span>
-          </div>
         </div>
 
         <div className="p-5 flex flex-col flex-grow justify-between">
@@ -133,7 +128,7 @@ const DashboardCourseCardComponent: React.FC<DashboardCourseCardProps> = ({ cour
               <motion.div
                 initial={{ width: 0 }}
                 animate={{ width: `${course.progress}%` }}
-                transition={{ duration: 1, ease: "easeOut" }}
+                transition={{ duration: 0.8, ease: 'easeOut' }}
                 className="bg-brand-primary h-full rounded-full"
               />
             </div>
@@ -174,7 +169,7 @@ const CategoryCardComponent: React.FC<CategoryCardProps> = ({ category, navigate
     >
       <div className={`ui-transition mb-3 rounded-full bg-slate-50 p-4 dark:bg-slate-900 group-hover:scale-110 ${category.color.replace('bg-', 'bg-opacity-10 ')}`}>
         <div className={`${activeColorClass}-600 dark:${activeColorClass}-400`}>
-          <Icon name={category.icon} className="w-6 h-6" />
+          <Icon name={category.icon} className="w-5 h-5" />
         </div>
       </div>
       <span className="font-bold text-sm text-text-primary mb-1">
@@ -347,11 +342,10 @@ const Dashboard: React.FC<DashboardProps> = ({ user, courses, navigateToFiltered
 
   const currentDate = new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
   const firstName = user.name.split(' ')[0];
+  const primaryCourse = ongoingCourses[0];
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
-
-      {/* Header Section */}
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 rhythm-stack-lg">
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
         <motion.div
           initial={{ opacity: 0, x: -20 }}
@@ -373,7 +367,7 @@ const Dashboard: React.FC<DashboardProps> = ({ user, courses, navigateToFiltered
           className="text-sm font-bold text-slate-600 dark:text-slate-300 bg-white/80 dark:bg-slate-800/80 backdrop-blur border border-slate-200 dark:border-slate-700 px-5 py-2.5 rounded-full shadow-sm"
         >
           {currentDate}
-        </motion.div>
+        </div>
       </div>
 
       {/* Stats Grid */}
@@ -419,11 +413,32 @@ const Dashboard: React.FC<DashboardProps> = ({ user, courses, navigateToFiltered
         />
       </div>
 
-      {/* Main Content Area: Analytics + Ongoing */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        {primaryCourse ? (
+          <div className="rhythm-stack-sm">
+            <DashboardCourseCard course={primaryCourse} navigateToCourse={navigateToCourse} isPrimary />
+            {ongoingCourses.length > 1 && (
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                {ongoingCourses.slice(1, 3).map((course) => (
+                  <DashboardCourseCard key={course.id} course={course} navigateToCourse={navigateToCourse} />
+                ))}
+              </div>
+            )}
+          </div>
+        ) : (
+          <div className="py-12 text-center rounded-2xl border-2 border-dashed border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 rhythm-stack-sm">
+            <div className="w-14 h-14 bg-slate-100 dark:bg-slate-800 rounded-full flex items-center justify-center mx-auto">
+              <Icon name="book-open" className="w-7 h-7 text-slate-400" />
+            </div>
+            <p className="text-slate-600 dark:text-slate-400 font-semibold">No active courses yet.</p>
+            <button onClick={() => navigateToFilteredCourses('all')} className="text-brand-primary text-sm font-semibold hover:underline">
+              Find something new
+            </button>
+          </div>
+        )}
+      </section>
 
-        {/* Left Column: Analytics (2/3 width) */}
-        <div className="lg:col-span-2 space-y-8">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="lg:col-span-2 rhythm-stack-md">
           <StudentAnalytics user={user} courses={courses} />
 
           <section className="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 p-6 shadow-sm">
@@ -547,7 +562,7 @@ const Dashboard: React.FC<DashboardProps> = ({ user, courses, navigateToFiltered
           >
             {CATEGORY_DETAILS.map((cat, idx) => (
               <motion.div key={cat.name} variants={{ hidden: { opacity: 0, y: 20 }, show: { opacity: 1, y: 0 } }}>
-                <CategoryCard category={cat} navigateToFilteredCourses={navigateToFilteredCourses} index={0} />
+                <CategoryCard category={cat} navigateToFilteredCourses={navigateToFilteredCourses} index={idx} />
               </motion.div>
             ))}
           </motion.div>

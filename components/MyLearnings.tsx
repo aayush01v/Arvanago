@@ -12,52 +12,51 @@ interface MyLearningsProps {
 
 type Tab = 'in_progress' | 'completed' | 'wishlist' | 'tasks';
 
+const estimateEta = (progress: number): string => {
+    if (progress >= 90) return 'Under 1 hour left';
+    if (progress >= 70) return '1-2 hours left';
+    if (progress >= 40) return '2-3 hours left';
+    return '3+ hours left';
+};
+
 const CourseCard: React.FC<{ course: Course; onClick: () => void; index: number }> = React.memo(({ course, onClick, index }) => (
     <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: index * 0.05 }}
-        whileHover={{ y: -5 }}
+        whileHover={{ y: -3 }}
         onClick={onClick}
-        className="interactive-card flex flex-col rounded-3xl bg-white/60 dark:bg-slate-900/60 backdrop-blur-md border border-white/40 dark:border-white/10 shadow-lg overflow-hidden cursor-pointer group hover:shadow-2xl hover:border-brand-primary/30 transition-all duration-300"
+        className="interactive-card flex flex-col rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden cursor-pointer group"
     >
         <div className="relative h-44 overflow-hidden">
-            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent z-10 opacity-70 group-hover:opacity-50 transition-opacity" />
-            <img src={course.thumbnailUrl ?? course.thumbnail} loading="lazy" decoding="async" alt={course.title} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
-
-            <div className="absolute inset-0 flex items-center justify-center z-20 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                <div className="w-12 h-12 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center border border-white/50 text-white shadow-lg transform scale-90 group-hover:scale-100 transition-transform">
-                    <Icon name="play" className="w-5 h-5 fill-current" />
-                </div>
-            </div>
-
+            <img src={course.thumbnailUrl ?? course.thumbnail} loading="lazy" decoding="async" alt={course.title} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
             <div className="absolute top-3 right-3 z-20">
-                <div className="px-2 py-1 rounded-full bg-black/50 backdrop-blur-md border border-white/10 flex items-center gap-1">
+                <div className="px-2 py-1 rounded-full bg-slate-900/70 border border-white/10 flex items-center gap-1">
                     <Icon name="star" className="w-3 h-3 text-yellow-400 fill-current" />
-                    <span className="text-xs font-bold text-white">{course.rating || 4.8}</span>
+                    <span className="text-xs font-semibold text-white">{course.rating || 4.8}</span>
                 </div>
             </div>
         </div>
 
-        <div className="p-5 flex flex-col flex-grow">
-            <h3 className="font-bold text-lg text-slate-900 dark:text-white mb-1 line-clamp-1 group-hover:text-brand-primary transition-colors">{course.title}</h3>
-            <p className="text-sm text-slate-500 dark:text-slate-400 mb-4">{course.author.name}</p>
+        <div className="p-4 rhythm-stack-sm flex flex-col flex-grow">
+            <h3 className="font-semibold text-base text-slate-900 dark:text-white line-clamp-1 group-hover:text-brand-primary transition-colors">{course.title}</h3>
+            <p className="text-sm text-slate-500 dark:text-slate-400">{course.author.name}</p>
 
-            <div className="mt-auto">
-                <div className="flex justify-between items-center mb-1.5">
+            <div className="mt-auto rhythm-stack-xs">
+                <div className="flex justify-between items-center">
                     <span className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase">Progress</span>
-                    <span className="text-xs font-bold text-brand-primary">{course.progress}%</span>
+                    <span className="text-xs font-semibold text-brand-primary">{course.progress}%</span>
                 </div>
-                <div className="w-full bg-slate-200 dark:bg-slate-700/50 rounded-full h-1.5 overflow-hidden">
+                <div className="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-1.5 overflow-hidden">
                     <motion.div
                         initial={{ width: 0 }}
                         animate={{ width: `${course.progress}%` }}
-                        transition={{ duration: 1, ease: 'easeOut', delay: 0.2 }}
-                        className="bg-gradient-to-r from-brand-primary to-brand-secondary h-full rounded-full shadow-[0_0_8px_rgba(56,189,248,0.6)]"
+                        transition={{ duration: 0.8, ease: 'easeOut', delay: 0.1 }}
+                        className="bg-brand-primary h-full rounded-full"
                     />
                 </div>
 
-                <button className="mt-4 w-full py-2.5 rounded-xl bg-slate-100 dark:bg-white/5 text-slate-700 dark:text-slate-200 font-semibold text-sm hover:bg-brand-primary hover:text-white dark:hover:bg-brand-primary transition-all duration-300 shadow-sm border border-transparent hover:shadow-brand-primary/25">
+                <button className="mt-2 w-full py-2.5 rounded-xl bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-semibold text-sm hover:opacity-90 transition-opacity">
                     {course.progress > 0 ? 'Continue' : 'Start Course'}
                 </button>
             </div>
@@ -71,29 +70,26 @@ const TaskItem: React.FC<{ task: Task; onClick: () => void; index: number }> = R
         animate={{ opacity: 1, x: 0 }}
         transition={{ delay: index * 0.05 }}
         onClick={onClick}
-        className="interactive-card bg-white/60 dark:bg-slate-900/60 backdrop-blur-sm rounded-2xl p-5 flex items-center justify-between border border-white/50 dark:border-white/10 cursor-pointer hover:border-brand-primary/40 group transition-all shadow-sm hover:shadow-md"
+        className="bg-white dark:bg-slate-900 rounded-2xl p-4 flex items-center justify-between border border-slate-200 dark:border-slate-700 cursor-pointer hover:border-brand-primary/40 transition-all shadow-sm"
     >
         <div className="flex items-center gap-4">
-            <div className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-colors shadow-inner
-                ${task.completed
+            <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${
+                task.completed
                     ? 'bg-green-100 dark:bg-green-900/20 text-green-600 dark:text-green-400'
-                    : 'bg-brand-primary/10 text-brand-primary group-hover:bg-brand-primary group-hover:text-white'
-                }`}
-            >
-                <Icon name={task.completed ? "check" : "check-circle"} className="w-6 h-6" />
+                    : 'bg-brand-primary/10 text-brand-primary'
+            }`}>
+                <Icon name={task.completed ? 'check' : 'check-circle'} className="w-5 h-5" />
             </div>
             <div>
-                <p className="font-bold text-slate-800 dark:text-white text-lg group-hover:text-brand-primary transition-colors">{task.text}</p>
-                <p className="text-sm text-slate-500 dark:text-slate-400 flex items-center gap-2 mt-0.5">
-                    <span className="font-medium text-rose-500 bg-rose-50 dark:bg-rose-900/10 px-2 py-0.5 rounded text-xs border border-rose-100 dark:border-rose-900/20">Due {task.dueDate}</span>
+                <p className="font-semibold text-slate-800 dark:text-white">{task.text}</p>
+                <p className="text-sm text-slate-500 dark:text-slate-400 flex items-center gap-2 mt-1">
+                    <span className="font-medium">Due {task.dueDate}</span>
                     <span className="w-1 h-1 rounded-full bg-slate-300 dark:bg-slate-600" />
                     <span className="truncate max-w-[200px]">{task.courseTitle}</span>
                 </p>
             </div>
         </div>
-        <div className="w-10 h-10 rounded-full bg-white dark:bg-slate-800 flex items-center justify-center shadow-sm border border-slate-100 dark:border-slate-700 group-hover:border-brand-primary/30 group-hover:text-brand-primary transition-all">
-            <Icon name="chevronRight" className="w-5 h-5 text-slate-400" />
-        </div>
+        <Icon name="chevronRight" className="w-5 h-5 text-slate-400" />
     </motion.div>
 ));
 
@@ -115,6 +111,11 @@ const MyLearnings: React.FC<MyLearningsProps> = ({ user, courses, navigateToCour
     const inProgressCourses = useMemo(() =>
         enrolledCourses.filter(c => c.progress < 100),
         [enrolledCourses]);
+
+    const resumeCourse = useMemo(() => {
+        if (!inProgressCourses.length) return null;
+        return [...inProgressCourses].sort((a, b) => b.progress - a.progress)[0];
+    }, [inProgressCourses]);
 
     const completedCourses = useMemo(() =>
         enrolledCourses.filter(c => c.progress === 100),
@@ -191,17 +192,17 @@ const MyLearnings: React.FC<MyLearningsProps> = ({ user, courses, navigateToCour
                 <motion.div
                     initial={{ opacity: 0, scale: 0.95 }}
                     animate={{ opacity: 1, scale: 1 }}
-                    className="flex flex-col items-center justify-center py-20 bg-white/40 dark:bg-slate-800/40 rounded-[32px] border border-dashed border-slate-300 dark:border-slate-700 backdrop-blur-sm"
+                    className="flex flex-col items-center justify-center py-20 bg-white dark:bg-slate-900 rounded-2xl border border-dashed border-slate-300 dark:border-slate-700"
                 >
-                    <div className="w-24 h-24 rounded-full bg-slate-100 dark:bg-slate-700/50 flex items-center justify-center mb-6 shadow-inner">
-                        <Icon name="search" className="w-10 h-10 text-slate-400 dark:text-slate-500" />
+                    <div className="w-20 h-20 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center mb-4">
+                        <Icon name="search" className="w-8 h-8 text-slate-400 dark:text-slate-500" />
                     </div>
-                    <h3 className="text-2xl font-bold text-slate-900 dark:text-white">No items found</h3>
-                    <p className="mt-2 text-slate-500 dark:text-slate-400 text-lg">
+                    <h3 className="text-xl font-semibold text-slate-900 dark:text-white">No items found</h3>
+                    <p className="mt-2 text-slate-500 dark:text-slate-400">
                         {searchTerm ? 'Adjust filters to find what you need.' : `Your ${activeTab.replace('_', ' ')} list is empty.`}
                     </p>
                 </motion.div>
-            )
+            );
         }
 
         if (activeTab === 'tasks') {
@@ -218,14 +219,14 @@ const MyLearnings: React.FC<MyLearningsProps> = ({ user, courses, navigateToCour
         }
 
         return (
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
                 <AnimatePresence>
                     {(content as Course[]).map((course, idx) => (
                         <CourseCard key={course.id} course={course} index={idx} onClick={() => navigateToCourse(course)} />
                     ))}
                 </AnimatePresence>
             </div>
-        )
+        );
     };
 
     const tabs: { id: Tab; label: string }[] = [
@@ -236,16 +237,14 @@ const MyLearnings: React.FC<MyLearningsProps> = ({ user, courses, navigateToCour
     ];
 
     return (
-        <div className="p-4 sm:p-6 lg:p-8 space-y-8 animate-fade-in pb-24">
-            {/* Header Area */}
-            <div className="relative overflow-hidden rounded-[32px] glass-ambient dark:bg-slate-900/60 p-8 md:p-10 shadow-2xl">
-                <div className="absolute top-0 right-0 w-96 h-96 bg-brand-primary/20 rounded-full blur-[100px] pointer-events-none -translate-y-1/2 translate-x-1/2" />
-                <div className="relative z-10 flex flex-col md:flex-row md:items-end justify-between gap-6">
+        <div className="p-4 sm:p-6 lg:p-8 rhythm-stack-lg animate-fade-in pb-24">
+            <div className="rounded-2xl bg-white dark:bg-slate-900 p-6 md:p-8 border border-slate-200 dark:border-slate-700 rhythm-stack-md">
+                <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
                     <div>
                         <motion.h1
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
-                            className="text-4xl md:text-5xl font-black text-slate-900 dark:text-white tracking-tight leading-tight"
+                            className="text-3xl md:text-4xl font-black text-slate-900 dark:text-white tracking-tight"
                         >
                             My Learnings
                         </motion.h1>
@@ -253,50 +252,61 @@ const MyLearnings: React.FC<MyLearningsProps> = ({ user, courses, navigateToCour
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ delay: 0.1 }}
-                            className="text-lg text-slate-600 dark:text-slate-300 mt-2 max-w-xl"
+                            className="text-slate-600 dark:text-slate-300 mt-2"
                         >
-                            Track your progress, manage tasks, and revisit your achievements.
+                            Resume your current course first, then manage everything else.
                         </motion.p>
                     </div>
 
-                    <motion.div
-                        initial={{ opacity: 0, x: 20 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ delay: 0.2 }}
-                        className="relative w-full md:w-80"
-                    >
+                    <div className="relative w-full md:w-80">
                         <input
                             type="text"
                             placeholder="Search your library..."
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
-                            className="w-full pl-12 pr-4 py-3 bg-white/60 dark:bg-black/20 border border-white/40 dark:border-white/10 rounded-2xl focus:ring-2 focus:ring-brand-primary/50 focus:border-brand-primary outline-none transition-all placeholder:text-slate-400 text-slate-800 dark:text-white backdrop-blur-md shadow-sm"
+                            className="w-full pl-10 pr-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-brand-primary/30 focus:border-brand-primary outline-none transition-all placeholder:text-slate-400 text-slate-800 dark:text-white"
                         />
-                        <div className="absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none">
+                        <div className="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none">
                             <Icon name="search" className="w-5 h-5 text-slate-400" />
                         </div>
-                    </motion.div>
+                    </div>
                 </div>
+
+                {resumeCourse && (
+                    <button
+                        onClick={() => navigateToCourse(resumeCourse)}
+                        className="w-full rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 p-4 md:p-5 text-left hover:border-brand-primary/40 transition-colors"
+                    >
+                        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+                            <div className="rhythm-stack-xs">
+                                <p className="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Resume next</p>
+                                <h2 className="text-lg font-semibold text-slate-900 dark:text-white">{resumeCourse.title}</h2>
+                                <p className="text-sm text-slate-600 dark:text-slate-300">{resumeCourse.progress}% complete · {estimateEta(resumeCourse.progress)}</p>
+                            </div>
+                            <span className="inline-flex items-center gap-2 text-sm font-semibold text-brand-primary">
+                                Continue
+                                <Icon name="arrowRight" className="w-4 h-4" />
+                            </span>
+                        </div>
+                        <div className="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-2 mt-4 overflow-hidden">
+                            <div className="h-full bg-brand-primary rounded-full" style={{ width: `${resumeCourse.progress}%` }} />
+                        </div>
+                    </button>
+                )}
             </div>
 
-            {/* Controls Bar */}
-            <div className="flex flex-wrap gap-2 mb-8">
+            <div className="flex flex-wrap gap-3">
                 {tabs.map((tab) => (
                     <button
                         key={tab.id}
                         onClick={() => setActiveTab(tab.id)}
-                        className={`relative px-6 py-3 rounded-full font-bold text-sm transition-all duration-300 outline-none
-                            ${activeTab === tab.id ? 'text-white' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-white/5'}
-                        `}
+                        className={`px-4 py-2 rounded-xl font-semibold text-sm transition-all duration-200 outline-none border ${
+                            activeTab === tab.id
+                                ? 'text-white bg-slate-900 dark:bg-brand-primary border-transparent'
+                                : 'text-slate-600 dark:text-slate-400 bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700 hover:border-brand-primary/40'
+                        }`}
                     >
-                        {activeTab === tab.id && (
-                            <motion.div
-                                layoutId="activeTabLearning"
-                                className="absolute inset-0 bg-slate-900 dark:bg-brand-primary rounded-full shadow-lg"
-                                transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
-                            />
-                        )}
-                        <span className="relative z-10">{tab.label}</span>
+                        {tab.label}
                     </button>
                 ))}
             </div>
