@@ -6,6 +6,7 @@ import { useScrollAnimation } from '../hooks/useScrollAnimation.ts';
 import { Course } from '../types.ts';
 import { LOGO_URL } from '../constants.ts';
 import InfoModal from './InfoModal.tsx';
+import PretextHeroHeadline from './PretextHeroHeadline.tsx';
 
 interface HomepageProps {
     onNavigateToLogin: () => void;
@@ -96,10 +97,7 @@ const Homepage: React.FC<HomepageProps> = ({ onNavigateToLogin }) => {
                         EduSimulate Platform Live
                     </div>
 
-                    <h1 className="relative text-6xl md:text-8xl font-black text-slate-900 dark:text-white tracking-tighter mb-8 leading-[1.1] animate-fade-in-up">
-                        The Future of <br />
-                        <span className="inline-block text-transparent bg-clip-text bg-gradient-to-r from-blue-600 via-brand-primary to-purple-600 animate-gradient-x pb-4">Digital Learning</span>
-                    </h1>
+                    <PretextHeroHeadline text="The Future of Digital Learning" />
 
                     <p className="text-xl md:text-2xl text-slate-600 dark:text-slate-400 max-w-3xl mx-auto mb-12 leading-relaxed animate-fade-in-up font-light" style={{ animationDelay: '0.1s' }}>
                         A unified ecosystem combining <b className="text-slate-900 dark:text-white font-semibold">AI Education</b>, <b className="text-slate-900 dark:text-white font-semibold">Physics Simulation</b>, and <b className="text-slate-900 dark:text-white font-semibold">Game Publishing</b>.
