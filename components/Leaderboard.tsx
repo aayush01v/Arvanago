@@ -103,17 +103,35 @@ const Leaderboard: React.FC = () => {
     fetchLeaderboard();
   }, [activeTab]);
 
-  const topThree = useMemo(() => realData.slice(0, 3), [realData]);
-  const others = useMemo(() => realData.slice(3), [realData]);
+  const leaderboardData = useMemo(() => {
+    if (!user) return realData;
+    
+    const data = [...realData];
+    const userIndex = data.findIndex(e => e.user.uid === user.uid);
+    
+    if (userIndex !== -1) {
+      data[userIndex] = {
+        ...data[userIndex],
+        points: user.points || data[userIndex].points
+      };
+    } else {
+      data.push({
+        rank: 999,
+        user: { uid: user.uid, name: user.name, avatar: user.avatar, title: user.jobTitle },
+        points: user.points || 0
+      });
+    }
+    
+    data.sort((a, b) => b.points - a.points);
+    return data.map((entry, index) => ({ ...entry, rank: index + 1 }));
+  }, [realData, user]);
+
+  const topThree = useMemo(() => leaderboardData.slice(0, 3), [leaderboardData]);
+  const others = useMemo(() => leaderboardData.slice(3, 50), [leaderboardData]);
 
   const userRankEntry = useMemo(() => {
-    if (!user) return null;
-    return realData.find(e => e.user.uid === user.uid) || {
-      rank: 999,
-      user: { uid: user.uid, name: user.name, avatar: user.avatar, title: user.jobTitle },
-      points: user.points
-    };
-  }, [realData, user]);
+    return leaderboardData.find(e => e.user.uid === user?.uid) || null;
+  }, [leaderboardData, user]);
 
   const showStickyBar = user && !!userRankEntry;
 

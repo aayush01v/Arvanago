@@ -8,7 +8,7 @@ const googleProvider = new firebase.auth.GoogleAuthProvider();
 
 export const signInWithGoogle = async () => {
   try {
-    // FIX: Use compat syntax for signInWithPopup.
+    // FIX: Use compat syntax for signInWithPopup to avoid storage-partitioned browser environment errors.
     await auth.signInWithPopup(googleProvider);
   } catch (error: any) {
     // Log detailed error for debugging

@@ -38,16 +38,16 @@ const CourseCard: React.FC<{ course: Course; onClick: () => void; index: number 
             </div>
         </div>
 
-        <div className="p-4 rhythm-stack-sm flex flex-col flex-grow">
+        <div className="p-5 flex flex-col flex-grow gap-1">
             <h3 className="font-semibold text-base text-slate-900 dark:text-white line-clamp-1 group-hover:text-brand-primary transition-colors">{course.title}</h3>
             <p className="text-sm text-slate-500 dark:text-slate-400">{course.author.name}</p>
 
-            <div className="mt-auto rhythm-stack-xs">
-                <div className="flex justify-between items-center">
-                    <span className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase">Progress</span>
-                    <span className="text-xs font-semibold text-brand-primary">{course.progress}%</span>
+            <div className="mt-auto pt-5 flex flex-col gap-2">
+                <div className="flex justify-between items-center mb-0.5">
+                    <span className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Progress</span>
+                    <span className="text-xs font-bold text-brand-primary">{course.progress}%</span>
                 </div>
-                <div className="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-1.5 overflow-hidden">
+                <div className="w-full bg-slate-200 dark:bg-slate-700/60 rounded-full h-1.5 overflow-hidden">
                     <motion.div
                         initial={{ width: 0 }}
                         animate={{ width: `${course.progress}%` }}
@@ -56,7 +56,7 @@ const CourseCard: React.FC<{ course: Course; onClick: () => void; index: number 
                     />
                 </div>
 
-                <button className="mt-2 w-full py-2.5 rounded-xl bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-semibold text-sm hover:opacity-90 transition-opacity">
+                <button className="mt-4 w-full py-2.5 rounded-xl bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-semibold text-sm hover:opacity-90 transition-opacity">
                     {course.progress > 0 ? 'Continue' : 'Start Course'}
                 </button>
             </div>
@@ -239,8 +239,8 @@ const MyLearnings: React.FC<MyLearningsProps> = ({ user, courses, navigateToCour
     return (
         <div className="w-full rhythm-stack-lg animate-fade-in pb-24">
             <div className="rounded-2xl bg-white dark:bg-slate-900 p-6 md:p-8 border border-slate-200 dark:border-slate-700 rhythm-stack-md">
-                <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-4">
-                    <div className="min-w-0">
+                <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-6">
+                    <div className="min-w-0 xl:pr-6">
                         <motion.h1
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
@@ -258,7 +258,7 @@ const MyLearnings: React.FC<MyLearningsProps> = ({ user, courses, navigateToCour
                         </motion.p>
                     </div>
 
-                    <div className="relative w-full lg:w-80 lg:flex-shrink-0">
+                    <div className="relative w-full sm:max-w-md xl:w-80 shrink-0">
                         <input
                             type="text"
                             placeholder="Search your library..."
@@ -277,11 +277,11 @@ const MyLearnings: React.FC<MyLearningsProps> = ({ user, courses, navigateToCour
                         onClick={() => navigateToCourse(resumeCourse)}
                         className="w-full rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 p-4 md:p-5 text-left hover:border-brand-primary/40 transition-colors"
                     >
-                        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3">
-                            <div className="rhythm-stack-xs">
-                                <p className="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Resume next</p>
-                                <h2 className="text-lg font-semibold text-slate-900 dark:text-white">{resumeCourse.title}</h2>
-                                <p className="text-sm text-slate-600 dark:text-slate-300">{resumeCourse.progress}% complete · {estimateEta(resumeCourse.progress)}</p>
+                        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                            <div className="flex flex-col gap-1">
+                                <p className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Resume next</p>
+                                <h2 className="text-lg font-bold text-slate-900 dark:text-white">{resumeCourse.title}</h2>
+                                <p className="text-sm font-medium text-slate-600 dark:text-slate-300">{resumeCourse.progress}% complete · {estimateEta(resumeCourse.progress)}</p>
                             </div>
                             <span className="inline-flex items-center gap-2 text-sm font-semibold text-brand-primary">
                                 Continue

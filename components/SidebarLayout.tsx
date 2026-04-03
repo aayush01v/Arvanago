@@ -183,10 +183,20 @@ const SidebarLayout: React.FC<SidebarLayoutProps> = ({
   const unreadCount = 0;
   const UserSearchModal = React.lazy(() => import('./UserSearchModal'));
 
+  const hydratedCourses = useMemo(() => {
+    if (!user) return courses;
+    return courses.map(course => {
+      const lecturesCount = course.sections?.reduce((sum, section) => sum + section.lectures.length, 0) || course.lectures?.length || 1;
+      const completedCount = user.progress?.[course.id]?.length || 0;
+      const progress = Math.min(100, Math.round((completedCount / Math.max(1, lecturesCount)) * 100));
+      return { ...course, progress };
+    });
+  }, [courses, user]);
+
   const sidebarContext = useMemo(
     () => ({
       user,
-      courses,
+      courses: hydratedCourses,
       onProfileUpdate,
       coursesLoading,
       coursesError,
@@ -196,7 +206,7 @@ const SidebarLayout: React.FC<SidebarLayoutProps> = ({
     }),
     [
       user,
-      courses,
+      hydratedCourses,
       onProfileUpdate,
       coursesLoading,
       coursesError,
@@ -264,7 +274,7 @@ const SidebarLayout: React.FC<SidebarLayoutProps> = ({
                     <div className="pointer-events-none absolute -top-20 -left-10 h-40 w-40 rounded-full bg-brand-primary/30 blur-3xl opacity-70" style={{ animation: 'pulseGlow 16s ease-in-out infinite' }} />
                     <div className="pointer-events-none absolute bottom-[-3rem] right-[-2rem] h-48 w-48 rounded-full bg-sky-500/40 blur-3xl opacity-80" style={{ animation: 'pulseGlow 20s ease-in-out infinite alternate' }} />
                     <div className="relative z-10 p-3 sm:p-6 lg:p-10">
-                      <div className="mb-4 rounded-xl border border-slate-200/70 bg-slate-50/80 px-3 py-2 text-xs font-medium text-slate-600 dark:border-slate-700 dark:bg-slate-800/60 dark:text-slate-300">
+                      <div className="mb-4 inline-flex items-center rounded-xl border border-slate-200/70 bg-slate-50/80 px-3 py-2 text-xs font-medium text-slate-600 dark:border-slate-700 dark:bg-slate-800/60 dark:text-slate-300">
                         {currentPage.trail.join(' • ')}
                       </div>
                       <div className="animate-fade-in-up">{children || <Outlet context={sidebarContext} />}</div>

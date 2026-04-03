@@ -797,7 +797,7 @@ const GlassPreviewPlayer: React.FC<GlassPreviewPlayerProps> = ({ videoUrl, poste
             <div className="absolute inset-0 z-20 flex items-center justify-center pointer-events-none pb-8 sm:pb-0">
               <button
                 onClick={handlePlayPause}
-                className="pointer-events-auto flex h-14 w-14 sm:h-16 sm:w-16 items-center justify-center rounded-full bg-white/10 backdrop-blur-md border border-white/30 text-white shadow-[0_8px_32px_rgba(0,0,0,0.3)] transition-all duration-300 hover:bg-white/20 hover:scale-110 active:scale-95"
+                className="pointer-events-auto flex h-14 w-14 sm:h-16 sm:w-16 items-center justify-center rounded-full bg-black/40 border border-white/30 text-white shadow-lg transition-all duration-300 hover:bg-black/70 hover:scale-110 active:scale-95"
                 aria-label="Resume video"
               >
                 <Icon name="play" className="ml-1 h-6 w-6 sm:h-7 sm:w-7" />
@@ -806,7 +806,7 @@ const GlassPreviewPlayer: React.FC<GlassPreviewPlayerProps> = ({ videoUrl, poste
           )}
 
           {skipIndicator && (
-            <div className={`pointer-events-none absolute ${skipIndicator === 'back' ? 'left-6' : 'right-6'} top-1/2 -translate-y-1/2 rounded-2xl bg-black/40 px-4 py-3 text-sm font-semibold text-white backdrop-blur animate-scale-in`}>
+            <div className={`pointer-events-none absolute ${skipIndicator === 'back' ? 'left-6' : 'right-6'} top-1/2 -translate-y-1/2 rounded-2xl bg-black/80 px-4 py-3 text-sm font-semibold text-white animate-scale-in`}>
               {skipIndicator === 'back' ? '−10s' : '+10s'}
             </div>
           )}
@@ -817,16 +817,16 @@ const GlassPreviewPlayer: React.FC<GlassPreviewPlayerProps> = ({ videoUrl, poste
             <div>
               <h3 className="text-base sm:text-xl font-semibold drop-shadow-xl line-clamp-1">{title}</h3>
             </div>
-            {caption && <span className="rounded-full border border-white/30 bg-white/10 px-3 py-1 text-[10px] sm:text-xs font-semibold backdrop-blur-sm">{caption}</span>}
+            {caption && <span className="rounded-full border border-white/30 bg-black/50 px-3 py-1 text-[10px] sm:text-xs font-semibold">{caption}</span>}
           </div>
         </div>
 
         {isSettingsOpen && (
-          <div className="absolute inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm animate-fade-in" onClick={() => setIsSettingsOpen(false)}>
+          <div className="absolute inset-0 z-50 flex items-center justify-center bg-black/80 animate-fade-in" onClick={() => setIsSettingsOpen(false)}>
             <div
               ref={settingsPanelRef}
               onClick={(e) => e.stopPropagation()}
-              className="w-[90%] max-w-sm bg-black/80 border border-white/10 rounded-3xl p-6 shadow-2xl animate-scale-in backdrop-blur-xl max-h-[80%] overflow-y-auto"
+              className="w-[90%] max-w-sm bg-slate-900 border border-slate-700/50 rounded-3xl p-6 shadow-2xl animate-scale-in max-h-[80%] overflow-y-auto"
             >
               <div className="flex items-center justify-between mb-6">
                 <h3 className="text-lg font-bold tracking-wide text-white">Settings</h3>
@@ -968,8 +968,8 @@ const GlassPreviewPlayer: React.FC<GlassPreviewPlayerProps> = ({ videoUrl, poste
                 </button>
 
                 <div className="flex items-center gap-2">
-                  <button onClick={() => skipSeconds(-10)} className="p-2 rounded-full bg-white/10 text-white hover:bg-white/20 backdrop-blur-sm"><Icon name="rewind" className="h-4 w-4" /></button>
-                  <button onClick={() => skipSeconds(10)} className="p-2 rounded-full bg-white/10 text-white hover:bg-white/20 backdrop-blur-sm"><Icon name="fast-forward" className="h-4 w-4" /></button>
+                  <button onClick={() => skipSeconds(-10)} className="p-2 rounded-full bg-black/40 text-white hover:bg-black/60"><Icon name="rewind" className="h-4 w-4" /></button>
+                  <button onClick={() => skipSeconds(10)} className="p-2 rounded-full bg-black/40 text-white hover:bg-black/60"><Icon name="fast-forward" className="h-4 w-4" /></button>
                 </div>
               </div>
 

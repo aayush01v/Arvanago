@@ -47,6 +47,7 @@ const PublicNotePage = React.lazy(() => import('@/pages/PublicNotePage'));
 const VideoPreviewPage = React.lazy(() => import('@/pages/VideoPreviewPage'));
 const DesignSystemReferencePage = React.lazy(() => import('@/pages/DesignSystemReferencePage'));
 import AdminRoute from '@/components/AdminRoute';
+import IdleSessionManager from '@/components/IdleSessionManager';
 
 const SuspenseFallback: React.FC = () => (
   <div className="flex items-center justify-center min-h-screen bg-slate-50 dark:bg-slate-900">
@@ -323,6 +324,7 @@ const App: React.FC = () => {
 
   return (
     <HelmetProvider>
+      <IdleSessionManager user={user} />
       <SEO />
       <ErrorBoundary>
         <Suspense fallback={<SuspenseFallback />}>

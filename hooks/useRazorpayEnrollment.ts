@@ -12,6 +12,21 @@ interface UseRazorpayEnrollmentProps {
     onProfileUpdate?: (updates: Partial<User>) => void;
 }
 
+const loadRazorpayScript = (): Promise<boolean> => {
+    return new Promise((resolve) => {
+        if ((window as any).Razorpay) {
+            resolve(true);
+            return;
+        }
+        const script = document.createElement('script');
+        script.src = 'https://checkout.razorpay.com/v1/checkout.js';
+        script.crossOrigin = 'anonymous';
+        script.onload = () => resolve(true);
+        script.onerror = () => resolve(false);
+        document.body.appendChild(script);
+    });
+};
+
 export const useRazorpayEnrollment = ({ user, onProfileUpdate }: UseRazorpayEnrollmentProps) => {
     const navigate = useNavigate();
     const [enrollingCourseId, setEnrollingCourseId] = useState<string | null>(null);
@@ -71,6 +86,12 @@ export const useRazorpayEnrollment = ({ user, onProfileUpdate }: UseRazorpayEnro
             setShowToast(true);
             setEnrollingCourseId(course.id);
             try {
+                // Dynamically load script
+                const isLoaded = await loadRazorpayScript();
+                if (!isLoaded) {
+                    throw new Error("Failed to load Razorpay SDK. Please check your network connection.");
+                }
+
                 // 1. Create Order
                 const res = await fetch('/api/create-order', {
                     method: 'POST',

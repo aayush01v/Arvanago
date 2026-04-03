@@ -95,16 +95,27 @@ interface DashboardCourseCardProps {
   course: Course;
   navigateToCourse: (course: Course) => void;
   isPrimary?: boolean;
+  variant?: 'horizontal' | 'vertical';
 }
 
-const DashboardCourseCardComponent: React.FC<DashboardCourseCardProps> = ({ course, navigateToCourse, isPrimary = false }) => {
+const DashboardCourseCardComponent: React.FC<DashboardCourseCardProps> = ({ 
+  course, 
+  navigateToCourse, 
+  isPrimary = false,
+  variant = 'horizontal'
+}) => {
+  const isHorizontal = variant === 'horizontal';
   return (
     <motion.div
       whileHover={{ scale: 1.02 }}
-      className="group bg-white dark:bg-slate-800 rounded-2xl border border-border-subtle/80 dark:border-border-subtle/60 overflow-hidden shadow-sm hover:shadow-xl hover:border-brand-primary/20 transition-all duration-300"
+      className="group bg-white dark:bg-slate-800 rounded-2xl border border-border-subtle/80 dark:border-border-subtle/60 overflow-hidden shadow-sm hover:shadow-xl hover:border-brand-primary/20 transition-all duration-300 flex flex-col h-full"
     >
-      <div className="flex flex-col sm:flex-row h-full">
-        <div className={`relative w-full sm:w-52 ${isPrimary ? 'h-52' : 'h-44'} sm:h-auto flex-shrink-0 overflow-hidden`}>
+      <div className={`flex flex-col h-full ${isHorizontal ? 'sm:flex-row' : ''}`}>
+        <div className={`relative w-full flex-shrink-0 overflow-hidden ${
+          isHorizontal 
+            ? `sm:w-60 md:w-72 ${isPrimary ? 'h-56' : 'h-44'} sm:h-auto` 
+            : 'h-48'
+        }`}>
           <img
             src={course.thumbnailUrl ?? course.thumbnail}
             alt={course.title}
@@ -114,7 +125,7 @@ const DashboardCourseCardComponent: React.FC<DashboardCourseCardProps> = ({ cour
 
         <div className="p-5 flex flex-col flex-grow justify-between">
           <div>
-            <h3 className="font-bold text-lg text-text-primary mb-2 line-clamp-1 group-hover:text-brand-primary transition-colors">{course.title}</h3>
+            <h3 className={`font-bold text-text-primary mb-2 line-clamp-2 group-hover:text-brand-primary transition-colors ${isPrimary ? 'text-xl' : 'text-lg'}`}>{course.title}</h3>
             <p className="text-sm text-text-secondary line-clamp-2">{course.description}</p>
           </div>
 
@@ -417,11 +428,16 @@ const Dashboard: React.FC<DashboardProps> = ({ user, courses, navigateToFiltered
       <section className="space-y-4">
         {primaryCourse ? (
           <div className="space-y-4">
-            <DashboardCourseCard course={primaryCourse} navigateToCourse={navigateToCourse} isPrimary />
+            <div className="flex items-center justify-between mb-2">
+              <h3 className="text-xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                <Icon name="play" className="w-5 h-5 text-brand-primary" /> Continue Learning
+              </h3>
+            </div>
+            <DashboardCourseCard course={primaryCourse} navigateToCourse={navigateToCourse} isPrimary variant="horizontal" />
             {ongoingCourses.length > 1 && (
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {ongoingCourses.slice(1, 3).map((course) => (
-                  <DashboardCourseCard key={course.id} course={course} navigateToCourse={navigateToCourse} />
+                  <DashboardCourseCard key={course.id} course={course} navigateToCourse={navigateToCourse} variant="vertical" />
                 ))}
               </div>
             )}
@@ -503,46 +519,7 @@ const Dashboard: React.FC<DashboardProps> = ({ user, courses, navigateToFiltered
             )}
           </section>
 
-          <section>
-            <div className="flex items-center justify-between mb-6">
-              <h3 className="text-xl font-bold text-primary flex items-center gap-2">
-                <Icon name="play" className="w-5 h-5 accent-strong" /> Continue Learning
-              </h3>
-            </div>
 
-            <motion.div
-              className="space-y-4"
-              variants={{
-                hidden: { opacity: 0 },
-                show: {
-                  opacity: 1,
-                  transition: {
-                    staggerChildren: shouldReduceMotion ? 0 : 0.15
-                  }
-                }
-              }}
-              initial="hidden"
-              animate="show"
-            >
-              {ongoingCourses.length > 0 ? (
-                ongoingCourses.slice(0, 3).map((course) => (
-                  <motion.div key={course.id} variants={{ hidden: { opacity: 0, x: shouldReduceMotion ? 0 : -20 }, show: { opacity: 1, x: 0 } }}>
-                    <DashboardCourseCard course={course} navigateToCourse={navigateToCourse} />
-                  </motion.div>
-                ))
-              ) : (
-                <div className="py-12 text-center rounded-2xl border-2 border-dashed border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50">
-                  <div className="w-16 h-16 bg-slate-100 dark:bg-slate-800 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <Icon name="book-open" className="w-8 h-8 text-slate-400" />
-                  </div>
-                  <p className="text-slate-600 dark:text-slate-400 font-bold">No active courses yet.</p>
-                  <Button variant="ghost" onClick={() => navigateToFilteredCourses('all')} className="mt-2 p-0 text-sm hover:underline">
-                    Find something new
-                  </Button>
-                </div>
-              )}
-            </motion.div>
-          </section>
         </div>
 
         {/* Right Column: Discover (1/3 width) */}
