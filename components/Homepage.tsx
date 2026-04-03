@@ -78,11 +78,12 @@ const Homepage: React.FC<HomepageProps> = ({ onNavigateToLogin }) => {
                         <div className="h-4 w-px bg-slate-300 dark:bg-slate-700 hidden md:block"></div>
                         <button
                             onClick={onNavigateToLogin}
-                            className="group relative px-6 py-2 rounded-full bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-bold text-sm shadow-xl hover:shadow-2xl hover:-translate-y-0.5 transition-all duration-300 overflow-hidden"
+                            className="group relative px-6 py-2 rounded-full bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-semibold text-sm tracking-tight shadow-xl hover:shadow-2xl hover:-translate-y-0.5 transition-all duration-300 overflow-hidden"
                         >
                             <div className="absolute inset-0 bg-gradient-to-r from-brand-primary to-purple-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                             <PretextButtonLabel
                                 text="Start Learning"
+                                lineHeight={18}
                                 className="relative z-10 group-hover:text-white transition-colors"
                             />
                         </button>
@@ -102,6 +103,14 @@ const Homepage: React.FC<HomepageProps> = ({ onNavigateToLogin }) => {
                     </div>
 
                     <PretextHeroHeadline text="The Future of Digital Learning" />
+
+                    <div
+                        className="mx-auto mb-8 w-fit rounded-full border border-slate-200/70 dark:border-white/10 bg-white/70 dark:bg-white/5 px-4 py-2 text-xs md:text-sm text-slate-600 dark:text-slate-300 animate-fade-in-up"
+                        style={{ animationDelay: '0.05s' }}
+                    >
+                        <span className="font-semibold text-slate-900 dark:text-white">Pretext-powered typography:</span>{' '}
+                        clean line breaks that stay readable across every screen size.
+                    </div>
 
                     <p className="text-xl md:text-2xl text-slate-600 dark:text-slate-400 max-w-3xl mx-auto mb-12 leading-relaxed animate-fade-in-up font-light" style={{ animationDelay: '0.1s' }}>
                         A unified ecosystem combining <b className="text-slate-900 dark:text-white font-semibold">AI Education</b>, <b className="text-slate-900 dark:text-white font-semibold">Physics Simulation</b>, and <b className="text-slate-900 dark:text-white font-semibold">Game Publishing</b>.
