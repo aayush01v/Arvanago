@@ -127,7 +127,7 @@ const DashboardCourseCardComponent: React.FC<DashboardCourseCardProps> = ({ cour
           <div className="mt-4 pt-4 border-t border-border-subtle/70 dark:border-border-subtle/60">
             <div className="flex justify-between text-xs font-bold text-text-secondary mb-2">
               <span>Progress</span>
-              <span className="text-brand-primary">{course.progress}%</span>
+              <span className="accent-strong">{course.progress}%</span>
             </div>
             <div className="w-full bg-slate-100 dark:bg-slate-900 rounded-full h-2 overflow-hidden mb-4">
               <motion.div
@@ -358,10 +358,10 @@ const Dashboard: React.FC<DashboardProps> = ({ user, courses, navigateToFiltered
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: MOTION.duration.slow, ease: MOTION.easing.standard }}
         >
-          <h2 className="text-3xl font-black text-slate-900 dark:text-white tracking-tight">
+          <h2 className="text-3xl font-black text-primary tracking-tight">
             Hello, <span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-primary to-brand-secondary">{firstName}</span> 👋
           </h2>
-          <p className="text-slate-500 dark:text-slate-400 mt-2 font-medium">
+          <p className="text-secondary mt-2 font-medium">
             Let's make today productive. You're doing great!
           </p>
         </motion.div>
@@ -488,8 +488,8 @@ const Dashboard: React.FC<DashboardProps> = ({ user, courses, navigateToFiltered
 
           <section>
             <div className="flex items-center justify-between mb-6">
-              <h3 className="text-xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                <Icon name="play" className="w-5 h-5 text-brand-primary" /> Continue Learning
+              <h3 className="text-xl font-bold text-primary flex items-center gap-2">
+                <Icon name="play" className="w-5 h-5 accent-strong" /> Continue Learning
               </h3>
             </div>
 
@@ -530,7 +530,7 @@ const Dashboard: React.FC<DashboardProps> = ({ user, courses, navigateToFiltered
 
         {/* Right Column: Discover (1/3 width) */}
         <div className="space-y-6">
-          <h3 className="text-xl font-bold text-slate-900 dark:text-white">Explore Categories</h3>
+          <h3 className="text-xl font-bold text-primary">Explore Categories</h3>
           <motion.div
             className="grid grid-cols-2 lg:grid-cols-1 xl:grid-cols-2 gap-3"
             variants={{

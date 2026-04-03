@@ -31,6 +31,10 @@
   /* Used for header left margin */
   --size-4-9: 1rem;
   /* Used for header right margin */
+  --color-text-primary: #0f172a;
+  --color-text-secondary: #334155;
+  --color-surface-muted: #e2e8f0;
+  --color-accent-strong: #1d4ed8;
 }
 
 .dark:root {
