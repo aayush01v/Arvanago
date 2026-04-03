@@ -346,7 +346,7 @@ const Dashboard: React.FC<DashboardProps> = ({ user, courses, navigateToFiltered
   const primaryCourse = ongoingCourses[0];
 
   return (
-    <div className="w-full rhythm-stack-lg pb-20 sm:pb-8">
+    <div className="w-full space-y-6 pb-20 sm:space-y-8 sm:pb-8">
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
         <motion.div
           initial={{ opacity: 0, x: -20 }}
@@ -414,9 +414,9 @@ const Dashboard: React.FC<DashboardProps> = ({ user, courses, navigateToFiltered
         />
       </div>
 
-      <section className="rhythm-stack-sm">
+      <section className="space-y-4">
         {primaryCourse ? (
-          <div className="rhythm-stack-sm">
+          <div className="space-y-4">
             <DashboardCourseCard course={primaryCourse} navigateToCourse={navigateToCourse} isPrimary />
             {ongoingCourses.length > 1 && (
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
@@ -427,7 +427,7 @@ const Dashboard: React.FC<DashboardProps> = ({ user, courses, navigateToFiltered
             )}
           </div>
         ) : (
-          <div className="py-12 text-center rounded-2xl border-2 border-dashed border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 rhythm-stack-sm">
+          <div className="space-y-3 py-12 text-center rounded-2xl border-2 border-dashed border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50">
             <div className="w-14 h-14 bg-slate-100 dark:bg-slate-800 rounded-full flex items-center justify-center mx-auto">
               <Icon name="book-open" className="w-7 h-7 text-slate-400" />
             </div>
@@ -440,7 +440,7 @@ const Dashboard: React.FC<DashboardProps> = ({ user, courses, navigateToFiltered
       </section>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2 rhythm-stack-md">
+        <div className="space-y-6 lg:col-span-2">
           <StudentAnalytics user={user} courses={courses} />
 
           <section className="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 p-6 shadow-sm">

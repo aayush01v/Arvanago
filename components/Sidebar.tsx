@@ -195,21 +195,6 @@ const Sidebar: React.FC<SidebarProps> = ({ isSidebarOpen, setSidebarOpen, isDark
           </button>
         </div>
 
-        <div className="px-3 pt-3">
-          <NavLink
-            to={primaryAction.to}
-            onClick={handleNavigate}
-            className="flex items-start gap-3 rounded-xl border border-brand-primary/30 bg-brand-primary/10 px-3 py-2.5 text-brand-primary transition-colors hover:bg-brand-primary/15"
-          >
-            <Icon name="play" className="mt-0.5 h-4 w-4" />
-            <span className="flex flex-col">
-              <span className="text-[11px] font-semibold uppercase tracking-wide text-brand-primary/80">Primary action</span>
-              <span className="text-sm font-semibold leading-tight">{primaryAction.label}</span>
-              <span className="text-xs text-brand-primary/90">{primaryAction.description}</span>
-            </span>
-          </NavLink>
-        </div>
-
         <nav className="flex-1 overflow-y-auto py-4 max-h-[calc(100dvh-8rem)]" role="menu" aria-label="Main menu">
           <div className="px-3 mb-2">
             <p className="text-xs font-semibold uppercase tracking-wider text-text-secondary pl-3 mb-2">Menu</p>
@@ -253,8 +238,19 @@ const Sidebar: React.FC<SidebarProps> = ({ isSidebarOpen, setSidebarOpen, isDark
         </nav>
 
         <div className="border-t border-border-subtle/60 p-3 dark:border-border-subtle/50">
-          <div className="space-y-1">
-            <p className={`px-3 ${SHELL_TOKENS.drawer.navHeader}`}>Settings</p>
+          <div className="space-y-3">
+            <NavLink
+              to={primaryAction.to}
+              onClick={handleNavigate}
+              className="flex items-start gap-3 rounded-xl border border-brand-primary/30 bg-brand-primary/10 px-3 py-2.5 text-brand-primary transition-colors hover:bg-brand-primary/15"
+            >
+              <Icon name="play" className="mt-0.5 h-4 w-4" />
+              <span className="flex flex-col">
+                <span className="text-[11px] font-semibold uppercase tracking-wide text-brand-primary/80">Primary action</span>
+                <span className="text-sm font-semibold leading-tight">{primaryAction.label}</span>
+                <span className="text-xs text-brand-primary/90">{primaryAction.description}</span>
+              </span>
+            </NavLink>
 
             {/* Settings Link */}
             <NavItem
