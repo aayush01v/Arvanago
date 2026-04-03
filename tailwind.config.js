@@ -10,6 +10,10 @@ export default {
     theme: {
         extend: {
             colors: {
+                'text-primary': 'rgb(var(--color-text-primary) / <alpha-value>)',
+                'text-secondary': 'rgb(var(--color-text-secondary) / <alpha-value>)',
+                'surface-muted': 'rgb(var(--color-surface-muted) / <alpha-value>)',
+                'border-subtle': 'rgb(var(--color-border-subtle) / <alpha-value>)',
                 'brand-primary': '#2b83c6',
                 'brand-secondary': '#26b1d3',
                 'brand-light': '#EFF6FF',
