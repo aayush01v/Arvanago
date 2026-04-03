@@ -1055,7 +1055,13 @@ const sanitizeResources = (value: unknown): Course['resources'] => {
         return null;
       }
 
-      return { id, name, type, size, url };
+      return {
+        id,
+        name,
+        type,
+        size,
+        ...(url ? { url } : {}),
+      };
     })
     .filter((resource): resource is NonNullable<Course['resources']>[number] => Boolean(resource));
 

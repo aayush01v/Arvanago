@@ -472,8 +472,8 @@ const CoursePreview: React.FC<CoursePreviewProps> = ({ course, onLoginClick, onB
                                                 <p className="text-brand-primary font-medium">{course.author.bio || 'Lead Instructor & Expert'}</p>
                                             </div>
                                             <div className="flex gap-4 text-sm text-slate-500 dark:text-slate-400">
-                                                <span className="flex items-center gap-1"><Icon name="star" className="w-4 h-4" /> {course.author.rating || '4.9'} Instructor Rating</span>
-                                                <span className="flex items-center gap-1"><Icon name="users" className="w-4 h-4" /> {course.author.totalStudents?.toLocaleString() || '25,000'} Students</span>
+                                                <span className="flex items-center gap-1"><Icon name="star" className="w-4 h-4" /> {course.rating?.toFixed(1) || '4.9'} Course Rating</span>
+                                                <span className="flex items-center gap-1"><Icon name="users" className="w-4 h-4" /> {course.studentCount?.toLocaleString() || '25,000'} Students</span>
                                                 <span className="flex items-center gap-1"><Icon name="play" className="w-4 h-4" /> {course.author.coursesAuthored || 12} Courses</span>
                                             </div>
                                             <p className="text-slate-600 dark:text-slate-300 text-sm leading-relaxed">

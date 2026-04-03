@@ -42,9 +42,13 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({ user, onClose, onSa
         }
     };
 
-    const handleCropComplete = (croppedImage: string) => {
-        setAvatar(croppedImage);
-        setSelectedImage(null); // Close cropper
+    const handleCropComplete = (croppedFile: File) => {
+        const reader = new FileReader();
+        reader.onload = () => {
+            setAvatar(reader.result as string);
+            setSelectedImage(null); // Close cropper
+        };
+        reader.readAsDataURL(croppedFile);
     };
 
     const handleSave = async () => {
