@@ -1,7 +1,7 @@
 
 import React, { useMemo, useState, useEffect } from 'react';
 import { useOutletContext } from 'react-router-dom';
-import { dailyLeaderboard, allTimeLeaderboard } from '../constants.ts';
+import { dailyLeaderboard, weeklyLeaderboard, allTimeLeaderboard } from '../constants.ts';
 import { LeaderboardEntry, User } from '../types.ts';
 import Icon from './common/Icon.tsx';
 import { getLeaderboard } from '../services/firestoreService.ts';
@@ -82,7 +82,7 @@ const LeaderboardRow: React.FC<{ entry: LeaderboardEntry; isMe?: boolean; index:
 
 const Leaderboard: React.FC = () => {
   const { user } = useOutletContext<SidebarLayoutContext>();
-  const [activeTab, setActiveTab] = useState<'daily' | 'allTime'>('allTime'); // Default to allTime for real data
+  const [activeTab, setActiveTab] = useState<'daily' | 'weekly' | 'allTime'>('allTime'); // Default to allTime for real data
   const [realData, setRealData] = useState<LeaderboardEntry[]>([]);
   const [loading, setLoading] = useState(false);
 
@@ -107,9 +107,12 @@ const Leaderboard: React.FC = () => {
           console.error(err);
           setRealData(allTimeLeaderboard);
         }
-      } else {
-        // Daily is still mocked for now
+      } else if (activeTab === 'daily') {
+        // Today is still mocked for now
         setRealData(dailyLeaderboard);
+      } else {
+        // 7-day board is still mocked for now
+        setRealData(weeklyLeaderboard);
       }
       setLoading(false);
     };
@@ -152,13 +155,19 @@ const Leaderboard: React.FC = () => {
             onClick={() => setActiveTab('daily')}
             className={`px-6 py-2 rounded-full text-sm font-bold transition-all ${activeTab === 'daily' ? 'bg-slate-900 dark:bg-slate-600 text-white shadow-lg' : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'}`}
           >
-            Daily Pulse
+            Today
+          </button>
+          <button
+            onClick={() => setActiveTab('weekly')}
+            className={`px-6 py-2 rounded-full text-sm font-bold transition-all ${activeTab === 'weekly' ? 'bg-slate-900 dark:bg-slate-600 text-white shadow-lg' : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'}`}
+          >
+            Last 7 Days
           </button>
           <button
             onClick={() => setActiveTab('allTime')}
             className={`px-6 py-2 rounded-full text-sm font-bold transition-all ${activeTab === 'allTime' ? 'bg-brand-primary text-white shadow-lg' : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'}`}
           >
-            All-Time Legends
+            All-Time
           </button>
         </div>
       </div>
