@@ -2,6 +2,7 @@
 import React from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import HeaderAction from './common/HeaderAction.tsx';
+import Icon from './common/Icon.tsx';
 import { User } from '../types.ts';
 import { LOGO_URL } from '../constants.ts';
 import { SHELL_TOKENS } from './shell/tokens.ts';
@@ -53,6 +54,7 @@ const Header: React.FC<HeaderProps> = ({
           <div className="flex items-center gap-4 flex-1">
             {isSubPage ? (
               <HeaderAction
+                icon="arrowLeft"
                 onClick={() => {
                   if (window.history.state && window.history.state.idx > 0) {
                     navigate(-1);
@@ -69,7 +71,7 @@ const Header: React.FC<HeaderProps> = ({
                 onClick={onMenuClick}
                 className="flex h-11 w-11 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-500 shadow-sm transition-colors hover:bg-slate-50 hover:text-slate-700 active:scale-[0.98] active:bg-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-400 dark:hover:bg-slate-700 dark:hover:text-slate-200 dark:active:bg-slate-700 dark:focus-visible:ring-offset-slate-900 md:hidden"
                 aria-label="Open menu"
-                aria-expanded={isMenuOpen}
+                aria-expanded={false}
                 aria-controls="mobile-navigation-drawer"
               >
                 <Icon name="menu" className="h-5 w-5" />
@@ -104,6 +106,7 @@ const Header: React.FC<HeaderProps> = ({
             {/* Search Button */}
             {user && (
               <HeaderAction
+                icon="search"
                 onClick={onSearchClick}
                 className="relative flex h-11 w-11 items-center justify-center rounded-full text-slate-500 transition-colors hover:bg-slate-100 hover:text-brand-primary active:scale-[0.98] active:bg-slate-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-white dark:active:bg-slate-700 dark:focus-visible:ring-offset-slate-900"
                 aria-label="Search"

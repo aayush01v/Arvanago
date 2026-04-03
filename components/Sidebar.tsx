@@ -16,6 +16,8 @@ interface SidebarProps {
   triggerButtonRef?: React.RefObject<HTMLButtonElement | null>;
 }
 
+const NavItem = NavLink;
+
 const navItems = [
   { to: '/dashboard', icon: 'dashboard', label: 'Dashboard' },
   { to: '/my-learnings', icon: 'bookmark', label: 'My Learnings' },
@@ -27,6 +29,7 @@ const navItems = [
 
 const Sidebar: React.FC<SidebarProps> = ({ isSidebarOpen, setSidebarOpen, isDarkMode, setDarkMode, onExploreClick, user, triggerButtonRef }) => {
   const drawerRef = useRef<HTMLElement>(null);
+  const closeButtonRef = useRef<HTMLButtonElement>(null);
   const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
 
   const primaryAction = useMemo(() => {
@@ -182,6 +185,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isSidebarOpen, setSidebarOpen, isDark
           <img src={LOGO_URL} alt="Edusimulate Logo" className="mr-2 h-6 w-auto" />
           <span className="text-base font-bold tracking-tight text-slate-900 dark:text-white">Edusimulate</span>
           <button
+            ref={closeButtonRef}
             type="button"
             className="ml-auto rounded-md p-1 text-slate-500 hover:bg-slate-100 hover:text-slate-800 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-slate-100 md:hidden"
             onClick={() => setSidebarOpen(false)}
@@ -242,7 +246,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isSidebarOpen, setSidebarOpen, isDark
                       <span className={SHELL_TOKENS.drawer.navLabel}>{item.label}</span>
                     </>
                   )}
-                </NavLink>
+                </NavItem>
               </li>
             ))}
           </ul>
@@ -266,7 +270,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isSidebarOpen, setSidebarOpen, isDark
             >
               <Icon name="settings" className="h-5 w-5 text-text-secondary group-hover:text-text-primary" />
               <span>Settings</span>
-            </NavLink>
+            </NavItem>
 
             <div className="h-px bg-border-subtle/60 dark:bg-border-subtle/50 my-2" />
 
@@ -282,7 +286,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isSidebarOpen, setSidebarOpen, isDark
               >
                 <Icon name="login" className="h-5 w-5 text-text-secondary group-hover:text-brand-primary" />
                 <span>Login</span>
-              </NavLink>
+              </NavItem>
             )}
           </div>
         </div>
