@@ -47,7 +47,6 @@ const SidebarLayout: React.FC<SidebarLayoutProps> = ({
   const mainPanelRef = useRef<HTMLDivElement>(null);
   const animationFrameRef = useRef<number | null>(null);
   const menuButtonRef = useRef<HTMLButtonElement>(null);
-  const wasSidebarOpenRef = useRef(false);
 
   const backgroundRef = useRef<HTMLDivElement>(null);
   const location = useLocation();
@@ -148,9 +147,9 @@ const SidebarLayout: React.FC<SidebarLayoutProps> = ({
     if (first === 'courses' && second && !third) {
       const matchedCourse = courses.find((course) => course.id === second);
       if (matchedCourse) {
-        return { title: matchedCourse.title, subtitle: 'Course overview' };
+        return { title: matchedCourse.title, subtitle: 'Course overview', trail: ['Courses', matchedCourse.title] };
       }
-      return { title: 'Course overview', subtitle: 'Course details' };
+      return { title: 'Course overview', subtitle: 'Course details', trail: ['Courses', 'Overview'] };
     }
 
     if (first === 'courses' && second && third === 'lectures' && fourth) {
@@ -158,17 +157,25 @@ const SidebarLayout: React.FC<SidebarLayoutProps> = ({
       const matchedLecture = matchedCourse?.lectures.find((lecture) => lecture.id === fourth);
 
       if (matchedCourse && matchedLecture) {
-        return { title: matchedLecture.title, subtitle: matchedCourse.title };
+        return {
+          title: matchedLecture.title,
+          subtitle: `${matchedCourse.title} • Lesson`,
+          trail: ['Courses', matchedCourse.title, matchedLecture.title],
+        };
       }
 
       if (matchedCourse) {
-        return { title: 'Course lecture', subtitle: matchedCourse.title };
+        return {
+          title: 'Course lecture',
+          subtitle: `${matchedCourse.title} • Learning session`,
+          trail: ['Courses', matchedCourse.title, 'Lecture'],
+        };
       }
 
-      return { title: 'Course lecture', subtitle: 'Learning session' };
+      return { title: 'Course lecture', subtitle: 'Learning session', trail: ['Courses', 'Lecture'] };
     }
 
-    return staticPages.get('dashboard')!;
+    return { title: 'Dashboard', subtitle: 'Track progress', trail: ['Dashboard'] };
   }, [courses, location.pathname]);
 
   const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
@@ -217,6 +224,7 @@ const SidebarLayout: React.FC<SidebarLayoutProps> = ({
             isDarkMode={isDarkMode}
             setDarkMode={onThemeToggle}
             user={user}
+            triggerButtonRef={menuButtonRef}
           />
           <div
             ref={mainPanelRef}
@@ -235,7 +243,6 @@ const SidebarLayout: React.FC<SidebarLayoutProps> = ({
               user={user}
               onMenuClick={() => setSidebarOpen(true)}
               menuButtonRef={menuButtonRef}
-              isMenuOpen={isSidebarOpen}
               isScrolled={isScrolled}
               pageTitle={currentPage.title}
               pageSubtitle={currentPage.subtitle}
@@ -256,6 +263,10 @@ const SidebarLayout: React.FC<SidebarLayoutProps> = ({
                     <div className="pointer-events-none absolute -top-20 -left-10 h-40 w-40 rounded-full bg-brand-primary/30 blur-3xl opacity-70" style={{ animation: 'pulseGlow 16s ease-in-out infinite' }} />
                     <div className="pointer-events-none absolute bottom-[-3rem] right-[-2rem] h-48 w-48 rounded-full bg-sky-500/40 blur-3xl opacity-80" style={{ animation: 'pulseGlow 20s ease-in-out infinite alternate' }} />
                     <div className="relative z-10 p-3 sm:p-6 lg:p-10">
+                      <div className="mb-4 rounded-xl border border-slate-200/70 bg-slate-50/80 px-3 py-2 text-xs font-medium text-slate-600 dark:border-slate-700 dark:bg-slate-800/60 dark:text-slate-300">
+                        <span className="font-semibold text-slate-700 dark:text-slate-200">You are here:</span>{' '}
+                        {currentPage.trail.join(' • ')}
+                      </div>
                       <div className="animate-fade-in-up">
                         <div className="animate-fade-in-up">
                           {children || <Outlet context={sidebarContext} />}

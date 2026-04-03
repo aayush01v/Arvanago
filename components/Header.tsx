@@ -9,8 +9,7 @@ import { SHELL_TOKENS } from './shell/tokens.ts';
 interface HeaderProps {
   user: User | null;
   onMenuClick: () => void;
-  menuButtonRef?: React.RefObject<HTMLButtonElement>;
-  isMenuOpen?: boolean;
+  menuButtonRef?: React.RefObject<HTMLButtonElement | null>;
   isScrolled: boolean;
   pageTitle: string;
   pageSubtitle?: string;
@@ -24,7 +23,6 @@ const Header: React.FC<HeaderProps> = ({
   user,
   onMenuClick,
   menuButtonRef,
-  isMenuOpen = false,
   isScrolled,
   pageTitle,
   pageSubtitle,

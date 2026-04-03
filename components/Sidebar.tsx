@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useMemo, useRef } from 'react';
 import { NavLink } from 'react-router-dom';
 import Icon from './common/Icon.tsx';
 import { SHELL_TOKENS } from './shell/tokens.ts';
@@ -13,6 +13,7 @@ interface SidebarProps {
   setDarkMode: (isDark: boolean) => void;
   onExploreClick?: () => Promise<void> | void;
   user: import('../types').User | null;
+  triggerButtonRef?: React.RefObject<HTMLButtonElement | null>;
 }
 
 const navItems = [
@@ -24,9 +25,85 @@ const navItems = [
   { to: '/chat', icon: 'message-circle', label: 'Chat' },
 ];
 
-const Sidebar: React.FC<SidebarProps> = ({ isSidebarOpen, setSidebarOpen, isDarkMode, setDarkMode, onExploreClick, user }) => {
+const Sidebar: React.FC<SidebarProps> = ({ isSidebarOpen, setSidebarOpen, isDarkMode, setDarkMode, onExploreClick, user, triggerButtonRef }) => {
   const drawerRef = useRef<HTMLElement>(null);
-  const closeButtonRef = useRef<HTMLButtonElement>(null);
+  const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
+
+  const primaryAction = useMemo(() => {
+    if (user) {
+      return {
+        to: '/my-learnings',
+        label: 'Resume last lesson',
+        description: 'Jump back into your latest progress',
+      };
+    }
+
+    return {
+      to: '/login',
+      label: 'Continue learning',
+      description: 'Sign in to pick up where you left off',
+    };
+  }, [user]);
+
+  useEffect(() => {
+    if (!isMobile) {
+      return;
+    }
+
+    if (!isSidebarOpen) {
+      triggerButtonRef?.current?.focus();
+      return;
+    }
+
+    const drawer = drawerRef.current;
+    if (!drawer) {
+      return;
+    }
+
+    const getFocusableElements = () =>
+      Array.from(
+        drawer.querySelectorAll<HTMLElement>(
+          'a[href], button:not([disabled]), textarea, input, select, [tabindex]:not([tabindex="-1"])'
+        )
+      ).filter((element) => !element.hasAttribute('disabled') && element.tabIndex !== -1);
+
+    const focusableElements = getFocusableElements();
+    focusableElements[0]?.focus();
+
+    const handleKeydown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        event.preventDefault();
+        setSidebarOpen(false);
+        return;
+      }
+
+      if (event.key !== 'Tab') {
+        return;
+      }
+
+      const items = getFocusableElements();
+      if (items.length === 0) {
+        return;
+      }
+
+      const firstElement = items[0];
+      const lastElement = items[items.length - 1];
+      const activeElement = document.activeElement as HTMLElement | null;
+
+      if (event.shiftKey && activeElement === firstElement) {
+        event.preventDefault();
+        lastElement.focus();
+      } else if (!event.shiftKey && activeElement === lastElement) {
+        event.preventDefault();
+        firstElement.focus();
+      }
+    };
+
+    document.addEventListener('keydown', handleKeydown);
+    return () => {
+      document.removeEventListener('keydown', handleKeydown);
+    };
+  }, [isMobile, isSidebarOpen, setSidebarOpen, triggerButtonRef]);
 
   const handleNavigate = () => {
     if (typeof window === 'undefined' || window.innerWidth < 768) {
@@ -94,10 +171,10 @@ const Sidebar: React.FC<SidebarProps> = ({ isSidebarOpen, setSidebarOpen, isDark
         aria-hidden="true"
       />
       <aside
-        id="mobile-navigation-drawer"
         ref={drawerRef}
-        role="navigation"
-        aria-label="Primary navigation"
+        role="dialog"
+        aria-modal={isMobile ? 'true' : undefined}
+        aria-label="Main navigation"
         className={`fixed inset-y-0 left-0 z-40 flex w-56 flex-col overflow-hidden border-r border-slate-200 bg-white text-slate-800 transition-transform duration-300 dark:border-slate-800 dark:bg-slate-900 dark:text-white ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'
           } md:translate-x-0 h-[100dvh]`}
       >
@@ -105,13 +182,28 @@ const Sidebar: React.FC<SidebarProps> = ({ isSidebarOpen, setSidebarOpen, isDark
           <img src={LOGO_URL} alt="Edusimulate Logo" className="mr-2 h-6 w-auto" />
           <span className="text-base font-bold tracking-tight text-slate-900 dark:text-white">Edusimulate</span>
           <button
-            ref={closeButtonRef}
+            type="button"
+            className="ml-auto rounded-md p-1 text-slate-500 hover:bg-slate-100 hover:text-slate-800 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-slate-100 md:hidden"
             onClick={() => setSidebarOpen(false)}
-            className="ml-auto flex h-11 w-11 items-center justify-center rounded-lg text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-700 active:scale-[0.98] active:bg-slate-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-slate-200 dark:active:bg-slate-700 dark:focus-visible:ring-offset-slate-900 md:hidden"
             aria-label="Close menu"
           >
-            <Icon name="x" className="h-5 w-5" />
+            <Icon name="x" className="h-4 w-4" />
           </button>
+        </div>
+
+        <div className="px-3 pt-3">
+          <NavLink
+            to={primaryAction.to}
+            onClick={handleNavigate}
+            className="flex items-start gap-3 rounded-xl border border-brand-primary/30 bg-brand-primary/10 px-3 py-2.5 text-brand-primary transition-colors hover:bg-brand-primary/15"
+          >
+            <Icon name="play" className="mt-0.5 h-4 w-4" />
+            <span className="flex flex-col">
+              <span className="text-[11px] font-semibold uppercase tracking-wide text-brand-primary/80">Primary action</span>
+              <span className="text-sm font-semibold leading-tight">{primaryAction.label}</span>
+              <span className="text-xs text-brand-primary/90">{primaryAction.description}</span>
+            </span>
+          </NavLink>
         </div>
 
         <nav className="flex-1 overflow-y-auto py-4 max-h-[calc(100dvh-8rem)]" role="menu" aria-label="Main menu">
