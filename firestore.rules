@@ -4,7 +4,7 @@ service cloud.firestore {
     
     // --- HELPERS ---
     function isAuthenticated() { return request.auth != null; }
-    function isOwner(userId) { return request.auth.uid == userId; }
+    function isOwner(userId) { return isAuthenticated() && request.auth.uid == userId; }
     function isAdmin() { return isAuthenticated() && exists(/databases/$(database)/documents/admins/$(request.auth.uid)); }
     function isEmailVerified() { return request.auth != null && request.auth.token.email_verified == true; }
 
@@ -12,18 +12,17 @@ service cloud.firestore {
     match /users/{userId} {
       // Public profiles are visible only when explicitly public.
       // Owner/admin can always read.
-      allow read: if isOwner(userId) || isAdmin() || resource.data.isPublic == true;
+      allow read: if isOwner(userId) || isAdmin() || (resource != null && resource.data.get('isPublic', false) == true);
       allow create: if isOwner(userId);
       // Allow update:
       // 1. Own profile (except role + follower counters reserved for trusted backend)
       // 2. Admin
       allow update: if 
         (isOwner(userId) &&
-         request.resource.data.role == resource.data.role &&
-         request.resource.data.followers == resource.data.followers &&
-         request.resource.data.following == resource.data.following) || 
-        isAdmin() ||
-        false;
+         request.resource.data.get('role', 'student') == resource.data.get('role', 'student') &&
+         request.resource.data.get('followers', 0) == resource.data.get('followers', 0) &&
+         request.resource.data.get('following', 0) == resource.data.get('following', 0)) || 
+        isAdmin();
       allow delete: if isAdmin();
 
       // Follow System Subcollections (Nested)
@@ -45,7 +44,7 @@ service cloud.firestore {
         allow read, write: if isOwner(userId);
       }
       match /notes/{noteId} {
-        allow read: if isOwner(userId) || resource.data.isPublic == true;
+        allow read: if isOwner(userId) || (resource != null && resource.data.get('isPublic', false) == true);
         allow write: if isOwner(userId);
       }
     }
@@ -176,7 +175,7 @@ service cloud.firestore {
     
     // 11. COLLECTION GROUP QUERIES (NOTES)
     match /{path=**}/notes/{noteId} {
-      allow read: if resource.data.isPublic == true;
+      allow read: if resource != null && resource.data.get('isPublic', false) == true;
     }
     
     // Default deny
