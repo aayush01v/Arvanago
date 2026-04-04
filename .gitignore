@@ -32,3 +32,8 @@ scripts/migration_status.json
 scripts/migrated_links.txt
 scripts/temp/
 scripts/videos.txt
+firebase.json
+
+# Firebase service account keys — NEVER commit these
+*firebase-adminsdk*.json
+*service-account*.json
