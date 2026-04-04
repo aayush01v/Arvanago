@@ -13,6 +13,10 @@ export default async function handler(req, res) {
     }
 
     try {
+        if (!db) {
+            return res.status(500).json({ error: 'Firebase Admin not configured. Add FIREBASE_PROJECT_ID, FIREBASE_CLIENT_EMAIL, FIREBASE_PRIVATE_KEY to .env' });
+        }
+
         // 1. Fetch real price from Firestore
         const courseRef = db.collection('courses').doc(courseId);
         const courseDoc = await courseRef.get();

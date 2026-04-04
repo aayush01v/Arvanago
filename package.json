@@ -5,6 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "dev:api": "node scripts/dev-server.mjs",
+    "dev:full": "npx concurrently -n vite,api -c cyan,yellow \"vite\" \"node scripts/dev-server.mjs\"",
     "build": "vite build",
     "typecheck": "tsc --noEmit",
     "lint": "tsc --noEmit --pretty false",

@@ -10,7 +10,14 @@ export default defineConfig(({ mode }) => {
   return {
     server: {
       port: 3000,
-      host: "localhost" // Use "0.0.0.0" only in Docker/containers for external access
+      host: "localhost",
+      proxy: {
+        // Forward /api/* to local Express API server during dev
+        '/api': {
+          target: 'http://localhost:3002',
+          changeOrigin: true,
+        }
+      }
     },
     plugins: [
       react(),
@@ -81,7 +88,8 @@ export default defineConfig(({ mode }) => {
     ],
     define: {
       "import.meta.env.VITE_GEMINI_API_KEY": JSON.stringify(env.VITE_GEMINI_API_KEY),
-      "import.meta.env.VITE_IMGBB_KEY": JSON.stringify(env.VITE_IMGBB_KEY)
+      "import.meta.env.VITE_IMGBB_KEY": JSON.stringify(env.VITE_IMGBB_KEY),
+      "import.meta.env.VITE_RAZORPAY_KEY_ID": JSON.stringify(env.VITE_RAZORPAY_KEY_ID)
     },
     resolve: {
       alias: {
