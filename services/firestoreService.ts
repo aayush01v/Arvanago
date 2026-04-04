@@ -1322,9 +1322,12 @@ export const getOrCreateUser = async (
   photoURL?: string | null,
 ): Promise<User> => {
   const userRef = db.collection('users').doc(uid);
+  // Fetch admin doc separately with a fallback — non-admin users may get a
+  // "Missing or insufficient permissions" error on this read if Firestore rules
+  // are evaluated before the auth token is fully propagated after sign-in.
   const [userSnap, adminSnap] = await Promise.all([
     userRef.get(),
-    db.collection('admins').doc(uid).get(),
+    db.collection('admins').doc(uid).get().catch(() => ({ exists: false, data: () => undefined })),
   ]);
 
   const isAdmin = adminSnap.exists;

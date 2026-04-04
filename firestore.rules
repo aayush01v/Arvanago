@@ -52,7 +52,7 @@ service cloud.firestore {
 
     // 2. ADMINS
     match /admins/{adminId} {
-      allow read: if request.auth.uid == adminId || isAdmin();
+      allow read: if isAuthenticated() && (request.auth.uid == adminId || isAdmin());
       allow write: if isAdmin();
     }
 
