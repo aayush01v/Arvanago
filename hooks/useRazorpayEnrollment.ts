@@ -208,9 +208,9 @@ export const useRazorpayEnrollment = ({ user, onProfileUpdate }: UseRazorpayEnro
                 });
                 rzp1.open();
 
-            } catch (error) {
+            } catch (error: any) {
                 console.error('Payment initialization failed', error);
-                setToastMessage('Failed to initialize payment');
+                setToastMessage(error?.message || 'Failed to initialize payment');
                 setShowToast(true);
                 setEnrollingCourseId(null);
             }
