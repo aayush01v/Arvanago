@@ -1,5 +1,5 @@
 import Razorpay from 'razorpay';
-import { db } from './utils/firebaseAdmin.js';
+import { db, dbError } from './utils/firebaseAdmin.js';
 
 export default async function handler(req, res) {
     if (req.method !== 'POST') {
@@ -14,7 +14,7 @@ export default async function handler(req, res) {
 
     try {
         if (!db) {
-            return res.status(500).json({ error: 'Firebase Admin not configured. Add FIREBASE_PROJECT_ID, FIREBASE_CLIENT_EMAIL, FIREBASE_PRIVATE_KEY to .env' });
+            return res.status(500).json({ error: `Firebase Admin issue: ${dbError?.message || dbError || 'Missing FIREBASE_PROJECT_ID, FIREBASE_CLIENT_EMAIL, FIREBASE_PRIVATE_KEY'}` });
         }
 
         // 1. Fetch real price from Firestore

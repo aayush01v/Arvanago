@@ -1,5 +1,7 @@
 import admin from 'firebase-admin';
 
+let adminInitError = null;
+
 // Prevent initializing the app multiple times in serverless environments
 if (!admin.apps.length) {
     try {
@@ -20,9 +22,11 @@ if (!admin.apps.length) {
         }
     } catch (error) {
         console.error('Firebase Admin initialization error', error);
+        adminInitError = error;
     }
 }
 
 export const db = admin.apps.length ? admin.firestore() : null;
+export const dbError = adminInitError;
 export default admin;
 
