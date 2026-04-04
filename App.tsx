@@ -133,12 +133,39 @@ const App: React.FC = () => {
         }
 
         try {
-          const appUser = await getOrCreateUser(
-            firebaseUser.uid,
-            firebaseUser.displayName,
-            firebaseUser.email,
-            firebaseUser.photoURL,
-          );
+          // Force-fetch the ID token before any Firestore calls.
+          // onAuthStateChanged fires the moment Auth detects a sign-in, but
+          // Firestore's internal auth interceptor may not have the token registered
+          // yet, causing a "Missing or insufficient permissions" error even for the
+          // user's own document. Awaiting getIdToken() ensures the token is cached
+          // and propagated before we hit Firestore.
+          await firebaseUser.getIdToken();
+
+          let appUser;
+          try {
+            appUser = await getOrCreateUser(
+              firebaseUser.uid,
+              firebaseUser.displayName,
+              firebaseUser.email,
+              firebaseUser.photoURL,
+            );
+          } catch (firstError: any) {
+            // If we still get a permissions error (rare timing edge case), wait
+            // briefly and retry once before giving up.
+            if (firstError?.code === 'permission-denied' || firstError?.message?.includes('permissions')) {
+              await new Promise(resolve => setTimeout(resolve, 1500));
+              await firebaseUser.getIdToken(/* forceRefresh */ true);
+              appUser = await getOrCreateUser(
+                firebaseUser.uid,
+                firebaseUser.displayName,
+                firebaseUser.email,
+                firebaseUser.photoURL,
+              );
+            } else {
+              throw firstError;
+            }
+          }
+
           setUser(appUser);
           setAuthError(null);
         } catch (error: any) {
