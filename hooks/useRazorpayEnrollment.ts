@@ -106,7 +106,7 @@ export const useRazorpayEnrollment = ({ user, onProfileUpdate }: UseRazorpayEnro
 
                 if (!res.ok) {
                     // Fallback for Local Development (Mock Mode)
-                    if (import.meta.env.DEV || res.status === 404 || res.status === 500) {
+                    if (import.meta.env.DEV) {
                         console.warn('Backend API missing or failing. Using Mock Order Data for testing.');
                         setToastMessage('Dev Mode: Mocking Payment');
                         setShowToast(true);
@@ -118,7 +118,13 @@ export const useRazorpayEnrollment = ({ user, onProfileUpdate }: UseRazorpayEnro
                             status: 'created'
                         };
                     } else {
-                        throw new Error(`Failed to create order: ${res.statusText}`);
+                        const errText = await res.text();
+                        let errMsg = res.statusText;
+                        try {
+                            const parsed = JSON.parse(errText);
+                            errMsg = parsed.error || errMsg;
+                        } catch(e) {}
+                        throw new Error(`Failed to create order: ${errMsg}`);
                     }
                 } else {
                     order = await res.json();
