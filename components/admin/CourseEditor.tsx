@@ -1,0 +1,552 @@
+import React, { useState, useEffect } from 'react';
+import { ArrowLeft, Plus, Trash2, Video, Save, GripVertical, FileText, Cpu } from 'lucide-react';
+import { createCourse, updateCourse, getCourses } from '../../services/firestoreService';
+import { Course, CourseSection, Lecture, Simulation, DownloadableResource } from '../../types';
+
+interface CourseEditorProps {
+    onBack: () => void;
+    courseId?: string | null;
+}
+
+const CourseEditor: React.FC<CourseEditorProps> = ({ onBack, courseId }) => {
+    // State for course metadata
+    const [title, setTitle] = useState('');
+    const [description, setDescription] = useState('');
+    const [longDescription, setLongDescription] = useState('');
+    const [thumbnail, setThumbnail] = useState('');
+    const [learningOutcomes, setLearningOutcomes] = useState<string[]>(['']);
+    const [isPaid, setIsPaid] = useState(true);
+    const [price, setPrice] = useState<number>(0);
+
+    // New States
+    const [simulations, setSimulations] = useState<Simulation[]>([]);
+    const [resources, setResources] = useState<DownloadableResource[]>([]);
+
+    // State for loading
+    const [saving, setSaving] = useState(false);
+
+    // State for curriculum
+    const [sections, setSections] = useState<CourseSection[]>([
+        { title: 'Introduction', lectures: [] }
+    ]);
+
+    useEffect(() => {
+        if (courseId) {
+            loadCourseData();
+        }
+    }, [courseId]);
+
+    const loadCourseData = async () => {
+        try {
+            const courses = await getCourses({ forceRefresh: true });
+            const course = courses.find(c => c.id === courseId);
+            if (course) {
+                setTitle(course.title);
+                setDescription(course.description || '');
+                setLongDescription(course.longDescription || '');
+                setThumbnail(course.thumbnail || '');
+                setLearningOutcomes(course.learningOutcomes || ['']);
+
+                if (course.sections && course.sections.length > 0) {
+                    setSections(course.sections);
+                }
+
+                if (course.simulations) setSimulations(course.simulations);
+                if (course.resources) setResources(course.resources);
+
+                setIsPaid(course.isPaid ?? true);
+                setPrice(course.price ?? 0);
+            }
+        } catch (error) {
+            console.error("Failed to load course", error);
+        }
+    };
+
+    const addSection = () => {
+        setSections([...sections, { title: 'New Section', lectures: [] }]);
+    };
+
+    const updateSectionTitle = (index: number, title: string) => {
+        const newSections = [...sections];
+        newSections[index].title = title;
+        setSections(newSections);
+    };
+
+    const removeSection = (index: number) => {
+        setSections(sections.filter((_, i) => i !== index));
+    };
+
+    const addLecture = (sectionIndex: number) => {
+        const newSections = [...sections];
+        const newLecture: Lecture = {
+            id: `new-${Date.now()}`,
+            title: 'New Lecture',
+            duration: '5m',
+            videoUrl: '',
+            isCompleted: false,
+            isPreview: false,
+            summary: ''
+        };
+        if (!newSections[sectionIndex].lectures) {
+            newSections[sectionIndex].lectures = [];
+        }
+        newSections[sectionIndex].lectures.push(newLecture);
+        setSections(newSections);
+    };
+
+    const updateLecture = (sectionIndex: number, lectureIndex: number, field: keyof Lecture, value: any) => {
+        const newSections = [...sections];
+        newSections[sectionIndex].lectures[lectureIndex] = {
+            ...newSections[sectionIndex].lectures[lectureIndex],
+            [field]: value
+        };
+        setSections(newSections);
+    };
+
+    const removeLecture = (sectionIndex: number, lectureIndex: number) => {
+        const newSections = [...sections];
+        newSections[sectionIndex].lectures = newSections[sectionIndex].lectures.filter((_, i) => i !== lectureIndex);
+        setSections(newSections);
+    };
+
+    const handleOutcomeChange = (index: number, value: string) => {
+        const newOutcomes = [...learningOutcomes];
+        newOutcomes[index] = value;
+        setLearningOutcomes(newOutcomes);
+    };
+
+    const addOutcome = () => setLearningOutcomes([...learningOutcomes, '']);
+    const removeOutcome = (index: number) => setLearningOutcomes(learningOutcomes.filter((_, i) => i !== index));
+
+    // Simulation Handlers
+    const addSimulation = () => {
+        setSimulations([...simulations, {
+            id: `sim-${Date.now()}`,
+            title: 'New Simulation',
+            description: '',
+            thumbnail: '',
+            launchUrl: '',
+            type: 'Lab'
+        }]);
+    };
+
+    const updateSimulation = (index: number, field: keyof Simulation, value: any) => {
+        const newSims = [...simulations];
+        newSims[index] = { ...newSims[index], [field]: value };
+        setSimulations(newSims);
+    };
+
+    const removeSimulation = (index: number) => {
+        setSimulations(simulations.filter((_, i) => i !== index));
+    };
+
+    // Resource Handlers
+    const addResource = () => {
+        setResources([...resources, {
+            id: `res-${Date.now()}`,
+            name: 'New Resource',
+            type: 'PDF',
+            size: '1MB',
+            url: ''
+        }]);
+    };
+
+    const updateResource = (index: number, field: keyof DownloadableResource, value: any) => {
+        const newRes = [...resources];
+        newRes[index] = { ...newRes[index], [field]: value };
+        setResources(newRes);
+    };
+
+    const removeResource = (index: number) => {
+        setResources(resources.filter((_, i) => i !== index));
+    };
+
+    const handleSave = async () => {
+        if (!title) {
+            alert('Title is required');
+            return;
+        }
+
+        setSaving(true);
+        try {
+            const courseData: Partial<Course> = {
+                title,
+                description,
+                longDescription,
+                thumbnail,
+                learningOutcomes: learningOutcomes.filter(o => o.trim() !== ''),
+                sections,
+                simulations,
+                resources,
+                isPaid,
+                isFree: !isPaid,
+                price: isPaid ? price : 0,
+                currency: 'INR'
+            };
+
+            if (courseId) {
+                await updateCourse(courseId, courseData);
+            } else {
+                await createCourse(courseData);
+            }
+            onBack();
+        } catch (error) {
+            console.error('Failed to save course:', error);
+            alert('Failed to save course. Check console for details.');
+        } finally {
+            setSaving(false);
+        }
+    };
+
+    return (
+        <div className="space-y-6">
+            <div className="flex items-center justify-between mb-6">
+                <button onClick={onBack} className="flex items-center text-gray-400 hover:text-white transition-colors">
+                    <ArrowLeft className="w-5 h-5 mr-2" />
+                    Back to Courses
+                </button>
+                <div className="flex items-center space-x-4">
+                    <button className="px-4 py-2 text-gray-400 hover:text-white hover:bg-white/5 rounded-lg transition-colors">
+                        Cancel
+                    </button>
+                    <button
+                        onClick={handleSave}
+                        disabled={saving}
+                        className="flex items-center space-x-2 bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg transition-colors shadow-[0_0_15px_rgba(37,99,235,0.3)] disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                        <Save className="w-4 h-4" />
+                        <span>{saving ? 'Saving...' : 'Save Course'}</span>
+                    </button>
+                </div>
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                {/* Main Content Info */}
+                <div className="lg:col-span-2 space-y-6">
+                    <div className="bg-white/5 border border-white/10 rounded-2xl p-6 backdrop-blur-sm">
+                        <h3 className="text-xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent mb-6">
+                            Course Details
+                        </h3>
+
+                        <div className="space-y-4">
+                            <div>
+                                <label className="block text-sm font-medium text-gray-400 mb-1">Course Title</label>
+                                <input
+                                    type="text"
+                                    value={title}
+                                    onChange={(e) => setTitle(e.target.value)}
+                                    className="w-full bg-black/40 border border-white/10 rounded-lg py-2 px-4 text-white focus:outline-none focus:border-blue-500/50"
+                                    placeholder="e.g. Advanced Regenerative Design"
+                                />
+                            </div>
+
+                            <div>
+                                <label className="block text-sm font-medium text-gray-400 mb-1">Short Description</label>
+                                <textarea
+                                    value={description}
+                                    onChange={(e) => setDescription(e.target.value)}
+                                    rows={3}
+                                    className="w-full bg-black/40 border border-white/10 rounded-lg py-2 px-4 text-white focus:outline-none focus:border-blue-500/50"
+                                    placeholder="Brief summary for cards..."
+                                />
+                            </div>
+
+                            <div>
+                                <label className="block text-sm font-medium text-gray-400 mb-1">Detailed Description</label>
+                                <textarea
+                                    value={longDescription}
+                                    onChange={(e) => setLongDescription(e.target.value)}
+                                    rows={6}
+                                    className="w-full bg-black/40 border border-white/10 rounded-lg py-2 px-4 text-white focus:outline-none focus:border-blue-500/50"
+                                    placeholder="Full course details..."
+                                />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="bg-white/5 border border-white/10 rounded-2xl p-6 backdrop-blur-sm">
+                        <div className="flex justify-between items-center mb-6">
+                            <h3 className="text-xl font-bold text-white">Curriculum</h3>
+                            <button onClick={addSection} className="flex items-center space-x-2 text-blue-400 hover:text-blue-300">
+                                <Plus className="w-4 h-4" />
+                                <span>Add Section</span>
+                            </button>
+                        </div>
+
+                        <div className="space-y-4">
+                            {sections.map((section, sIndex) => (
+                                <div key={sIndex} className="bg-black/20 border border-white/10 rounded-xl overflow-hidden">
+                                    <div className="p-4 bg-white/5 flex items-center justify-between">
+                                        <div className="flex items-center space-x-3 flex-1">
+                                            <GripVertical className="w-5 h-5 text-gray-500 cursor-grab" />
+                                            <input
+                                                type="text"
+                                                value={section.title}
+                                                onChange={(e) => updateSectionTitle(sIndex, e.target.value)}
+                                                className="bg-transparent border-none text-white font-medium focus:ring-0 w-full"
+                                                placeholder="Section Title"
+                                            />
+                                        </div>
+                                        <div className="flex items-center space-x-2">
+                                            <button onClick={() => addLecture(sIndex)} className="p-2 text-gray-400 hover:text-blue-400">
+                                                <Plus className="w-4 h-4" />
+                                            </button>
+                                            <button onClick={() => removeSection(sIndex)} className="p-2 text-gray-400 hover:text-red-400">
+                                                <Trash2 className="w-4 h-4" />
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    <div className="p-4 space-y-2">
+                                        {section.lectures?.map((lecture, lIndex) => (
+                                            <div key={lecture.id} className="flex items-center space-x-4 pl-4 py-2 border-l-2 border-white/10 ml-2">
+                                                <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-4">
+                                                    <input
+                                                        type="text"
+                                                        value={lecture.title}
+                                                        onChange={(e) => updateLecture(sIndex, lIndex, 'title', e.target.value)}
+                                                        className="bg-black/40 border border-white/10 rounded px-2 py-1 text-sm text-white"
+                                                        placeholder="Lecture Title"
+                                                    />
+                                                    <div className="flex gap-2">
+                                                        <input
+                                                            type="text"
+                                                            value={lecture.duration}
+                                                            onChange={(e) => updateLecture(sIndex, lIndex, 'duration', e.target.value)}
+                                                            className="w-20 bg-black/40 border border-white/10 rounded px-2 py-1 text-sm text-white"
+                                                            placeholder="Duration"
+                                                        />
+                                                        <input
+                                                            type="text"
+                                                            value={lecture.videoUrl}
+                                                            onChange={(e) => updateLecture(sIndex, lIndex, 'videoUrl', e.target.value)}
+                                                            className="flex-1 bg-black/40 border border-white/10 rounded px-2 py-1 text-sm text-white"
+                                                            placeholder="Video URL"
+                                                        />
+                                                    </div>
+                                                </div>
+                                                <button onClick={() => removeLecture(sIndex, lIndex)} className="text-gray-500 hover:text-red-400">
+                                                    <Trash2 className="w-4 h-4" />
+                                                </button>
+                                            </div>
+                                        ))}
+                                        {(!section.lectures || section.lectures.length === 0) && (
+                                            <div className="text-center py-2 text-sm text-gray-500 italic">No lectures in this section</div>
+                                        )}
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                </div>
+
+                {/* Sidebar Info */}
+                <div className="space-y-6">
+                    <div className="bg-white/5 border border-white/10 rounded-2xl p-6 backdrop-blur-sm">
+                        <h3 className="text-lg font-bold text-white mb-4">Pricing</h3>
+                        <div className="space-y-4">
+                            <div className="flex items-center justify-between p-3 bg-black/20 rounded-lg border border-white/5">
+                                <span className="text-sm text-gray-300">Course Type</span>
+                                <div className="flex bg-black/40 rounded-lg p-1 border border-white/10">
+                                    <button
+                                        onClick={() => setIsPaid(false)}
+                                        className={`px-3 py-1 text-xs font-medium rounded-md transition-all ${!isPaid ? 'bg-green-500/20 text-green-400 shadow-sm' : 'text-gray-400 hover:text-white'}`}
+                                    >
+                                        Free
+                                    </button>
+                                    <button
+                                        onClick={() => setIsPaid(true)}
+                                        className={`px-3 py-1 text-xs font-medium rounded-md transition-all ${isPaid ? 'bg-blue-500/20 text-blue-400 shadow-sm' : 'text-gray-400 hover:text-white'}`}
+                                    >
+                                        Paid
+                                    </button>
+                                </div>
+                            </div>
+
+                            {isPaid && (
+                                <div>
+                                    <label className="block text-xs font-medium text-gray-500 mb-1 uppercase">Price</label>
+                                    <div className="relative">
+                                        <input
+                                            type="number"
+                                            value={price}
+                                            onChange={(e) => setPrice(Number(e.target.value))}
+                                            className="w-full bg-black/40 border border-white/10 rounded-lg py-2 px-4 text-white focus:outline-none focus:border-blue-500/50"
+                                            placeholder="0.00"
+                                        />
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                    <div className="bg-white/5 border border-white/10 rounded-2xl p-6 backdrop-blur-sm">
+                        <h3 className="text-lg font-bold text-white mb-4">Thumbnail</h3>
+                        <div className="aspect-video rounded-xl bg-black/40 border border-white/10 flex items-center justify-center mb-4 overflow-hidden relative group">
+                            {thumbnail ? (
+                                <img src={thumbnail} alt="Thumbnail preview" className="w-full h-full object-cover" />
+                            ) : (
+                                <div className="text-center">
+                                    <Video className="w-8 h-8 text-gray-500 mx-auto mb-2" />
+                                    <span className="text-xs text-gray-500">No image selected</span>
+                                </div>
+                            )}
+                            <div className="absolute inset-0 bg-black/60 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                                <button className="text-white text-sm font-medium hover:underline">Change</button>
+                            </div>
+                        </div>
+                        <input
+                            type="text"
+                            value={thumbnail}
+                            onChange={(e) => setThumbnail(e.target.value)}
+                            className="w-full bg-black/40 border border-white/10 rounded-lg py-2 px-3 text-sm text-white focus:outline-none focus:border-blue-500/50"
+                            placeholder="Image URL..."
+                        />
+                    </div>
+
+                    <div className="bg-white/5 border border-white/10 rounded-2xl p-6 backdrop-blur-sm">
+                        <div className="flex justify-between items-center mb-4">
+                            <h3 className="text-lg font-bold text-white">Outcomes</h3>
+                            <button onClick={addOutcome} className="text-blue-400 hover:text-blue-300">
+                                <Plus className="w-4 h-4" />
+                            </button>
+                        </div>
+                        <div className="space-y-2">
+                            {learningOutcomes.map((outcome, index) => (
+                                <div key={index} className="flex gap-2">
+                                    <input
+                                        type="text"
+                                        value={outcome}
+                                        onChange={(e) => handleOutcomeChange(index, e.target.value)}
+                                        className="flex-1 bg-black/40 border border-white/10 rounded-lg py-1.5 px-3 text-sm text-white focus:outline-none focus:border-blue-500/50"
+                                        placeholder="What will they learn?"
+                                    />
+                                    {learningOutcomes.length > 1 && (
+                                        <button onClick={() => removeOutcome(index)} className="text-gray-500 hover:text-red-400">
+                                            <Trash2 className="w-4 h-4" />
+                                        </button>
+                                    )}
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+
+                    {/* Resources Section */}
+                    <div className="bg-white/5 border border-white/10 rounded-2xl p-6 backdrop-blur-sm">
+                        <div className="flex justify-between items-center mb-4">
+                            <h3 className="text-lg font-bold text-white">Resources</h3>
+                            <button onClick={addResource} className="text-blue-400 hover:text-blue-300">
+                                <Plus className="w-4 h-4" />
+                            </button>
+                        </div>
+                        <div className="space-y-4">
+                            {resources.map((res, index) => (
+                                <div key={res.id} className="p-3 bg-black/20 rounded-lg border border-white/5">
+                                    <div className="flex justify-between items-start mb-2">
+                                        <div className="flex items-center gap-2">
+                                            <FileText className="w-4 h-4 text-gray-400" />
+                                            <span className="text-xs text-gray-500 font-mono">{res.id.slice(-4)}</span>
+                                        </div>
+                                        <button onClick={() => removeResource(index)} className="text-gray-500 hover:text-red-400">
+                                            <Trash2 className="w-3.5 h-3.5" />
+                                        </button>
+                                    </div>
+                                    <input
+                                        type="text"
+                                        value={res.name}
+                                        onChange={(e) => updateResource(index, 'name', e.target.value)}
+                                        className="w-full bg-black/40 border border-white/10 rounded px-2 py-1 text-sm text-white mb-2"
+                                        placeholder="Resource Name"
+                                    />
+                                    <div className="grid grid-cols-2 gap-2 mb-2">
+                                        <select
+                                            value={res.type}
+                                            onChange={(e) => updateResource(index, 'type', e.target.value)}
+                                            className="bg-black/40 border border-white/10 rounded px-2 py-1 text-xs text-white"
+                                        >
+                                            <option value="PDF">PDF</option>
+                                            <option value="ZIP">ZIP</option>
+                                            <option value="Blend File">Blend File</option>
+                                        </select>
+                                        <input
+                                            type="text"
+                                            value={res.size}
+                                            onChange={(e) => updateResource(index, 'size', e.target.value)}
+                                            className="bg-black/40 border border-white/10 rounded px-2 py-1 text-xs text-white"
+                                            placeholder="Size"
+                                        />
+                                    </div>
+                                    <input
+                                        type="text"
+                                        value={res.url || ''}
+                                        onChange={(e) => updateResource(index, 'url', e.target.value)}
+                                        className="w-full bg-black/40 border border-white/10 rounded px-2 py-1 text-xs text-white"
+                                        placeholder="Download URL"
+                                    />
+                                </div>
+                            ))}
+                            {resources.length === 0 && <p className="text-xs text-gray-500 text-center py-2">No resources added</p>}
+                        </div>
+                    </div>
+
+                    {/* Simulations Section */}
+                    <div className="bg-white/5 border border-white/10 rounded-2xl p-6 backdrop-blur-sm">
+                        <div className="flex justify-between items-center mb-4">
+                            <h3 className="text-lg font-bold text-white">Simulations</h3>
+                            <button onClick={addSimulation} className="text-blue-400 hover:text-blue-300">
+                                <Plus className="w-4 h-4" />
+                            </button>
+                        </div>
+                        <div className="space-y-4">
+                            {simulations.map((sim, index) => (
+                                <div key={sim.id} className="p-3 bg-black/20 rounded-lg border border-white/5">
+                                    <div className="flex justify-between items-start mb-2">
+                                        <div className="flex items-center gap-2">
+                                            <Cpu className="w-4 h-4 text-purple-400" />
+                                            <span className="text-xs text-gray-500 font-mono">{sim.id.slice(-4)}</span>
+                                        </div>
+                                        <button onClick={() => removeSimulation(index)} className="text-gray-500 hover:text-red-400">
+                                            <Trash2 className="w-3.5 h-3.5" />
+                                        </button>
+                                    </div>
+                                    <input
+                                        type="text"
+                                        value={sim.title}
+                                        onChange={(e) => updateSimulation(index, 'title', e.target.value)}
+                                        className="w-full bg-black/40 border border-white/10 rounded px-2 py-1 text-sm text-white mb-2"
+                                        placeholder="Sim Title"
+                                    />
+                                    <select
+                                        value={sim.type}
+                                        onChange={(e) => updateSimulation(index, 'type', e.target.value)}
+                                        className="w-full bg-black/40 border border-white/10 rounded px-2 py-1 text-xs text-white mb-2"
+                                    >
+                                        <option value="Lab">Lab</option>
+                                        <option value="3D">3D Model</option>
+                                        <option value="Quiz">Quiz</option>
+                                    </select>
+                                    <input
+                                        type="text"
+                                        value={sim.launchUrl}
+                                        onChange={(e) => updateSimulation(index, 'launchUrl', e.target.value)}
+                                        className="w-full bg-black/40 border border-white/10 rounded px-2 py-1 text-xs text-white mb-2"
+                                        placeholder="Launch URL"
+                                    />
+                                    <input
+                                        type="text"
+                                        value={sim.thumbnail}
+                                        onChange={(e) => updateSimulation(index, 'thumbnail', e.target.value)}
+                                        className="w-full bg-black/40 border border-white/10 rounded px-2 py-1 text-xs text-white"
+                                        placeholder="Thumbnail URL"
+                                    />
+                                </div>
+                            ))}
+                            {simulations.length === 0 && <p className="text-xs text-gray-500 text-center py-2">No simulations added</p>}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
+};
+
+export default CourseEditor;
