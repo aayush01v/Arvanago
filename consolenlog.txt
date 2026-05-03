@@ -1,0 +1,18 @@
+Failed to save product FirebaseError: Missing or insufficient permissions. AdminStorefront.tsx:54:21
+    handleSaveProduct AdminStorefront.tsx:54
+    React 15
+        callCallback2
+        invokeGuardedCallbackDev
+        invokeGuardedCallback
+        invokeGuardedCallbackAndCatchFirstError
+        executeDispatch
+        processDispatchQueueItemsInOrder
+        processDispatchQueue
+        dispatchEventsForPlugins
+        dispatchEventForPluginEventSystem
+        batchedUpdates$1
+        batchedUpdates
+        dispatchEventForPluginEventSystem
+        dispatchEventWithEnableCapturePhaseSelectiveHydrationWithoutDiscreteEventReplay
+        dispatchEvent
+        dispatchDiscreteEvent

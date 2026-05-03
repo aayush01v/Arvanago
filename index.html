@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="EduSimulate Ecosystem - Master your future with our interactive, mentorship-driven learning platform and exclusive student gear store." />
+  <meta name="theme-color" content="#050505" />
+  <meta name="robots" content="index, follow" />
+  
+  <title>Edusimulate – Smart Learning Reimagined</title>
+  
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <link rel="alternate icon" href="/favicon.ico" sizes="any" />
+
+  <!-- DNS Prefetch for external domains -->
+  <link rel="dns-prefetch" href="https://fonts.googleapis.com" />
+  <link rel="dns-prefetch" href="https://fonts.gstatic.com" />
+  <link rel="dns-prefetch" href="https://cdn.jsdelivr.net" />
+  <link rel="dns-prefetch" href="https://firebasestorage.googleapis.com" />
+  <link rel="dns-prefetch" href="https://checkout.razorpay.com" />
+
+  <!-- Razorpay Checkout SDK -->
+  <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+
+  <!-- Preconnect for critical resources -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7783964722742113"
+    crossorigin="anonymous"></script>
+
+  <!-- Fonts with display swap for better performance -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap"
+    rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+  <style>
+    .text-shadow {
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .dark .text-shadow {
+      text-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+    }
+
+    .scroll-animate {
+      opacity: 0;
+      transform: translateY(30px);
+      transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+    }
+
+    .scroll-animate.is-visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .glass-reflection {
+      position: relative;
+      overflow: hidden;
+    }
+
+    .glass-reflection::after {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -25%;
+      width: 20%;
+      height: 200%;
+      background: linear-gradient(to right, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0.28) 50%, rgba(255, 255, 255, 0) 100%);
+      transform: rotate(18deg);
+      opacity: 0.65;
+      pointer-events: none;
+      will-change: opacity, transform;
+      transition: opacity 0.6s ease, transform 0.6s ease;
+    }
+
+    .dark .glass-reflection::after {
+      background: linear-gradient(to right, rgba(148, 163, 184, 0) 0%, rgba(148, 163, 184, 0.22) 45%, rgba(78, 205, 196, 0.18) 55%, rgba(148, 163, 184, 0) 100%);
+      opacity: 0.35;
+      transform: translateX(-5%) rotate(14deg);
+      filter: blur(4px);
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .glass-reflection::after {
+        transition: none;
+      }
+    }
+
+    .glass-panel {
+      position: relative;
+      overflow: hidden;
+    }
+
+    .glass-panel::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: inherit;
+      border: 1px solid rgba(255, 255, 255, 0.35);
+      mix-blend-mode: soft-light;
+      opacity: 0.5;
+      pointer-events: none;
+    }
+
+    .glass-panel::after {
+      content: '';
+      position: absolute;
+      inset: -50%;
+      border-radius: 50%;
+      background: conic-gradient(from 0deg, rgba(43, 131, 198, 0.2), rgba(74, 222, 128, 0.1), rgba(43, 131, 198, 0.15), rgba(43, 131, 198, 0));
+      filter: blur(80px);
+      opacity: 0.35;
+      animation: rotateGlow 24s linear infinite;
+      pointer-events: none;
+    }
+
+    @keyframes pulseGlow {
+
+      0%,
+      100% {
+        transform: scale(0.92);
+        opacity: 0.55;
+      }
+
+      50% {
+        transform: scale(1.08);
+        opacity: 0.9;
+      }
+    }
+
+    @keyframes driftGlow {
+
+      0%,
+      100% {
+        transform: translateY(0) scale(1);
+        opacity: 0.55;
+      }
+
+      50% {
+        transform: translateY(-6%) scale(1.08);
+        opacity: 0.85;
+      }
+    }
+
+    @keyframes rotateGlow {
+      0% {
+        transform: rotate(0deg);
+      }
+
+      100% {
+        transform: rotate(360deg);
+      }
+    }
+  </style>
+
+</head>
+
+<body class="font-sans">
+  <div id="root"></div>
+  <script type="module" src="/index.tsx"></script>
+</body>
+
+</html>

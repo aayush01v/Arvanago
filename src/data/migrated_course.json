@@ -1,0 +1,4183 @@
+{
+  "id": "maths-spl-33-migrated",
+  "title": "Maths Spl-33 (Pre+Mains) - Gagan Pratap Sir",
+  "description": "Migrated course content including Arithmetic and Advance Maths.",
+  "longDescription": "Comprehensive Maths course for Pre+Mains exams. Includes detailed video lectures and PDF resources.",
+  "thumbnail": "",
+  "isFree": false,
+  "isPaid": true,
+  "isPublished": false,
+  "lectures": [],
+  "sections": [
+    {
+      "title": "Percentage",
+      "lectures": [
+        {
+          "id": "lecture-1768080170343-tydeinjz6",
+          "title": "Arithmetic - Class-01 | Percentage",
+          "duration": "00:00",
+          "videoUrl": "https://www.youtube.com/watch?v=VGajz-yzhSg",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170343-cim2ct2qr",
+          "title": "Arithmetic - Class-02 | Percentage",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6363682696112/6363682696112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170343-9ixf138kl",
+          "title": "Arithmetic - Class-03 | Percentage",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6363735174112/6363735174112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170343-j1ms4recb",
+          "title": "Arithmetic - Class-04 | Percentage",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6363788587112/6363788587112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170343-2sikalsbg",
+          "title": "Arithmetic - Class-05 | Percentage",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6364222344112/6364222344112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170343-em2cjyt7o",
+          "title": "Arithmetic - Class-06 | Percentage",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6364283890112/6364283890112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170343-hny8e811c",
+          "title": "Arithmetic - Class-07 | Percentage",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6364396159112/6364396159112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170343-krcx55v8r",
+          "title": "Arithmetic - Class-08 | Percentage",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6364539340112/6364539340112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170343-n3m2g7voo",
+          "title": "Arithmetic - Class-09 | Percentage",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6364585249112/6364585249112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170343-wbca1wkm6",
+          "title": "Arithmetic - Class-10 | Percentage",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6364641238112/6364641238112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170343-qe7iqqpxm",
+          "title": "Arithmetic - Class-11 | Percentage",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6364743220112/6364743220112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170343-92siazisl",
+          "title": "Arithmetic - Class-12 | Percentage",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6364895832112/6364895832112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170343-ctitcg6hz",
+          "title": "Arithmetic - Class-13 | Percentage",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6364943378112/6364943378112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170343-vg7pcbuyq",
+          "title": "Arithmetic - Class-14 | Percentage",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6364987784112/6364987784112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170343-8unfq64h3",
+          "title": "Arithmetic - Class-15 | Percentage",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6365039964112/6365039964112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170343-nwgp0r9y1",
+          "title": "Arithmetic - Class-16 | Percentage",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6365155317112/6365155317112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170343-513n9fp09",
+          "title": "Arithmetic - Class-17 | Percentage",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6365201669112/6365201669112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170343-qzfxfdhio",
+          "title": "Arithmetic - Class-18 | Percentage",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6365242999112/6365242999112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170343-x1sx9g9s8",
+          "title": "Arithmetic - Class-19 | Percentage",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6365290699112/6365290699112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170343-tkbqv08wz",
+          "title": "Arithmetic - Class-20 | Percentage",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6365411466112/6365411466112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170343-41ukf65iy",
+          "title": "Arithmetic - Class-21 | Percentage",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6365466120112/6365466120112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170343-4v536z5ig",
+          "title": "Arithmetic - Class-22 | Percentage",
+          "duration": "00:00",
+          "videoUrl": "https://www.youtube.com/watch?v=zgwAv7etYbI",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170343-e8sbmjgx8",
+          "title": "Arithmetic - Class-23 | Percentage",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6365575764112/6365575764112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170343-waxet87ii",
+          "title": "Arithmetic - Class-24 | Percentage",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6365628099112/6365628099112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170343-bjyssmbid",
+          "title": "Arithmetic - Class-25 | Percentage",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6365795741112/6365795741112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170343-a8csmv341",
+          "title": "Arithmetic - Class-26 | Percentage",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6365843357112/6365843357112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170343-2kh9zjk6h",
+          "title": "Arithmetic - Class-27 | Percentage",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6365897050112/6365897050112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170343-osrt6a20k",
+          "title": "Arithmetic - Class-28 | Percentage",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6365943894112/6365943894112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170343-6gk9gf6xq",
+          "title": "Arithmetic - Class-29 | Percentage",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6366105059112/6366105059112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170343-3osymoibd",
+          "title": "Arithmetic - Class-30 | Percentage",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6366176269112/6366176269112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        }
+      ]
+    },
+    {
+      "title": "Ratio and Proportion",
+      "lectures": [
+        {
+          "id": "lecture-1768080170343-lmnm4au95",
+          "title": "Arithmetic - Class-1 || Ratio and Proportion",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6366223175112/6366223175112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170343-kg48f2efd",
+          "title": "Arithmetic - Class-02 || Ratio and Proportion",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6366272901112/6366272901112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170343-y6i2uu68y",
+          "title": "Arithmetic - Class-03 || Ratio and Proportion",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6366368144112/6366368144112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170343-f8gdi443g",
+          "title": "Arithmetic - Class-04 || Ratio and Proportion",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6366404249112/6366404249112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170343-bfwzgxy8l",
+          "title": "Arithmetic - Class-05 || Ratio and Proportion",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6366428229112/6366428229112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170343-tjogli2p4",
+          "title": "Arithmetic - Class-06 || Ratio and Proportion",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6366448512112/6366448512112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170343-q243b9bfm",
+          "title": "Arithmetic - Class-07 || Ratio and Proportion",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6366475374112/6366475374112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170343-e678zkh0r",
+          "title": "Arithmetic - Class-08 || Ratio and Proportion",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6366545741112/6366545741112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170343-kpouuwli7",
+          "title": "Arithmetic - Class-09 || Ratio and Proportion",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6366570917112/6366570917112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170343-7u9f51mk2",
+          "title": "Arithmetic - Class-10 || Maths || Ratio and Proportion",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6366612106112/6366612106112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170343-qmz8sc0ud",
+          "title": "Arithmetic - Class-11 || Maths || Ratio and Proportion",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6366615442112/6366615442112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170343-inglayj45",
+          "title": "Arithmetic - Class-12 || Maths || Ratio and Proportion",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6366644100112/6366644100112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170343-c9fbbwoch",
+          "title": "Arithmetic - Class-13 || Maths || Ratio and Proportion",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6366647333112/6366647333112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170343-ufsjyltoh",
+          "title": "Arithmetic - Class-14 || Maths || Ratio and Proportion",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6366724676112/6366724676112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170343-hxm4p952m",
+          "title": "Arithmetic - Class-15 || Maths || Ratio and Proportion",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6366730467112/6366730467112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170343-2lfsbnayc",
+          "title": "Arithmetic - Class-16 || Maths || Ratio and Proportion",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6366766398112/6366766398112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170343-lrj93w8jt",
+          "title": "Arithmetic - Class-17 || Maths || Ratio and Proportion",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6366810761112/6366810761112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170343-oroatwui2",
+          "title": "Arithmetic - Class-18 || Maths || Ratio and Proportion",
+          "duration": "00:00",
+          "videoUrl": "https://www.youtube.com/watch?v=9jgG-qOsAMY",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170343-yc4vo2cwp",
+          "title": "Arithmetic - Class-19 || Maths || Ratio and Proportion",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6366942164112/6366942164112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        }
+      ]
+    },
+    {
+      "title": "Time and Work",
+      "lectures": [
+        {
+          "id": "lecture-1768080170343-w2hkh0wxi",
+          "title": "Arithmetic - Class-01 || Time and Work",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6367019858112/6367019858112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170343-l2h9lg84s",
+          "title": "Arithmetic - Class-02 || Time and Work",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6367073463112/6367073463112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-6nrn5dizc",
+          "title": "Arithmetic - Class-03 || Time and Work",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6367119071112/6367119071112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-m7h91vp5v",
+          "title": "Arithmetic - Class-04 || Time and Work",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6367385187112/6367385187112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-2hzo9pxuy",
+          "title": "Arithmetic - Class-05 || Time and Work",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6367437369112/6367437369112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-2fn313ozr",
+          "title": "Arithmetic - Class-06 || Time and Work",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6367490096112/6367490096112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-mis4o1c4t",
+          "title": "Arithmetic - Class-07 || Time and Work",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6367553005112/6367553005112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-o00ers3ns",
+          "title": "Arithmetic - Class-08 || Time and Work",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6367618447112/6367618447112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-gt6liekbs",
+          "title": "Arithmetic - Class-09 || Time and Work",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6367823088112/6367823088112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-hwdru7mcs",
+          "title": "Arithmetic - Class-10 || Time and Work",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6367874448112/6367874448112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-7alfotgb9",
+          "title": "Arithmetic - Class-11 || Time and Work",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6367936274112/6367936274112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-gq8d58woc",
+          "title": "Arithmetic - Class-12 || Time and Work",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6367988655112/6367988655112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-0ehy1rlyf",
+          "title": "Arithmetic - Class-13 || Time and Work",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6368040888112/6368040888112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-y0ps3uh6o",
+          "title": "Arithmetic - Class-14 || Time and Work",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6368190822112/6368190822112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-93pirf6dz",
+          "title": "Arithmetic - Class-15 || Time and Work",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6368238943112/6368238943112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-hyzh6e2bi",
+          "title": "Arithmetic - Class-16 || Time and Work",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6368423127112/6368423127112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-7msbscu2k",
+          "title": "Arithmetic - Class-17 || Time and Work",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6368594495112/6368594495112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        }
+      ]
+    },
+    {
+      "title": "Pipe and Cistern",
+      "lectures": [
+        {
+          "id": "lecture-1768080170344-rdfny3ngb",
+          "title": "Arithmetic - Class-1 || Pipe and Cistern",
+          "duration": "00:00",
+          "videoUrl": "https://www.youtube.com/watch?v=yEKb45A48J4",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-mebr449ub",
+          "title": "Arithmetic - Class-2 || Pipe and Cistern",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6368697422112/6368697422112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-po7xqr94z",
+          "title": "Arithmetic - Class-03 || Pipe and Cistern",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6368750600112/6368750600112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-tu7leie15",
+          "title": "Arithmetic - Class-04 || Pipe and Cistern",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6368947825112/6368947825112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-7r3sud48c",
+          "title": "Arithmetic - Class-05 || Pipe and Cistern",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6368989677112/6368989677112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        }
+      ]
+    },
+    {
+      "title": "Time, Speed and Distance",
+      "lectures": [
+        {
+          "id": "lecture-1768080170344-dbdtvlcwp",
+          "title": "Arithmetic - Class-1 || Time, Speed and Distance",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6369087192112/6369087192112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-1f2u52ve2",
+          "title": "Arithmetic - Class-02 || Time, Speed and Distance",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6369139660112/6369139660112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-4cvx6ma16",
+          "title": "Arithmetic - Class-03 || Time, Speed and Distance",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6369250919112/6369250919112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-jr4tej5fk",
+          "title": "Arithmetic - Class-04 || Time, Speed and Distance",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6369291892112/6369291892112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-zhr50ke9r",
+          "title": "Arithmetic - Class-05 || Time, Speed and Distance",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6369337894112/6369337894112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-ymzs9rvnu",
+          "title": "Arithmetic - Class-06 || Time, Speed and Distance",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6369433864112/6369433864112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-7fymxqbn7",
+          "title": "Arithmetic - Class-07 || Time, Speed and Distance",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6369586728112/6369586728112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-0mbll1bkb",
+          "title": "Arithmetic - Class-08 || Time, Speed and Distance",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6369628349112/6369628349112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-nyof4enjx",
+          "title": "Arithmetic - Class-09 || Time, Speed and Distance",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6369669415112/6369669415112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-19ot45tdt",
+          "title": "Arithmetic - Class-10 || Time, Speed and Distance",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6369768795112/6369768795112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-6xd1tbhsd",
+          "title": "Arithmetic - Class-11 || Time, Speed and Distance",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6369837220112/6369837220112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-fqttm8iu9",
+          "title": "Arithmetic - Class-12 || Time, Speed and Distance",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6369876525112/6369876525112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-ebb3vycwb",
+          "title": "Arithmetic - Class-13 || Time, Speed and Distance",
+          "duration": "00:00",
+          "videoUrl": "https://www.youtube.com/watch?v=KN2E62N5MMc",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-4kpi6xe3i",
+          "title": "Arithmetic - Class-14 || Time, Speed and Distance",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6370182454112/6370182454112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-n3e6ujtkh",
+          "title": "Arithmetic - Class-15 || Time, Speed and Distance",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6370224388112/6370224388112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-fjt1v9uj0",
+          "title": "Arithmetic - Class-16 || Time, Speed and Distance",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6370316624112/6370316624112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-lwkvcpi3b",
+          "title": "Arithmetic - Class-17 || Time, Speed and Distance",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6370457017112/6370457017112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        }
+      ]
+    },
+    {
+      "title": "Boat and Steam",
+      "lectures": [
+        {
+          "id": "lecture-1768080170344-rqqd42fqc",
+          "title": "Arithmetic - Class-1 || Boat and Steam",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6370512561112/6370512561112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-7u87f7zaa",
+          "title": "Arithmetic - Class-2 || Boat and Steam",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6370626006112/6370626006112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-twtynzhwy",
+          "title": "Arithmetic - Class-03 || Boat and Steam",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6370675352112/6370675352112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        }
+      ]
+    },
+    {
+      "title": "Train",
+      "lectures": [
+        {
+          "id": "lecture-1768080170344-oxtl1ajjf",
+          "title": "Arithmetic - Class-1 || Train",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6370823891112/6370823891112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-a1bx70w9i",
+          "title": "Arithmetic - Class-02 || Train",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6370916938112/6370916938112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-mziv2ycek",
+          "title": "Arithmetic - Class-03 || Train",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6370972134112/6370972134112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-0akamd3hg",
+          "title": "Arithmetic - Class-04 || Train",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6371027500112/6371027500112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        }
+      ]
+    },
+    {
+      "title": "Partnership",
+      "lectures": [
+        {
+          "id": "lecture-1768080170344-bqmh5fw4n",
+          "title": "Arithmetic - Class- 1 || Partnership",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6371213300112/6371213300112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-hy6bj1nx1",
+          "title": "Arithmetic - Class-02 || Partnership",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6371260532112/6371260532112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-f4oyzoej8",
+          "title": "Arithmetic - Class-03 || Partnership",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6371304343112/6371304343112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        }
+      ]
+    },
+    {
+      "title": "Race",
+      "lectures": [
+        {
+          "id": "lecture-1768080170344-d75sd68wx",
+          "title": "Arithmetic - Class-1 || Race",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6338720236112/6338720236112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-f11r57nka",
+          "title": "Arithmetic - Class-02 || Race",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6338834903112/6338834903112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-xpsh7a1w6",
+          "title": "Arithmetic - Class-03 || Race",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6338899866112/6338899866112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        }
+      ]
+    },
+    {
+      "title": "Profit and Loss",
+      "lectures": [
+        {
+          "id": "lecture-1768080170344-aw72r5ykp",
+          "title": "Arithmetic - Class -1 || Profit and Loss",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6371468882112/6371468882112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-j4ggnvuad",
+          "title": "Arithmetic - Clasa-2 || Profit and Loss",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6371511104112/6371511104112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-e8pb648rg",
+          "title": "Arithmetic - Clasa-03 || Profit and Loss",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6371593915112/6371593915112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-6bwoaukro",
+          "title": "Arithmetic - Clasa-04 || Profit and Loss",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6371640371112/6371640371112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-444zekb5r",
+          "title": "Arithmetic - Clasa-05 || Profit and Loss",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6371674554112/6371674554112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-1b1llzkqd",
+          "title": "Arithmetic - Clasa-06 || Profit and Loss",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6371747943112/6371747943112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-8fiaa7lx8",
+          "title": "Arithmetic - Clasa-07 || Profit and Loss",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6371784434112/6371784434112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-nsaadmyd2",
+          "title": "Arithmetic - Clasa-08 || Profit and Loss",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6371823222112/6371823222112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-xu0s3dem9",
+          "title": "Arithmetic - Clasa-09 || Profit and Loss",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6371919898112/6371919898112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-gzmfupwlj",
+          "title": "Arithmetic - Clasa-10 || Profit and Loss",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6372020857112/6372020857112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-n11m9t9l7",
+          "title": "Arithmetic - Clasa-11 || Profit and Loss",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6372064488112/6372064488112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-90il2q6m0",
+          "title": "Arithmetic - Clasa-12 || Profit and Loss",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6372103422112/6372103422112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-m57azr1e1",
+          "title": "Arithmetic - Clasa-13 || Profit and Loss",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6372159698112/6372159698112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-na4ytomm3",
+          "title": "Arithmetic - Clasa-14 || Profit and Loss",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6372218256112/6372218256112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        }
+      ]
+    },
+    {
+      "title": "Discount",
+      "lectures": [
+        {
+          "id": "lecture-1768080170344-4k332g2xr",
+          "title": "Arithmetic - Class -1 || Discount",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6372363358112/6372363358112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-ligg9o0iz",
+          "title": "Arithmetic - Class-02 || Discount",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6372409376112/6372409376112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-i7s0tbmqf",
+          "title": "Arithmetic - Class-03 || Discount",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6372458412112/6372458412112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-6puwko2p2",
+          "title": "Arithmetic - Class-04 || Discount",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6372565190112/6372565190112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-eafuxjb96",
+          "title": "Arithmetic - Class-05 || Discount",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6372695339112/6372695339112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-1e2ugdjjn",
+          "title": "Arithmetic - Class-06 || Discount",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6372750141112/6372750141112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-7njm1igl3",
+          "title": "Arithmetic - Class-07 || Discount",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6372787851112/6372787851112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-wbjj5jb4u",
+          "title": "Arithmetic - Class-08 || Discount",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6372836853112/6372836853112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-k77m9a5of",
+          "title": "Arithmetic - Class-09 || Discount",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6372948605112/6372948605112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-jhhpd6jm9",
+          "title": "Arithmetic - Class-10 || Discount",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6373105769112/6373105769112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-drkmvect9",
+          "title": "Arithmetic - Class-11 || Discount",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6373173683112/6373173683112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-3abjqzu3e",
+          "title": "Arithmetic - Class-12 || Discount",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6373220318112/6373220318112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-w7fuwhovh",
+          "title": "Arithmetic - Class-13 || Discount",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6373379793112/6373379793112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        }
+      ]
+    },
+    {
+      "title": "Mixture and Alligation",
+      "lectures": [
+        {
+          "id": "lecture-1768080170344-uibjsl6sf",
+          "title": "Arithmetic - Class-1 || Mixture and Alligation",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6373490110112/6373490110112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-f88xffgqe",
+          "title": "Arithmetic - Class-02 || Mixture and Alligation",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6373521442112/6373521442112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-nhcan76r0",
+          "title": "Arithmetic - Class-03 || Mixture and Alligation",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6373560649112/6373560649112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-pa3l7onge",
+          "title": "Arithmetic - Class-04 || Mixture and Alligation",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6373768319112/6373768319112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-085ty2z64",
+          "title": "Arithmetic - Class-05 || Mixture and Alligation",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6373898011112/6373898011112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-n7kvt4yoz",
+          "title": "Arithmetic - Class-06 || Mixture and Alligation",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6373940837112/6373940837112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-vti42igrl",
+          "title": "Arithmetic - Class-07 || Mixture and Alligation",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6374044830112/6374044830112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-qao96eu4k",
+          "title": "Arithmetic - Class-08 || Mixture and Alligation",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6374080997112/6374080997112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-orwdhv4zv",
+          "title": "Arithmetic - Class-09 || Mixture and Alligation",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6374124076112/6374124076112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-rbnu7bzp9",
+          "title": "Arithmetic - Class-10 || Mixture and Alligation",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6374175352112/6374175352112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-drw4obdd4",
+          "title": "Arithmetic - Class-11 || Mixture and Alligation",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6374347486112/6374347486112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-w47u4rjva",
+          "title": "Arithmetic - Class-12 || Mixture and Alligation",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6374435349112/6374435349112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-4tz3fnvxu",
+          "title": "Arithmetic - Class-13 || Mixture and Alligation",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6374515771112/6374515771112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-42uw8kkcr",
+          "title": "Arithmetic - Class-14 || Mixture and Alligation",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6374568780112/6374568780112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-ht2pq9o6c",
+          "title": "Arithmetic - Class-15 || Mixture and Alligation",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6374608801112/6374608801112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        }
+      ]
+    },
+    {
+      "title": "Miscellaneous (Dishonest Shopkeeper)",
+      "lectures": [
+        {
+          "id": "lecture-1768080170344-kxjokm7cv",
+          "title": "Arithmetic - Arith | Class -01 | Miscellaneous (Dishonest Shopkeeper)",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6328610230112/6328610230112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-hcjskcxbq",
+          "title": "Arithmetic - Arith | Class -02| Miscellaneous (Dishonest Shopkeeper)",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6328671379112/6328671379112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-5gnumhd81",
+          "title": "Arithmetic - Arith | Class -03 | Miscellaneous (Dishonest Shopkeeper)",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6328842372112/6328842372112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        }
+      ]
+    },
+    {
+      "title": "Average",
+      "lectures": [
+        {
+          "id": "lecture-1768080170344-bcyr8imns",
+          "title": "Arithmetic - Class-1 || Average",
+          "duration": "00:00",
+          "videoUrl": "https://www.youtube.com/watch?v=OVk_rbjTuwM",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-q7j7pekoh",
+          "title": "Arithmetic - Class-2 || Average",
+          "duration": "00:00",
+          "videoUrl": "https://www.youtube.com/watch?v=6c75ISEndIk",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-360dul68h",
+          "title": "Arithmetic - Class-03 || Average",
+          "duration": "00:00",
+          "videoUrl": "https://www.youtube.com/watch?v=RWW2Gd6cpDw",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-ydasgr1n8",
+          "title": "Arithmetic - Class-04 || Average",
+          "duration": "00:00",
+          "videoUrl": "https://www.youtube.com/watch?v=_91qbhMmV3M",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-s22waj490",
+          "title": "Arithmetic - Class-05 || Average",
+          "duration": "00:00",
+          "videoUrl": "https://www.youtube.com/watch?v=yQfBt9GMiBo",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-ie9edu1h9",
+          "title": "Arithmetic - Class-06 || Average",
+          "duration": "00:00",
+          "videoUrl": "https://www.youtube.com/watch?v=hQszWzs5Rhc",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-ml9kr4r54",
+          "title": "Arithmetic - Class-07 || Average",
+          "duration": "00:00",
+          "videoUrl": "https://www.youtube.com/watch?v=_5m-Mm1BVxk",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-xqrderpa6",
+          "title": "Arithmetic - Class-08 || Average",
+          "duration": "00:00",
+          "videoUrl": "https://www.youtube.com/watch?v=dtg0jO6HDMo",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        }
+      ]
+    },
+    {
+      "title": "SI & CI",
+      "lectures": [
+        {
+          "id": "lecture-1768080170344-m9clx4165",
+          "title": "Arithmetic - CLASS-1 || SI & CI",
+          "duration": "00:00",
+          "videoUrl": "https://www.youtube.com/watch?v=-p1DMmseXe0",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-x3htyosni",
+          "title": "Arithmetic - CLASS-2 || SI & CI",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/channel_vod_non_drm_hls/4476723/175197620162665193874/175197620162665193874_5193874.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-nku0q93f9",
+          "title": "Arithmetic - CLASS-3 || SI & CI",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/channel_vod_non_drm_hls/4477889/175206228896608939759/175206228896608939759_8939759.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-se99ked30",
+          "title": "Arithmetic - CLASS-4 || Maths || SI & CI",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/channel_vod_non_drm_hls/4478971/175214994463477316486/175214994463477316486_7316486.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-srv62xvdi",
+          "title": "Arithmetic - CLASS-5 || Maths || SI & CI",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/channel_vod_non_drm_hls/4480079/175223776241173259814/175223776241173259814_3259814.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-k9y1hyl2y",
+          "title": "Arithmetic - CLASS-6 || Maths || SI & CI",
+          "duration": "00:00",
+          "videoUrl": "https://www.youtube.com/watch?v=Ou-4GKMd3gk",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-jhxmlr4sq",
+          "title": "Arithmetic - CLASS-7 || Maths || SI & CI",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/channel_vod_non_drm_hls/4482810/175258159182453107929/175258159182453107929_3107929.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        }
+      ]
+    },
+    {
+      "title": "Number System",
+      "lectures": [
+        {
+          "id": "lecture-1768080170344-lalwvuejv",
+          "title": "Advance - Class-01 || Number System",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6360806275112/6360806275112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-uuvajlffa",
+          "title": "Advance - Class-02 || Number System",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6360878677112/6360878677112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-ku23clt9q",
+          "title": "Advance - Class-03 || Number System",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6361084728112/6361084728112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-btym9f18e",
+          "title": "Advance - Class-04 || Number System",
+          "duration": "00:00",
+          "videoUrl": "https://www.youtube.com/watch?v=4OVLZZ8FA3U",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-94ckghe90",
+          "title": "Advance - Class-05 || Number System",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6361193558112/6361193558112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-k0hq323q7",
+          "title": "Advance - Class-06 || Number System",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6361256260112/6361256260112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-r469b8o8z",
+          "title": "Advance - Class-07 || Number System",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6361392928112/6361392928112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-wdj6f9n44",
+          "title": "Advance - Class-08 || Number System",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6361439682112/6361439682112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-mo14q09tg",
+          "title": "Advance - Class-09 || Number System",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6361493607112/6361493607112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-8588ipwd6",
+          "title": "Advance - Class-10 || Number System",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6361549588112/6361549588112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-1g6l6wq5q",
+          "title": "Advance - Class-11 || Number System",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6361608734112/6361608734112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-ebzhhxx5x",
+          "title": "Advance - Class-12 || Number System",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6361783884112/6361783884112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-hwxoxmrpu",
+          "title": "Advance - Class-13 || Number System",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6361830954112/6361830954112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-qguqjkp0l",
+          "title": "Advance - Class-14 || Number System",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6361870264112/6361870264112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-jl4md1s4c",
+          "title": "Advance - Class-15 || Number System",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6361911807112/6361911807112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-oa65iss44",
+          "title": "Advance - Class-16 || Number System",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6362013413112/6362013413112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-ll1ekhaqj",
+          "title": "Advance - Class-17 || Number System",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6362055557112/6362055557112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-hsycykbxl",
+          "title": "Advance - Class-18 || Number System",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6362103510112/6362103510112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-1hvwr3dz7",
+          "title": "Advance - Class-19 || Number System",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6362151119112/6362151119112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-nhyciq1ip",
+          "title": "Advance - Class-20 || Number System",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6362384461112/6362384461112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-jmfjn2na4",
+          "title": "Advance - Class-17 | Number System",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6373822772112/6373822772112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-pses4vs4d",
+          "title": "Advance - Class-18 | Number System",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6373900291112/6373900291112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-sdckiyobc",
+          "title": "Advance - Class-19 | Number System",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6373943012112/6373943012112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-p7y6jastg",
+          "title": "Advance - Class-20 | Number System",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6373990141112/6373990141112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-tzjexi38h",
+          "title": "Advance - Class-21 | Number System",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6374041329112/6374041329112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-qdv9hfexn",
+          "title": "Advance - Class-22 | Number System",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6374119000112/6374119000112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-lkb1mto80",
+          "title": "Advance - Class-23 || Number System",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/channel_vod_non_drm_hls/4480491/175230438740387140453/175230438740387140453_7140453.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        }
+      ]
+    },
+    {
+      "title": "Calculation and Simplification",
+      "lectures": [
+        {
+          "id": "lecture-1768080170344-srg4mb4y9",
+          "title": "Advance - Class- 1 || Calculation and Simplification",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6362431436112/6362431436112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-bt55359fm",
+          "title": "Advance - Class-02 || Calculation and Simplification",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6362487432112/6362487432112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-wkayvvlz0",
+          "title": "Advance - Class-03 || Calculation and Simplification",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6362538601112/6362538601112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-034jplpt5",
+          "title": "Advance - Class-04 || Calculation and Simplification",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6362666926112/6362666926112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-g9titqjmq",
+          "title": "Advance - Class-05 || Calculation and Simplification",
+          "duration": "00:00",
+          "videoUrl": "https://www.youtube.com/watch?v=Pq2WwLOwY7I",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-zfmsjaqjs",
+          "title": "Advance - Class-06 || Calculation and Simplification",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6362792661112/6362792661112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-0u5ozrxt2",
+          "title": "Advance - Class-07 || Calculation and Simplification",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6362936431112/6362936431112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-lvj0148m7",
+          "title": "Advance - Class-08 || Calculation and Simplification",
+          "duration": "00:00",
+          "videoUrl": "https://www.youtube.com/watch?v=2rarQAGU21g",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-yipll89kk",
+          "title": "Advance - Class-09 || Calculation and Simplification",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6363023224112/6363023224112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-waxxexkm0",
+          "title": "Advance - Class-10 || Calculation and Simplification",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6363069340112/6363069340112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-u8so2wkze",
+          "title": "Advance - Class-11 || Calculation and Simplification",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6363115199112/6363115199112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-6on3hjyis",
+          "title": "Advance - Class-12 || Calculation and Simplification",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6363278298112/6363278298112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-i3943kmot",
+          "title": "Advance - Class-13 || Calculation and Simplification",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6363326694112/6363326694112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-y2rio3jw7",
+          "title": "Advance - Class-14 || Calculation and Simplification",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6363546241112/6363546241112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-ujsbx9lfc",
+          "title": "Advance - Class-15 || Calculation and Simplification",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6363585662112/6363585662112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-9dqz6hyxn",
+          "title": "Advance - Class- 16 || Calculation and Simplification",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6363624573112/6363624573112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        }
+      ]
+    },
+    {
+      "title": "Probability",
+      "lectures": [
+        {
+          "id": "lecture-1768080170344-bru93g9ev",
+          "title": "Advance - Class-1 || Probability",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6339437874112/6339437874112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-5m95hew07",
+          "title": "Advance - Class-2 || Probability",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6340138831112/6340138831112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-q4y7z3ded",
+          "title": "Advance - Class-3 || Probability",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6340139588112/6340139588112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        }
+      ]
+    },
+    {
+      "title": "Permutation and Combination",
+      "lectures": [
+        {
+          "id": "lecture-1768080170344-o95ykj01e",
+          "title": "Advance - Class-1 || Permutation and Combination",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6339252994112/6339252994112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-fn7s5xyr6",
+          "title": "Advance - Class-2 || Permutation and Combination",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6339260826112/6339260826112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-kqoziyj76",
+          "title": "Advance - Class-3 || Permutation and Combination",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6339379028112/6339379028112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        }
+      ]
+    },
+    {
+      "title": "Statistics",
+      "lectures": [
+        {
+          "id": "lecture-1768080170344-6zvjqhi9n",
+          "title": "Advance - Class-1 || Statistics",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6338835510112/6338835510112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-1f5aw86p7",
+          "title": "Advance - Class-1 || Statistics",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6338835510112/6338835510112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-ypwpzk430",
+          "title": "Advance - Class-2 || Statistics",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6338849498112/6338849498112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-0uf5go8t3",
+          "title": "Advance - Class-2 || Statistics",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6338849498112/6338849498112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-pq0tncnuc",
+          "title": "Advance - Class-3 || Statistics",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6338981630112/6338981630112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-9tzhf7bt1",
+          "title": "Advance - Class-3 || Statistics",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6338981630112/6338981630112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        }
+      ]
+    },
+    {
+      "title": "Coordinate Geometry",
+      "lectures": [
+        {
+          "id": "lecture-1768080170344-rnkihv05v",
+          "title": "Advance - Class-01 | Coordinate Geometry",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6364174522112/6364174522112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-30h82xzqz",
+          "title": "Advance - Class-02 | Coordinate Geometry",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6364226740112/6364226740112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-sobylyafl",
+          "title": "Advance - Class-03 | Coordinate Geometry",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6364289215112/6364289215112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-kb6c1ityv",
+          "title": "Advance - Class-04 | Coordinate Geometry",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6364337421112/6364337421112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-81f0q5il4",
+          "title": "Advance - Class-05 | Coordinate Geometry",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6364400335112/6364400335112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-f9gwbv32r",
+          "title": "Advance - Class-06 | Coordinate Geometry",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6364544407112/6364544407112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-92a4cnh3q",
+          "title": "Advance - Class-07 | Coordinate Geometry",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6364646011112/6364646011112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-nq8cyincr",
+          "title": "Advance - Class-08 | Coordinate Geometry",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6364745576112/6364745576112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-ifta7643h",
+          "title": "Advance - Class-08 | Coordinate Geometry",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6364855739112/6364855739112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-4trq0g330",
+          "title": "Advance - Class-09 | Coordinate Geometry",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6364899935112/6364899935112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        }
+      ]
+    },
+    {
+      "title": "Algebra",
+      "lectures": [
+        {
+          "id": "lecture-1768080170344-08ckbvb8z",
+          "title": "Advance - Class-01 || Algebra",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6364991728112/6364991728112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-y3kx5jglw",
+          "title": "Advance - Class-02 || Algebra",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6365042992112/6365042992112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-6a5qcvw6j",
+          "title": "Advance - Class-03 || Algebra",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6365158341112/6365158341112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-4jdwfaure",
+          "title": "Advance - Class-04 || Algebra",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6365204600112/6365204600112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-plgjvbgtm",
+          "title": "Advance - Class-05 || Algebra",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6365246524112/6365246524112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-nnke7h9fe",
+          "title": "Advance - Class-6 || Algebra",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6365292452112/6365292452112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-r2nu2ck33",
+          "title": "Advance - Class-07 || Algebra",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6365324328112/6365324328112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-cdurr8hdn",
+          "title": "Advance - Class-08 || Algebra",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6365415933112/6365415933112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-b0cpj0qet",
+          "title": "Advance - Class-09 || Algebra",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6365467707112/6365467707112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-4bh32gwgg",
+          "title": "Advance - Class-10 || Algebra",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6365520425112/6365520425112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-0kkqqr4f2",
+          "title": "Advance - Class-11 || Algebra",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6365579602112/6365579602112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-iqevxmjyh",
+          "title": "Advance - Class-12 || Algebra",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6365631331112/6365631331112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-kqwvzz76z",
+          "title": "Advance - Class-13 || Algebra",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6365754625112/6365754625112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-cp2byq9c2",
+          "title": "Advance - Class-14 || Algebra",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6365798499112/6365798499112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-o0w9x5y91",
+          "title": "Advance - Class-15 || Algebra",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6365845127112/6365845127112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-hrccggpr1",
+          "title": "Advance - Class-16 || Algebra",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6365900653112/6365900653112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-tlh28lmny",
+          "title": "Advance - Class-17 || Algebra",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6365946567112/6365946567112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-puvux7wc3",
+          "title": "Advance - Class-18 || Algebra",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6366107603112/6366107603112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-qtb56wen9",
+          "title": "Advance - Class-19 || Algebra",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6366178856112/6366178856112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-hp2ippux8",
+          "title": "Advance - Class-20 || Algebra",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6366226981112/6366226981112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-yxkbgp0hi",
+          "title": "Advance - Class-21 || Algebra",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6366275417112/6366275417112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-mf3ldqodq",
+          "title": "Advance - Class-22 || Algebra",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6366370933112/6366370933112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-oab6d36ma",
+          "title": "Advance - Class-23 || Algebra",
+          "duration": "00:00",
+          "videoUrl": "https://www.youtube.com/watch?v=aab3tWiaE6Q",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-1rmbn7l14",
+          "title": "Advance - Class-24 || Algebra",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6366429624112/6366429624112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-9hsrlffnu",
+          "title": "Advance - Class-25 || Algebra",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6366449231112/6366449231112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-rugynbdts",
+          "title": "Advance - Class-26 || Algebra",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6366477489112/6366477489112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-bwidxgx1w",
+          "title": "Advance - Class-27 || Algebra",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6366547384112/6366547384112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-nfxlubl62",
+          "title": "Advance - Class-28 || Algebra",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6366573025112/6366573025112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-n0alekvc9",
+          "title": "Advance - Class-29 || Algebra",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6366616083112/6366616083112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-wylfo0nsn",
+          "title": "Advance - Class-30 || Algebra",
+          "duration": "00:00",
+          "videoUrl": "https://www.youtube.com/watch?v=zYsT0ABkhsY",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-brc40ugiy",
+          "title": "Advance - Class-31 || Algebra",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6366673455112/6366673455112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-y3lcgsj72",
+          "title": "Advance - Class-32 || Algebra",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6366733397112/6366733397112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-ik6pxmla7",
+          "title": "Advance - Class-33 || Algebra",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6366759299112/6366759299112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-1abce74aa",
+          "title": "Advance - Class-34 || Algebra",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6366767937112/6366767937112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-pb3yfu21x",
+          "title": "Advance - Class-35 || Algebra",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6366804488112/6366804488112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-d6dsllsvj",
+          "title": "Advance - Class-36 || Algebra",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6366813021112/6366813021112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-850299o39",
+          "title": "Advance - Class-37 || Algebra",
+          "duration": "00:00",
+          "videoUrl": "https://www.youtube.com/watch?v=2qtz9Qr3sy0",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-6j9ngp55d",
+          "title": "Advance - Class-38 || Algebra",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6366853932112/6366853932112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        }
+      ]
+    },
+    {
+      "title": "Trigonometry",
+      "lectures": [
+        {
+          "id": "lecture-1768080170344-4n9cepry6",
+          "title": "Advance - Class-01 || Trigonometry",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6366908613112/6366908613112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-s47f4koi4",
+          "title": "Advance - Class-02 || Trigonometry",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6367026544112/6367026544112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-ofttj1cl1",
+          "title": "Advance - Class-03 || Trigonometry",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6367076235112/6367076235112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-lgla3vxa4",
+          "title": "Advance - Class-04 || Trigonometry",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6367123859112/6367123859112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-pdqx5h0fb",
+          "title": "Advance - Class-05 || Trigonometry",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6367389310112/6367389310112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-gd119p4cl",
+          "title": "Advance - Class-06 || Trigonometry",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6367441440112/6367441440112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-yha827rc8",
+          "title": "Advance - Class-07 || Trigonometry",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6367494934112/6367494934112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-1no0bpdfd",
+          "title": "Advance - Class-08 || Trigonometry",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6367557288112/6367557288112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-759pm8ynf",
+          "title": "Advance - Class-09 || Trigonometry",
+          "duration": "00:00",
+          "videoUrl": "https://www.youtube.com/watch?v=xE_5pGWpLio",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-l63gpqglc",
+          "title": "Advance - Class-10 || Trigonometry",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6367827110112/6367827110112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-ssxrlpxmi",
+          "title": "Advance - Class-11 || Trigonometry",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6367877792112/6367877792112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-vcr2mrs5j",
+          "title": "Advance - Class-12 || Trigonometry",
+          "duration": "00:00",
+          "videoUrl": "https://www.youtube.com/watch?v=z7Df0ljbtXc",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-ychckwcko",
+          "title": "Advance - Class-13 || Trigonometry",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6367993459112/6367993459112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-jpatxohmt",
+          "title": "Advance - Class-14 || Trigonometry",
+          "duration": "00:00",
+          "videoUrl": "https://www.youtube.com/watch?v=JKM2mlKBYiQ",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-fa8a3pcc0",
+          "title": "Advance - Class-15 || Trigonometry",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6368110125112/6368110125112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-9dt1b38le",
+          "title": "Advance - Class-16 || Trigonometry",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6368195164112/6368195164112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-7heq0v0xf",
+          "title": "Advance - Class-17 || Trigonometry",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6368240778112/6368240778112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-6aub93ipm",
+          "title": "Advance - Class-18 || Trigonometry",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6368424993112/6368424993112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-5rlyphea5",
+          "title": "Advance - Class-19 || Trigonometry",
+          "duration": "00:00",
+          "videoUrl": "https://www.youtube.com/watch?v=f4WodYuyp_4",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-zkipkej0m",
+          "title": "Advance - Class-20 || Trigonometry",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6368645534112/6368645534112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-5ze7g4osu",
+          "title": "Advance - Class-21 || Trigonometry",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6368698998112/6368698998112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-7gilh4weu",
+          "title": "Advance - Class-22 || Trigonometry",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6368754960112/6368754960112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-44ykji4vx",
+          "title": "Advance - Class-23 || Trigonometry",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6368951642112/6368951642112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-gff7kknvo",
+          "title": "Advance - Class-24 || Trigonometry",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6368994094112/6368994094112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-7uomoivko",
+          "title": "Advance - Class-25 || Trigonometry",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6369044256112/6369044256112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        }
+      ]
+    },
+    {
+      "title": "Height and Distance",
+      "lectures": [
+        {
+          "id": "lecture-1768080170344-w470ruz8a",
+          "title": "Advance - Class-1 || Height and Distance",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6369092630112/6369092630112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-9pal3a8l0",
+          "title": "Advance - Class-2 || Height and Distance",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6369141672112/6369141672112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-obth0pi9b",
+          "title": "Advance - Class-03 || Height and Distance",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6369253098112/6369253098112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-qdt3mjk77",
+          "title": "Advance - Class-04 || Height and Distance",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6369296179112/6369296179112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        }
+      ]
+    },
+    {
+      "title": "Surds and Indices",
+      "lectures": [
+        {
+          "id": "lecture-1768080170344-pwlg4z3ux",
+          "title": "Advance - Class- 01 || Surds and Indices",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6369340450112/6369340450112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-6aeks1y0u",
+          "title": "Advance - Class-02 || Surds and Indices",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6369389529112/6369389529112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-jw763x6bj",
+          "title": "Advance - Class-03 || Surds and Indices",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6369438786112/6369438786112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-pcr10doxs",
+          "title": "Advance - Class-04 || Surds and Indices",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6369587500112/6369587500112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-ch7v40m09",
+          "title": "Advance - Class-05 || Surds and Indices",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6369630699112/6369630699112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-wxszbvy4p",
+          "title": "Advance - Class-06 || Surds and Indices",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6369672862112/6369672862112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-56zk1jd27",
+          "title": "Advance - Class-07 || Surds and Indices",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6369720669112/6369720669112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-mf7jduk96",
+          "title": "Advance - Class-08 || Surds and Indices",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6369772419112/6369772419112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-9qi4xumsw",
+          "title": "Advance - Class-09 || Surds and Indices",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6369827900112/6369827900112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        }
+      ]
+    },
+    {
+      "title": "2D Mensuration",
+      "lectures": [
+        {
+          "id": "lecture-1768080170344-k8ubfpd9k",
+          "title": "Advance - Class-1 || 2D Mensuration",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6369839868112/6369839868112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-cb4bl8rgp",
+          "title": "Advance - Class-2 || 2D Mensuration",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6369881439112/6369881439112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-2molj6xe5",
+          "title": "Advance - Class-03 || 2D Mensuration",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6369921679112/6369921679112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-dccj5rnq1",
+          "title": "Advance - Class-04 || 2D Mensuration",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6370143373112/6370143373112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-h13ompfeu",
+          "title": "Advance - Class-05 || 2D Mensuration",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6370226429112/6370226429112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-z5y9g8ghg",
+          "title": "Advance - Class-06 || 2D Mensuration",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6370269678112/6370269678112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-7ohcolrx7",
+          "title": "Advance - Class-07 || 2D Mensuration",
+          "duration": "00:00",
+          "videoUrl": "https://www.youtube.com/watch?v=Lr2cahZKHB8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-mqfnex9zv",
+          "title": "Advance - Class-08 || 2D Mensuration",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6370462301112/6370462301112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-12v1bh89o",
+          "title": "Advance - Class-09 || 2D Mensuration",
+          "duration": "00:00",
+          "videoUrl": "https://www.youtube.com/watch?v=ZLp77wD5ryE",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-kufactqi1",
+          "title": "Advance - Class-10 || 2D Mensuration",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6370578167112/6370578167112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-3auctj7cw",
+          "title": "Advance - Class-11 || 2D Mensuration",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6370627789112/6370627789112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-5gd6m4icz",
+          "title": "Advance - Class-12 || 2D Mensuration",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6370679873112/6370679873112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-52m3heusg",
+          "title": "Advance - Class-13 || 2D Mensuration",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6370826121112/6370826121112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-lrk79t36l",
+          "title": "Advance - Class-14 || 2D Mensuration",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6370921285112/6370921285112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-2d0vm9ppl",
+          "title": "Advance - Class-15 || 2D Mensuration",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6370972827112/6370972827112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-qyncgsirx",
+          "title": "Advance - Class-16 || 2D Mensuration",
+          "duration": "00:00",
+          "videoUrl": "https://www.youtube.com/watch?v=bb7WRapZ9-w",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-q1sct3ixu",
+          "title": "Advance - Class-17 || 2D Mensuration",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6371171683112/6371171683112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        }
+      ]
+    },
+    {
+      "title": "HCF & LCM10-03-2025 08",
+      "lectures": [
+        {
+          "id": "lecture-1768080170344-udx4ffnrh",
+          "title": "Advance - Class-11 || HCF & LCM10-03-2025 08",
+          "duration": "00:00",
+          "videoUrl": "https://www.youtube.com/watch?v=b92wqMqEXK0",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        }
+      ]
+    },
+    {
+      "title": "HCF & LCM",
+      "lectures": [
+        {
+          "id": "lecture-1768080170344-mtlurar4f",
+          "title": "Advance - Class-12 || HCF & LCM",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6351470763112/6351470763112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-hci597wu0",
+          "title": "Advance - Class-13 || HCF & LCM",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6351580447112/6351580447112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-guldetma2",
+          "title": "Advance - Class-14 || HCF & LCM",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6351738352112/6351738352112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-mc89a1wlq",
+          "title": "Advance - Class-15 || HCF & LCM",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6351803664112/6351803664112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-mukquba6k",
+          "title": "Advance - Class-16 || HCF & LCM",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6351878044112/6351878044112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-i7ykzfeh3",
+          "title": "Advance - Class-17 || HCF & LCM",
+          "duration": "00:00",
+          "videoUrl": "https://www.youtube.com/watch?v=DpPeCsHjFrc",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-lz99r4aqa",
+          "title": "Advance - Class-18 || HCF & LCM",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6352036360112/6352036360112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-lua316w5j",
+          "title": "Advance - Class-19 || HCF & LCM",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6352124191112/6352124191112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-dttc5dk2u",
+          "title": "Advance - Class-20 || HCF & LCM",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6352180019112/6352180019112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-s54gjt72m",
+          "title": "Advance - Class-21 || HCF & LCM",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6352240642112/6352240642112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-cqkkalzm0",
+          "title": "Advance - Class-22 || HCF & LCM",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6352410928112/6352410928112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-vtjfyfr7r",
+          "title": "Advance - Class-23 || HCF & LCM",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6352462155112/6352462155112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-xgrvpwlco",
+          "title": "Advance - Class-24 || HCF & LCM",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6352526686112/6352526686112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        }
+      ]
+    },
+    {
+      "title": "3D Mensuration",
+      "lectures": [
+        {
+          "id": "lecture-1768080170344-a0e48vunj",
+          "title": "Advance - Class-01 || 3D Mensuration",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6371220300112/6371220300112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-rfock8qrf",
+          "title": "Advance - Class-02 || 3D Mensuration",
+          "duration": "00:00",
+          "videoUrl": "https://www.youtube.com/watch?v=BT36oT5HiYY",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-vy5y3y5r1",
+          "title": "Advance - Class-03 || 3D Mensuration",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6371343026112/6371343026112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-k6akzc1yn",
+          "title": "Advance - Class-04 || 3D Mensuration",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6371355137112/6371355137112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-uboqhvwa8",
+          "title": "Advance - Class-05 || 3D Mensuration",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6371472608112/6371472608112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-dwcvtz561",
+          "title": "Advance - Class-06 || 3D Mensuration",
+          "duration": "00:00",
+          "videoUrl": "https://www.youtube.com/watch?v=fsCBBtoKabc",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-mf92m6dke",
+          "title": "Advance - Class-07 || 3D Mensuration",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6371557182112/6371557182112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-0o3g7sgsz",
+          "title": "Advance - Class-08 || 3D Mensuration",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6371597336112/6371597336112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-vgivhuwbw",
+          "title": "Advance - Class-09 || 3D Mensuration",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6371642689112/6371642689112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-knsoaancg",
+          "title": "Advance - Class-10 || 3D Mensuration",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6371750214112/6371750214112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-ik7330hjt",
+          "title": "Advance - Class-11 || 3D Mensuration",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6371787371112/6371787371112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-aduqjik1t",
+          "title": "Advance - Class-12 || 3D Mensuration",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6371829033112/6371829033112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-atj5amhe9",
+          "title": "Advance - Class-13 || 3D Mensuration",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6371868559112/6371868559112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-4dp94xoyx",
+          "title": "Advance - Class-14 || 3D Mensuration",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6371926007112/6371926007112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-ppkwxd93e",
+          "title": "Advance - Class-15 || 3D Mensuration",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6372023688112/6372023688112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-ldy0w0z1s",
+          "title": "Advance - Class-16 || 3D Mensuration",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6372060734112/6372060734112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-jz3f8wjs6",
+          "title": "Advance - Class-17 || 3D Mensuration",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6372107452112/6372107452112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-l9b46a5la",
+          "title": "Advance - Class-18 || 3D Mensuration",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6372164364112/6372164364112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-gtmzyrrou",
+          "title": "Advance - Class-19 || 3D Mensuration",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6372215265112/6372215265112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-2w649bj0l",
+          "title": "Advance - Class-20 || 3D Mensuration",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6372256558112/6372256558112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-b25wfya67",
+          "title": "Advance - Class-21 || 3D Mensuration",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6372366281112/6372366281112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-124nt3eje",
+          "title": "Advance - Class-22 || 3D Mensuration",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6372413101112/6372413101112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-tp7n7v4wt",
+          "title": "Advance - Class-23 || 3D Mensuration",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6372452249112/6372452249112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        }
+      ]
+    },
+    {
+      "title": "3D mensuration",
+      "lectures": [
+        {
+          "id": "lecture-1768080170344-hkus70iz0",
+          "title": "Advance - Class -24 || 3D mensuration",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6322846572112/6322846572112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        }
+      ]
+    },
+    {
+      "title": "Geometry",
+      "lectures": [
+        {
+          "id": "lecture-1768080170344-p01lzmcbt",
+          "title": "Advance - Class -1 || Geometry",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6374049570112/6374049570112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-5ep08qg77",
+          "title": "Advance - Class-02 || Geometry",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6374083836112/6374083836112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-b9jj5jeeg",
+          "title": "Advance - Class-03 || Geometry",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6374126239112/6374126239112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-ssusmqv6r",
+          "title": "Advance - Class-04 || Geometry",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6374177047112/6374177047112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-m9g43ml70",
+          "title": "Advance - Class-05 || Geometry",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6374349657112/6374349657112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-s8jiturt8",
+          "title": "Advance - Class-06 || Geometry",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6374519516112/6374519516112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-e264q3z83",
+          "title": "Advance - Class-07 || Geometry",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6374570761112/6374570761112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-yj0jtowry",
+          "title": "Advance - Class-08 || Geometry",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/migration/brightcove/6374615105112/6374615105112.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-zgwrku8nn",
+          "title": "Advance - Class-09 || Geometry",
+          "duration": "00:00",
+          "videoUrl": "https://www.youtube.com/watch?v=Eq0xJkWWvr4",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-oai0t7idj",
+          "title": "Advance - Class-10 || Geometry",
+          "duration": "00:00",
+          "videoUrl": "https://www.youtube.com/watch?v=cXaIoSWdbTU",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-li7ynobzw",
+          "title": "Advance - Class-11 || Geometry",
+          "duration": "00:00",
+          "videoUrl": "https://www.youtube.com/watch?v=quoYKGT5l_E",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-yxzklh0pe",
+          "title": "Advance - Class-12 || Geometry",
+          "duration": "00:00",
+          "videoUrl": "https://www.youtube.com/watch?v=Dbws5dbB3H8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-7e7x7gd7a",
+          "title": "Advance - Class-13 || Geometry",
+          "duration": "00:00",
+          "videoUrl": "https://www.youtube.com/watch?v=kxHbxtQGF4w",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-q106jemi2",
+          "title": "Advance - Class-14 || Geometry",
+          "duration": "00:00",
+          "videoUrl": "https://www.youtube.com/watch?v=JbaylUL-IzM",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-ue85btvp6",
+          "title": "Advance - Class-15 || Geometry",
+          "duration": "00:00",
+          "videoUrl": "https://www.youtube.com/watch?v=wmTf_brk5Yw",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-lagxribfb",
+          "title": "Advance - Class-16 || Geometry",
+          "duration": "00:00",
+          "videoUrl": "https://www.youtube.com/watch?v=Lgw3dS0wOU4",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-2d47w56xm",
+          "title": "Advance - Class-17 || Geometry",
+          "duration": "00:00",
+          "videoUrl": "https://www.youtube.com/watch?v=sMYxxIjekoE",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-sayp3yl2j",
+          "title": "Advance - Class-18 || Geometry",
+          "duration": "00:00",
+          "videoUrl": "https://www.youtube.com/watch?v=XZPV9V0PXtI",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-6z8a7m7xx",
+          "title": "Advance - Class-19 || Geometry",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/channel_vod_non_drm_hls/4476885/175198354384493907752/175198354384493907752_3907752.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-ea5fvehmz",
+          "title": "Advance - Class-20 || Geometry",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/channel_vod_non_drm_hls/4478105/175206992034758367574/175206992034758367574_8367574.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-l9gpuq3gh",
+          "title": "Advance - Class-21 || Geometry",
+          "duration": "00:00",
+          "videoUrl": "https://d14v4v80cpjht7.cloudfront.net/file_library/videos/channel_vod_non_drm_hls/4480160/175224265277858309336/175224265277858309336_8309336.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-2l4l5d0dt",
+          "title": "Advance - Class-22 || Geometry",
+          "duration": "00:00",
+          "videoUrl": "https://www.youtube.com/watch?v=tXaOZYJSnUg",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        },
+        {
+          "id": "lecture-1768080170344-46j85o4qg",
+          "title": "Advance - Class-23 || Geometry",
+          "duration": "00:00",
+          "videoUrl": "https://d13edac6fp1ki5.cloudfront.net/out/v1/14dee1a72a0b44fe95015a49aadb61fb/index.m3u8",
+          "isCompleted": false,
+          "summary": "",
+          "isPreview": false
+        }
+      ]
+    }
+  ],
+  "progress": 0,
+  "author": {
+    "uid": "migration-script",
+    "name": "System Migrator",
+    "email": "admin@example.com",
+    "avatar": "",
+    "level": 1,
+    "points": 0,
+    "streak": 0,
+    "completedChallenges": 0,
+    "enrolledCourses": [],
+    "ongoingCourses": [],
+    "wishlist": [],
+    "pendingTasks": [],
+    "followers": 0,
+    "following": 0,
+    "postsCount": 0
+  },
+  "price": 0,
+  "currency": "INR",
+  "tags": [
+    "Maths",
+    "Competitive Exams",
+    "Pre+Mains"
+  ],
+  "resources": [
+    {
+      "id": "res-1768080170345-nylqtlonz",
+      "name": "Syllabus - Syllabus @cwexte",
+      "type": "PDF",
+      "size": "Unknown",
+      "url": "https://cwmediabkt99.crwilladmin.com/92013a99927c4842b0a70fbd6f064a95:crwilladmin/class-attachment/66c5930c4cea9_66a0d14d157ae_666fff3d1c4c8_664c873aea956_66260ddc3a6a7_65f94b876390d_6489ba79b6c68_Syllabus (1).pdf"
+    },
+    {
+      "id": "res-1768080170345-qq7r3sa8w",
+      "name": "Arithmetic - Number System Sheet -6 (Unit Digit) @cwexte",
+      "type": "PDF",
+      "size": "Unknown",
+      "url": "https://cwmediabkt99.crwilladmin.com/92013a99927c4842b0a70fbd6f064a95:crwilladmin/class-attachment/68723a61ae7b5_NUMBER_SYSTEM_SHEET_6_unit_digit.pdf"
+    },
+    {
+      "id": "res-1768080170345-fpllg7d5z",
+      "name": "Arithmetic - Simple Interest sheet -1 @cwexte",
+      "type": "PDF",
+      "size": "Unknown",
+      "url": "https://cwmediabkt99.crwilladmin.com/92013a99927c4842b0a70fbd6f064a95:crwilladmin/class-attachment/686dfe7ef2a9d_Simple_Interest_sheet_1.pdf"
+    },
+    {
+      "id": "res-1768080170345-l32vf6s16",
+      "name": "Arithmetic - Average Sheet-2 @cwexte",
+      "type": "PDF",
+      "size": "Unknown",
+      "url": "https://cwmediabkt99.crwilladmin.com/92013a99927c4842b0a70fbd6f064a95:crwilladmin/class-attachment/6863d52e75dda_Average_Sheet_2.pdf"
+    },
+    {
+      "id": "res-1768080170345-tlfgfj43i",
+      "name": "Arithmetic - Average Sheet-1 @cwexte",
+      "type": "PDF",
+      "size": "Unknown",
+      "url": "https://cwmediabkt99.crwilladmin.com/92013a99927c4842b0a70fbd6f064a95:crwilladmin/class-attachment/6859457c07913_Average_Sheet1.pdf"
+    },
+    {
+      "id": "res-1768080170345-1smb67tn6",
+      "name": "Arithmetic - Mixture and  Alligation Sheet -3 @cwexte",
+      "type": "PDF",
+      "size": "Unknown",
+      "url": "https://cwmediabkt99.crwilladmin.com/92013a99927c4842b0a70fbd6f064a95:crwilladmin/class-attachment/6850ed57c7a98_Mixture_and_Alligation_Sheet_3.pdf"
+    },
+    {
+      "id": "res-1768080170345-sgo2eipw6",
+      "name": "Arithmetic - Mixture and Alligation Sheet-2 @cwexte",
+      "type": "PDF",
+      "size": "Unknown",
+      "url": "https://cwmediabkt99.crwilladmin.com/92013a99927c4842b0a70fbd6f064a95:crwilladmin/class-attachment/6849265b9a754_Mixture_and_Alligation_Sheet_2compressed.pdf"
+    },
+    {
+      "id": "res-1768080170345-3yffk9c8m",
+      "name": "Arithmetic - Dishonest Shopkeeper @cwexte",
+      "type": "PDF",
+      "size": "Unknown",
+      "url": "https://cwmediabkt99.crwilladmin.com/92013a99927c4842b0a70fbd6f064a95:crwilladmin/class-attachment/683542672cfe2_Dishonest_Shopkeeper432714crwill.pdf"
+    },
+    {
+      "id": "res-1768080170345-5aa3btymj",
+      "name": "Arithmetic - Mixture and Alligation Sheet-1 @cwexte",
+      "type": "PDF",
+      "size": "Unknown",
+      "url": "https://cwmediabkt99.crwilladmin.com/92013a99927c4842b0a70fbd6f064a95:crwilladmin/class-attachment/683541e30ef0d_Mixture_and_Alligation_Sheet_1.pdf"
+    },
+    {
+      "id": "res-1768080170345-8u1wwvfe2",
+      "name": "Arithmetic - Discount Sheet- 2 @cwexte",
+      "type": "PDF",
+      "size": "Unknown",
+      "url": "https://cwmediabkt99.crwilladmin.com/92013a99927c4842b0a70fbd6f064a95:crwilladmin/class-attachment/682d2e2e25b3b_Discount_Sheet_2.pdf"
+    },
+    {
+      "id": "res-1768080170345-vgn2rmm05",
+      "name": "Arithmetic - Discount Sheet-1 @cwexte",
+      "type": "PDF",
+      "size": "Unknown",
+      "url": "https://cwmediabkt99.crwilladmin.com/92013a99927c4842b0a70fbd6f064a95:crwilladmin/class-attachment/6819b8781a308_Discount_Sheet1_2.pdf"
+    },
+    {
+      "id": "res-1768080170345-5g623mqt9",
+      "name": "Arithmetic - Profit and Loss Sheet-3 @cwexte",
+      "type": "PDF",
+      "size": "Unknown",
+      "url": "https://cwmediabkt99.crwilladmin.com/92013a99927c4842b0a70fbd6f064a95:crwilladmin/class-attachment/681202f03af37_Profit_and_Loss_Sheet_3.pdf"
+    },
+    {
+      "id": "res-1768080170345-pi85uvopi",
+      "name": "Arithmetic - Profit and Loss Sheet -2 @cwexte",
+      "type": "PDF",
+      "size": "Unknown",
+      "url": "https://cwmediabkt99.crwilladmin.com/92013a99927c4842b0a70fbd6f064a95:crwilladmin/class-attachment/680209bc657bc_Profit_and_Loss_Sheet_2.pdf"
+    },
+    {
+      "id": "res-1768080170345-suw6nkxsz",
+      "name": "Arithmetic - Profit and Loss Sheet -3 @cwexte",
+      "type": "PDF",
+      "size": "Unknown",
+      "url": "https://cwmediabkt99.crwilladmin.com/92013a99927c4842b0a70fbd6f064a95:crwilladmin/class-attachment/680208cc2d40a_Profit_and_Loss_Sheet_3.pdf"
+    },
+    {
+      "id": "res-1768080170345-zn4maeo6p",
+      "name": "Arithmetic - Profit and Loss Sheet-1 @cwexte",
+      "type": "PDF",
+      "size": "Unknown",
+      "url": "https://cwmediabkt99.crwilladmin.com/92013a99927c4842b0a70fbd6f064a95:crwilladmin/class-attachment/67fd3782f18bb_Profit_and_Loss_Sheet_1.pdf"
+    },
+    {
+      "id": "res-1768080170345-un6hxkxjs",
+      "name": "Arithmetic - Race Sheet @cwexte",
+      "type": "PDF",
+      "size": "Unknown",
+      "url": "https://cwmediabkt99.crwilladmin.com/92013a99927c4842b0a70fbd6f064a95:crwilladmin/class-attachment/67f516f09ca27_66bb084b412cc6516b86da96f4RACE_Sheet.pdf"
+    },
+    {
+      "id": "res-1768080170345-nye73iue3",
+      "name": "Arithmetic - Partnership Sheet @cwexte",
+      "type": "PDF",
+      "size": "Unknown",
+      "url": "https://cwmediabkt99.crwilladmin.com/92013a99927c4842b0a70fbd6f064a95:crwilladmin/class-attachment/67f4a918ba648_Partnership.pdf"
+    },
+    {
+      "id": "res-1768080170345-3pmotapts",
+      "name": "Arithmetic - Train Sheet @cwexte",
+      "type": "PDF",
+      "size": "Unknown",
+      "url": "https://cwmediabkt99.crwilladmin.com/92013a99927c4842b0a70fbd6f064a95:crwilladmin/class-attachment/67ea7ff1385b2_Train.pdf"
+    },
+    {
+      "id": "res-1768080170345-srt0kbh91",
+      "name": "Arithmetic - Boat and Stream Sheet @cwexte",
+      "type": "PDF",
+      "size": "Unknown",
+      "url": "https://cwmediabkt99.crwilladmin.com/92013a99927c4842b0a70fbd6f064a95:crwilladmin/class-attachment/67da4eda20c83_Boat_and_stream_Sheet.pdf"
+    },
+    {
+      "id": "res-1768080170345-af47n3q2m",
+      "name": "Arithmetic - Time , Speed and Distance Sheet-3 @cwexte",
+      "type": "PDF",
+      "size": "Unknown",
+      "url": "https://cwmediabkt99.crwilladmin.com/92013a99927c4842b0a70fbd6f064a95:crwilladmin/class-attachment/67d95592ca33e_Time_Speed_and_Distance_Sheet_3.pdf"
+    },
+    {
+      "id": "res-1768080170345-0xjdx9w6a",
+      "name": "Arithmetic - Time Speed and Distance Sheet-2 @cwexte",
+      "type": "PDF",
+      "size": "Unknown",
+      "url": "https://cwmediabkt99.crwilladmin.com/92013a99927c4842b0a70fbd6f064a95:crwilladmin/class-attachment/67ca5b8aac0f4_Time_Speed_and_Distance_Sheet_2.pdf"
+    },
+    {
+      "id": "res-1768080170345-ht4d6mxaa",
+      "name": "Arithmetic - Surds & Indices-1 @cwexte",
+      "type": "PDF",
+      "size": "Unknown",
+      "url": "https://cwmediabkt99.crwilladmin.com/92013a99927c4842b0a70fbd6f064a95:crwilladmin/class-attachment/67bfffb243f3b_Surds_Indices_1.pdf"
+    },
+    {
+      "id": "res-1768080170345-b6buxtmer",
+      "name": "Arithmetic - Time , Speed and Distance Sheet -1 @cwexte",
+      "type": "PDF",
+      "size": "Unknown",
+      "url": "https://cwmediabkt99.crwilladmin.com/92013a99927c4842b0a70fbd6f064a95:crwilladmin/class-attachment/67b7e40aee8f1_Time_Speed_and_Distance_Sheet_1.pdf"
+    },
+    {
+      "id": "res-1768080170345-eph2tfi59",
+      "name": "Arithmetic - Pipes and Cistern Sheet @cwexte",
+      "type": "PDF",
+      "size": "Unknown",
+      "url": "https://cwmediabkt99.crwilladmin.com/92013a99927c4842b0a70fbd6f064a95:crwilladmin/class-attachment/67b462df64308_67a2ed60cf741PipesandCistern.pdf"
+    },
+    {
+      "id": "res-1768080170345-qklelp1xv",
+      "name": "Arithmetic - Time and Work Sheet-3 @cwexte",
+      "type": "PDF",
+      "size": "Unknown",
+      "url": "https://cwmediabkt99.crwilladmin.com/92013a99927c4842b0a70fbd6f064a95:crwilladmin/class-attachment/6798c3948d261_Time_and_Work_Sheet_3.pdf"
+    },
+    {
+      "id": "res-1768080170345-u9dms0q7q",
+      "name": "Arithmetic - Time and Work Sheet -2 @cwexte",
+      "type": "PDF",
+      "size": "Unknown",
+      "url": "https://cwmediabkt99.crwilladmin.com/92013a99927c4842b0a70fbd6f064a95:crwilladmin/class-attachment/678647081f226_Time_and_Work_Sheet_2.pdf"
+    },
+    {
+      "id": "res-1768080170345-amsjrizof",
+      "name": "Arithmetic - Time and Work Sheet -1 @cwexte",
+      "type": "PDF",
+      "size": "Unknown",
+      "url": "https://cwmediabkt99.crwilladmin.com/92013a99927c4842b0a70fbd6f064a95:crwilladmin/class-attachment/6784fb657050a_Time_and_Work_Sheet_1.pdf"
+    },
+    {
+      "id": "res-1768080170345-3b8um3i6m",
+      "name": "Arithmetic - Ratio Sheet -2 @cwexte",
+      "type": "PDF",
+      "size": "Unknown",
+      "url": "https://cwmediabkt99.crwilladmin.com/92013a99927c4842b0a70fbd6f064a95:crwilladmin/class-attachment/6780e7a20c88a_Ratio_Sheet_2.pdf"
+    },
+    {
+      "id": "res-1768080170345-aaunwfzo8",
+      "name": "Arithmetic - Ratio Sheet @cwexte",
+      "type": "PDF",
+      "size": "Unknown",
+      "url": "https://cwmediabkt99.crwilladmin.com/92013a99927c4842b0a70fbd6f064a95:crwilladmin/class-attachment/676a9f061a1f9_Ratio_Sheet.pdf"
+    },
+    {
+      "id": "res-1768080170345-avk5yx09q",
+      "name": "Arithmetic - Percentage sheet-3 @cwexte",
+      "type": "PDF",
+      "size": "Unknown",
+      "url": "https://cwmediabkt99.crwilladmin.com/92013a99927c4842b0a70fbd6f064a95:crwilladmin/class-attachment/675d0b85d7d32_Percentage_sheet_3.pdf"
+    },
+    {
+      "id": "res-1768080170345-t2zd5ue4l",
+      "name": "Arithmetic - Percentage Sheet -2 @cwexte",
+      "type": "PDF",
+      "size": "Unknown",
+      "url": "https://cwmediabkt99.crwilladmin.com/92013a99927c4842b0a70fbd6f064a95:crwilladmin/class-attachment/674914db82935_Percentage_Sheet_2.pdf"
+    },
+    {
+      "id": "res-1768080170345-7dklc5tid",
+      "name": "Arithmetic - Percentage Sheet -1 @cwexte",
+      "type": "PDF",
+      "size": "Unknown",
+      "url": "https://cwmediabkt99.crwilladmin.com/92013a99927c4842b0a70fbd6f064a95:crwilladmin/class-attachment/672e022287cb0_Percentage_Sheet_1.pdf"
+    },
+    {
+      "id": "res-1768080170345-jsvrqe4f7",
+      "name": "Arithmetic - Problem on Ages Class Notes @cwexte",
+      "type": "PDF",
+      "size": "Unknown",
+      "url": "https://cwmediabkt99.crwilladmin.com/92013a99927c4842b0a70fbd6f064a95:crwilladmin/class-attachment/6714b034432b0_problem_on_agescompressed.pdf"
+    },
+    {
+      "id": "res-1768080170345-ng5urcyau",
+      "name": "Arithmetic - Ratio Class Notes @cwexte",
+      "type": "PDF",
+      "size": "Unknown",
+      "url": "https://cwmediabkt99.crwilladmin.com/92013a99927c4842b0a70fbd6f064a95:crwilladmin/class-attachment/6714afd592bb6_Ratio_class_notescompressed.pdf"
+    },
+    {
+      "id": "res-1768080170345-u0nff0qg4",
+      "name": "Arithmetic - Profit and Loss Class Notes @cwexte",
+      "type": "PDF",
+      "size": "Unknown",
+      "url": "https://cwmediabkt99.crwilladmin.com/92013a99927c4842b0a70fbd6f064a95:crwilladmin/class-attachment/6714af5f49684_Profit_and_loss_class_notescompressed.pdf"
+    },
+    {
+      "id": "res-1768080170345-5t4w65634",
+      "name": "Advance - Geometry Sheet-5 @cwexte",
+      "type": "PDF",
+      "size": "Unknown",
+      "url": "https://cwmediabkt99.crwilladmin.com/92013a99927c4842b0a70fbd6f064a95:crwilladmin/class-attachment/686f5ecc9c31b_Geometry_Sheet_5.pdf"
+    },
+    {
+      "id": "res-1768080170345-msokoshz6",
+      "name": "Advance - Geometry Sheet-4 @cwexte",
+      "type": "PDF",
+      "size": "Unknown",
+      "url": "https://cwmediabkt99.crwilladmin.com/92013a99927c4842b0a70fbd6f064a95:crwilladmin/class-attachment/685b8d6de104f_Geometry_Sheet_4.pdf"
+    },
+    {
+      "id": "res-1768080170345-r6hi503h2",
+      "name": "Advance - Geometry Sheet-3 @cwexte",
+      "type": "PDF",
+      "size": "Unknown",
+      "url": "https://cwmediabkt99.crwilladmin.com/92013a99927c4842b0a70fbd6f064a95:crwilladmin/class-attachment/685946137355c_Geometry_Sheet3.pdf"
+    },
+    {
+      "id": "res-1768080170345-lb9z5423f",
+      "name": "Advance - Geometry Sheet-1 @cwexte",
+      "type": "PDF",
+      "size": "Unknown",
+      "url": "https://cwmediabkt99.crwilladmin.com/92013a99927c4842b0a70fbd6f064a95:crwilladmin/class-attachment/6856727374a5c_Geometry_Sheet_1.pdf"
+    },
+    {
+      "id": "res-1768080170345-486qwvynx",
+      "name": "Advance - Geometry Sheet-2 @cwexte",
+      "type": "PDF",
+      "size": "Unknown",
+      "url": "https://cwmediabkt99.crwilladmin.com/92013a99927c4842b0a70fbd6f064a95:crwilladmin/class-attachment/6850ecf9d7aea_Geometry_Sheet_2.pdf"
+    },
+    {
+      "id": "res-1768080170345-2nnnjno04",
+      "name": "Advance - Number System Sheet-5 @cwexte",
+      "type": "PDF",
+      "size": "Unknown",
+      "url": "https://cwmediabkt99.crwilladmin.com/92013a99927c4842b0a70fbd6f064a95:crwilladmin/class-attachment/683fd64c9c842_NUMBER_SYSTEM_SHEET_5.pdf"
+    },
+    {
+      "id": "res-1768080170345-ysl7cagrw",
+      "name": "Advance - Mensuration Sheet-6 @cwexte",
+      "type": "PDF",
+      "size": "Unknown",
+      "url": "https://cwmediabkt99.crwilladmin.com/92013a99927c4842b0a70fbd6f064a95:crwilladmin/class-attachment/68248b6c08433_Mensuration_Sheet6407661crwill.pdf"
+    },
+    {
+      "id": "res-1768080170345-14j5fk9h9",
+      "name": "Advance - 3D Mensuration Sheet-5 @cwexte",
+      "type": "PDF",
+      "size": "Unknown",
+      "url": "https://cwmediabkt99.crwilladmin.com/92013a99927c4842b0a70fbd6f064a95:crwilladmin/class-attachment/6819b926674d3_3D_Mensuration_Sheet_5.pdf"
+    },
+    {
+      "id": "res-1768080170345-4b5qz75t5",
+      "name": "Advance - 3D Mensuration Sheet-4 @cwexte",
+      "type": "PDF",
+      "size": "Unknown",
+      "url": "https://cwmediabkt99.crwilladmin.com/92013a99927c4842b0a70fbd6f064a95:crwilladmin/class-attachment/6811aaaa635b5_3D_Mensuration_Sheet_4.pdf"
+    },
+    {
+      "id": "res-1768080170345-fel7crq83",
+      "name": "Advance - 3D Mensuration Sheet-3 @cwexte",
+      "type": "PDF",
+      "size": "Unknown",
+      "url": "https://cwmediabkt99.crwilladmin.com/92013a99927c4842b0a70fbd6f064a95:crwilladmin/class-attachment/6809becd20dba_3D_Mensuration_Sheet_3.pdf"
+    },
+    {
+      "id": "res-1768080170345-r6ztyq3pz",
+      "name": "Advance - 3D Mensuration Sheet- 2 @cwexte",
+      "type": "PDF",
+      "size": "Unknown",
+      "url": "https://cwmediabkt99.crwilladmin.com/92013a99927c4842b0a70fbd6f064a95:crwilladmin/class-attachment/680650c5b2172_3D_Mensuration_Sheet_2.pdf"
+    },
+    {
+      "id": "res-1768080170345-5ubgqdklm",
+      "name": "Advance - 3D Mensuration Sheet -1 @cwexte",
+      "type": "PDF",
+      "size": "Unknown",
+      "url": "https://cwmediabkt99.crwilladmin.com/92013a99927c4842b0a70fbd6f064a95:crwilladmin/class-attachment/67f86cec7dd3e_3D_Mensuration_Sheet_1.pdf"
+    },
+    {
+      "id": "res-1768080170345-ma0sfid2q",
+      "name": "Advance - Mensuration Sheet-4 (Polygon) @cwexte",
+      "type": "PDF",
+      "size": "Unknown",
+      "url": "https://cwmediabkt99.crwilladmin.com/92013a99927c4842b0a70fbd6f064a95:crwilladmin/class-attachment/67ea59899b293_Mensuration_Sheet_4_Polygon.pdf"
+    },
+    {
+      "id": "res-1768080170345-riwhpytvj",
+      "name": "Advance - 2D Mensuration Sheet -3 @cwexte",
+      "type": "PDF",
+      "size": "Unknown",
+      "url": "https://cwmediabkt99.crwilladmin.com/92013a99927c4842b0a70fbd6f064a95:crwilladmin/class-attachment/67e269a8565fd_2D_Mensuration_Sheet_3.pdf"
+    },
+    {
+      "id": "res-1768080170345-75lhf8qe3",
+      "name": "Advance - 2D Mensuration Sheet -2 @cwexte",
+      "type": "PDF",
+      "size": "Unknown",
+      "url": "https://cwmediabkt99.crwilladmin.com/92013a99927c4842b0a70fbd6f064a95:crwilladmin/class-attachment/67dcf06f8b1da_2D_Mensuration_Sheet_2.pdf"
+    },
+    {
+      "id": "res-1768080170345-24oea3vkk",
+      "name": "Advance - 2D Mensuration Sheet-1 @cwexte",
+      "type": "PDF",
+      "size": "Unknown",
+      "url": "https://cwmediabkt99.crwilladmin.com/92013a99927c4842b0a70fbd6f064a95:crwilladmin/class-attachment/67cfdbdac3316_2D_Mensuration_Sheet_1.pdf"
+    },
+    {
+      "id": "res-1768080170345-wohtvsyw6",
+      "name": "Advance - HCF Sheet @cwexte",
+      "type": "PDF",
+      "size": "Unknown",
+      "url": "https://cwmediabkt99.crwilladmin.com/92013a99927c4842b0a70fbd6f064a95:crwilladmin/class-attachment/67ce82ece7c5b_HCF_Sheet.pdf"
+    },
+    {
+      "id": "res-1768080170345-g0m76abbk",
+      "name": "Advance - LCM Sheet-1 @cwexte",
+      "type": "PDF",
+      "size": "Unknown",
+      "url": "https://cwmediabkt99.crwilladmin.com/92013a99927c4842b0a70fbd6f064a95:crwilladmin/class-attachment/67ce82b9a4d31_6627466a3a6e5LCM_SHEET_Sheet1.pdf"
+    },
+    {
+      "id": "res-1768080170345-4sgl8jppn",
+      "name": "Advance - Surds & Indices Sheet-2 @cwexte",
+      "type": "PDF",
+      "size": "Unknown",
+      "url": "https://cwmediabkt99.crwilladmin.com/92013a99927c4842b0a70fbd6f064a95:crwilladmin/class-attachment/67ce6d1a60fe4_Surds_Indices_Sheet_2.pdf"
+    },
+    {
+      "id": "res-1768080170345-vtac8k4q4",
+      "name": "Advance - Surds & Indices-1 @cwexte",
+      "type": "PDF",
+      "size": "Unknown",
+      "url": "https://cwmediabkt99.crwilladmin.com/92013a99927c4842b0a70fbd6f064a95:crwilladmin/class-attachment/67c7d1a6776f3_Surds_Indices_1_1.pdf"
+    },
+    {
+      "id": "res-1768080170345-cop5oub4c",
+      "name": "Advance - Height and Distance @cwexte",
+      "type": "PDF",
+      "size": "Unknown",
+      "url": "https://cwmediabkt99.crwilladmin.com/92013a99927c4842b0a70fbd6f064a95:crwilladmin/class-attachment/67b7e2e04048a_Height_and_Distance.pdf"
+    },
+    {
+      "id": "res-1768080170345-9hu5o4ub3",
+      "name": "Advance - Trigonometry Sheet-5 @cwexte",
+      "type": "PDF",
+      "size": "Unknown",
+      "url": "https://cwmediabkt99.crwilladmin.com/92013a99927c4842b0a70fbd6f064a95:crwilladmin/class-attachment/67a2eddf680c1_Trigonometry_Sheet5.pdf"
+    },
+    {
+      "id": "res-1768080170345-00wkxy255",
+      "name": "Advance - Trigonometry Sheet-4 @cwexte",
+      "type": "PDF",
+      "size": "Unknown",
+      "url": "https://cwmediabkt99.crwilladmin.com/92013a99927c4842b0a70fbd6f064a95:crwilladmin/class-attachment/679c1aaf0f381_trigonometry4.pdf"
+    },
+    {
+      "id": "res-1768080170345-yq04b1th8",
+      "name": "Advance - Trigonometry-3 @cwexte",
+      "type": "PDF",
+      "size": "Unknown",
+      "url": "https://cwmediabkt99.crwilladmin.com/92013a99927c4842b0a70fbd6f064a95:crwilladmin/class-attachment/679c19ca6e166_trigonometry3.pdf"
+    },
+    {
+      "id": "res-1768080170345-3k04oz0k9",
+      "name": "Advance - Trigonometry-2 @cwexte",
+      "type": "PDF",
+      "size": "Unknown",
+      "url": "https://cwmediabkt99.crwilladmin.com/92013a99927c4842b0a70fbd6f064a95:crwilladmin/class-attachment/678643cf018fe_Trigonometry2.pdf"
+    },
+    {
+      "id": "res-1768080170345-mn5k71v3a",
+      "name": "Advance - Trigonometry Sheet -1 @cwexte",
+      "type": "PDF",
+      "size": "Unknown",
+      "url": "https://cwmediabkt99.crwilladmin.com/92013a99927c4842b0a70fbd6f064a95:crwilladmin/class-attachment/6782017090797_trigonometry_Sheet_1.pdf"
+    },
+    {
+      "id": "res-1768080170345-w3cwhq65v",
+      "name": "Advance - Algebra Sheet -6. @cwexte",
+      "type": "PDF",
+      "size": "Unknown",
+      "url": "https://cwmediabkt99.crwilladmin.com/92013a99927c4842b0a70fbd6f064a95:crwilladmin/class-attachment/677d62d286a09_Algebra_Sheet_6.pdf"
+    },
+    {
+      "id": "res-1768080170345-lbiguyqaw",
+      "name": "Advance - Algebra Sheet -5 @cwexte",
+      "type": "PDF",
+      "size": "Unknown",
+      "url": "https://cwmediabkt99.crwilladmin.com/92013a99927c4842b0a70fbd6f064a95:crwilladmin/class-attachment/677b847f651bd_Algebra_Sheet_5.pdf"
+    },
+    {
+      "id": "res-1768080170345-121t3ydob",
+      "name": "Advance - Algebra sheet -4 @cwexte",
+      "type": "PDF",
+      "size": "Unknown",
+      "url": "https://cwmediabkt99.crwilladmin.com/92013a99927c4842b0a70fbd6f064a95:crwilladmin/class-attachment/6764d65faef04_Algebra_sheet_4.pdf"
+    },
+    {
+      "id": "res-1768080170345-6cafn8hh7",
+      "name": "Advance - Algebra Sheet-3 @cwexte",
+      "type": "PDF",
+      "size": "Unknown",
+      "url": "https://cwmediabkt99.crwilladmin.com/92013a99927c4842b0a70fbd6f064a95:crwilladmin/class-attachment/675ad9a22318d_Algebra_sheet_3.pdf"
+    },
+    {
+      "id": "res-1768080170345-j75rtcp7e",
+      "name": "Advance - Algebra Sheet -2 @cwexte",
+      "type": "PDF",
+      "size": "Unknown",
+      "url": "https://cwmediabkt99.crwilladmin.com/92013a99927c4842b0a70fbd6f064a95:crwilladmin/class-attachment/674febcb3ae9d_Algebra_Sheet_2.pdf"
+    },
+    {
+      "id": "res-1768080170345-07cigvup0",
+      "name": "Advance - Algebra Sheet -1 @cwexte",
+      "type": "PDF",
+      "size": "Unknown",
+      "url": "https://cwmediabkt99.crwilladmin.com/92013a99927c4842b0a70fbd6f064a95:crwilladmin/class-attachment/67403ff58849c_Algebra_Sheet_1.pdf"
+    },
+    {
+      "id": "res-1768080170345-r3d9kx6kl",
+      "name": "Advance - Statistics Sheet - with Solutions @cwexte",
+      "type": "PDF",
+      "size": "Unknown",
+      "url": "https://cwmediabkt99.crwilladmin.com/92013a99927c4842b0a70fbd6f064a95:crwilladmin/class-attachment/672c5a5796855_Statistics_Sheet_with_solutions379650crwill.pdf"
+    },
+    {
+      "id": "res-1768080170345-0rb0ddebf",
+      "name": "Advance - Statistics Sheet @cwexte",
+      "type": "PDF",
+      "size": "Unknown",
+      "url": "https://cwmediabkt99.crwilladmin.com/92013a99927c4842b0a70fbd6f064a95:crwilladmin/class-attachment/672c5a23e4c3a_Statistics_Sheet379661crwill.pdf"
+    },
+    {
+      "id": "res-1768080170345-3fpfdmc8w",
+      "name": "Advance - Co-ordinate Geometry @cwexte",
+      "type": "PDF",
+      "size": "Unknown",
+      "url": "https://cwmediabkt99.crwilladmin.com/92013a99927c4842b0a70fbd6f064a95:crwilladmin/class-attachment/672b53a627cd0_Coordinate_Geometry.pdf"
+    },
+    {
+      "id": "res-1768080170345-qj938uw6w",
+      "name": "Advance - Permutation and Combination Sheet @cwexte",
+      "type": "PDF",
+      "size": "Unknown",
+      "url": "https://cwmediabkt99.crwilladmin.com/92013a99927c4842b0a70fbd6f064a95:crwilladmin/class-attachment/671cafcdc285b_66b5a28e294326541ef40a762b6540cada5da5e652cf4ec7ac38Permutation_and_Combination.pdf"
+    },
+    {
+      "id": "res-1768080170345-q5o8w7ze9",
+      "name": "Advance - Probability Sheet-3 @cwexte",
+      "type": "PDF",
+      "size": "Unknown",
+      "url": "https://cwmediabkt99.crwilladmin.com/92013a99927c4842b0a70fbd6f064a95:crwilladmin/class-attachment/671cae6cb6e35_Probability_Sheet3_1.pdf"
+    },
+    {
+      "id": "res-1768080170345-a68nlszlo",
+      "name": "Advance - Probability Sheet-2 @cwexte",
+      "type": "PDF",
+      "size": "Unknown",
+      "url": "https://cwmediabkt99.crwilladmin.com/92013a99927c4842b0a70fbd6f064a95:crwilladmin/class-attachment/671cadcdd83e9_Probability_Sheet2.pdf"
+    },
+    {
+      "id": "res-1768080170345-x135jj0dg",
+      "name": "Advance - Probability Sheet-1 @cwexte",
+      "type": "PDF",
+      "size": "Unknown",
+      "url": "https://cwmediabkt99.crwilladmin.com/92013a99927c4842b0a70fbd6f064a95:crwilladmin/class-attachment/671cad86dcc49_Probability_Sheet1.pdf"
+    },
+    {
+      "id": "res-1768080170345-59h62iktn",
+      "name": "Advance - Simplification Sheet @cwexte",
+      "type": "PDF",
+      "size": "Unknown",
+      "url": "https://cwmediabkt99.crwilladmin.com/92013a99927c4842b0a70fbd6f064a95:crwilladmin/class-attachment/6703c7f8a9a6e_Simplification_Sheet.pdf"
+    },
+    {
+      "id": "res-1768080170345-1bwssduvm",
+      "name": "Advance - Calculation and Simplification Sheet -2 @cwexte",
+      "type": "PDF",
+      "size": "Unknown",
+      "url": "https://cwmediabkt99.crwilladmin.com/92013a99927c4842b0a70fbd6f064a95:crwilladmin/class-attachment/66f7a8a8f0b6a_Calculation_and_Simplification_Sheet_2.pdf"
+    },
+    {
+      "id": "res-1768080170345-7ganlfiku",
+      "name": "Advance - Calculation and Simplification Sheet -1 @cwexte",
+      "type": "PDF",
+      "size": "Unknown",
+      "url": "https://cwmediabkt99.crwilladmin.com/92013a99927c4842b0a70fbd6f064a95:crwilladmin/class-attachment/66f3fa7c0ec46_Calculation_and_Simplification_Sheet_1.pdf"
+    },
+    {
+      "id": "res-1768080170345-hbzjyem4r",
+      "name": "Advance - NUMBER SYSTEM SHEET-4 ( divisibility rules ) @cwexte",
+      "type": "PDF",
+      "size": "Unknown",
+      "url": "https://cwmediabkt99.crwilladmin.com/92013a99927c4842b0a70fbd6f064a95:crwilladmin/class-attachment/66e254c6ec3f6_NUMBER SYSTEM SHEET -4 ( divisibility rules ).pdf"
+    },
+    {
+      "id": "res-1768080170345-08t2c21q7",
+      "name": "Advance - Number System Sheet-3 @cwexte",
+      "type": "PDF",
+      "size": "Unknown",
+      "url": "https://cwmediabkt99.crwilladmin.com/92013a99927c4842b0a70fbd6f064a95:crwilladmin/class-attachment/66d84e1d2f77f_Number System Sheet-  3.pdf"
+    },
+    {
+      "id": "res-1768080170345-usmzuqi3f",
+      "name": "Advance - Number System Sheet-2 @cwexte",
+      "type": "PDF",
+      "size": "Unknown",
+      "url": "https://cwmediabkt99.crwilladmin.com/92013a99927c4842b0a70fbd6f064a95:crwilladmin/class-attachment/66cd7b2ebc10d_Number System Sheet -2.pdf"
+    },
+    {
+      "id": "res-1768080170345-tiw82lr19",
+      "name": "Advance - Number System Sheet-1 @cwexte",
+      "type": "PDF",
+      "size": "Unknown",
+      "url": "https://cwmediabkt99.crwilladmin.com/92013a99927c4842b0a70fbd6f064a95:crwilladmin/class-attachment/66cd7af986422_Number System Sheet - 1.pdf"
+    }
+  ],
+  "simulations": []
+}

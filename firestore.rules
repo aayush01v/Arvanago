@@ -1,0 +1,242 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // --- HELPERS ---
+    function isAuthenticated() { return request.auth != null; }
+    function isOwner(userId) { return isAuthenticated() && request.auth.uid == userId; }
+    function isAdmin() { return isAuthenticated() && exists(/databases/$(database)/documents/admins/$(request.auth.uid)); }
+    function isEmailVerified() { return request.auth != null && request.auth.token.email_verified == true; }
+
+    // 1. USERS
+    match /users/{userId} {
+      // Public profiles are visible only when explicitly public.
+      // Owner/admin can always read.
+      allow read: if isOwner(userId) || isAdmin() || (resource != null && resource.data.get('isPublic', false) == true);
+      allow create: if isOwner(userId);
+      // Allow update:
+      // 1. Own profile (except role + follower counters reserved for trusted backend)
+      // 2. Admin
+      allow update: if 
+        (isOwner(userId) &&
+         request.resource.data.get('role', 'student') == resource.data.get('role', 'student') &&
+         request.resource.data.get('followers', 0) == resource.data.get('followers', 0) &&
+         request.resource.data.get('following', 0) == resource.data.get('following', 0)) || 
+        isAdmin();
+      allow delete: if isAdmin();
+
+      // Follow System Subcollections (Nested)
+      match /following/{followingId} {
+        allow read: if true;
+        // Client can only create/delete own outgoing follows.
+        allow create, delete: if isOwner(userId);
+        allow update: if false;
+      }
+      match /followers/{followerId} {
+        allow read: if true;
+        // Client can only create/delete their own follower edge.
+        allow create, delete: if isAuthenticated() && request.auth.uid == followerId;
+        allow update: if false;
+      }
+      
+      // Notes & Vaults
+      match /vaults/{vaultId} {
+        allow read, write: if isOwner(userId);
+      }
+      match /notes/{noteId} {
+        allow read: if isOwner(userId) || (resource != null && resource.data.get('isPublic', false) == true);
+        allow write: if isOwner(userId);
+      }
+    }
+
+    // 2. ADMINS
+    match /admins/{adminId} {
+      allow read: if isAuthenticated() && (request.auth.uid == adminId || isAdmin());
+      allow write: if isAdmin();
+    }
+
+    // 3. SETTINGS
+    match /settings/{docId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // 4. COURSES (Original Rules Preserved)
+    match /courses/{courseId} {
+      allow read: if true;
+      allow create, update, delete: if isAdmin();
+      
+      match /lectures/{lectureId} {
+        allow read: if true;
+        allow write: if isAdmin();
+      }
+      match /doubts/{doubtId} {
+        allow read: if isAuthenticated();
+        allow create: if isAuthenticated() && request.resource.data.userId == request.auth.uid;
+        allow update, delete: if isOwner(resource.data.userId) || isAdmin();
+      }
+    }
+    
+    // 5. CALLS (WebRTC Signaling)
+    // H-4 Fix: Restrict to participating users only (caller or callee)
+    match /calls/{callId} {
+      allow create: if isAuthenticated() && request.resource.data.callerId == request.auth.uid;
+      allow read, update: if isAuthenticated() &&
+        (resource.data.callerId == request.auth.uid || resource.data.calleeId == request.auth.uid);
+      allow delete: if isAuthenticated() &&
+        (resource.data.callerId == request.auth.uid || resource.data.calleeId == request.auth.uid);
+
+      // L-2 Fix: ICE candidate subcollections must be explicitly allowed —
+      // they were falling through to the default deny, breaking WebRTC in production.
+      match /offerCandidates/{candidateId} {
+        allow read, create: if isAuthenticated() && (
+          get(/databases/$(database)/documents/calls/$(callId)).data.callerId == request.auth.uid ||
+          get(/databases/$(database)/documents/calls/$(callId)).data.calleeId == request.auth.uid
+        );
+      }
+      match /answerCandidates/{candidateId} {
+        allow read, create: if isAuthenticated() && (
+          get(/databases/$(database)/documents/calls/$(callId)).data.callerId == request.auth.uid ||
+          get(/databases/$(database)/documents/calls/$(callId)).data.calleeId == request.auth.uid
+        );
+      }
+    }
+
+    // 6. CHATS
+    match /chats/{chatId} {
+      // Only allow creating chats with exactly 2 participants, one being the creator
+      allow create: if isEmailVerified() && 
+                      request.resource.data.participants.size() == 2 &&
+                      request.resource.data.participants.hasAll([request.auth.uid]);
+      allow read: if isEmailVerified() && (resource == null || resource.data.participants.hasAny([request.auth.uid]));
+      allow update, delete: if isEmailVerified() && resource.data.participants.hasAny([request.auth.uid]);
+      
+      match /messages/{messageId} {
+         allow read, write: if isEmailVerified() && get(/databases/$(database)/documents/chats/$(chatId)).data.participants.hasAny([request.auth.uid]);
+      }
+    }
+
+    // 6. POSTS
+    match /posts/{postId} {
+      allow read: if true;
+      allow create: if isAuthenticated() && request.resource.data.userId == request.auth.uid;
+      
+      // Owner can update/delete full document
+      allow delete: if isAuthenticated() && resource.data.userId == request.auth.uid;
+      
+      // Owner can update content. ANY authenticated user can update likes/commentsCount (for transactions)
+      allow update: if isAuthenticated() && (
+        resource.data.userId == request.auth.uid ||
+        request.resource.data.diff(resource.data).affectedKeys().hasOnly(['likes', 'commentsCount', 'updatedAt'])
+      );
+
+      match /likes/{userId} {
+         allow read: if true;
+         allow write: if isAuthenticated() && request.auth.uid == userId;
+      }
+      
+      match /comments/{commentId} {
+         allow read: if true;
+         allow create: if isAuthenticated() && request.resource.data.userId == request.auth.uid;
+         // Allow delete by comment author OR post author
+         allow delete: if isAuthenticated() && (
+            resource.data.userId == request.auth.uid || 
+            get(/databases/$(database)/documents/posts/$(postId)).data.userId == request.auth.uid
+         );
+      }
+    }
+
+    // 7. NOTIFICATIONS
+    // M-4 Fix: The old 'allow create: if isAuthenticated()' overrode the userId check,
+    // letting any auth user create notifications targeting other users.
+    match /notifications/{notificationId} {
+      allow read: if isAuthenticated() && resource.data.userId == request.auth.uid;
+      allow create: if isAuthenticated() && request.resource.data.userId == request.auth.uid;
+      allow update, delete: if isAuthenticated() && resource.data.userId == request.auth.uid;
+    }
+
+    // 8. LEADERBOARD
+     match /leaderboard/{docId} {
+      allow read: if isAuthenticated();
+    }
+    
+    // 9. BLOG POSTS
+    // 9. BLOG POSTS
+    match /blog_posts/{postId} {
+      allow read: if true;
+      allow create, delete: if isAdmin();
+      // Allow admin to update fully. Allow authenticated users to update LIKES and COMMENTS COUNT.
+      allow update: if isAdmin() || (
+        isAuthenticated() && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['likes', 'commentsCount', 'updatedAt'])
+      );
+      
+      match /comments/{commentId} {
+         allow read: if true;
+         allow create: if isAuthenticated() && request.resource.data.user.uid == request.auth.uid; 
+         // Allow admin or owner to delete/edit text. Allow any auth user to toggle LIKES.
+         allow update: if isAdmin() || 
+                       (isAuthenticated() && resource.data.user.uid == request.auth.uid) ||
+                       (isAuthenticated() && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['likes', 'replies']));
+         allow delete: if isAdmin() || (isAuthenticated() && resource.data.user.uid == request.auth.uid);
+      }
+    }
+
+    // 10. COUPONS
+    match /coupons/{couponId} {
+      // Anyone can read (to validate)
+      allow read: if true;
+      
+      // Only admins can create or delete
+      allow create, delete: if isAdmin();
+      
+      // Admins can update anything. 
+      // Authenticated users can ONLY update 'usageCount' (when applying/using a coupon)
+      allow update: if isAdmin() || (
+        isAuthenticated() && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['usageCount'])
+      );
+    }
+    
+    // 11. COLLECTION GROUP QUERIES (NOTES)
+    match /{path=**}/notes/{noteId} {
+      allow read: if resource != null && resource.data.get('isPublic', false) == true;
+    }
+    
+    // 12. STORE PRODUCTS & REVIEWS
+    match /products/{productId} {
+      allow read: if true;
+      allow create, update, delete: if isAdmin();
+      
+      match /reviews/{reviewId} {
+        allow read: if true;
+        // Allows admins to create reviews masquerading as specific users, or actual users to review
+        allow create: if isAdmin() || (isAuthenticated() && request.resource.data.userId == request.auth.uid);
+        allow update, delete: if isAdmin() || (isAuthenticated() && resource.data.userId == request.auth.uid);
+      }
+    }
+
+    // 13. STORE ORDERS
+    match /store_orders/{orderId} {
+      allow read: if isOwner(resource.data.userId) || isAdmin();
+      // Only backend should create/update realistically, but just in case:
+      allow create, update: if isAdmin(); // Strictly backend admin SDK limits creation
+      allow delete: if isAdmin();
+    }
+    
+    // 14. USER NOTIFICATIONS (Admin Broadcasts)
+    match /user_notifications/{notificationId} {
+      // Admins can create broadcasts to any user
+      allow create: if isAdmin();
+      // Users can read their own notifications
+      allow read: if isAuthenticated() && resource.data.userId == request.auth.uid;
+      // Users can mark their own notifications as read (update read field only)
+      allow update: if isAuthenticated() && resource.data.userId == request.auth.uid;
+      // Users can delete their own (client-side 7-day cleanup) OR admin can delete
+      allow delete: if isAdmin() || (isAuthenticated() && resource.data.userId == request.auth.uid);
+    }
+    
+    // Default deny
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
