@@ -32,25 +32,44 @@ const TERMINAL_SLOGANS = [
     { header: 'discipline', slogan: '"Ship great code."' },
 ];
 
+const TYPING_SPEED_MS = 65;
+const DELETING_SPEED_MS = 38;
+const PAUSE_AFTER_TYPING_MS = 1600;
+const PAUSE_BEFORE_DELETING_MS = 400;
+
 const Homepage: React.FC<HomepageProps> = ({ onNavigateToLogin }) => {
     const [isInfoModalOpen, setIsInfoModalOpen] = useState(false);
     const [sloganIdx, setSloganIdx] = useState(0);
-    const [isFading, setIsFading] = useState(false);
+    const [displayedSlogan, setDisplayedSlogan] = useState('');
+    const [phase, setPhase] = useState<'typing' | 'pausing' | 'deleting'>('typing');
 
     useEffect(() => {
-        let fadeTimer: ReturnType<typeof setTimeout>;
-        const timer = setInterval(() => {
-            setIsFading(true);
-            fadeTimer = setTimeout(() => {
+        const currentSlogan = TERMINAL_SLOGANS[sloganIdx].slogan;
+        let timeout: ReturnType<typeof setTimeout>;
+
+        if (phase === 'typing') {
+            if (displayedSlogan.length < currentSlogan.length) {
+                timeout = setTimeout(() => {
+                    setDisplayedSlogan(currentSlogan.slice(0, displayedSlogan.length + 1));
+                }, TYPING_SPEED_MS);
+            } else {
+                timeout = setTimeout(() => setPhase('pausing'), PAUSE_AFTER_TYPING_MS);
+            }
+        } else if (phase === 'pausing') {
+            timeout = setTimeout(() => setPhase('deleting'), PAUSE_BEFORE_DELETING_MS);
+        } else {
+            if (displayedSlogan.length > 0) {
+                timeout = setTimeout(() => {
+                    setDisplayedSlogan(prev => prev.slice(0, -1));
+                }, DELETING_SPEED_MS);
+            } else {
                 setSloganIdx(prev => (prev + 1) % TERMINAL_SLOGANS.length);
-                setIsFading(false);
-            }, 350);
-        }, 3200);
-        return () => {
-            clearInterval(timer);
-            clearTimeout(fadeTimer);
-        };
-    }, []);
+                setPhase('typing');
+            }
+        }
+
+        return () => clearTimeout(timeout);
+    }, [displayedSlogan, sloganIdx, phase]);
 
     return (
         // Forced pure dark mode for premium aesthetic
@@ -190,26 +209,21 @@ const Homepage: React.FC<HomepageProps> = ({ onNavigateToLogin }) => {
                                 <h3 className="text-3xl font-bold text-white mb-2">The Learning Platform</h3>
                                 <p className="text-white/50 text-lg mb-8 max-w-md">Adaptive AI curriculum, real-time code execution, and instantly verifiable certificates.</p>
                                 
-                                {/* Animated rotating slogan terminal */}
+                                {/* Typing slogan terminal */}
                                 <div className="mt-auto rounded-xl bg-[#0A0A0A] border border-white/10 p-4 shadow-2xl transform group-hover:-translate-y-2 transition-transform duration-500">
                                     {/* Title bar */}
                                     <div className="flex items-center gap-2 mb-3">
                                         <div className="w-3 h-3 rounded-full bg-red-500/50" />
                                         <div className="w-3 h-3 rounded-full bg-yellow-500/50" />
                                         <div className="w-3 h-3 rounded-full bg-green-500/50" />
-                                        <div className="ml-2 text-xs font-mono text-white/30">
-                                            {TERMINAL_SLOGANS[sloganIdx].header}.h
-                                        </div>
+                                        <div className="ml-2 text-xs font-mono text-white/30">main.cpp</div>
                                     </div>
 
-                                    {/* Code lines with fade transition */}
-                                    <div
-                                        className="font-mono text-sm text-emerald-400 transition-opacity duration-300"
-                                        style={{ opacity: isFading ? 0 : 1 }}
-                                    >
+                                    {/* Static code structure — only the slogan text animates */}
+                                    <div className="font-mono text-sm text-emerald-400">
                                         <div>
                                             <span className="text-purple-400">#include</span>
-                                            <span className="text-emerald-400"> &lt;{TERMINAL_SLOGANS[sloganIdx].header}&gt;</span>
+                                            <span className="text-emerald-400"> &lt;mindset&gt;</span>
                                         </div>
                                         <div>
                                             <span className="text-blue-400">int</span>
@@ -218,12 +232,12 @@ const Homepage: React.FC<HomepageProps> = ({ onNavigateToLogin }) => {
                                         </div>
                                         <div>
                                             <span className="text-emerald-400">&nbsp;&nbsp;std::cout &lt;&lt; </span>
-                                            <span className="text-orange-300">{TERMINAL_SLOGANS[sloganIdx].slogan}</span>
+                                            <span className="text-orange-300">{displayedSlogan}</span>
+                                            <span className="inline-block w-[7px] h-[1em] bg-orange-300/80 ml-px align-middle animate-text-cursor-blink" />
                                             <span className="text-emerald-400">;</span>
                                         </div>
                                         <div>
                                             <span className="text-emerald-400">{'}'}</span>
-                                            <span className="inline-block w-[7px] h-[1em] bg-emerald-400/80 ml-1 align-middle animate-text-cursor-blink" />
                                         </div>
                                     </div>
 
