@@ -32,7 +32,8 @@ const TERMINAL_SLOGANS = [
     { header: 'discipline', slogan: '"Ship great code."' },
 ];
 
-const TYPING_SPEED_MS = 65;
+const TYPING_SPEED_MS_MIN = 40;
+const TYPING_SPEED_MS_MAX = 95;
 const DELETING_SPEED_MS = 38;
 const PAUSE_AFTER_TYPING_MS = 1600;
 const PAUSE_BEFORE_DELETING_MS = 400;
@@ -49,9 +50,12 @@ const Homepage: React.FC<HomepageProps> = ({ onNavigateToLogin }) => {
 
         if (phase === 'typing') {
             if (displayedSlogan.length < currentSlogan.length) {
+                const dynamicTypingSpeed = Math.floor(
+                    Math.random() * (TYPING_SPEED_MS_MAX - TYPING_SPEED_MS_MIN + 1) + TYPING_SPEED_MS_MIN
+                );
                 timeout = setTimeout(() => {
                     setDisplayedSlogan(currentSlogan.slice(0, displayedSlogan.length + 1));
-                }, TYPING_SPEED_MS);
+                }, dynamicTypingSpeed);
             } else {
                 timeout = setTimeout(() => setPhase('pausing'), PAUSE_AFTER_TYPING_MS);
             }
@@ -241,20 +245,6 @@ const Homepage: React.FC<HomepageProps> = ({ onNavigateToLogin }) => {
                                         </div>
                                     </div>
 
-                                    {/* Slogan indicator dots */}
-                                    <div className="flex items-center gap-1.5 mt-4 pt-3 border-t border-white/5">
-                                        {TERMINAL_SLOGANS.map((_, i) => (
-                                            <div
-                                                key={i}
-                                                className="h-1 rounded-full transition-all duration-500"
-                                                style={{
-                                                    width: i === sloganIdx ? '20px' : '6px',
-                                                    background: i === sloganIdx ? 'rgba(52,211,153,0.8)' : 'rgba(255,255,255,0.15)',
-                                                }}
-                                            />
-                                        ))}
-                                    </div>
-                                </div>
                             </div>
                         </Reveal>
 
