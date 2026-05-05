@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import Icon from './common/Icon.tsx';
 import { useScrollAnimation } from '../hooks/useScrollAnimation.ts';
@@ -24,8 +24,33 @@ const Reveal: React.FC<{ children: React.ReactNode; className?: string; delay?: 
     );
 };
 
+const TERMINAL_SLOGANS = [
+    { header: 'ambition',   slogan: '"Learn everything."' },
+    { header: 'resilience', slogan: '"Break every barrier."' },
+    { header: 'curiosity',  slogan: '"Ask more. Know more."' },
+    { header: 'creativity', slogan: '"Build the future."' },
+    { header: 'discipline', slogan: '"Ship great code."' },
+];
+
 const Homepage: React.FC<HomepageProps> = ({ onNavigateToLogin }) => {
     const [isInfoModalOpen, setIsInfoModalOpen] = useState(false);
+    const [sloganIdx, setSloganIdx] = useState(0);
+    const [isFading, setIsFading] = useState(false);
+
+    useEffect(() => {
+        let fadeTimer: ReturnType<typeof setTimeout>;
+        const timer = setInterval(() => {
+            setIsFading(true);
+            fadeTimer = setTimeout(() => {
+                setSloganIdx(prev => (prev + 1) % TERMINAL_SLOGANS.length);
+                setIsFading(false);
+            }, 350);
+        }, 3200);
+        return () => {
+            clearInterval(timer);
+            clearTimeout(fadeTimer);
+        };
+    }, []);
 
     return (
         // Forced pure dark mode for premium aesthetic
@@ -165,19 +190,55 @@ const Homepage: React.FC<HomepageProps> = ({ onNavigateToLogin }) => {
                                 <h3 className="text-3xl font-bold text-white mb-2">The Learning Platform</h3>
                                 <p className="text-white/50 text-lg mb-8 max-w-md">Adaptive AI curriculum, real-time code execution, and instantly verifiable certificates.</p>
                                 
-                                {/* Mock UI Component replacing simple bullet points */}
+                                {/* Animated rotating slogan terminal */}
                                 <div className="mt-auto rounded-xl bg-[#0A0A0A] border border-white/10 p-4 shadow-2xl transform group-hover:-translate-y-2 transition-transform duration-500">
+                                    {/* Title bar */}
                                     <div className="flex items-center gap-2 mb-3">
                                         <div className="w-3 h-3 rounded-full bg-red-500/50" />
                                         <div className="w-3 h-3 rounded-full bg-yellow-500/50" />
                                         <div className="w-3 h-3 rounded-full bg-green-500/50" />
-                                        <div className="ml-2 text-xs font-mono text-white/30">main.cpp</div>
+                                        <div className="ml-2 text-xs font-mono text-white/30">
+                                            {TERMINAL_SLOGANS[sloganIdx].header}.h
+                                        </div>
                                     </div>
-                                    <div className="font-mono text-sm text-emerald-400">
-                                        <span className="text-purple-400">#include</span> &lt;iostream&gt;<br/>
-                                        <span className="text-blue-400">int</span> <span className="text-yellow-200">main</span>() {'{'}<br/>
-                                        &nbsp;&nbsp;std::cout &lt;&lt; <span className="text-orange-300">"Build the future."</span>;<br/>
-                                        {'}'}
+
+                                    {/* Code lines with fade transition */}
+                                    <div
+                                        className="font-mono text-sm text-emerald-400 transition-opacity duration-300"
+                                        style={{ opacity: isFading ? 0 : 1 }}
+                                    >
+                                        <div>
+                                            <span className="text-purple-400">#include</span>
+                                            <span className="text-emerald-400"> &lt;{TERMINAL_SLOGANS[sloganIdx].header}&gt;</span>
+                                        </div>
+                                        <div>
+                                            <span className="text-blue-400">int</span>
+                                            <span className="text-yellow-200"> main</span>
+                                            <span className="text-emerald-400">() {'{'}</span>
+                                        </div>
+                                        <div>
+                                            <span className="text-emerald-400">&nbsp;&nbsp;std::cout &lt;&lt; </span>
+                                            <span className="text-orange-300">{TERMINAL_SLOGANS[sloganIdx].slogan}</span>
+                                            <span className="text-emerald-400">;</span>
+                                        </div>
+                                        <div>
+                                            <span className="text-emerald-400">{'}'}</span>
+                                            <span className="inline-block w-[7px] h-[1em] bg-emerald-400/80 ml-1 align-middle animate-text-cursor-blink" />
+                                        </div>
+                                    </div>
+
+                                    {/* Slogan indicator dots */}
+                                    <div className="flex items-center gap-1.5 mt-4 pt-3 border-t border-white/5">
+                                        {TERMINAL_SLOGANS.map((_, i) => (
+                                            <div
+                                                key={i}
+                                                className="h-1 rounded-full transition-all duration-500"
+                                                style={{
+                                                    width: i === sloganIdx ? '20px' : '6px',
+                                                    background: i === sloganIdx ? 'rgba(52,211,153,0.8)' : 'rgba(255,255,255,0.15)',
+                                                }}
+                                            />
+                                        ))}
                                     </div>
                                 </div>
                             </div>
