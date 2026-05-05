@@ -25,18 +25,65 @@ const Reveal: React.FC<{ children: React.ReactNode; className?: string; delay?: 
 };
 
 const TERMINAL_SLOGANS = [
-    { header: 'ambition',   slogan: '"Learn everything."' },
+    { header: 'ambition', slogan: '"Learn everything."' },
     { header: 'resilience', slogan: '"Break every barrier."' },
-    { header: 'curiosity',  slogan: '"Ask more. Know more."' },
+    { header: 'curiosity', slogan: '"Ask more. Know more."' },
     { header: 'creativity', slogan: '"Build the future."' },
     { header: 'discipline', slogan: '"Ship great code."' },
 ];
 
-const TYPING_SPEED_MS_MIN = 40;
-const TYPING_SPEED_MS_MAX = 95;
-const DELETING_SPEED_MS = 38;
-const PAUSE_AFTER_TYPING_MS = 1600;
-const PAUSE_BEFORE_DELETING_MS = 400;
+const PAUSE_AFTER_TYPING_MS = 2400;
+const PAUSE_BEFORE_DELETING_MS = 650;
+const PAUSE_BEFORE_NEXT_SLOGAN_MS = 500;
+
+const randomBetween = (min: number, max: number) => {
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+};
+
+const getHumanTypingDelay = (nextChar: string, index: number) => {
+    let delay = randomBetween(90, 175);
+
+    // First character feels slower, like a person starting to type
+    if (index === 0) {
+        delay += randomBetween(250, 550);
+    }
+
+    // Human pause after spaces
+    if (nextChar === ' ') {
+        delay += randomBetween(90, 220);
+    }
+
+    // Bigger pause after punctuation
+    if (['.', ',', ';', ':', '!', '?'].includes(nextChar)) {
+        delay += randomBetween(250, 600);
+    }
+
+    // Slight pause around quotation marks
+    if (nextChar === '"') {
+        delay += randomBetween(100, 250);
+    }
+
+    // Occasional thinking hesitation
+    if (Math.random() < 0.1) {
+        delay += randomBetween(220, 520);
+    }
+
+    return delay;
+};
+
+const getHumanDeletingDelay = (charBeingDeleted: string) => {
+    let delay = randomBetween(45, 95);
+
+    if (charBeingDeleted === ' ') {
+        delay += randomBetween(25, 80);
+    }
+
+    if (['.', ',', ';', ':', '!', '?'].includes(charBeingDeleted)) {
+        delay += randomBetween(60, 150);
+    }
+
+    return delay;
+};
 
 const Homepage: React.FC<HomepageProps> = ({ onNavigateToLogin }) => {
     const [isInfoModalOpen, setIsInfoModalOpen] = useState(false);
@@ -46,33 +93,50 @@ const Homepage: React.FC<HomepageProps> = ({ onNavigateToLogin }) => {
 
     useEffect(() => {
         const currentSlogan = TERMINAL_SLOGANS[sloganIdx].slogan;
-        let timeout: ReturnType<typeof setTimeout>;
+        let timeout: ReturnType<typeof setTimeout> | undefined;
 
         if (phase === 'typing') {
             if (displayedSlogan.length < currentSlogan.length) {
-                const dynamicTypingSpeed = Math.floor(
-                    Math.random() * (TYPING_SPEED_MS_MAX - TYPING_SPEED_MS_MIN + 1) + TYPING_SPEED_MS_MIN
-                );
+                const nextChar = currentSlogan[displayedSlogan.length];
+                const delay = getHumanTypingDelay(nextChar, displayedSlogan.length);
+
                 timeout = setTimeout(() => {
-                    setDisplayedSlogan(currentSlogan.slice(0, displayedSlogan.length + 1));
-                }, dynamicTypingSpeed);
+                    setDisplayedSlogan(
+                        currentSlogan.slice(0, displayedSlogan.length + 1)
+                    );
+                }, delay);
             } else {
-                timeout = setTimeout(() => setPhase('pausing'), PAUSE_AFTER_TYPING_MS);
-            }
-        } else if (phase === 'pausing') {
-            timeout = setTimeout(() => setPhase('deleting'), PAUSE_BEFORE_DELETING_MS);
-        } else {
-            if (displayedSlogan.length > 0) {
                 timeout = setTimeout(() => {
-                    setDisplayedSlogan(prev => prev.slice(0, -1));
-                }, DELETING_SPEED_MS);
-            } else {
-                setSloganIdx(prev => (prev + 1) % TERMINAL_SLOGANS.length);
-                setPhase('typing');
+                    setPhase('pausing');
+                }, PAUSE_AFTER_TYPING_MS);
             }
         }
 
-        return () => clearTimeout(timeout);
+        if (phase === 'pausing') {
+            timeout = setTimeout(() => {
+                setPhase('deleting');
+            }, PAUSE_BEFORE_DELETING_MS);
+        }
+
+        if (phase === 'deleting') {
+            if (displayedSlogan.length > 0) {
+                const charBeingDeleted = displayedSlogan[displayedSlogan.length - 1];
+                const delay = getHumanDeletingDelay(charBeingDeleted);
+
+                timeout = setTimeout(() => {
+                    setDisplayedSlogan(prev => prev.slice(0, -1));
+                }, delay);
+            } else {
+                timeout = setTimeout(() => {
+                    setSloganIdx(prev => (prev + 1) % TERMINAL_SLOGANS.length);
+                    setPhase('typing');
+                }, PAUSE_BEFORE_NEXT_SLOGAN_MS);
+            }
+        }
+
+        return () => {
+            if (timeout) clearTimeout(timeout);
+        };
     }, [displayedSlogan, sloganIdx, phase]);
 
     return (
@@ -167,28 +231,48 @@ const Homepage: React.FC<HomepageProps> = ({ onNavigateToLogin }) => {
                 </section>
 
                 {/* 2. INVESTOR SCALE SECTION */}
-                <section className="border-y border-white/10 bg-white/5 backdrop-blur-sm py-24">
-                    <div className="container mx-auto max-w-7xl px-6">
-                        <div className="grid grid-cols-2 md:grid-cols-4 gap-8 divide-x divide-white/10">
-                            <Reveal delay="0ms" className="text-center px-4">
-                                <div className="text-5xl md:text-6xl font-black tracking-tighter text-white mb-2">50k<span className="text-brand-primary">+</span></div>
-                                <div className="text-xs font-bold tracking-[0.2em] text-white/40 uppercase">Active Learners</div>
-                            </Reveal>
-                            <Reveal delay="100ms" className="text-center px-4">
-                                <div className="text-5xl md:text-6xl font-black tracking-tighter text-white mb-2">1.2M<span className="text-purple-500">+</span></div>
-                                <div className="text-xs font-bold tracking-[0.2em] text-white/40 uppercase">Code Executions</div>
-                            </Reveal>
-                            <Reveal delay="200ms" className="text-center px-4">
-                                <div className="text-5xl md:text-6xl font-black tracking-tighter text-white mb-2">99.9<span className="text-blue-500">%</span></div>
-                                <div className="text-xs font-bold tracking-[0.2em] text-white/40 uppercase">Uptime SLA</div>
-                            </Reveal>
-                            <Reveal delay="300ms" className="text-center px-4">
-                                <div className="text-5xl md:text-6xl font-black tracking-tighter text-white mb-2">24<span className="text-emerald-500">/7</span></div>
-                                <div className="text-xs font-bold tracking-[0.2em] text-white/40 uppercase">AI Mentorship</div>
-                            </Reveal>
-                        </div>
-                    </div>
-                </section>
+<section className="border-y border-white/10 bg-white/5 backdrop-blur-sm py-24">
+    <div className="container mx-auto max-w-7xl px-6">
+        {/* Removed 'divide-x divide-white/10' from here */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+            <Reveal
+                delay="0ms"
+                className="relative text-center px-4 pl-8 before:content-[''] before:absolute before:left-0 before:top-1/2 before:transform before:-translate-y-1/2 before:h-28 before:w-px before:bg-gradient-to-b before:from-white/0 before:via-white/30 before:to-white/0"
+            >
+                <div className="text-5xl md:text-6xl font-black tracking-tighter text-white mb-2">
+                    50k<span className="text-brand-primary">+</span>
+                </div>
+                <div className="text-xs font-bold tracking-[0.2em] text-white/40 uppercase">
+                    Active Learners
+                </div>
+            </Reveal>
+
+            <Reveal 
+                delay="100ms" 
+                className="relative text-center px-4 pl-8 before:content-[''] before:absolute before:left-0 before:top-1/2 before:transform before:-translate-y-1/2 before:h-28 before:w-px before:bg-gradient-to-b before:from-white/0 before:via-white/30 before:to-white/0"
+            >
+                <div className="text-5xl md:text-6xl font-black tracking-tighter text-white mb-2">1.2M<span className="text-purple-500">+</span></div>
+                <div className="text-xs font-bold tracking-[0.2em] text-white/40 uppercase">Code Executions</div>
+            </Reveal>
+
+            <Reveal 
+                delay="200ms" 
+                className="relative text-center px-4 pl-8 before:content-[''] before:absolute before:left-0 before:top-1/2 before:transform before:-translate-y-1/2 before:h-28 before:w-px before:bg-gradient-to-b before:from-white/0 before:via-white/30 before:to-white/0"
+            >
+                <div className="text-5xl md:text-6xl font-black tracking-tighter text-white mb-2">99.9<span className="text-blue-500">%</span></div>
+                <div className="text-xs font-bold tracking-[0.2em] text-white/40 uppercase">Uptime SLA</div>
+            </Reveal>
+
+            <Reveal 
+                delay="300ms" 
+                className="relative text-center px-4 pl-8 before:content-[''] before:absolute before:left-0 before:top-1/2 before:transform before:-translate-y-1/2 before:h-28 before:w-px before:bg-gradient-to-b before:from-white/0 before:via-white/30 before:to-white/0"
+            >
+                <div className="text-5xl md:text-6xl font-black tracking-tighter text-white mb-2">24<span className="text-emerald-500">/7</span></div>
+                <div className="text-xs font-bold tracking-[0.2em] text-white/40 uppercase">AI Mentorship</div>
+            </Reveal>
+        </div>
+    </div>
+</section>
 
                 {/* 3. BENTO 2.0 (UNIFIED ECOSYSTEM) */}
                 <section className="py-32 container mx-auto max-w-7xl px-6">
@@ -244,8 +328,8 @@ const Homepage: React.FC<HomepageProps> = ({ onNavigateToLogin }) => {
                                             <span className="text-emerald-400">{'}'}</span>
                                         </div>
                                     </div>
-
-                            </div>
+                                </div> {/* <-- Add this missing closing tag */}
+                            </div> 
                         </Reveal>
 
                         {/* BENTO ITEM 2: STORE */}
