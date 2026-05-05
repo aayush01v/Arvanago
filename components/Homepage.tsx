@@ -38,14 +38,18 @@ const Homepage: React.FC<HomepageProps> = ({ onNavigateToLogin }) => {
     const [isFading, setIsFading] = useState(false);
 
     useEffect(() => {
+        let fadeTimer: ReturnType<typeof setTimeout>;
         const timer = setInterval(() => {
             setIsFading(true);
-            setTimeout(() => {
+            fadeTimer = setTimeout(() => {
                 setSloganIdx(prev => (prev + 1) % TERMINAL_SLOGANS.length);
                 setIsFading(false);
             }, 350);
         }, 3200);
-        return () => clearInterval(timer);
+        return () => {
+            clearInterval(timer);
+            clearTimeout(fadeTimer);
+        };
     }, []);
 
     return (
@@ -194,7 +198,7 @@ const Homepage: React.FC<HomepageProps> = ({ onNavigateToLogin }) => {
                                         <div className="w-3 h-3 rounded-full bg-yellow-500/50" />
                                         <div className="w-3 h-3 rounded-full bg-green-500/50" />
                                         <div className="ml-2 text-xs font-mono text-white/30">
-                                            {TERMINAL_SLOGANS[sloganIdx].header}.cpp
+                                            {TERMINAL_SLOGANS[sloganIdx].header}.h
                                         </div>
                                     </div>
 
