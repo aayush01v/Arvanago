@@ -1,5 +1,6 @@
 import crypto from 'crypto';
 import admin, { db } from './utils/firebaseAdmin.js';
+import Razorpay from 'razorpay';
 
 export default async function handler(req, res) {
     if (req.method !== 'POST') {
@@ -26,13 +27,35 @@ export default async function handler(req, res) {
             .digest('hex');
 
         if (generated_signature === razorpay_signature) {
+            const keyId = process.env.RAZORPAY_KEY_ID;
+            if (!keyId) {
+                return res.status(500).json({ error: 'Server configuration error' });
+            }
+
+            const razorpay = new Razorpay({ key_id: keyId, key_secret: secret });
+            const order = await razorpay.orders.fetch(razorpay_order_id);
+            const trustedUserId = order?.notes?.userId;
+            const trustedCourseId = order?.notes?.courseId;
+
+            if (!trustedUserId || trustedUserId === 'guest' || !trustedCourseId) {
+                return res.status(400).json({ success: false, error: 'Order metadata missing or invalid' });
+            }
+
+            if (userId && userId !== trustedUserId) {
+                return res.status(400).json({ success: false, error: 'User mismatch detected' });
+            }
+
+            if (courseId && courseId !== trustedCourseId) {
+                return res.status(400).json({ success: false, error: 'Course mismatch detected' });
+            }
+
             // ALLOCATE COURSE TO USER HERE
-            if (userId && courseId && db) {
+            if (db) {
                 try {
-                    const userRef = db.collection('users').doc(userId);
+                    const userRef = db.collection('users').doc(trustedUserId);
                     await userRef.update({
-                        enrolledCourses: admin.firestore.FieldValue.arrayUnion(courseId),
-                        ongoingCourses: admin.firestore.FieldValue.arrayUnion(courseId)
+                        enrolledCourses: admin.firestore.FieldValue.arrayUnion(trustedCourseId),
+                        ongoingCourses: admin.firestore.FieldValue.arrayUnion(trustedCourseId)
                     });
                 } catch (dbError) {
                     console.error('Failed to update user profile in Firestore:', dbError);

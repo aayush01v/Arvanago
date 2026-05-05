@@ -101,7 +101,8 @@ export const useRazorpayEnrollment = ({ user, onProfileUpdate }: UseRazorpayEnro
                     body: JSON.stringify({
                         courseId: course.id,
                         currency: 'INR',
-                        couponCode: couponCode
+                        couponCode: couponCode,
+                        userId: user.uid
                     }),
                 });
 

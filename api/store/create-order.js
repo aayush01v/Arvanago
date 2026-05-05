@@ -6,7 +6,7 @@ export default async function handler(req, res) {
         return res.status(405).json({ error: 'Method not allowed' });
     }
 
-    const { items, currency = 'INR', receipt, shippingAddress, couponCode } = req.body;
+    const { items, currency = 'INR', receipt, shippingAddress, couponCode, userId } = req.body;
 
     if (!items || !Array.isArray(items) || items.length === 0) {
         return res.status(400).json({ error: 'Cart is empty' });
@@ -224,7 +224,17 @@ export default async function handler(req, res) {
             amount: Math.round(totalAmount * 100), // paise — server computed only
             currency,
             receipt: receipt || `rcpt_store_${Date.now()}`,
-            notes: { orderType: 'store', couponApplied: appliedCouponId || 'none' }
+            notes: { orderType: 'store', couponApplied: appliedCouponId || 'none', userId: userId || 'guest' }
+        });
+
+        await db.collection('store_order_intents').doc(order.id).set({
+            userId: userId || 'guest',
+            items: validItems,
+            totalAmount,
+            shippingAddress: shippingAddress || null,
+            couponId: appliedCouponId || null,
+            status: 'created',
+            createdAt: admin.firestore.FieldValue.serverTimestamp()
         });
 
         // Return the order with secure server-computed summary

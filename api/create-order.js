@@ -6,7 +6,7 @@ export default async function handler(req, res) {
         return res.status(405).json({ error: 'Method not allowed' });
     }
 
-    const { courseId, currency = 'INR', receipt, couponCode } = req.body;
+    const { courseId, currency = 'INR', receipt, couponCode, userId } = req.body;
 
     if (!courseId) {
         return res.status(400).json({ error: 'Course ID is required' });
@@ -75,7 +75,8 @@ export default async function handler(req, res) {
             receipt: receipt || `receipt_${Date.now()}`,
             notes: {
                 courseId: courseId,
-                courseName: courseData.title
+                courseName: courseData.title,
+                userId: userId || 'guest'
             }
         };
 
