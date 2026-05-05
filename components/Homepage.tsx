@@ -150,10 +150,10 @@ const Homepage: React.FC<HomepageProps> = ({ onNavigateToLogin }) => {
                         </h2>
                     </Reveal>
 
-                    <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 auto-rows-[400px]">
+                    <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 auto-rows-auto lg:auto-rows-[400px]">
                         
                         {/* BENTO ITEM 1: LMS */}
-                        <Reveal delay="0ms" className="lg:col-span-7 relative group rounded-3xl overflow-hidden bg-[#111] border border-white/5 hover:border-white/20 transition-colors duration-500">
+                        <Reveal delay="0ms" className="min-h-[400px] lg:col-span-7 relative group rounded-3xl overflow-hidden bg-[#111] border border-white/5 hover:border-white/20 transition-colors duration-500">
                             {/* Inner Shadow / Glow */}
                             <div className="absolute inset-0 shadow-[inset_0_0_100px_rgba(0,0,0,0.8)] z-10 pointer-events-none" />
                             <div className="absolute top-0 right-0 w-96 h-96 bg-brand-primary/20 blur-[100px] rounded-full group-hover:bg-brand-primary/30 transition-colors duration-700" />
@@ -184,7 +184,7 @@ const Homepage: React.FC<HomepageProps> = ({ onNavigateToLogin }) => {
                         </Reveal>
 
                         {/* BENTO ITEM 2: STORE */}
-                        <Reveal delay="100ms" className="lg:col-span-5 relative group rounded-3xl overflow-hidden bg-[#111] border border-white/5 hover:border-white/20 transition-colors duration-500">
+                        <Reveal delay="100ms" className="min-h-[400px] lg:col-span-5 relative group rounded-3xl overflow-hidden bg-[#111] border border-white/5 hover:border-white/20 transition-colors duration-500">
                             <div className="absolute inset-0 shadow-[inset_0_0_100px_rgba(0,0,0,0.8)] z-10 pointer-events-none" />
                             <div className="absolute bottom-0 left-0 w-96 h-96 bg-purple-600/20 blur-[100px] rounded-full group-hover:bg-purple-600/30 transition-colors duration-700" />
                             
