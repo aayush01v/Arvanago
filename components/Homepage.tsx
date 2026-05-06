@@ -205,13 +205,13 @@ const Homepage: React.FC<HomepageProps> = ({ onNavigateToLogin }) => {
                             <div className="flex flex-col sm:inline-flex sm:flex-row items-center gap-4 sm:gap-0 sm:p-1.5 sm:bg-white/5 sm:backdrop-blur-xl sm:rounded-full sm:border sm:border-white/10 sm:shadow-2xl sm:shadow-brand-primary/10 w-full sm:w-auto px-4 sm:px-0">
                                 <button
                                     onClick={onNavigateToLogin}
-                                    className="w-full sm:w-auto px-8 py-4 rounded-full bg-white text-black font-bold text-lg hover:scale-[0.98] transition-transform duration-300 flex items-center justify-center gap-2 shadow-[0_0_20px_rgba(255,255,255,0.15)] sm:shadow-none"
+                                    className="w-full sm:w-auto px-8 py-4 rounded-full bg-white text-black font-bold text-lg hover:bg-[#f8f8f8] hover:shadow-[0_0_30px_rgba(255,255,255,0.45)] transition-all duration-300 flex items-center justify-center gap-2 shadow-[0_0_24px_rgba(255,255,255,0.3)] sm:shadow-[0_0_24px_rgba(255,255,255,0.25)]"
                                 >
                                     Start Learning <Icon name="arrow-right" className="w-5 h-5" />
                                 </button>
                                 <Link
                                     to="/store"
-                                    className="w-full sm:w-auto px-8 py-4 rounded-full text-white font-bold text-lg bg-white/5 border border-white/10 sm:bg-transparent sm:border-transparent hover:bg-white/10 transition-colors duration-300 flex items-center justify-center gap-2"
+                                    className="w-full sm:w-auto px-8 py-4 rounded-full text-white font-bold text-lg bg-white/15 border border-white/25 sm:bg-white/10 sm:border-white/20 hover:bg-white/25 hover:shadow-[0_0_24px_rgba(59,130,246,0.35)] transition-all duration-300 flex items-center justify-center gap-2"
                                 >
                                     <Icon name="shopping-bag" className="w-5 h-5 text-white/70" /> Shop Gear
                                 </Link>
@@ -234,10 +234,14 @@ const Homepage: React.FC<HomepageProps> = ({ onNavigateToLogin }) => {
 <section className="border-y border-white/10 bg-white/5 backdrop-blur-sm py-24">
     <div className="container mx-auto max-w-7xl px-6">
         {/* Removed 'divide-x divide-white/10' from here */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+        <div className="relative grid grid-cols-2 md:grid-cols-4 gap-8">
+            <div
+                aria-hidden="true"
+                className="pointer-events-none absolute left-0 top-1/2 -translate-y-1/2 h-28 w-px bg-gradient-to-b from-white/0 via-white/30 to-white/0"
+            />
             <Reveal
                 delay="0ms"
-                className="relative text-center px-4 pl-8 before:content-[''] before:absolute before:left-0 before:top-1/2 before:transform before:-translate-y-1/2 before:h-28 before:w-px before:bg-gradient-to-b before:from-white/0 before:via-white/30 before:to-white/0"
+                className="relative text-center px-4 pl-8"
             >
                 <div className="text-5xl md:text-6xl font-black tracking-tighter text-white mb-2">
                     50k<span className="text-brand-primary">+</span>
