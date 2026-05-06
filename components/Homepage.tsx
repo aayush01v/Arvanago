@@ -165,7 +165,7 @@ const Homepage: React.FC<HomepageProps> = ({ onNavigateToLogin }) => {
             <header className="absolute top-0 left-0 right-0 z-50 pt-8 px-6 md:px-12">
                 <div className="container mx-auto max-w-7xl flex justify-between items-center">
                     <div className="flex items-center gap-3">
-                        <img src={LOGO_URL} alt="Logo" className="h-8 w-8 object-contain" />
+                        <img src={LOGO_URL} alt="Logo" className="h-8 w-8 object-contain" loading="eager" fetchPriority="high" />
                         <span className="text-xl font-bold tracking-tight text-white">Edusimulate</span>
                     </div>
                     <div className="flex items-center gap-6">
@@ -223,7 +223,7 @@ const Homepage: React.FC<HomepageProps> = ({ onNavigateToLogin }) => {
                         <span className="text-[10px] font-bold tracking-[0.2em] text-white/70 uppercase mb-5">Trusted by learners & partnered with</span>
                         <div className="flex flex-wrap justify-center items-center gap-6 md:gap-10 grayscale opacity-80 hover:opacity-100 hover:grayscale-0 transition-all duration-500">
                             <div className="flex items-center gap-2 font-bold text-white text-sm md:text-base"><Icon name="shield-check" className="w-5 h-5" /> Razorpay Secure</div>
-                            <div className="flex items-center gap-2 font-bold text-white text-sm md:text-base"><img src="https://upload.wikimedia.org/wikipedia/commons/9/93/Amazon_Web_Services_Logo.svg" alt="AWS" className="h-5 object-contain invert hover:invert-0 transition-all" /> AWS EdStart</div>
+                            <div className="flex items-center gap-2 font-bold text-white text-sm md:text-base"><img src="https://upload.wikimedia.org/wikipedia/commons/9/93/Amazon_Web_Services_Logo.svg" alt="AWS" className="h-5 object-contain invert hover:invert-0 transition-all" loading="lazy" /> AWS EdStart</div>
                             <div className="flex items-center gap-2 font-bold text-white text-sm md:text-base"><Icon name="award" className="w-5 h-5" /> ISO Certified</div>
                             <div className="flex items-center gap-2 font-bold text-white text-sm md:text-base"><Icon name="users" className="w-5 h-5" /> 50k+ Learners</div>
                         </div>
@@ -296,7 +296,7 @@ const Homepage: React.FC<HomepageProps> = ({ onNavigateToLogin }) => {
                             
                             <div className="relative z-20 p-10 h-full flex flex-col">
                                 <div className="w-12 h-12 rounded-xl bg-white/10 flex items-center justify-center mb-6 backdrop-blur-md border border-white/10">
-                                    <img src={LOGO_URL} alt="Edusimulate Platform" className="w-7 h-7 object-contain grayscale brightness-200" />
+                                    <img src={LOGO_URL} alt="Edusimulate Platform" className="w-7 h-7 object-contain grayscale brightness-200" loading="lazy" />
                                 </div>
                                 <h3 className="text-3xl font-bold text-white mb-2">The Learning Platform</h3>
                                 <p className="text-white/50 text-lg mb-8 max-w-md">Adaptive AI curriculum, real-time code execution, and instantly verifiable certificates.</p>
@@ -373,7 +373,7 @@ const Homepage: React.FC<HomepageProps> = ({ onNavigateToLogin }) => {
                             {/* Brand & HQ */}
                             <div className="lg:col-span-2">
                                 <div className="flex items-center gap-3 mb-6">
-                                    <img src={LOGO_URL} alt="Logo" className="h-10 w-10 object-contain drop-shadow-[0_0_8px_rgba(255,255,255,0.3)]" />
+                                    <img src={LOGO_URL} alt="Logo" className="h-10 w-10 object-contain drop-shadow-[0_0_8px_rgba(255,255,255,0.3)]" loading="lazy" />
                                     <span className="text-2xl font-bold tracking-tight text-white">Edusimulate</span>
                                 </div>
                                 <p className="text-white/40 text-lg max-w-sm mb-8 leading-relaxed">

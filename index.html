@@ -65,18 +65,24 @@
   <link rel="dns-prefetch" href="https://firebasestorage.googleapis.com" />
   <link rel="dns-prefetch" href="https://checkout.razorpay.com" />
 
-  <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
-
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 
-  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7783964722742113"
-    crossorigin="anonymous"></script>
+  <!-- Preload critical above-the-fold assets -->
+  <link rel="preload" href="/newlogo.svg" as="image" type="image/svg+xml" />
+  <link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" as="style" />
 
+  <!-- Critical fonts loaded eagerly; non-critical font and KaTeX loaded after page is interactive -->
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap"
     rel="stylesheet">
-  <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+  <noscript><link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;700&display=swap" rel="stylesheet"></noscript>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css" media="print" onload="this.media='all'">
+  <noscript><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css"></noscript>
+
+  <!-- Google Ads deferred until after page load to avoid blocking LCP -->
+  <script defer src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7783964722742113"
+    crossorigin="anonymous"></script>
   <style>
     .text-shadow {
       text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
