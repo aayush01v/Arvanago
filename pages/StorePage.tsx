@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState, useRef } from 'react';
+import React, { useEffect, useMemo, useState, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import SEO from '@/components/common/SEO';
 import { Product } from '@/types';
@@ -14,7 +14,7 @@ import QuickViewModal from '@/components/store/QuickViewModal';
 import Recommendations from '@/components/store/Recommendations';
 import { slugify } from '@/utils/slugify';
 import WhatsAppButton from '@/components/store/WhatsAppButton';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 
 const StorePage: React.FC = () => {
   const navigate = useNavigate();
@@ -164,6 +164,15 @@ const StorePage: React.FC = () => {
   const displayedProducts = useMemo(() => {
     return filteredProducts.slice(0, displayedCount);
   }, [filteredProducts, displayedCount]);
+
+  const handleProductOpen = useCallback((product: Product) => {
+    navigate(`/store/${slugify(product.name)}/${product.id}`);
+  }, [navigate]);
+
+  const handleQuickView = useCallback((product: Product) => {
+    setQuickViewProduct(product);
+    setShowQuickView(true);
+  }, []);
 
   const absoluteMax = useMemo(() =>
     products.length ? Math.max(...products.map(p => p.price), 1000) : 100000,
@@ -393,37 +402,21 @@ const StorePage: React.FC = () => {
               </ol>
             </nav>
 
-            <motion.div 
-              variants={{
-                hidden: { opacity: 0 },
-                show: { opacity: 1, transition: { staggerChildren: 0.08 } }
-              }}
-              initial="hidden"
-              animate="show"
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.2 }}
               className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-6"
             >
-              <AnimatePresence mode="popLayout">
-                {displayedProducts.map(product => (
-                  <motion.div
-                    key={product.id}
-                    variants={{
-                      hidden: { opacity: 0, y: 30, scale: 0.95 },
-                      show: { opacity: 1, y: 0, scale: 1, transition: { type: 'spring', damping: 20, stiffness: 300 } }
-                    }}
-                    exit={{ opacity: 0, scale: 0.9, transition: { duration: 0.15 } }}
-                    layout
-                  >
-                    <ProductCard
-                      product={product}
-                      onClick={(p) => navigate(`/store/${slugify(p.name)}/${p.id}`)}
-                      onQuickView={() => {
-                        setQuickViewProduct(product);
-                        setShowQuickView(true);
-                      }}
-                    />
-                  </motion.div>
-                ))}
-              </AnimatePresence>
+              {displayedProducts.map(product => (
+                <div key={product.id}>
+                  <ProductCard
+                    product={product}
+                    onClick={handleProductOpen}
+                    onQuickView={() => handleQuickView(product)}
+                  />
+                </div>
+              ))}
             </motion.div>
             
             {/* Infinite Scroll Trigger */}
