@@ -58,11 +58,6 @@ const StorePage: React.FC = () => {
     toggleWishlist(productId);
   }, [toggleWishlist]);
 
-  const storeStats = useMemo(() => ({
-    productCount: products.length,
-    categoryCount: Math.max(0, new Set(products.map((product) => product.category).filter(Boolean)).size),
-    inStockCount: products.filter((product) => product.stock > 0).length,
-  }), [products]);
 
   // Listen for My Orders button click from the global header
   useEffect(() => {
@@ -273,56 +268,28 @@ const StorePage: React.FC = () => {
                   <h1 className="mt-4 text-3xl md:text-5xl font-black leading-tight text-slate-900 dark:text-white max-w-2xl">
                     Gear up with premium picks built for study, focus, and daily carry.
                   </h1>
-                  <p className="mt-4 max-w-2xl text-sm md:text-base text-slate-600 dark:text-slate-400 leading-relaxed">
-                    Discover a faster shopping surface with smarter filtering, instant quick views, and a cart that stays responsive as you browse.
-                  </p>
-                </div>
-
-                <div className="grid grid-cols-3 gap-3 md:gap-4 self-end">
-                  {[
-                    { label: 'Products', value: storeStats.productCount },
-                    { label: 'Categories', value: storeStats.categoryCount },
-                    { label: 'In stock', value: storeStats.inStockCount },
-                  ].map((stat) => (
-                    <div key={stat.label} className="rounded-2xl border border-slate-200/80 dark:border-slate-700/80 bg-white/85 dark:bg-slate-800/80 p-4 text-center shadow-sm">
-                      <div className="text-2xl md:text-3xl font-black text-slate-900 dark:text-white">{stat.value}</div>
-                      <div className="mt-1 text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-500 dark:text-slate-400">{stat.label}</div>
-                    </div>
-                  ))}
+                  <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-5 max-w-2xl">
+                    {[
+                      { icon: 'shield-check', title: '100% Genuine', desc: 'Brand Authorized' },
+                      { icon: 'zap', title: 'High Performance', desc: 'Curated for Creators' },
+                      { icon: 'truck', title: 'Fast Delivery', desc: 'Pan-India Shipping' },
+                      { icon: 'headphones', title: 'Priority Support', desc: 'Always here to help' },
+                    ].map((feature) => (
+                      <div key={feature.title} className="rounded-2xl border border-slate-200/80 dark:border-slate-700/80 bg-white/75 dark:bg-slate-800/70 px-3.5 py-3 flex items-start gap-3 shadow-sm">
+                        <div className="w-9 h-9 rounded-xl bg-brand-primary/10 flex items-center justify-center shrink-0 mt-0.5">
+                          <Icon name={feature.icon} className="w-4 h-4 text-brand-primary" />
+                        </div>
+                        <div>
+                          <p className="text-xl font-bold text-slate-900 dark:text-white leading-tight">{feature.title}</p>
+                          <p className="mt-1 text-lg text-slate-600 dark:text-slate-300 leading-tight">{feature.desc}</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               </div>
             </section>
 
-            {/* Trust Section */}
-            <div className="mb-10 bg-white dark:bg-slate-900 rounded-2xl md:rounded-3xl p-5 md:p-7 border border-slate-200 dark:border-slate-800 shadow-sm">
-              <div className="flex flex-col md:flex-row items-center gap-6 md:gap-10">
-                <div className="w-full md:w-auto flex-1 text-center md:text-left">
-                  <p className="text-xs font-bold text-brand-primary uppercase tracking-widest mb-1">Why EduSimulate?</p>
-                  <h2 className="text-lg md:text-xl font-black text-slate-900 dark:text-white leading-tight">
-                    Premium Tech for Future<br className="hidden md:block" /> Doctors &amp; Engineers
-                  </h2>
-                </div>
-                <div className="w-full md:w-auto grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
-                  {[
-                    { icon: 'shield-check', title: '100% Genuine', desc: 'Brand Authorized' },
-                    { icon: 'zap', title: 'High Performance', desc: 'Curated for Creators' },
-                    { icon: 'truck', title: 'Fast Delivery', desc: 'Pan-India Shipping' },
-                    { icon: 'headphones', title: 'Priority Support', desc: 'Always here to help' },
-                  ].map(feature => (
-                    <div key={feature.title} className="flex items-start gap-2.5">
-                      <div className="w-8 h-8 rounded-xl bg-brand-primary/10 flex items-center justify-center shrink-0 mt-0.5">
-                        <Icon name={feature.icon} className="w-4 h-4 text-brand-primary" />
-                      </div>
-                      <div>
-                        <h3 className="text-xs font-bold text-slate-800 dark:text-slate-200 leading-tight">{feature.title}</h3>
-                        <p className="text-[10px] text-slate-400 dark:text-slate-500 mt-0.5 leading-tight">{feature.desc}</p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-            
             {/* Student Picks Section */}
             {showPicksBanner && (
               <div className="mb-10 relative">
