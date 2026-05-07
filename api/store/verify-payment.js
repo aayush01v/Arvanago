@@ -28,6 +28,11 @@ export default async function handler(req, res) {
         if (generated_signature === razorpay_signature) {
             // Allocate store order securely
             if (db) {
+                const existingOrder = await db.collection('store_orders').where('razorpayPaymentId', '==', razorpay_payment_id).limit(1).get();
+                if (!existingOrder.empty) {
+                    return res.status(200).json({ success: true, message: 'Store payment already processed' });
+                }
+
                 const batch = db.batch();
                 const orderRef = db.collection('store_orders').doc();
                 
