@@ -1,105 +1,166 @@
 import { useState, useEffect } from 'react';
+import firebase from 'firebase/compat/app';
 import { db } from '../services/firebase';
 
 export interface AdminStats {
-    totalCourses: number;
-    activeUsers: number;
+    topCoursesCount: number;
+    topProductsCount: number;
+    numberOfCustomers: number;
     totalRevenue: number;
     revenueSeries: { name: string; data: number[] }[];
+    revenueCategories: string[];
     categorySeries: number[];
     categoryLabels: string[];
-    recentCourses: any[];
+    mostSoldItems: any[];
     loading: boolean;
 }
 
 export const useAdminStats = () => {
     const [stats, setStats] = useState<AdminStats>({
-        totalCourses: 0,
-        activeUsers: 0,
+        topCoursesCount: 0,
+        topProductsCount: 0,
+        numberOfCustomers: 0,
         totalRevenue: 0,
         revenueSeries: [],
+        revenueCategories: [],
         categorySeries: [],
         categoryLabels: [],
-        recentCourses: [],
+        mostSoldItems: [],
         loading: true,
     });
 
     useEffect(() => {
-        let unsubscribe: (() => void) | undefined;
-
-        // Listen for auth state changes to ensure we have a user before fetching
         const authUnsubscribe = db.app.auth().onAuthStateChanged(async (user) => {
             if (!user) {
-                // Not logged in, maybe stop loading or set empty
                 setStats(prev => ({ ...prev, loading: false }));
                 return;
             }
 
-
-
             try {
-                // Fetch Counts
-                const coursesSnap = await db.collection('courses').get();
-                // Users collection requires authentication, so we wait for 'user' to be present
-                const usersSnap = await db.collection('users').get();
+                const monthLabels: string[] = [];
+                for (let i = 5; i >= 0; i--) {
+                    const dt = new Date();
+                    dt.setMonth(dt.getMonth() - i);
+                    monthLabels.push(dt.toLocaleString('en-IN', { month: 'short' }));
+                }
 
-                const totalCourses = coursesSnap.size;
-                const activeUsers = usersSnap.size;
+                const [coursesResult, productsResult, coursePaymentsResult, storeOrdersResult] = await Promise.allSettled([
+                    db.collection('courses').get(),
+                    db.collection('products').get(),
+                    db.collection('course_payments').where('status', '==', 'paid').get(),
+                    db.collection('store_orders').where('status', '==', 'paid').get(),
+                ]);
 
-                // Calculate Category Breakdown
-                const categoryCounts: Record<string, number> = {};
-                coursesSnap.forEach(doc => {
-                    const data = doc.data();
-                    const cat = data.category || 'Uncategorized';
-                    categoryCounts[cat] = (categoryCounts[cat] || 0) + 1;
-                });
+                const coursesSnap = coursesResult.status === 'fulfilled' ? coursesResult.value : null;
+                const productsSnap = productsResult.status === 'fulfilled' ? productsResult.value : null;
+                const coursePaymentsSnap = coursePaymentsResult.status === 'fulfilled' ? coursePaymentsResult.value : null;
+                const storeOrdersSnap = storeOrdersResult.status === 'fulfilled' ? storeOrdersResult.value : null;
 
-                const categoryLabels = Object.keys(categoryCounts);
-                const categorySeries = Object.values(categoryCounts);
+                const coursesMap = new Map((coursesSnap?.docs || []).map((d) => [d.id, d.data()]));
+                const productsMap = new Map((productsSnap?.docs || []).map((d) => [d.id, d.data()]));
 
-                // Fetch Recent Courses
-                const coursesData = coursesSnap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                coursesData.sort((a: any, b: any) => {
-                    const dateA = a.createdAt?.toMillis ? a.createdAt.toMillis() : 0;
-                    const dateB = b.createdAt?.toMillis ? b.createdAt.toMillis() : 0;
-                    return dateB - dateA;
-                });
-                const recentCourses = coursesData.slice(0, 5);
+                const monthIndexMap = new Map<string, number>();
+                for (let i = 5; i >= 0; i--) {
+                    const dt = new Date();
+                    dt.setMonth(dt.getMonth() - i);
+                    const key = `${dt.getFullYear()}-${dt.getMonth()}`;
+                    monthIndexMap.set(key, monthLabels.length - 1 - i);
+                }
 
-                // Mock Revenue Data (Area Chart)
-                const totalRevenue = 12500;
-                const revenueSeries = [
-                    {
-                        name: "Revenue",
-                        data: [3100, 4000, 2800, 5100, 4200, 10900, 10000]
-                    },
-                    {
-                        name: "Expenses",
-                        data: [1100, 3200, 4500, 3200, 3400, 5200, 4100]
+                const courseRevenueByMonth = new Array(monthLabels.length).fill(0);
+                const productRevenueByMonth = new Array(monthLabels.length).fill(0);
+                const courseSalesCount = new Map<string, number>();
+                const productSalesCount = new Map<string, number>();
+                const dedupedCustomerSpend = new Map<string, number>();
+
+                let totalCourseRevenue = 0;
+                let totalProductRevenue = 0;
+
+                (coursePaymentsSnap?.docs || []).forEach((doc) => {
+                    const p = doc.data();
+                    const amount = Number(p.amount || 0);
+                    const ts = p.createdAt as firebase.firestore.Timestamp | undefined;
+                    const dt = ts?.toDate?.() || null;
+                    if (dt) {
+                        const monthKey = `${dt.getFullYear()}-${dt.getMonth()}`;
+                        const idx = monthIndexMap.get(monthKey);
+                        if (idx !== undefined) courseRevenueByMonth[idx] += amount;
                     }
-                ];
+
+                    totalCourseRevenue += amount;
+                    if (p.courseId) courseSalesCount.set(p.courseId, (courseSalesCount.get(p.courseId) || 0) + 1);
+                    if (p.userId) dedupedCustomerSpend.set(p.userId, (dedupedCustomerSpend.get(p.userId) || 0) + amount);
+                });
+
+                (storeOrdersSnap?.docs || []).forEach((doc) => {
+                    const o = doc.data();
+                    const amount = Number(o.totalAmount || 0);
+                    const ts = o.createdAt as firebase.firestore.Timestamp | undefined;
+                    const dt = ts?.toDate?.() || null;
+                    if (dt) {
+                        const monthKey = `${dt.getFullYear()}-${dt.getMonth()}`;
+                        const idx = monthIndexMap.get(monthKey);
+                        if (idx !== undefined) productRevenueByMonth[idx] += amount;
+                    }
+
+                    totalProductRevenue += amount;
+                    if (o.userId) dedupedCustomerSpend.set(o.userId, (dedupedCustomerSpend.get(o.userId) || 0) + amount);
+                    (o.items || []).forEach((item: any) => {
+                        if (item?.productId) {
+                            productSalesCount.set(item.productId, (productSalesCount.get(item.productId) || 0) + Number(item.quantity || 0));
+                        }
+                    });
+                });
+
+                const numberOfCustomers = Array.from(dedupedCustomerSpend.values()).filter((total) => total > 2).length;
+                const topCoursesCount = Array.from(courseSalesCount.values()).filter((count) => count > 0).length;
+                const topProductsCount = Array.from(productSalesCount.values()).filter((count) => count > 0).length;
+
+                const mostSoldItems = [
+                    ...Array.from(courseSalesCount.entries()).map(([id, count]) => ({
+                        id: `course-${id}`,
+                        itemId: id,
+                        type: 'Course',
+                        title: coursesMap.get(id)?.title || 'Unknown Course',
+                        category: coursesMap.get(id)?.category || 'Course',
+                        price: Number(coursesMap.get(id)?.price || 0),
+                        salesCount: count,
+                        thumbnail: coursesMap.get(id)?.thumbnail || ''
+                    })),
+                    ...Array.from(productSalesCount.entries()).map(([id, count]) => ({
+                        id: `product-${id}`,
+                        itemId: id,
+                        type: 'Product',
+                        title: productsMap.get(id)?.name || 'Unknown Product',
+                        category: productsMap.get(id)?.category || 'Store',
+                        price: Number(productsMap.get(id)?.price || 0),
+                        salesCount: count,
+                        thumbnail: productsMap.get(id)?.imageUrl || ''
+                    })),
+                ].sort((a, b) => b.salesCount - a.salesCount).slice(0, 8);
 
                 setStats({
-                    totalCourses,
-                    activeUsers,
-                    totalRevenue,
-                    revenueSeries,
-                    categorySeries,
-                    categoryLabels,
-                    recentCourses,
+                    topCoursesCount,
+                    topProductsCount,
+                    numberOfCustomers,
+                    totalRevenue: totalCourseRevenue + totalProductRevenue,
+                    revenueSeries: [
+                        { name: 'Course Revenue', data: courseRevenueByMonth },
+                        { name: 'Store Revenue', data: productRevenueByMonth },
+                    ],
+                    revenueCategories: monthLabels,
+                    categorySeries: [topCoursesCount, topProductsCount],
+                    categoryLabels: ['Courses Sold', 'Products Sold'],
+                    mostSoldItems,
                     loading: false,
                 });
-
             } catch (error) {
-                console.error("Error fetching admin stats:", error);
+                console.error('Error fetching admin stats:', error);
                 setStats(prev => ({ ...prev, loading: false }));
             }
         });
 
-        return () => {
-            authUnsubscribe();
-            if (unsubscribe) unsubscribe();
-        };
+        return () => authUnsubscribe();
     }, []);
 
     return stats;

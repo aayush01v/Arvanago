@@ -14,13 +14,15 @@ const AdminPage: React.FC = () => {
     const [activeTab, setActiveTab] = useState<'dashboard' | 'courses' | 'users' | 'settings' | 'blog' | 'coupons' | 'store'>('dashboard');
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const {
-        totalCourses,
-        activeUsers,
+        topCoursesCount,
+        topProductsCount,
+        numberOfCustomers,
         totalRevenue,
         revenueSeries,
         categorySeries,
         categoryLabels,
-        recentCourses,
+        revenueCategories,
+        mostSoldItems,
         loading
     } = useAdminStats();
 
@@ -36,7 +38,7 @@ const AdminPage: React.FC = () => {
         dataLabels: { enabled: false },
         stroke: { curve: 'smooth', width: 2 },
         xaxis: {
-            categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul'],
+            categories: revenueCategories,
             labels: { style: { colors: '#94a3b8' } },
             axisBorder: { show: false },
             axisTicks: { show: false }
@@ -105,7 +107,7 @@ const AdminPage: React.FC = () => {
                 return (
                     <div className="space-y-6">
                         {/* Stats Cards */}
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
                             <div className="p-6 rounded-2xl bg-[#1e293b]/50 border border-white/10 backdrop-blur-sm relative overflow-hidden group">
                                 <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
                                     <BookOpen className="w-16 h-16 text-blue-500" />
@@ -113,20 +115,28 @@ const AdminPage: React.FC = () => {
                                 <h3 className="text-slate-400 text-sm font-medium mb-2 flex items-center gap-2">
                                     Top Courses
                                 </h3>
-                                <p className="text-3xl font-bold text-white mb-1">{totalCourses}</p>
-                                <p className="text-xs text-green-400 flex items-center gap-1">
-                                    <TrendingUp className="w-3 h-3" /> +2 new this month
-                                </p>
+                                <p className="text-3xl font-bold text-white mb-1">{topCoursesCount}</p>
+                                <p className="text-xs text-slate-400">Successful paid courses</p>
+                                <p className="text-xs text-slate-400">Updated from verified payments only</p>
                             </div>
 
                             <div className="p-6 rounded-2xl bg-[#1e293b]/50 border border-white/10 backdrop-blur-sm relative overflow-hidden group">
                                 <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
                                     <Users className="w-16 h-16 text-purple-500" />
                                 </div>
-                                <h3 className="text-slate-400 text-sm font-medium mb-2">Active Users</h3>
-                                <p className="text-3xl font-bold text-white mb-1">{activeUsers}</p>
+                                <h3 className="text-slate-400 text-sm font-medium mb-2">Top Products</h3>
+                                <p className="text-3xl font-bold text-white mb-1">{topProductsCount}</p>
+                                <p className="text-xs text-slate-400 flex items-center gap-1">Successful paid products</p>
+                            </div>
+
+                            <div className="p-6 rounded-2xl bg-[#1e293b]/50 border border-white/10 backdrop-blur-sm relative overflow-hidden group">
+                                <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+                                    <Users className="w-16 h-16 text-purple-500" />
+                                </div>
+                                <h3 className="text-slate-400 text-sm font-medium mb-2">Number of Customers</h3>
+                                <p className="text-3xl font-bold text-white mb-1">{numberOfCustomers}</p>
                                 <p className="text-xs text-green-400 flex items-center gap-1">
-                                    <TrendingUp className="w-3 h-3" /> +12% vs last month
+                                    <TrendingUp className="w-3 h-3" /> Paid &gt; ₹2 unique buyers
                                 </p>
                             </div>
 
@@ -135,10 +145,8 @@ const AdminPage: React.FC = () => {
                                     <DollarSign className="w-16 h-16 text-amber-500" />
                                 </div>
                                 <h3 className="text-slate-400 text-sm font-medium mb-2">Total Revenue</h3>
-                                <p className="text-3xl font-bold text-white mb-1">${totalRevenue.toLocaleString()}</p>
-                                <p className="text-xs text-green-400 flex items-center gap-1">
-                                    <TrendingUp className="w-3 h-3" /> +8% vs last month
-                                </p>
+                                <p className="text-3xl font-bold text-white mb-1">₹{totalRevenue.toLocaleString('en-IN')}</p>
+                                <p className="text-xs text-slate-400">Successful course + store payments</p>
                             </div>
                         </div>
 
@@ -161,21 +169,21 @@ const AdminPage: React.FC = () => {
                             </div>
                         </div>
 
-                        {/* Recent Courses Table */}
+                        {/* Most Sold Items Table */}
                         <div className="p-6 rounded-2xl bg-[#1e293b]/50 border border-white/10 backdrop-blur-sm">
-                            <h3 className="text-white text-lg font-semibold mb-4">Recent Courses</h3>
+                            <h3 className="text-white text-lg font-semibold mb-4">Most Sold Items</h3>
                             <div className="overflow-x-auto">
                                 <table className="w-full min-w-[600px] text-left text-sm text-slate-400">
                                     <thead className="bg-white/5 text-xs uppercase font-semibold text-slate-200">
                                         <tr>
-                                            <th className="px-4 py-3 rounded-l-lg">Course Title</th>
+                                            <th className="px-4 py-3 rounded-l-lg">Item</th>
                                             <th className="px-4 py-3">Category</th>
                                             <th className="px-4 py-3">Price</th>
-                                            <th className="px-4 py-3 rounded-r-lg">Status</th>
+                                            <th className="px-4 py-3 rounded-r-lg">Sales</th>
                                         </tr>
                                     </thead>
                                     <tbody className="divide-y divide-white/5">
-                                        {recentCourses.map((course) => (
+                                        {mostSoldItems.map((course) => (
                                             <tr key={course.id} className="hover:bg-white/5 transition-colors">
                                                 <td className="px-4 py-3 font-medium text-white flex items-center gap-3">
                                                     <div className="w-8 h-8 rounded bg-slate-700 overflow-hidden flex-shrink-0">
@@ -185,7 +193,7 @@ const AdminPage: React.FC = () => {
                                                             <div className="w-full h-full flex items-center justify-center bg-slate-800 text-xs">IMG</div>
                                                         )}
                                                     </div>
-                                                    {course.title}
+                                                    {course.title} <span className="text-xs text-slate-400">({course.type})</span>
                                                 </td>
                                                 <td className="px-4 py-3">
                                                     <span className="px-2 py-1 rounded-full text-xs bg-slate-700 text-slate-300 border border-white/10">
@@ -193,14 +201,11 @@ const AdminPage: React.FC = () => {
                                                     </span>
                                                 </td>
                                                 <td className="px-4 py-3 text-white">
-                                                    ${course.price || 'Free'}
+                                                    ₹{Number(course.price || 0).toLocaleString('en-IN')}
                                                 </td>
                                                 <td className="px-4 py-3">
-                                                    <span className={`px-2 py-1 rounded-full text-xs ${course.isPublished
-                                                        ? 'bg-green-500/20 text-green-400 border border-green-500/20'
-                                                        : 'bg-yellow-500/20 text-yellow-400 border border-yellow-500/20'
-                                                        }`}>
-                                                        {course.isPublished ? 'Active' : 'Draft'}
+                                                    <span className="px-2 py-1 rounded-full text-xs bg-blue-500/20 text-blue-300 border border-blue-500/20">
+                                                        {course.salesCount} sold
                                                     </span>
                                                 </td>
                                             </tr>
