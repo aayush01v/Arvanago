@@ -270,14 +270,46 @@ const StorePage: React.FC = () => {
                   </h1>
                   <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-5 max-w-2xl">
                     {[
-                      { icon: 'shield-check', title: '100% Genuine', desc: 'Brand Authorized' },
-                      { icon: 'zap', title: 'High Performance', desc: 'Curated for Creators' },
-                      { icon: 'truck', title: 'Fast Delivery', desc: 'Pan-India Shipping' },
-                      { icon: 'headphones', title: 'Priority Support', desc: 'Always here to help' },
+                      {
+                        icon: (
+                          <svg className="w-4 h-4 text-brand-primary" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M12 3l7 4v5c0 5-3.5 8.5-7 9-3.5-.5-7-4-7-9V7l7-4zm-3.5 9.5l2.5 2.5 4.5-4.5" />
+                          </svg>
+                        ),
+                        title: '100% Genuine',
+                        desc: 'Brand Authorized'
+                      },
+                      {
+                        icon: (
+                          <svg className="w-4 h-4 text-brand-primary" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M13 2L3 14h7l-1 8 10-12h-7l1-8z" />
+                          </svg>
+                        ),
+                        title: 'High Performance',
+                        desc: 'Curated for Creators'
+                      },
+                      {
+                        icon: (
+                          <svg className="w-4 h-4 text-brand-primary" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M3 8h13v8H3zM16 11h3l2 2v3h-5zM7 18a1 1 0 100 2 1 1 0 000-2zm11 0a1 1 0 100 2 1 1 0 000-2z" />
+                          </svg>
+                        ),
+                        title: 'Fast Delivery',
+                        desc: 'Pan-India Shipping'
+                      },
+                      {
+                        icon: (
+                          <svg className="w-4 h-4 text-brand-primary" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M3 13a9 9 0 0118 0v4a2 2 0 01-2 2h-1v-6h1a7 7 0 00-14 0h1v6H5a2 2 0 01-2-2v-4zm6 6h6" />
+                          </svg>
+                        ),
+                        title: 'Priority Support',
+                        desc: 'Always here to help'
+                      },
                     ].map((feature) => (
                       <div key={feature.title} className="rounded-2xl border border-slate-200/80 dark:border-slate-700/80 bg-white/75 dark:bg-slate-800/70 px-3.5 py-3 flex items-start gap-3 shadow-sm">
                         <div className="w-9 h-9 rounded-xl bg-brand-primary/10 flex items-center justify-center shrink-0 mt-0.5">
-                          <Icon name={feature.icon} className="w-4 h-4 text-brand-primary" />
+                          {feature.icon}
                         </div>
                         <div>
                           <p className="text-xl font-bold text-slate-900 dark:text-white leading-tight">{feature.title}</p>
