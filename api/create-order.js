@@ -1,5 +1,6 @@
 import Razorpay from 'razorpay';
 import { db, dbError } from './utils/firebaseAdmin.js';
+import { requireFirebaseUser } from './utils/firebaseAuth.js';
 
 export default async function handler(req, res) {
     if (req.method !== 'POST') {
@@ -16,6 +17,8 @@ export default async function handler(req, res) {
         if (!db) {
             return res.status(500).json({ error: `Firebase Admin issue: ${dbError?.message || dbError || 'Missing FIREBASE_PROJECT_ID, FIREBASE_CLIENT_EMAIL, FIREBASE_PRIVATE_KEY'}` });
         }
+
+        const decodedUser = await requireFirebaseUser(req);
 
         // 1. Fetch real price from Firestore
         const courseRef = db.collection('courses').doc(courseId);
@@ -75,7 +78,9 @@ export default async function handler(req, res) {
             receipt: receipt || `receipt_${Date.now()}`,
             notes: {
                 courseId: courseId,
-                courseName: courseData.title
+                courseName: courseData.title,
+                userId: decodedUser.uid,
+                couponCode: couponCode ? couponCode.toUpperCase() : ''
             }
         };
 

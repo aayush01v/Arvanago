@@ -21,7 +21,9 @@ service cloud.firestore {
         (isOwner(userId) &&
          request.resource.data.get('role', 'student') == resource.data.get('role', 'student') &&
          request.resource.data.get('followers', 0) == resource.data.get('followers', 0) &&
-         request.resource.data.get('following', 0) == resource.data.get('following', 0)) || 
+         request.resource.data.get('following', 0) == resource.data.get('following', 0) &&
+         request.resource.data.get('enrolledCourses', []) == resource.data.get('enrolledCourses', []) &&
+         request.resource.data.get('ongoingCourses', []) == resource.data.get('ongoingCourses', [])) || 
         isAdmin();
       allow delete: if isAdmin();
 
