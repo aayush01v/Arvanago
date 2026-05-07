@@ -12,6 +12,8 @@ export interface AdminStats {
     categorySeries: number[];
     categoryLabels: string[];
     mostSoldItems: any[];
+    coursesSoldThisMonth: number;
+    revenueChangePercent: number | null;
     loading: boolean;
 }
 
@@ -26,6 +28,8 @@ export const useAdminStats = () => {
         categorySeries: [],
         categoryLabels: [],
         mostSoldItems: [],
+        coursesSoldThisMonth: 0,
+        revenueChangePercent: null,
         loading: true,
     });
 
@@ -59,6 +63,7 @@ export const useAdminStats = () => {
 
                 const courseRevenueByMonth = new Array(monthlyLabels.length).fill(0);
                 const productRevenueByMonth = new Array(monthlyLabels.length).fill(0);
+                const coursesSoldThisMonthSet = new Set<string>();
                 const courseSalesCount = new Map<string, number>();
                 const productSalesCount = new Map<string, number>();
                 const dedupedCustomerSpend = new Map<string, number>();
@@ -78,7 +83,13 @@ export const useAdminStats = () => {
                     }
 
                     totalCourseRevenue += amount;
-                    if (p.courseId) courseSalesCount.set(p.courseId, (courseSalesCount.get(p.courseId) || 0) + 1);
+                    if (p.courseId) {
+                        courseSalesCount.set(p.courseId, (courseSalesCount.get(p.courseId) || 0) + 1);
+                        const now = new Date();
+                        if (dt && dt.getFullYear() === now.getFullYear() && dt.getMonth() === now.getMonth()) {
+                            coursesSoldThisMonthSet.add(p.courseId);
+                        }
+                    }
                     if (p.userId) dedupedCustomerSpend.set(p.userId, (dedupedCustomerSpend.get(p.userId) || 0) + amount);
                 });
 
@@ -129,6 +140,12 @@ export const useAdminStats = () => {
                     })),
                 ].sort((a, b) => b.salesCount - a.salesCount).slice(0, 8);
 
+                const currentMonthRevenue = (courseRevenueByMonth.at(-1) || 0) + (productRevenueByMonth.at(-1) || 0);
+                const previousMonthRevenue = (courseRevenueByMonth.at(-2) || 0) + (productRevenueByMonth.at(-2) || 0);
+                const revenueChangePercent = previousMonthRevenue > 0
+                    ? ((currentMonthRevenue - previousMonthRevenue) / previousMonthRevenue) * 100
+                    : null;
+
                 setStats({
                     topCoursesCount,
                     topProductsCount,
@@ -142,6 +159,8 @@ export const useAdminStats = () => {
                     categorySeries: [topCoursesCount, topProductsCount],
                     categoryLabels: ['Courses Sold', 'Products Sold'],
                     mostSoldItems,
+                    coursesSoldThisMonth: coursesSoldThisMonthSet.size,
+                    revenueChangePercent,
                     loading: false,
                 });
             } catch (error) {
