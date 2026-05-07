@@ -74,7 +74,6 @@ export const StoreCartProvider = ({ children }: { children: ReactNode }) => {
       }
       return [...prev, { product, quantity: Math.min(quantity, product.stock), selectedVariant }];
     });
-    setCartOpen(true);
   }, []);
 
   const removeFromCart = useCallback((productId: string, variantLabel?: string) => {
