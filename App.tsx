@@ -219,14 +219,14 @@ const App: React.FC = () => {
 
     if (user) {
       const stored = safeLocalStorage.getItem(`${GLOBAL_THEME_KEY}:${user.uid}`);
-      const preference = stored ?? user.themePreference ?? 'light';
+      const preference = stored ?? user.themePreference ?? 'dark';
       const dark = preference === 'dark';
 
       setIsDarkMode(dark);
       persistThemePreference(dark, user);
     } else {
       const stored = safeLocalStorage.getItem(GLOBAL_THEME_KEY);
-      setIsDarkMode(stored === 'dark');
+      setIsDarkMode(stored !== 'light');
     }
   }, [user, persistThemePreference]);
 
