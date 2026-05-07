@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState, useRef, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Product, ProductReview } from '@/types';
 import { db } from '@/services/firebase';
@@ -28,7 +28,7 @@ const StarRow = ({ rating, size = 'md' }: { rating: number; size?: 'sm' | 'md' }
 const ProductPage: React.FC = () => {
   const { productId } = useParams<{ productId: string }>();
   const navigate = useNavigate();
-  const { addToCart, cart, cartItemCount, setCartOpen } = useStoreCart();
+  const { addToCart, cart, cartItemCount, setCartOpen, toggleWishlist, isInWishlist } = useStoreCart();
 
   const [product, setProduct] = useState<Product | null>(null);
   const [reviews, setReviews] = useState<ProductReview[]>([]);
@@ -56,6 +56,13 @@ const ProductPage: React.FC = () => {
   const isOutOfStock = (product?.stock ?? 0) <= 0;
   const reachedMax = product ? inCartQuantity >= product.stock : false;
   const mustPickVariant = product?.variants && product.variants.length > 0 && !selectedVariant;
+  const cartQuantities = useMemo(() => {
+    const quantities = new Map<string, number>();
+    cart.forEach((item) => {
+      quantities.set(item.product.id, (quantities.get(item.product.id) ?? 0) + item.quantity);
+    });
+    return quantities;
+  }, [cart]);
 
   // ── Data loading ──────────────────────────────────────────────────────
   useEffect(() => {
@@ -625,7 +632,15 @@ const ProductPage: React.FC = () => {
             <div className="flex gap-4 overflow-x-auto pb-6 pt-1 -mx-4 px-4 sm:mx-0 sm:px-0 snap-x snap-mandatory rounded-xl">
               {suggestions.map(rp => (
                 <div key={rp.id} className="shrink-0 w-[160px] sm:w-[200px] lg:w-[220px] snap-start">
-                  <ProductCard product={rp} onClick={handleProductCardClick} />
+                  <ProductCard
+                    product={rp}
+                    onClick={handleProductCardClick}
+                    onQuickView={handleProductCardClick}
+                    onAddToCart={addToCart}
+                    onWishlistToggle={toggleWishlist}
+                    inWishlist={isInWishlist(rp.id)}
+                    inCartQuantity={cartQuantities.get(rp.id) ?? 0}
+                  />
                 </div>
               ))}
             </div>
@@ -653,7 +668,16 @@ const ProductPage: React.FC = () => {
             {/* Vertically scrollable 3-column grid container */}
             <div className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-4 max-h-[600px] overflow-y-auto pr-1 pb-2">
               {otherProducts.map(rp => (
-                <ProductCard key={rp.id} product={rp} onClick={handleProductCardClick} />
+                <ProductCard
+                  key={rp.id}
+                  product={rp}
+                  onClick={handleProductCardClick}
+                  onQuickView={handleProductCardClick}
+                  onAddToCart={addToCart}
+                  onWishlistToggle={toggleWishlist}
+                  inWishlist={isInWishlist(rp.id)}
+                  inCartQuantity={cartQuantities.get(rp.id) ?? 0}
+                />
               ))}
             </div>
           </motion.div>

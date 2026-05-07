@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect, useMemo, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect, useMemo, useCallback, ReactNode } from 'react';
 import { Product, CartItem } from '@/types';
 import { safeLocalStorage } from '@/utils/safeStorage';
 
@@ -62,7 +62,7 @@ export const StoreCartProvider = ({ children }: { children: ReactNode }) => {
     }
   }, [wishlist, isInitialized]);
 
-  const addToCart = (product: Product, quantity = 1, selectedVariant?: {label: string, price: number}) => {
+  const addToCart = useCallback((product: Product, quantity = 1, selectedVariant?: {label: string, price: number}) => {
     setCart((prev) => {
       const existing = prev.find((item) => item.product.id === product.id && item.selectedVariant?.label === selectedVariant?.label);
       if (existing) {
@@ -75,13 +75,13 @@ export const StoreCartProvider = ({ children }: { children: ReactNode }) => {
       return [...prev, { product, quantity: Math.min(quantity, product.stock), selectedVariant }];
     });
     setCartOpen(true);
-  };
+  }, []);
 
-  const removeFromCart = (productId: string, variantLabel?: string) => {
+  const removeFromCart = useCallback((productId: string, variantLabel?: string) => {
     setCart((prev) => prev.filter((item) => !(item.product.id === productId && item.selectedVariant?.label === variantLabel)));
-  };
+  }, []);
 
-  const updateQuantity = (productId: string, variantLabel: string | undefined, quantity: number) => {
+  const updateQuantity = useCallback((productId: string, variantLabel: string | undefined, quantity: number) => {
     setCart((prev) =>
       prev.map((item) => {
         if (item.product.id === productId && item.selectedVariant?.label === variantLabel) {
@@ -91,19 +91,19 @@ export const StoreCartProvider = ({ children }: { children: ReactNode }) => {
         return item;
       })
     );
-  };
+  }, []);
 
-  const clearCart = () => setCart([]);
+  const clearCart = useCallback(() => setCart([]), []);
 
-  const isInWishlist = (productId: string) => wishlist.includes(productId);
+  const isInWishlist = useCallback((productId: string) => wishlist.includes(productId), [wishlist]);
 
-  const toggleWishlist = (productId: string) => {
+  const toggleWishlist = useCallback((productId: string) => {
     setWishlist(prev => 
       prev.includes(productId) 
         ? prev.filter(id => id !== productId)
         : [...prev, productId]
     );
-  };
+  }, []);
 
   const cartTotal = useMemo(() => {
     return cart.reduce((total, item) => total + (item.selectedVariant ? item.selectedVariant.price : item.product.price) * item.quantity, 0);
@@ -113,26 +113,37 @@ export const StoreCartProvider = ({ children }: { children: ReactNode }) => {
     return cart.reduce((count, item) => count + item.quantity, 0);
   }, [cart]);
 
-  return (
-    <StoreCartContext.Provider
-      value={{
-        cart,
-        wishlist,
-        isInWishlist,
-        toggleWishlist,
-        addToCart,
-        removeFromCart,
-        updateQuantity,
-        clearCart,
-        isCartOpen,
-        setCartOpen,
-        cartTotal,
-        cartItemCount,
-      }}
-    >
-      {children}
-    </StoreCartContext.Provider>
+  const value = useMemo(
+    () => ({
+      cart,
+      wishlist,
+      isInWishlist,
+      toggleWishlist,
+      addToCart,
+      removeFromCart,
+      updateQuantity,
+      clearCart,
+      isCartOpen,
+      setCartOpen,
+      cartTotal,
+      cartItemCount,
+    }),
+    [
+      cart,
+      wishlist,
+      isInWishlist,
+      toggleWishlist,
+      addToCart,
+      removeFromCart,
+      updateQuantity,
+      clearCart,
+      isCartOpen,
+      cartTotal,
+      cartItemCount,
+    ],
   );
+
+  return <StoreCartContext.Provider value={value}>{children}</StoreCartContext.Provider>;
 };
 
 export const useStoreCart = () => {

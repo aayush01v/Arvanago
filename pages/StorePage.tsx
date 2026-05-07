@@ -34,11 +34,35 @@ const StorePage: React.FC = () => {
   const [sortBy, setSortBy] = useState<'default' | 'price-asc' | 'price-desc' | 'rating'>('default');
   const [maxPrice, setMaxPrice] = useState(Infinity);
 
-  const { setCartOpen, cartItemCount } = useStoreCart();
+  const { setCartOpen, cartItemCount, cart, wishlist, addToCart, toggleWishlist } = useStoreCart();
   const [showOrders, setShowOrders] = useState(false);
   const [showPicksBanner, setShowPicksBanner] = useState(true);
   const [quickViewProduct, setQuickViewProduct] = useState<Product | null>(null);
   const [showQuickView, setShowQuickView] = useState(false);
+
+  const productCartQuantities = useMemo(() => {
+    const quantities = new Map<string, number>();
+    cart.forEach((item) => {
+      quantities.set(item.product.id, (quantities.get(item.product.id) ?? 0) + item.quantity);
+    });
+    return quantities;
+  }, [cart]);
+
+  const wishlistSet = useMemo(() => new Set(wishlist), [wishlist]);
+
+  const handleAddToCart = useCallback((product: Product) => {
+    addToCart(product);
+  }, [addToCart]);
+
+  const handleWishlistToggle = useCallback((productId: string) => {
+    toggleWishlist(productId);
+  }, [toggleWishlist]);
+
+  const storeStats = useMemo(() => ({
+    productCount: products.length,
+    categoryCount: Math.max(0, new Set(products.map((product) => product.category).filter(Boolean)).size),
+    inStockCount: products.filter((product) => product.stock > 0).length,
+  }), [products]);
 
   // Listen for My Orders button click from the global header
   useEffect(() => {
@@ -240,6 +264,35 @@ const StorePage: React.FC = () => {
         {/* Auto-sliding trending banner */}
         {!loading && products.length > 0 && (
           <>
+            <section className="mb-8 rounded-[2rem] border border-slate-200/80 dark:border-slate-800 bg-white/90 dark:bg-slate-900/90 shadow-[0_20px_60px_-35px_rgba(15,23,42,0.45)] overflow-hidden">
+              <div className="grid gap-6 lg:grid-cols-[1.25fr_0.75fr] p-6 md:p-8 bg-[radial-gradient(circle_at_top_right,_rgba(14,165,233,0.16),_transparent_35%),linear-gradient(135deg,_rgba(255,255,255,0.92),_rgba(248,250,252,0.96))] dark:bg-[radial-gradient(circle_at_top_right,_rgba(14,165,233,0.18),_transparent_35%),linear-gradient(135deg,_rgba(15,23,42,0.96),_rgba(15,23,42,0.92))]">
+                <div>
+                  <div className="inline-flex items-center gap-2 rounded-full border border-brand-primary/20 bg-brand-primary/5 px-3 py-1 text-[11px] font-bold uppercase tracking-[0.24em] text-brand-primary">
+                    Curated store
+                  </div>
+                  <h1 className="mt-4 text-3xl md:text-5xl font-black leading-tight text-slate-900 dark:text-white max-w-2xl">
+                    Gear up with premium picks built for study, focus, and daily carry.
+                  </h1>
+                  <p className="mt-4 max-w-2xl text-sm md:text-base text-slate-600 dark:text-slate-400 leading-relaxed">
+                    Discover a faster shopping surface with smarter filtering, instant quick views, and a cart that stays responsive as you browse.
+                  </p>
+                </div>
+
+                <div className="grid grid-cols-3 gap-3 md:gap-4 self-end">
+                  {[
+                    { label: 'Products', value: storeStats.productCount },
+                    { label: 'Categories', value: storeStats.categoryCount },
+                    { label: 'In stock', value: storeStats.inStockCount },
+                  ].map((stat) => (
+                    <div key={stat.label} className="rounded-2xl border border-slate-200/80 dark:border-slate-700/80 bg-white/85 dark:bg-slate-800/80 p-4 text-center shadow-sm">
+                      <div className="text-2xl md:text-3xl font-black text-slate-900 dark:text-white">{stat.value}</div>
+                      <div className="mt-1 text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-500 dark:text-slate-400">{stat.label}</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </section>
+
             {/* Trust Section */}
             <div className="mb-10 bg-white dark:bg-slate-900 rounded-2xl md:rounded-3xl p-5 md:p-7 border border-slate-200 dark:border-slate-800 shadow-sm">
               <div className="flex flex-col md:flex-row items-center gap-6 md:gap-10">
@@ -413,7 +466,11 @@ const StorePage: React.FC = () => {
                   <ProductCard
                     product={product}
                     onClick={handleProductOpen}
-                    onQuickView={() => handleQuickView(product)}
+                    onQuickView={handleQuickView}
+                    onAddToCart={handleAddToCart}
+                    onWishlistToggle={handleWishlistToggle}
+                    inWishlist={wishlistSet.has(product.id)}
+                    inCartQuantity={productCartQuantities.get(product.id) ?? 0}
                   />
                 </div>
               ))}
