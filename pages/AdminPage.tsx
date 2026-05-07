@@ -23,6 +23,8 @@ const AdminPage: React.FC = () => {
         categoryLabels,
         revenueCategories,
         mostSoldItems,
+        coursesSoldThisMonth,
+        revenueChangePercent,
         loading
     } = useAdminStats();
 
@@ -117,9 +119,11 @@ const AdminPage: React.FC = () => {
                                 </h3>
                                 <p className="text-3xl font-bold text-white mb-1">{topCoursesCount}</p>
                                 <p className="text-xs text-slate-400">Successful paid courses</p>
-                                <p className="text-xs text-green-400 flex items-center gap-1">
-                                    <TrendingUp className="w-3 h-3" /> +2 new this month
-                                </p>
+                                {coursesSoldThisMonth > 0 && (
+                                    <p className="text-xs text-green-400 flex items-center gap-1">
+                                        <TrendingUp className="w-3 h-3" /> +{coursesSoldThisMonth} new this month
+                                    </p>
+                                )}
                             </div>
 
                             <div className="p-6 rounded-2xl bg-[#1e293b]/50 border border-white/10 backdrop-blur-sm relative overflow-hidden group">
@@ -148,9 +152,11 @@ const AdminPage: React.FC = () => {
                                 </div>
                                 <h3 className="text-slate-400 text-sm font-medium mb-2">Total Revenue</h3>
                                 <p className="text-3xl font-bold text-white mb-1">₹{totalRevenue.toLocaleString('en-IN')}</p>
-                                <p className="text-xs text-green-400 flex items-center gap-1">
-                                    <TrendingUp className="w-3 h-3" /> +8% vs last month
-                                </p>
+                                {revenueChangePercent !== null && (
+                                    <p className={`text-xs flex items-center gap-1 ${revenueChangePercent >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+                                        <TrendingUp className="w-3 h-3" /> {revenueChangePercent >= 0 ? '+' : ''}{revenueChangePercent.toFixed(0)}% vs last month
+                                    </p>
+                                )}
                             </div>
                         </div>
 
