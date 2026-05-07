@@ -1,5 +1,6 @@
 import Razorpay from 'razorpay';
 import admin, { db, dbError } from '../utils/firebaseAdmin.js';
+import { requireFirebaseUser } from '../utils/firebaseAuth.js';
 
 export default async function handler(req, res) {
     if (req.method !== 'POST') {
@@ -16,6 +17,8 @@ export default async function handler(req, res) {
         if (!db) {
             return res.status(500).json({ error: `Firebase Admin issue: ${dbError?.message || dbError}` });
         }
+
+        const decodedUser = await requireFirebaseUser(req);
 
         let subtotal = 0;
         let requiresShipping = false;
@@ -169,18 +172,16 @@ export default async function handler(req, res) {
             const orderRef = db.collection('store_orders').doc();
             
             const orderSnapshot = {
-                userId: req.body.userId || 'guest',
+                userId: decodedUser.uid,
                 items: validItems,
                 totalAmount: 0,
                 status: 'paid', // Flag as "paid" since effectively free
                 razorpayOrderId: 'free_coupon_order',
                 razorpayPaymentId: 'COUPON_APPLIED',
+                shippingAddress: shippingAddress || null,
+                couponId: appliedCouponId || null,
                 createdAt: admin.firestore.FieldValue.serverTimestamp()
             };
-
-            if (shippingAddress) {
-                orderSnapshot.shippingAddress = shippingAddress;
-            }
 
             batch.set(orderRef, orderSnapshot);
 
@@ -224,7 +225,25 @@ export default async function handler(req, res) {
             amount: Math.round(totalAmount * 100), // paise — server computed only
             currency,
             receipt: receipt || `rcpt_store_${Date.now()}`,
-            notes: { orderType: 'store', couponApplied: appliedCouponId || 'none' }
+            notes: {
+                orderType: 'store',
+                userId: decodedUser.uid,
+                couponApplied: appliedCouponId || 'none'
+            }
+        });
+
+        const pendingOrderRef = db.collection('store_orders').doc(order.id);
+        await pendingOrderRef.set({
+            userId: decodedUser.uid,
+            items: validItems,
+            subtotal,
+            discountAmount,
+            totalAmount,
+            status: 'pending',
+            razorpayOrderId: order.id,
+            shippingAddress: shippingAddress || null,
+            couponId: appliedCouponId || null,
+            createdAt: admin.firestore.FieldValue.serverTimestamp()
         });
 
         // Return the order with secure server-computed summary

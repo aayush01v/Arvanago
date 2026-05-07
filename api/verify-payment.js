@@ -1,5 +1,7 @@
 import crypto from 'crypto';
+import Razorpay from 'razorpay';
 import admin, { db } from './utils/firebaseAdmin.js';
+import { requireFirebaseUser } from './utils/firebaseAuth.js';
 
 export default async function handler(req, res) {
     if (req.method !== 'POST') {
@@ -14,10 +16,38 @@ export default async function handler(req, res) {
 
     try {
         const secret = process.env.RAZORPAY_KEY_SECRET;
+        const keyId = process.env.RAZORPAY_KEY_ID;
 
-        if (!secret) {
+        if (!secret || !keyId) {
             console.error('RAZORPAY_KEY_SECRET is not set');
             return res.status(500).json({ error: 'Server configuration error' });
+        }
+
+        const decodedUser = await requireFirebaseUser(req);
+        const razorpay = new Razorpay({
+            key_id: keyId,
+            key_secret: secret,
+        });
+
+        const order = await razorpay.orders.fetch(razorpay_order_id);
+
+        if (!order) {
+            return res.status(404).json({ error: 'Payment order not found' });
+        }
+
+        const orderCourseId = order?.notes?.courseId;
+        const orderUserId = order?.notes?.userId;
+
+        if (!orderCourseId || !orderUserId) {
+            return res.status(400).json({ error: 'Payment order is missing enrollment metadata' });
+        }
+
+        if (orderCourseId !== courseId || orderUserId !== decodedUser.uid || (userId && userId !== decodedUser.uid)) {
+            return res.status(403).json({ error: 'Payment metadata does not match the authenticated user or course' });
+        }
+
+        if (order.status !== 'created' && order.status !== 'attempted' && order.status !== 'paid') {
+            return res.status(400).json({ error: 'Payment order is not in a valid state' });
         }
 
         const generated_signature = crypto
@@ -37,19 +67,26 @@ export default async function handler(req, res) {
             }
 
             const courseRef = db.collection('courses').doc(courseId);
-            const userRef = db.collection('users').doc(userId);
+            const userRef = db.collection('users').doc(decodedUser.uid);
             const courseDoc = await courseRef.get();
             const coursePrice = Number(courseDoc.data()?.price || 0);
 
+            if (!courseDoc.exists) {
+                return res.status(404).json({ success: false, error: 'Course not found' });
+            }
+
             const batch = db.batch();
             batch.set(paymentRef, {
-                userId,
+                userId: decodedUser.uid,
                 courseId,
-                amount: Number.isFinite(coursePrice) ? Math.max(coursePrice, 0) : 0,
+                amount: Number.isFinite(Number(order.amount)) ? Math.max(Number(order.amount) / 100, 0) : Math.max(coursePrice, 0),
                 status: 'paid',
                 source: 'course',
                 razorpayOrderId: razorpay_order_id,
                 razorpayPaymentId: razorpay_payment_id,
+                razorpaySignature: razorpay_signature,
+                razorpayAmount: order.amount,
+                currency: order.currency,
                 createdAt: admin.firestore.FieldValue.serverTimestamp(),
             });
             batch.update(userRef, {

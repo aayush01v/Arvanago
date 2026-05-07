@@ -257,10 +257,14 @@ const CartDrawer: React.FC = () => {
 
     try {
       await loadRazorpay();
+      const idToken = await user.getIdToken();
 
       const res = await fetch('/api/store/create-order', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${idToken}`,
+        },
         body: JSON.stringify({
           items: cart.map(i => ({ productId: i.product.id, quantity: i.quantity, variantLabel: i.selectedVariant?.label })),
           shippingAddress: hasPhysicalItems ? formattedAddress : undefined,
@@ -296,7 +300,10 @@ const CartDrawer: React.FC = () => {
           try {
             const vRes = await fetch('/api/store/verify-payment', {
               method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
+              headers: {
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${idToken}`,
+              },
               body: JSON.stringify({
                 razorpay_order_id: payment.razorpay_order_id,
                 razorpay_payment_id: payment.razorpay_payment_id,

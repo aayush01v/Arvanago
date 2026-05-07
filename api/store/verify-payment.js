@@ -1,5 +1,7 @@
 import crypto from 'crypto';
 import admin, { db } from '../utils/firebaseAdmin.js';
+import Razorpay from 'razorpay';
+import { requireFirebaseUser } from '../utils/firebaseAuth.js';
 
 export default async function handler(req, res) {
     if (req.method !== 'POST') {
@@ -14,10 +16,55 @@ export default async function handler(req, res) {
 
     try {
         const secret = process.env.RAZORPAY_KEY_SECRET;
+        const keyId = process.env.RAZORPAY_KEY_ID;
 
-        if (!secret) {
+        if (!secret || !keyId) {
             console.error('RAZORPAY_KEY_SECRET is not set');
             return res.status(500).json({ error: 'Server configuration error' });
+        }
+
+        if (!db) {
+            return res.status(500).json({ error: 'Firebase Admin is not configured' });
+        }
+
+        const decodedUser = await requireFirebaseUser(req);
+        const razorpay = new Razorpay({
+            key_id: keyId,
+            key_secret: secret,
+        });
+
+        const order = await razorpay.orders.fetch(razorpay_order_id);
+
+        if (!order) {
+            return res.status(404).json({ error: 'Payment order not found' });
+        }
+
+        if (order?.notes?.orderType !== 'store') {
+            return res.status(400).json({ error: 'Payment order does not belong to the store flow' });
+        }
+
+        if (order?.notes?.userId !== decodedUser.uid || (userId && userId !== decodedUser.uid)) {
+            return res.status(403).json({ error: 'Payment metadata does not match the authenticated user' });
+        }
+
+        const pendingOrderSnapshot = await db.collection('store_orders').doc(razorpay_order_id).get();
+
+        if (!pendingOrderSnapshot.exists) {
+            return res.status(404).json({ error: 'Pending store order not found' });
+        }
+
+        const pendingOrder = pendingOrderSnapshot.data();
+
+        if (pendingOrder.userId !== decodedUser.uid) {
+            return res.status(403).json({ error: 'Pending store order does not belong to the authenticated user' });
+        }
+
+        if (Math.round(Number(pendingOrder.totalAmount) * 100) !== Number(order.amount)) {
+            return res.status(400).json({ error: 'Payment amount does not match the server order total' });
+        }
+
+        if (!Array.isArray(pendingOrder.items) || pendingOrder.items.length === 0) {
+            return res.status(400).json({ error: 'Pending store order is missing item data' });
         }
 
         const generated_signature = crypto
@@ -34,35 +81,34 @@ export default async function handler(req, res) {
                 }
 
                 const batch = db.batch();
-                const orderRef = db.collection('store_orders').doc();
+                const orderRef = db.collection('store_orders').doc(razorpay_order_id);
                 
                 // Track the new order
                 const orderSnapshot = {
-                    userId,
-                    items,
-                    totalAmount,
+                    userId: decodedUser.uid,
+                    items: pendingOrder.items,
+                    totalAmount: pendingOrder.totalAmount,
                     status: 'paid', // Admin can physically mark 'shipped' later.
                     razorpayOrderId: razorpay_order_id,
                     razorpayPaymentId: razorpay_payment_id,
+                    razorpaySignature: razorpay_signature,
+                    appliedCouponId: pendingOrder.couponId || null,
+                    shippingAddress: pendingOrder.shippingAddress || shippingAddress || null,
                     createdAt: admin.firestore.FieldValue.serverTimestamp()
                 };
-
-                if (shippingAddress) {
-                    orderSnapshot.shippingAddress = shippingAddress;
-                }
 
                 batch.set(orderRef, orderSnapshot);
 
                 // Safely decrement stock for each item using a batched write
-                for (const item of items) {
+                for (const item of pendingOrder.items) {
                     const productRef = db.collection('products').doc(item.productId);
                     batch.update(productRef, {
                         stock: admin.firestore.FieldValue.increment(-item.quantity)
                     });
                 }
 
-                if (couponId) {
-                    const couponRef = db.collection('coupons').doc(couponId);
+                if (pendingOrder.couponId) {
+                    const couponRef = db.collection('coupons').doc(pendingOrder.couponId);
                     batch.update(couponRef, {
                         usageCount: admin.firestore.FieldValue.increment(1)
                     });

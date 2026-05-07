@@ -6,6 +6,7 @@ import { VitePWA } from 'vite-plugin-pwa';
 
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), "");
+  const esbuildDrop: ('console' | 'debugger')[] = mode === 'production' ? ['console', 'debugger'] : [];
 
   return {
     server: {
@@ -150,7 +151,7 @@ export default defineConfig(({ mode }) => {
     },
     esbuild: {
       // Strip all console.* and debugger statements in production
-      drop: mode === 'production' ? ['console', 'debugger'] : []
-    }
+      drop: esbuildDrop,
+    } as any
   };
 });
