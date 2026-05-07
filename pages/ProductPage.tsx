@@ -239,7 +239,9 @@ const ProductPage: React.FC = () => {
                 setTouchStartX(null);
               }}
             >
-              <AnimatePresence mode="wait">
+              <AnimatePresence>{addedFeedback && <motion.span initial={{ scale: 0.4, opacity: 0.5 }} animate={{ scale: 1.8, opacity: 0 }} exit={{ opacity: 0 }} transition={{ duration: 0.55, ease: "easeOut" }} className="absolute inset-0 bg-white/30 rounded-2xl" />}</AnimatePresence>
+                <AnimatePresence>{addedFeedback && <motion.span initial={{ scale: 0.4, opacity: 0.5 }} animate={{ scale: 1.8, opacity: 0 }} exit={{ opacity: 0 }} transition={{ duration: 0.55, ease: "easeOut" }} className="absolute inset-0 bg-white/30 rounded-2xl" />}</AnimatePresence>
+          <AnimatePresence mode="wait">
                 {images.length > 0 ? (
                   <motion.img
                     key={activeImg}
@@ -410,7 +412,7 @@ const ProductPage: React.FC = () => {
               <button
                 onClick={handleAddToCart}
                 disabled={isOutOfStock || reachedMax || !!mustPickVariant}
-                className="flex-1 py-3.5 px-6 rounded-2xl font-black text-white bg-gradient-to-r from-brand-primary to-blue-600 hover:opacity-90 active:scale-[0.98] transition-all flex items-center justify-center gap-2 shadow-xl shadow-brand-primary/25 disabled:opacity-50 disabled:pointer-events-none"
+                className="relative overflow-hidden flex-1 py-3.5 px-6 rounded-2xl font-black text-white bg-gradient-to-r from-brand-primary to-blue-600 hover:opacity-90 active:scale-[0.98] transition-all flex items-center justify-center gap-2 shadow-xl shadow-brand-primary/25 disabled:opacity-50 disabled:pointer-events-none"
               >
                 <AnimatePresence mode="wait">
                   {addedFeedback ? (
@@ -697,7 +699,7 @@ const ProductPage: React.FC = () => {
         <button
           onClick={handleAddToCart}
           disabled={isOutOfStock || reachedMax || !!mustPickVariant}
-          className="flex-1 py-3 rounded-2xl font-black text-white bg-gradient-to-r from-brand-primary to-blue-600 hover:opacity-90 active:scale-[0.98] transition-all flex items-center justify-center gap-2 shadow-lg shadow-brand-primary/30 disabled:opacity-50 disabled:pointer-events-none text-sm"
+          className="relative overflow-hidden flex-1 py-3 rounded-2xl font-black text-white bg-gradient-to-r from-brand-primary to-blue-600 hover:opacity-90 active:scale-[0.98] transition-all flex items-center justify-center gap-2 shadow-lg shadow-brand-primary/30 disabled:opacity-50 disabled:pointer-events-none text-sm"
         >
           <AnimatePresence mode="wait">
             {addedFeedback ? (
