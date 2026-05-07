@@ -1,9 +1,27 @@
-import React, { useState, useEffect } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import { db } from '../../services/firebase';
 import { User } from '../../types';
-import { Search, Shield, ShieldOff, MoreVertical, Trash2, Ban, CheckCircle, Send, X, Loader2, ShoppingBag, AlertTriangle } from 'lucide-react';
+import { Search, Shield, ShieldOff, Trash2, Ban, CheckCircle, Send, X, Loader2, ShoppingBag, AlertTriangle } from 'lucide-react';
 import { format } from 'date-fns';
 
+
+type StoreOrder = {
+    id: string;
+    userId?: string;
+    totalAmount?: number;
+    createdAt?: { toDate: () => Date };
+    items?: Array<{ name?: string; quantity?: number; priceAtPurchase?: number }>;
+    status?: string;
+};
+
+type BuyerStats = {
+    totalSpent: number;
+    orderCount: number;
+    latestOrderAt: Date | null;
+    orders: StoreOrder[];
+};
+
+type BuyerSort = 'latest_order_desc' | 'paid_amount_desc';
 const UserManagement: React.FC = () => {
     const [users, setUsers] = useState<User[]>([]);
     const [loading, setLoading] = useState(true);
@@ -11,6 +29,9 @@ const UserManagement: React.FC = () => {
 
     // Notification & Filter States
     const [storePurchaserIds, setStorePurchaserIds] = useState<Set<string>>(new Set());
+    const [buyerStatsByUserId, setBuyerStatsByUserId] = useState<Record<string, BuyerStats>>({});
+    const [buyerSort, setBuyerSort] = useState<BuyerSort>('latest_order_desc');
+    const [activeOrdersUser, setActiveOrdersUser] = useState<User | null>(null);
     const [showStorePurchasers, setShowStorePurchasers] = useState(false);
     const [selectedUserIds, setSelectedUserIds] = useState<Set<string>>(new Set());
     const [isNotificationModalOpen, setIsNotificationModalOpen] = useState(false);
@@ -35,11 +56,29 @@ const UserManagement: React.FC = () => {
             try {
                 const snapshot = await db.collection('store_orders').get();
                 const buyerIds = new Set<string>();
+                const buyerStats: Record<string, BuyerStats> = {};
+
                 snapshot.docs.forEach(doc => {
-                    const data = doc.data();
-                    if (data.userId) buyerIds.add(data.userId);
+                    const data = doc.data() as StoreOrder;
+                    if (!data.userId) return;
+
+                    buyerIds.add(data.userId);
+                    if (!buyerStats[data.userId]) {
+                        buyerStats[data.userId] = { totalSpent: 0, orderCount: 0, latestOrderAt: null, orders: [] };
+                    }
+
+                    const orderAmount = Number(data.totalAmount || 0);
+                    const orderDate = data.createdAt && typeof data.createdAt.toDate === 'function' ? data.createdAt.toDate() : null;
+                    const existingLatest = buyerStats[data.userId].latestOrderAt;
+
+                    buyerStats[data.userId].totalSpent += Number.isNaN(orderAmount) ? 0 : orderAmount;
+                    buyerStats[data.userId].orderCount += 1;
+                    buyerStats[data.userId].latestOrderAt = !existingLatest || (orderDate && orderDate > existingLatest) ? orderDate : existingLatest;
+                    buyerStats[data.userId].orders.push({ id: doc.id, ...data });
                 });
+
                 setStorePurchaserIds(buyerIds);
+                setBuyerStatsByUserId(buyerStats);
             } catch (error) {
                 console.error("Error fetching store purchasers:", error);
             }
@@ -167,13 +206,28 @@ const UserManagement: React.FC = () => {
 
     const [showDeletionRequests, setShowDeletionRequests] = useState(false);
 
-    const filteredUsers = users.filter(user =>
-        (user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            user.email?.toLowerCase().includes(searchTerm.toLowerCase())) &&
-        !user.isDeleted &&
-        (!showDeletionRequests || user.deletionRequested) &&
-        (!showStorePurchasers || storePurchaserIds.has(user.uid))
-    );
+    const filteredUsers = useMemo(() => {
+        const baseUsers = users.filter(user =>
+            (user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                user.email?.toLowerCase().includes(searchTerm.toLowerCase())) &&
+            !user.isDeleted &&
+            (!showDeletionRequests || user.deletionRequested) &&
+            (!showStorePurchasers || storePurchaserIds.has(user.uid))
+        );
+
+        if (!showStorePurchasers) return baseUsers;
+
+        return [...baseUsers].sort((a, b) => {
+            const statsA = buyerStatsByUserId[a.uid];
+            const statsB = buyerStatsByUserId[b.uid];
+            if (buyerSort === 'paid_amount_desc') {
+                return (statsB?.totalSpent || 0) - (statsA?.totalSpent || 0);
+            }
+            const timeA = statsA?.latestOrderAt?.getTime() || 0;
+            const timeB = statsB?.latestOrderAt?.getTime() || 0;
+            return timeB - timeA;
+        });
+    }, [users, searchTerm, showDeletionRequests, showStorePurchasers, storePurchaserIds, buyerStatsByUserId, buyerSort]);
 
     if (loading) {
         return (
@@ -210,6 +264,17 @@ const UserManagement: React.FC = () => {
                             <ShoppingBag className="w-3.5 h-3.5 text-blue-400" /> Store Buyers
                         </span>
                     </label>
+
+                    {showStorePurchasers && (
+                        <select
+                            value={buyerSort}
+                            onChange={(e) => setBuyerSort(e.target.value as BuyerSort)}
+                            className="bg-slate-800/50 px-3 py-1.5 rounded-lg border border-white/10 text-slate-200"
+                        >
+                            <option value="latest_order_desc">Newest order first</option>
+                            <option value="paid_amount_desc">Highest paid first</option>
+                        </select>
+                    )}
 
                     <label className="flex items-center gap-2 cursor-pointer bg-slate-800/50 px-3 py-1.5 rounded-lg border border-white/5 hover:bg-slate-800 transition">
                         <input
@@ -369,6 +434,16 @@ const UserManagement: React.FC = () => {
                                             </button>
                                         )}
 
+                                        {showStorePurchasers && buyerStatsByUserId[user.uid]?.orderCount ? (
+                                            <button
+                                                onClick={() => setActiveOrdersUser(user)}
+                                                className="px-3 py-2 rounded-lg hover:bg-blue-500/10 text-blue-400 transition-colors text-xs font-semibold"
+                                                title="View store orders"
+                                            >
+                                                Orders ({buyerStatsByUserId[user.uid].orderCount})
+                                            </button>
+                                        ) : null}
+
                                         <button
                                             onClick={() => deleteUser(user)}
                                             className="p-2 rounded-lg hover:bg-red-500/10 text-slate-400 hover:text-red-400 transition-colors"
@@ -471,7 +546,29 @@ const UserManagement: React.FC = () => {
                 </div>
             )}
 
+
+            {activeOrdersUser && (
+                <div className="fixed inset-0 z-[999] flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm">
+                    <div className="w-full max-w-2xl max-h-[80vh] overflow-y-auto rounded-2xl border border-white/10 bg-[#1e293b] p-6">
+                        <div className="flex items-center justify-between mb-4">
+                            <h3 className="text-lg font-bold text-white">Store Orders • {activeOrdersUser.name}</h3>
+                            <button onClick={() => setActiveOrdersUser(null)} className="text-slate-400 hover:text-white"><X className="w-5 h-5" /></button>
+                        </div>
+                        <p className="text-sm text-slate-400 mb-4">Total paid: ₹{(buyerStatsByUserId[activeOrdersUser.uid]?.totalSpent || 0).toLocaleString()} • Orders: {buyerStatsByUserId[activeOrdersUser.uid]?.orderCount || 0}</p>
+                        <div className="space-y-3">
+                            {(buyerStatsByUserId[activeOrdersUser.uid]?.orders || []).slice().sort((a,b)=> ((b.createdAt?.toDate?.().getTime()||0)-(a.createdAt?.toDate?.().getTime()||0))).map(order => (
+                                <div key={order.id} className="rounded-xl bg-black/20 border border-white/10 p-3">
+                                    <div className="flex justify-between text-sm"><span className="text-white font-medium">₹{Number(order.totalAmount || 0).toLocaleString()}</span><span className="text-slate-400">{order.createdAt?.toDate ? format(order.createdAt.toDate(), 'MMM d, yyyy p') : '—'}</span></div>
+                                    <div className="text-xs text-slate-500 mt-2">{order.items?.map((item) => `${item.name || 'Item'} × ${item.quantity || 1}`).join(', ') || 'No items'}</div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                </div>
+            )}
+
             {/* Suspension Modal */}
+
             {suspendingUser && (
                 <div className="fixed inset-0 z-[999] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
                     <div className="w-full max-w-md bg-[#1e293b] rounded-2xl border border-white/10 p-6 shadow-2xl">

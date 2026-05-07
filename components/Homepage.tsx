@@ -237,7 +237,7 @@ const Homepage: React.FC<HomepageProps> = ({ onNavigateToLogin }) => {
         <div className="relative grid grid-cols-2 md:grid-cols-4 gap-8">
             <div
                 aria-hidden="true"
-                className="pointer-events-none absolute left-0 top-1/2 -translate-y-1/2 h-28 w-px bg-gradient-to-b from-white/0 via-white/30 to-white/0"
+                className="pointer-events-none absolute left-0 top-1/2 -translate-y-1/2 h-28 w-px bg-gradient-to-b from-white/0 via-white/30 to-white/0 hidden md:block"
             />
             <Reveal
                 delay="0ms"
