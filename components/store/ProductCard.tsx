@@ -1,6 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, memo } from 'react';
 import { Product } from '@/types';
-import { useStoreCart } from '@/hooks/useStoreCart';
 import Icon from '@/components/common/Icon';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -72,14 +71,22 @@ const WishlistButton: React.FC<{
 interface ProductCardProps {
   product: Product;
   onClick: (product: Product) => void;
-  onQuickView?: () => void;
+  onQuickView?: (product: Product) => void;
+  onAddToCart: (product: Product) => void;
+  onWishlistToggle: (productId: string) => void;
+  inWishlist: boolean;
+  inCartQuantity: number;
 }
 
-const ProductCard: React.FC<ProductCardProps> = ({ product, onClick, onQuickView }) => {
-  const { addToCart, cart, isInWishlist, toggleWishlist } = useStoreCart();
-  const inWishlist = isInWishlist(product.id);
-  
-  const inCartQuantity = cart.find(item => item.product.id === product.id)?.quantity || 0;
+const ProductCard: React.FC<ProductCardProps> = ({
+  product,
+  onClick,
+  onQuickView,
+  onAddToCart,
+  onWishlistToggle,
+  inWishlist,
+  inCartQuantity,
+}) => {
   const isOutOfStock = product.stock <= 0;
   const reachedMaxCombo = inCartQuantity >= product.stock;
 
@@ -131,7 +138,13 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onClick, onQuickView
         )}
 
         {/* Wishlist / Love button — glassmorphic */}
-        <WishlistButton inWishlist={inWishlist} onToggle={(e) => { e.stopPropagation(); toggleWishlist(product.id); }} />
+        <WishlistButton
+          inWishlist={inWishlist}
+          onToggle={(e) => {
+            e.stopPropagation();
+            onWishlistToggle(product.id);
+          }}
+        />
       </div>
       
       {/* Content */}
@@ -170,7 +183,14 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onClick, onQuickView
 
           <div className="flex items-center gap-1.5">
             <button
-              onClick={onQuickView || ((e) => { e?.stopPropagation(); onClick(product); })}
+              onClick={(e) => {
+                e.stopPropagation();
+                if (onQuickView) {
+                  onQuickView(product);
+                  return;
+                }
+                onClick(product);
+              }}
               className="p-1.5 text-slate-400 hover:text-brand-primary hover:bg-brand-primary/10 dark:hover:bg-brand-primary/20 rounded-lg transition-all"
               aria-label="Quick view"
               title="Quick view"
@@ -179,7 +199,10 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onClick, onQuickView
             </button>
           </div>
           <button
-            onClick={(e) => { e.stopPropagation(); addToCart(product); }}
+            onClick={(e) => {
+              e.stopPropagation();
+              onAddToCart(product);
+            }}
             disabled={isOutOfStock || reachedMaxCombo}
             aria-label={`Add ${product.name} to cart`}
             className="shrink-0 flex items-center justify-center gap-1 rounded-[14px] bg-slate-100 dark:bg-slate-800 w-11 h-11 text-slate-900 dark:text-white transition-all group-hover:bg-brand-primary group-hover:text-white group-hover:shadow-[0_8px_20px_-6px_rgba(43,131,198,0.6)] active:scale-90 disabled:pointer-events-none disabled:opacity-40"
@@ -199,4 +222,4 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onClick, onQuickView
   );
 };
 
-export default ProductCard;
+export default memo(ProductCard);
