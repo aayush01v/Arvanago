@@ -1,4 +1,4 @@
-import React, { useState, memo } from 'react';
+import React, { useState, memo, useEffect } from 'react';
 import { Product } from '@/types';
 import Icon from '@/components/common/Icon';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -89,6 +89,13 @@ const ProductCard: React.FC<ProductCardProps> = ({
 }) => {
   const isOutOfStock = product.stock <= 0;
   const reachedMaxCombo = inCartQuantity >= product.stock;
+  const [cartBurst, setCartBurst] = useState(false);
+
+  useEffect(() => {
+    if (!cartBurst) return;
+    const timer = window.setTimeout(() => setCartBurst(false), 700);
+    return () => window.clearTimeout(timer);
+  }, [cartBurst]);
 
   const discount = product.originalPrice && product.originalPrice > product.price
     ? Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)
@@ -198,15 +205,45 @@ const ProductCard: React.FC<ProductCardProps> = ({
               <Icon name="eye" className="w-4 h-4" />
             </button>
           </div>
-          <button
+          <motion.button
             onClick={(e) => {
               e.stopPropagation();
+              setCartBurst(true);
               onAddToCart(product);
             }}
+            whileTap={{ scale: 0.9 }}
             disabled={isOutOfStock || reachedMaxCombo}
             aria-label={`Add ${product.name} to cart`}
-            className="shrink-0 flex items-center justify-center gap-1 rounded-[14px] bg-slate-100 dark:bg-slate-800 w-11 h-11 text-slate-900 dark:text-white transition-all group-hover:bg-brand-primary group-hover:text-white group-hover:shadow-[0_8px_20px_-6px_rgba(43,131,198,0.6)] active:scale-90 disabled:pointer-events-none disabled:opacity-40"
+            className="relative overflow-hidden shrink-0 flex items-center justify-center gap-1 rounded-[14px] bg-slate-100 dark:bg-slate-800 w-11 h-11 text-slate-900 dark:text-white transition-all group-hover:bg-brand-primary group-hover:text-white group-hover:shadow-[0_8px_20px_-6px_rgba(43,131,198,0.6)] disabled:pointer-events-none disabled:opacity-40"
           >
+            <AnimatePresence>
+              {cartBurst && (
+                <>
+                  <motion.span
+                    initial={{ scale: 0.2, opacity: 0.5 }}
+                    animate={{ scale: 1.9, opacity: 0 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 0.55, ease: 'easeOut' }}
+                    className="absolute inset-0 rounded-[14px] bg-brand-primary/40"
+                  />
+                  {[0, 1, 2].map((i) => (
+                    <motion.span
+                      key={`dot-${i}`}
+                      initial={{ opacity: 0, scale: 0.4, x: 0, y: 0 }}
+                      animate={{
+                        opacity: [0, 1, 0],
+                        scale: [0.5, 1, 0.7],
+                        x: i === 0 ? -12 : i === 1 ? 0 : 12,
+                        y: -14,
+                      }}
+                      exit={{ opacity: 0 }}
+                      transition={{ duration: 0.5, ease: 'easeOut', delay: i * 0.04 }}
+                      className="absolute w-1.5 h-1.5 rounded-full bg-white/90"
+                    />
+                  ))}
+                </>
+              )}
+            </AnimatePresence>
             {inCartQuantity > 0 ? (
               <>
                 <Icon name="check" className="w-4 h-4 text-emerald-500 shrink-0 group-hover:text-white" aria-hidden="true" />
@@ -215,7 +252,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
             ) : (
               <Icon name="shopping-cart" className="w-4.5 h-4.5 shrink-0" aria-hidden="true" />
             )}
-          </button>
+          </motion.button>
         </div>
       </div>
     </motion.div>
