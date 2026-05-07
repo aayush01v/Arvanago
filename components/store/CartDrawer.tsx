@@ -361,8 +361,7 @@ const CartDrawer: React.FC = () => {
             aria-hidden="true"
           />
 
-          <div className="fixed right-0 top-0 w-full max-w-sm bg-white dark:bg-slate-900 shadow-2xl border-l border-slate-200 dark:border-slate-800 flex flex-col overflow-hidden" style={{ height: '100dvh', maxHeight: '100dvh' }}>
-
+          <div className="fixed right-0 top-0 w-screen md:w-full md:max-w-sm bg-white dark:bg-slate-900 shadow-2xl border-l border-slate-200 dark:border-slate-800 flex flex-col overflow-hidden" style={{ height: '100dvh', maxHeight: '100dvh' }}>
 
             {/* ── Header ── */}
             <div className="flex items-center justify-between px-4 py-3 border-b border-slate-200 dark:border-slate-800 bg-white/95 dark:bg-slate-900/95 shrink-0">
