@@ -282,7 +282,7 @@ const StorePage: React.FC = () => {
                   <img
                     src="https://i.imgur.com/Q3YiHXt.jpeg"
                     alt="Students Top Summer Picks"
-                    className="absolute inset-0 w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-700"
+                    className="absolute inset-0 w-full h-full object-contain md:object-cover object-center md:group-hover:scale-105 transition-transform duration-700"
                   />
                   
                   {/* Subtle hover overlay */}
