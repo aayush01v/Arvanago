@@ -26,18 +26,37 @@ export default async function handler(req, res) {
             .digest('hex');
 
         if (generated_signature === razorpay_signature) {
-            // ALLOCATE COURSE TO USER HERE
-            if (userId && courseId && db) {
-                try {
-                    const userRef = db.collection('users').doc(userId);
-                    await userRef.update({
-                        enrolledCourses: admin.firestore.FieldValue.arrayUnion(courseId),
-                        ongoingCourses: admin.firestore.FieldValue.arrayUnion(courseId)
-                    });
-                } catch (dbError) {
-                    console.error('Failed to update user profile in Firestore:', dbError);
-                }
+            if (!db || !userId || !courseId) {
+                return res.status(400).json({ success: false, error: 'Missing purchase metadata' });
             }
+
+            const paymentRef = db.collection('course_payments').doc(razorpay_payment_id);
+            const paymentDoc = await paymentRef.get();
+            if (paymentDoc.exists) {
+                return res.status(200).json({ success: true, message: 'Payment already processed' });
+            }
+
+            const courseRef = db.collection('courses').doc(courseId);
+            const userRef = db.collection('users').doc(userId);
+            const courseDoc = await courseRef.get();
+            const coursePrice = Number(courseDoc.data()?.price || 0);
+
+            const batch = db.batch();
+            batch.set(paymentRef, {
+                userId,
+                courseId,
+                amount: Number.isFinite(coursePrice) ? Math.max(coursePrice, 0) : 0,
+                status: 'paid',
+                source: 'course',
+                razorpayOrderId: razorpay_order_id,
+                razorpayPaymentId: razorpay_payment_id,
+                createdAt: admin.firestore.FieldValue.serverTimestamp(),
+            });
+            batch.update(userRef, {
+                enrolledCourses: admin.firestore.FieldValue.arrayUnion(courseId),
+                ongoingCourses: admin.firestore.FieldValue.arrayUnion(courseId)
+            });
+            await batch.commit();
 
             res.status(200).json({ success: true, message: 'Payment verified successfully and course allocated' });
         } else {
