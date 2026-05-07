@@ -407,7 +407,7 @@ const StorePage: React.FC = () => {
           <>
             {/* Result count label */}
             {/* Breadcrumb */}
-            <nav aria-label="Breadcrumb" className="mb-6">
+            <nav aria-label="Breadcrumb" className="mt-3 mb-4">
               <ol className="flex items-center space-x-2 text-sm text-slate-500 dark:text-slate-400">
                 <li>
                   <a href="/" className="hover:text-brand-primary transition-colors">Home</a>
