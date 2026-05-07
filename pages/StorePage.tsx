@@ -268,23 +268,23 @@ const StorePage: React.FC = () => {
                   <h1 className="mt-4 text-3xl md:text-5xl font-black leading-tight text-slate-900 dark:text-white max-w-2xl">
                     Gear up with premium picks built for study, focus, and daily carry.
                   </h1>
-                  <div className="mt-5 grid grid-cols-1 sm:grid-cols-2 gap-3 text-slate-700 dark:text-slate-300">
-                    <div>
-                      <p className="text-base md:text-lg font-bold text-slate-900 dark:text-white">100% Genuine</p>
-                      <p className="text-sm md:text-base">Brand Authorized</p>
-                    </div>
-                    <div>
-                      <p className="text-base md:text-lg font-bold text-slate-900 dark:text-white">High Performance</p>
-                      <p className="text-sm md:text-base">Curated for Creators</p>
-                    </div>
-                    <div>
-                      <p className="text-base md:text-lg font-bold text-slate-900 dark:text-white">Fast Delivery</p>
-                      <p className="text-sm md:text-base">Pan-India Shipping</p>
-                    </div>
-                    <div>
-                      <p className="text-base md:text-lg font-bold text-slate-900 dark:text-white">Priority Support</p>
-                      <p className="text-sm md:text-base">Always here to help</p>
-                    </div>
+                  <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-5 max-w-2xl">
+                    {[
+                      { icon: 'shield-check', title: '100% Genuine', desc: 'Brand Authorized' },
+                      { icon: 'zap', title: 'High Performance', desc: 'Curated for Creators' },
+                      { icon: 'truck', title: 'Fast Delivery', desc: 'Pan-India Shipping' },
+                      { icon: 'headphones', title: 'Priority Support', desc: 'Always here to help' },
+                    ].map((feature) => (
+                      <div key={feature.title} className="rounded-2xl border border-slate-200/80 dark:border-slate-700/80 bg-white/75 dark:bg-slate-800/70 px-3.5 py-3 flex items-start gap-3 shadow-sm">
+                        <div className="w-9 h-9 rounded-xl bg-brand-primary/10 flex items-center justify-center shrink-0 mt-0.5">
+                          <Icon name={feature.icon} className="w-4 h-4 text-brand-primary" />
+                        </div>
+                        <div>
+                          <p className="text-xl font-bold text-slate-900 dark:text-white leading-tight">{feature.title}</p>
+                          <p className="mt-1 text-lg text-slate-600 dark:text-slate-300 leading-tight">{feature.desc}</p>
+                        </div>
+                      </div>
+                    ))}
                   </div>
                 </div>
               </div>
