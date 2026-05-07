@@ -354,14 +354,14 @@ const CartDrawer: React.FC = () => {
 
       {/* ── Cart Drawer ── */}
       {isCartOpen && createPortal(
-        <div className="relative z-[9999]">
+        <div className="relative z-[9999] animate-fade-in">
           <div
-            className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm"
+            className="fixed inset-0 bg-slate-900/50 backdrop-blur-[3px] transition-opacity duration-300"
             onClick={() => setCartOpen(false)}
             aria-hidden="true"
           />
 
-          <div className="fixed right-0 top-0 w-screen md:w-full md:max-w-sm bg-white dark:bg-slate-900 shadow-2xl border-l border-slate-200 dark:border-slate-800 flex flex-col overflow-hidden" style={{ height: '100dvh', maxHeight: '100dvh' }}>
+          <div className="fixed inset-x-0 bottom-0 h-[88dvh] max-h-[88dvh] rounded-t-3xl border-t border-slate-200 bg-white shadow-2xl dark:border-slate-800 dark:bg-slate-900 flex flex-col overflow-hidden animate-fade-in-up md:inset-y-3 md:right-3 md:left-auto md:h-auto md:max-h-[calc(100dvh-1.5rem)] md:w-full md:max-w-md md:rounded-2xl md:border md:border-slate-200 md:animate-none md:transition-transform md:duration-300" style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}>
 
             {/* ── Header ── */}
             <div className="flex items-center justify-between px-4 py-3 border-b border-slate-200 dark:border-slate-800 bg-white/95 dark:bg-slate-900/95 shrink-0">
@@ -372,7 +372,7 @@ const CartDrawer: React.FC = () => {
               </h2>
               <button
                 onClick={() => setCartOpen(false)}
-                className="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500 transition-colors"
+                className="p-2 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500 transition-colors"
               >
                 <Icon name="x" className="w-4 h-4" />
               </button>
@@ -445,7 +445,7 @@ const CartDrawer: React.FC = () => {
 
                       <button
                         onClick={() => removeFromCart(item.product.id, item.selectedVariant?.label)}
-                        className="absolute top-2 right-2 p-1 rounded text-slate-300 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 opacity-0 group-hover:opacity-100 transition-opacity"
+                        className="absolute top-2 right-2 p-1 rounded text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity"
                       >
                         <Icon name="trash-2" className="w-3.5 h-3.5" />
                       </button>
