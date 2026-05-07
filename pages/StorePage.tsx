@@ -268,20 +268,20 @@ const StorePage: React.FC = () => {
                   <h1 className="mt-4 text-3xl md:text-5xl font-black leading-tight text-slate-900 dark:text-white max-w-2xl">
                     Gear up with premium picks built for study, focus, and daily carry.
                   </h1>
-                  <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-5 max-w-2xl">
+                  <div className="mt-6 grid grid-cols-2 gap-3 md:gap-5 max-w-2xl">
                     {[
                       { icon: 'shield-check', title: '100% Genuine', desc: 'Brand Authorized' },
                       { icon: 'zap', title: 'High Performance', desc: 'Curated for Creators' },
                       { icon: 'truck', title: 'Fast Delivery', desc: 'Pan-India Shipping' },
                       { icon: 'headphones', title: 'Priority Support', desc: 'Always here to help' },
                     ].map((feature) => (
-                      <div key={feature.title} className="rounded-2xl border border-slate-200/80 dark:border-slate-700/80 bg-white/75 dark:bg-slate-800/70 px-3.5 py-3 flex items-start gap-3 shadow-sm">
-                        <div className="w-9 h-9 rounded-xl bg-brand-primary/10 flex items-center justify-center shrink-0 mt-0.5">
-                          <Icon name={feature.icon} className="w-4 h-4 text-brand-primary" />
+                      <div key={feature.title} className="rounded-2xl border border-slate-200/80 dark:border-slate-700/80 bg-white/75 dark:bg-slate-800/70 px-2.5 py-2.5 md:px-3.5 md:py-3 flex items-start gap-2.5 md:gap-3 shadow-sm">
+                        <div className="w-8 h-8 md:w-9 md:h-9 rounded-xl bg-brand-primary/10 flex items-center justify-center shrink-0 mt-0.5">
+                          <Icon name={feature.icon} className="w-3.5 h-3.5 md:w-4 md:h-4 text-brand-primary" />
                         </div>
                         <div>
-                          <p className="text-xl font-bold text-slate-900 dark:text-white leading-tight">{feature.title}</p>
-                          <p className="mt-1 text-lg text-slate-600 dark:text-slate-300 leading-tight">{feature.desc}</p>
+                          <p className="text-lg md:text-xl font-bold text-slate-900 dark:text-white leading-tight">{feature.title}</p>
+                          <p className="mt-0.5 md:mt-1 text-base md:text-lg text-slate-600 dark:text-slate-300 leading-tight">{feature.desc}</p>
                         </div>
                       </div>
                     ))}
