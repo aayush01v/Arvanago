@@ -147,9 +147,17 @@ export const webrtcService = {
 
         this.pc.ontrack = (event) => {
             console.log('[Caller] ontrack fired, streams:', event.streams.length);
-            event.streams[0].getTracks().forEach((track) => {
-                this.remoteStream?.addTrack(track);
-            });
+
+            // Some browsers can fire ontrack with an empty streams[] array.
+            // Fall back to the track itself so remote audio/video still renders.
+            if (event.streams[0]) {
+                event.streams[0].getTracks().forEach((track) => {
+                    this.remoteStream?.addTrack(track);
+                });
+                return;
+            }
+
+            this.remoteStream?.addTrack(event.track);
         };
 
         // Now open media & add local tracks to the PC
@@ -268,9 +276,17 @@ export const webrtcService = {
 
         this.pc.ontrack = (event) => {
             console.log('[Callee] ontrack fired, streams:', event.streams.length);
-            event.streams[0].getTracks().forEach((track) => {
-                this.remoteStream?.addTrack(track);
-            });
+
+            // Some browsers can fire ontrack with an empty streams[] array.
+            // Fall back to the track itself so remote audio/video still renders.
+            if (event.streams[0]) {
+                event.streams[0].getTracks().forEach((track) => {
+                    this.remoteStream?.addTrack(track);
+                });
+                return;
+            }
+
+            this.remoteStream?.addTrack(event.track);
         };
 
         this.pc.oniceconnectionstatechange = () => {
