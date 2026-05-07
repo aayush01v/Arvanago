@@ -295,14 +295,14 @@ const StorePage: React.FC = () => {
               <div className="mb-10 relative">
                 {/* ── Students Top Summer Picks Banner — 1920×600 responsive ── */}
                 <div
-                  className="relative w-full rounded-2xl md:rounded-3xl overflow-hidden mb-6 shadow-xl cursor-pointer group"
+                  className="relative w-full rounded-2xl md:rounded-3xl overflow-hidden mb-6 shadow-xl cursor-pointer group bg-slate-100 dark:bg-slate-900"
                   style={{ paddingBottom: 'clamp(160px, 31.25%, 600px)' }}
                   onClick={() => navigate('/store/ipad-10th-gen-apple-pencil-usb-c-combo/ipad_10th_gen_combo')}
                 >
                   <img
                     src="https://i.imgur.com/Q3YiHXt.jpeg"
                     alt="Students Top Summer Picks"
-                    className="absolute inset-0 w-full h-full object-contain md:object-cover md:group-hover:scale-105 transition-transform duration-700"
+                    className="absolute inset-0 w-full h-full object-cover object-center md:group-hover:scale-105 transition-transform duration-700"
                   />
                   
                   {/* Subtle hover overlay */}
