@@ -275,13 +275,13 @@ const StorePage: React.FC = () => {
                       { icon: 'truck', title: 'Fast Delivery', desc: 'Pan-India Shipping' },
                       { icon: 'headphones', title: 'Priority Support', desc: 'Always here to help' },
                     ].map((feature) => (
-                      <div key={feature.title} className="rounded-2xl border border-slate-200/80 dark:border-slate-700/80 bg-white/75 dark:bg-slate-800/70 p-[14px] md:px-3.5 md:py-3 flex items-start gap-2 md:gap-3 shadow-sm">
+                      <div key={feature.title} className="rounded-2xl border border-slate-200/80 dark:border-slate-700/80 bg-white/75 dark:bg-slate-800/70 p-[14px] md:px-3.5 md:py-3 flex items-start gap-2 md:gap-3 shadow-sm min-w-0">
                         <div className="w-10 h-10 md:w-9 md:h-9 rounded-xl bg-brand-primary/10 flex items-center justify-center shrink-0 mt-0.5">
                           <Icon name={feature.icon} className="w-3.5 h-3.5 text-brand-primary" />
                         </div>
-                        <div>
-                          <p className="text-base md:text-xl font-bold text-slate-900 dark:text-white leading-[1.1]">{feature.title}</p>
-                          <p className="mt-0.5 md:mt-1 text-[0.75rem] md:text-lg text-slate-600 dark:text-slate-300 leading-[1.2]">{feature.desc}</p>
+                        <div className="min-w-0">
+                          <p className="text-[clamp(1.2rem,2.8vw,1.5rem)] md:text-xl font-bold text-slate-900 dark:text-white leading-[1.1] break-words">{feature.title}</p>
+                          <p className="mt-0.5 md:mt-1 text-[0.75rem] md:text-lg text-slate-600 dark:text-slate-300 leading-[1.2] break-words">{feature.desc}</p>
                         </div>
                       </div>
                     ))}
