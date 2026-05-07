@@ -43,6 +43,7 @@ const ProductPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'description' | 'features' | 'specs' | 'reviews'>('description');
 
   const detailsRef = useRef<HTMLDivElement>(null);
+  const tabsSectionRef = useRef<HTMLDivElement>(null);
 
   // Scroll to top when this page mounts or productId changes
   useEffect(() => {
@@ -402,7 +403,15 @@ const ProductPage: React.FC = () => {
               <p className="text-slate-700 dark:text-slate-300 leading-relaxed whitespace-pre-wrap text-sm line-clamp-4">
                 {product.description}
               </p>
-              <button onClick={() => setActiveTab('description')} className="text-xs font-bold text-brand-primary hover:underline mt-1">Read more</button>
+              <button
+                onClick={() => {
+                  setActiveTab('description');
+                  tabsSectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }}
+                className="text-xs font-bold text-brand-primary hover:underline mt-1"
+              >
+                Read more
+              </button>
             </div>
 
             {/* CTA — visible on md+ (mobile version is sticky footer below) */}
@@ -451,38 +460,8 @@ const ProductPage: React.FC = () => {
         </div>
 
         {/* ── Why Students Love It Section ── */}
-        <div className="mt-8 mb-4 bg-blue-50 dark:bg-blue-900/10 rounded-3xl p-6 md:p-8 border border-blue-100 dark:border-blue-900/30">
-          <h2 className="text-xl font-black text-slate-900 dark:text-white mb-4 flex items-center gap-2">
-            <Icon name="star" className="w-6 h-6 text-brand-primary" />
-            Why Students Love It
-          </h2>
-          <div className="grid sm:grid-cols-3 gap-6">
-            <div className="bg-white dark:bg-slate-900 rounded-2xl p-4 shadow-sm border border-slate-100 dark:border-slate-800">
-              <div className="w-8 h-8 rounded-full bg-brand-primary/10 flex items-center justify-center mb-3">
-                <Icon name="zap" className="w-4 h-4 text-brand-primary" />
-              </div>
-              <h3 className="font-bold text-sm text-slate-900 dark:text-white mb-1">Lag-Free Studying</h3>
-              <p className="text-xs text-slate-500 dark:text-slate-400">Power through heavy PDFs, video lectures, and multitasking without slowdowns.</p>
-            </div>
-            <div className="bg-white dark:bg-slate-900 rounded-2xl p-4 shadow-sm border border-slate-100 dark:border-slate-800">
-              <div className="w-8 h-8 rounded-full bg-emerald-500/10 flex items-center justify-center mb-3">
-                <Icon name="shield-check" className="w-4 h-4 text-emerald-500" />
-              </div>
-              <h3 className="font-bold text-sm text-slate-900 dark:text-white mb-1">Eye-Care Certified</h3>
-              <p className="text-xs text-slate-500 dark:text-slate-400">Low blue light output to protect your vision during long late-night study sessions.</p>
-            </div>
-            <div className="bg-white dark:bg-slate-900 rounded-2xl p-4 shadow-sm border border-slate-100 dark:border-slate-800">
-              <div className="w-8 h-8 rounded-full bg-amber-500/10 flex items-center justify-center mb-3">
-                <Icon name="zap" className="w-4 h-4 text-amber-500" />
-              </div>
-              <h3 className="font-bold text-sm text-slate-900 dark:text-white mb-1">All-Day Battery</h3>
-              <p className="text-xs text-slate-500 dark:text-slate-400">Leave the charger at home. Lasts through all your lectures and self-study blocks.</p>
-            </div>
-          </div>
-        </div>
-
         {/* ── Product Tabs Section ── */}
-        <div className="mt-16 bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
+        <div ref={tabsSectionRef} className="mt-16 bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
           {/* Tab Headers */}
           <div className="flex overflow-x-auto border-b border-slate-200 dark:border-slate-800 scrollbar-hide">
             {[
