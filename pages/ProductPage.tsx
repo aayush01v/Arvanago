@@ -40,7 +40,8 @@ const ProductPage: React.FC = () => {
   const [selectedVariant, setSelectedVariant] = useState<{ label: string; price: number } | undefined>(undefined);
   const [addedFeedback, setAddedFeedback] = useState(false);
   const [reviewImgModal, setReviewImgModal] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState<'description' | 'features' | 'specs' | 'reviews'>('description');
+  const [activeTab, setActiveTab] = useState<'features' | 'specs' | 'reviews'>('reviews');
+  const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(false);
 
   const detailsRef = useRef<HTMLDivElement>(null);
   const tabsSectionRef = useRef<HTMLDivElement>(null);
@@ -73,6 +74,7 @@ const ProductPage: React.FC = () => {
     setOtherProducts([]);
     setActiveImg(0);
     setSelectedVariant(undefined);
+    setIsDescriptionExpanded(false);
 
     const load = async () => {
       try {
@@ -154,6 +156,13 @@ const ProductPage: React.FC = () => {
 
   const avgRating = product?.ratingAvg || 0;
 
+
+  useEffect(() => {
+    if (!product) return;
+    if (product.features?.length) setActiveTab('features');
+    else if (product.specs?.length) setActiveTab('specs');
+    else setActiveTab('reviews');
+  }, [product]);
   const ratingDist = [5, 4, 3, 2, 1].map(star => {
     let count = 0;
     if (product?.ratingDistribution) {
@@ -400,20 +409,28 @@ const ProductPage: React.FC = () => {
               </div>
             )}
 
-            {/* Description Preview (Full description moved to tabs) */}
+            {/* Description Preview with expandable full content */}
             <div className="mb-2">
-              <p className="text-slate-700 dark:text-slate-300 leading-relaxed whitespace-pre-wrap text-sm line-clamp-4">
-                {product.description}
-              </p>
-              <button
-                onClick={() => {
-                  setActiveTab('description');
-                  tabsSectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                }}
-                className="text-xs font-bold text-brand-primary hover:underline mt-1"
-              >
-                Read more
-              </button>
+              <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/40 p-4 sm:p-5">
+                <h3 className="text-base sm:text-lg font-black text-slate-900 dark:text-white mb-2">About this product</h3>
+                <div
+                  id="product-description"
+                  className={`text-slate-700 dark:text-slate-300 leading-relaxed whitespace-pre-wrap text-sm md:text-base overflow-hidden transition-[max-height] duration-300 ease-in-out ${isDescriptionExpanded ? 'max-h-[1200px]' : 'max-h-24 sm:max-h-28'}`}
+                  aria-hidden={false}
+                >
+                  {product.description}
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setIsDescriptionExpanded(prev => !prev)}
+                  aria-expanded={isDescriptionExpanded}
+                  aria-controls="product-description"
+                  className="text-sm font-bold text-brand-primary hover:underline mt-3 inline-flex items-center gap-1"
+                >
+                  {isDescriptionExpanded ? 'Read less' : 'Read more'}
+                  <Icon name={isDescriptionExpanded ? 'chevron-up' : 'chevron-down'} className="w-4 h-4" />
+                </button>
+              </div>
             </div>
 
             {/* CTA — visible on md+ (mobile version is sticky footer below) */}
@@ -467,7 +484,6 @@ const ProductPage: React.FC = () => {
           {/* Tab Headers */}
           <div className="flex overflow-x-auto border-b border-slate-200 dark:border-slate-800 scrollbar-hide">
             {[
-              { id: 'description', label: 'Description' },
               ...(product.features?.length ? [{ id: 'features', label: 'Features' }] : []),
               ...(product.specs?.length ? [{ id: 'specs', label: 'Specifications' }] : []),
               { id: 'reviews', label: `Reviews (${product.reviewCount || 0})` },
@@ -488,14 +504,6 @@ const ProductPage: React.FC = () => {
 
           {/* Tab Content */}
           <div className="p-6 sm:p-8">
-            {activeTab === 'description' && (
-              <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="max-w-3xl">
-                <h3 className="text-lg font-black text-slate-900 dark:text-white mb-4">About this product</h3>
-                <p className="text-slate-700 dark:text-slate-300 leading-relaxed whitespace-pre-wrap text-sm md:text-base">
-                  {product.description}
-                </p>
-              </motion.div>
-            )}
 
             {activeTab === 'features' && product.features && (
               <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="max-w-3xl">
