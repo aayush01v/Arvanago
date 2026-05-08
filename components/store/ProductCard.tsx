@@ -112,7 +112,9 @@ const ProductCard: React.FC<ProductCardProps> = ({
       <div className="relative aspect-square overflow-hidden">
         {product.images?.[0] ? (
           <img 
-            src={product.images[0]} 
+            src={buildResponsiveImage(product.images[0], 560)}
+            srcSet={`${buildResponsiveImage(product.images[0], 320)} 320w, ${buildResponsiveImage(product.images[0], 560)} 560w, ${buildResponsiveImage(product.images[0], 800)} 800w`}
+            sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 280px" 
             alt={product.name} 
             loading="lazy"
             decoding="async"
