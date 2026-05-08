@@ -9,6 +9,17 @@ interface StoreBannerProps {
   onViewProduct: (product: Product) => void;
 }
 
+const buildResponsiveImage = (url: string, width: number) => {
+  if (!url) return url;
+
+  if (url.includes('res.cloudinary.com')) {
+    return url.replace('/upload/', `/upload/f_auto,q_auto,w_${width},c_fill/`);
+  }
+
+  const separator = url.includes('?') ? '&' : '?';
+  return `${url}${separator}w=${width}&auto=format`;
+};
+
 const StoreBanner: React.FC<StoreBannerProps> = ({ products, onViewProduct }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
@@ -71,9 +82,12 @@ const StoreBanner: React.FC<StoreBannerProps> = ({ products, onViewProduct }) =>
           {/* Background image with blur overlay */}
           {current.images?.[0] ? (
               <img
-              src={current.images[0]}
+              src={buildResponsiveImage(current.images[0], 1280)}
+              srcSet={`${buildResponsiveImage(current.images[0], 768)} 768w, ${buildResponsiveImage(current.images[0], 1280)} 1280w, ${buildResponsiveImage(current.images[0], 1920)} 1920w`}
+              sizes="(max-width: 768px) 100vw, (max-width: 1280px) 90vw, 1280px"
               alt={current.name}
               fetchPriority="high"
+              decoding="async"
               className="absolute inset-0 w-full h-full object-cover scale-105"
             />
           ) : (
@@ -145,7 +159,7 @@ const StoreBanner: React.FC<StoreBannerProps> = ({ products, onViewProduct }) =>
           {current.images?.[0] && (
             <div className="hidden lg:flex absolute right-12 top-1/2 -translate-y-1/2 items-center justify-center">
               <div className="w-52 h-52 rounded-3xl overflow-hidden border-2 border-white/20 shadow-2xl backdrop-blur-md ring-4 ring-white/10 rotate-3 hover:rotate-0 transition-transform duration-500">
-                <img src={current.images[0]} alt="" className="w-full h-full object-cover" />
+                <img src={buildResponsiveImage(current.images[0], 420)} alt="" loading="lazy" decoding="async" className="w-full h-full object-cover" />
               </div>
             </div>
           )}
