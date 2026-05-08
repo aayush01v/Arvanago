@@ -68,6 +68,18 @@ const WishlistButton: React.FC<{
 };
 // ──────────────────────────────────────────────────────────────────────────────
 
+
+const buildResponsiveImage = (url: string, width: number) => {
+  if (!url) return url;
+
+  if (url.includes('res.cloudinary.com')) {
+    return url.replace('/upload/', `/upload/f_auto,q_auto,w_${width},c_fill/`);
+  }
+
+  const separator = url.includes('?') ? '&' : '?';
+  return `${url}${separator}w=${width}&auto=format`;
+};
+
 interface ProductCardProps {
   product: Product;
   onClick: (product: Product) => void;
