@@ -23,8 +23,13 @@ const CallModal: React.FC<CallModalProps> = ({ isOpen, onClose, callId, isCaller
     const [connectionStatus, setConnectionStatus] = useState<'connecting' | 'connected' | 'reconnecting' | 'failed'>('connecting');
     const [currentCallType, setCurrentCallType] = useState(callType);
     const [upgradeRequest, setUpgradeRequest] = useState<{ status: string, requestedBy: string } | null>(null);
-    const [isUpgrading, setIsUpgrading] = useState(false);
+    // Ref instead of state: the snapshot callback below captured a stale value
+    // and could process an accepted upgrade more than once
+    const isUpgradingRef = useRef(false);
     const [isMinimized, setIsMinimized] = useState(false);
+
+    // Caller-side ringing timeout: marks the call as missed if never answered
+    const ringingTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
     // Ref to track the polling interval so we can clear it
     const streamPollRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -122,7 +127,21 @@ const CallModal: React.FC<CallModalProps> = ({ isOpen, onClose, callId, isCaller
             setIsMuted(false);
             setIsVideoOff(false);
             setIsSpeakerOn(true);
+            isUpgradingRef.current = false;
             startCall();
+
+            // Caller: if the callee never answers, end the call and mark it missed
+            if (isCaller && callId) {
+                ringingTimeoutRef.current = setTimeout(async () => {
+                    const state = webrtcService.pc?.iceConnectionState;
+                    if (state !== 'connected' && state !== 'completed') {
+                        console.log('[CallModal] No answer, marking call as missed');
+                        stopStreamPolling();
+                        await webrtcService.hangUp(callId, 'missed');
+                        onClose();
+                    }
+                }, 60000);
+            }
 
             if (callId) {
                 unsub = db.collection('calls').doc(callId).onSnapshot(snap => {
@@ -137,15 +156,14 @@ const CallModal: React.FC<CallModalProps> = ({ isOpen, onClose, callId, isCaller
                         const myRole = isCaller ? 'caller' : 'callee';
                         
                         // If an upgrade was accepted and we haven't processed it yet
-                        if (data.upgradeToVideo.status === 'accepted' && data.upgradeToVideo.requestedBy === myRole && !isUpgrading) {
-                            setIsUpgrading(true);
+                        if (data.upgradeToVideo.status === 'accepted' && data.upgradeToVideo.requestedBy === myRole && !isUpgradingRef.current) {
+                            isUpgradingRef.current = true;
                             webrtcService.addVideoTrack(callId, isCaller).then(() => {
                                 setCurrentCallType('video');
                                 attachLocalStream();
-                                setIsUpgrading(false);
                             }).catch(e => {
                                 console.error("Error upgrading:", e);
-                                setIsUpgrading(false);
+                                isUpgradingRef.current = false;
                             });
                         }
                     }
@@ -157,6 +175,10 @@ const CallModal: React.FC<CallModalProps> = ({ isOpen, onClose, callId, isCaller
         }
 
         return () => {
+            if (ringingTimeoutRef.current) {
+                clearTimeout(ringingTimeoutRef.current);
+                ringingTimeoutRef.current = null;
+            }
             stopStreamPolling();
             unsub();
         };
@@ -182,22 +204,20 @@ const CallModal: React.FC<CallModalProps> = ({ isOpen, onClose, callId, isCaller
             }
 
             // Bug 3 Fix: Don't override pc.ontrack here — the service already set it.
-            // Register the ICE state change listener on the PC for the UI state badge.
-            if (webrtcService.pc) {
-                webrtcService.pc.oniceconnectionstatechange = () => {
-                    const state = webrtcService.pc?.iceConnectionState;
-                    console.log('[CallModal] ICE state →', state);
-                    if (state === 'connected' || state === 'completed') {
-                        setConnectionStatus('connected');
-                    } else if (state === 'checking' || state === 'new') {
-                        setConnectionStatus('connecting');
-                    } else if (state === 'disconnected') {
-                        setConnectionStatus('reconnecting');
-                    } else if (state === 'failed' || state === 'closed') {
-                        setConnectionStatus('failed');
-                    }
-                };
-            }
+            // Subscribe via the service callback instead of overwriting the
+            // oniceconnectionstatechange handler the service registered on the PC.
+            webrtcService.onIceStateChange = (state) => {
+                console.log('[CallModal] ICE state →', state);
+                if (state === 'connected' || state === 'completed') {
+                    setConnectionStatus('connected');
+                } else if (state === 'checking' || state === 'new') {
+                    setConnectionStatus('connecting');
+                } else if (state === 'disconnected') {
+                    setConnectionStatus('reconnecting');
+                } else if (state === 'failed' || state === 'closed') {
+                    setConnectionStatus('failed');
+                }
+            };
 
             // Attach local stream immediately (it exists for both caller and callee at this point)
             attachLocalStream();
@@ -212,6 +232,7 @@ const CallModal: React.FC<CallModalProps> = ({ isOpen, onClose, callId, isCaller
     };
 
     const stopCall = async () => {
+        webrtcService.onIceStateChange = null;
         await webrtcService.hangUp(callId || '');
         if (localVideoRef.current) localVideoRef.current.srcObject = null;
         if (remoteVideoRef.current) remoteVideoRef.current.srcObject = null;
@@ -316,16 +337,15 @@ const CallModal: React.FC<CallModalProps> = ({ isOpen, onClose, callId, isCaller
                                     </button>
                                     <button 
                                         onClick={() => {
-                                            setIsUpgrading(true);
+                                            isUpgradingRef.current = true;
                                             webrtcService.respondToVideoUpgrade(callId!, 'accepted');
                                             webrtcService.addVideoTrack(callId!, isCaller).then(() => {
                                                 setCurrentCallType('video');
                                                 attachLocalStream();
-                                                setIsUpgrading(false);
                                                 setUpgradeRequest(null);
                                             }).catch(e => {
                                                 console.error("Upgrade error:", e);
-                                                setIsUpgrading(false);
+                                                isUpgradingRef.current = false;
                                             });
                                         }}
                                         className="flex-1 py-3 px-4 rounded-xl bg-brand-primary text-white font-bold hover:bg-brand-primary/90 shadow-lg shadow-brand-primary/25 transition-all"

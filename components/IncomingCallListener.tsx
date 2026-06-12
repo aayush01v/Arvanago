@@ -36,33 +36,14 @@ const IncomingCallListener: React.FC<IncomingCallListenerProps> = ({ currentUser
         return () => unsubscribe();
     }, [currentUser]);
 
-    const handleAnswer = () => {
-        if (incomingCall) {
-            setIsCallModalOpen(true);
-            setIncomingCall(null);
-        }
-    };
-
     const handleDecline = async () => {
         if (incomingCall) {
-            await webrtcService.hangUp(incomingCall.id);
+            // Mark the linked chat message as declined so the caller sees the outcome
+            await webrtcService.hangUp(incomingCall.id, 'declined');
             setIncomingCall(null);
             setCaller(null);
         }
     };
-
-    if (isCallModalOpen && incomingCall) {
-        // When call is accepted, we show the CallModal.
-        // Note: We need to pass the callId and ensure we join.
-        // But incomingCall state is cleared on answer to hide the toast. 
-        // We need to keep track of the active call ID for the modal.
-    }
-
-    // Better approach: Separate state for "Ringing" and "Active Call"
-    // But CallModal is already integrated in ChatPage.
-    // Issue: If we are NOT in ChatPage, we need to show CallModal here.
-    // If we ARE in ChatPage, ChatPage might try to show it too if we click "Join".
-    // Let's handle it here completely for the receiver.
 
     const [activeCallId, setActiveCallId] = useState<string | null>(null);
     const [activeCallType, setActiveCallType] = useState<'video' | 'audio'>('video');
@@ -119,6 +100,7 @@ const IncomingCallListener: React.FC<IncomingCallListenerProps> = ({ currentUser
                 onClose={() => {
                     setIsCallModalOpen(false);
                     setActiveCallId(null);
+                    setCaller(null);
                 }}
                 callId={activeCallId}
                 isCaller={false} // Receiver

@@ -34,6 +34,15 @@ export const webrtcService = {
     remoteStream: null as MediaStream | null,
     unsubscribes: [] as (() => void)[],
 
+    // Pending ICE candidate batch timers, cleared on cleanup so they can't
+    // fire and write to Firestore after the call doc is deleted
+    iceBatchTimers: [] as ReturnType<typeof setTimeout>[],
+
+    // UI callback for ICE connection state changes. The UI must use this
+    // instead of overwriting pc.oniceconnectionstatechange, which the
+    // service registers itself.
+    onIceStateChange: null as ((state: RTCIceConnectionState) => void) | null,
+
     currentFacingMode: 'user' as 'user' | 'environment',
 
     async openUserMedia(type: 'video' | 'audio' = 'video', facingMode: 'user' | 'environment' = 'user') {
@@ -138,6 +147,8 @@ export const webrtcService = {
         this.remoteStream = null;
         this.unsubscribes.forEach(u => u());
         this.unsubscribes = [];
+        this.iceBatchTimers.forEach(t => clearTimeout(t));
+        this.iceBatchTimers = [];
     },
 
     async createRoom(callerId: string, calleeId: string, type: 'video' | 'audio' = 'video', chatId?: string, messageId?: string): Promise<string> {
@@ -199,12 +210,15 @@ export const webrtcService = {
                             }
                         }
                     }, 300); // Wait 300ms to gather multiple candidates
+                    this.iceBatchTimers.push(batchTimeout);
                 }
             }
         };
 
         this.pc.oniceconnectionstatechange = () => {
-            console.log('[Caller] ICE state:', this.pc?.iceConnectionState);
+            const state = this.pc?.iceConnectionState;
+            console.log('[Caller] ICE state:', state);
+            if (state) this.onIceStateChange?.(state);
         };
 
         this.pc.onconnectionstatechange = () => {
@@ -328,7 +342,9 @@ export const webrtcService = {
         };
 
         this.pc.oniceconnectionstatechange = () => {
-            console.log('[Callee] ICE state:', this.pc?.iceConnectionState);
+            const state = this.pc?.iceConnectionState;
+            console.log('[Callee] ICE state:', state);
+            if (state) this.onIceStateChange?.(state);
         };
 
         this.pc.onconnectionstatechange = () => {
@@ -362,6 +378,7 @@ export const webrtcService = {
                             }
                         }
                     }, 300); // Wait 300ms to gather multiple candidates
+                    this.iceBatchTimers.push(batchTimeout);
                 }
             }
         };
@@ -448,11 +465,15 @@ export const webrtcService = {
         this.unsubscribes.push(unsubCall);
     },
 
-    async hangUp(callId: string) {
-        console.log('[HangUp] Cleaning up, callId:', callId);
+    async hangUp(callId: string, reason: 'ended' | 'missed' | 'declined' = 'ended') {
+        console.log('[HangUp] Cleaning up, callId:', callId, 'reason:', reason);
 
         this.unsubscribes.forEach(unsubscribe => unsubscribe());
         this.unsubscribes = [];
+
+        // Cancel pending ICE batch timers so they can't write after the doc is deleted
+        this.iceBatchTimers.forEach(t => clearTimeout(t));
+        this.iceBatchTimers = [];
 
         if (this.pc) {
             this.pc.ontrack = null;
@@ -476,7 +497,7 @@ export const webrtcService = {
                 const callData = callDoc.data();
 
                 if (callData?.chatId && callData?.messageId) {
-                    await chatService.updateMessage(callData.chatId, callData.messageId, { callStatus: 'ended' });
+                    await chatService.updateMessage(callData.chatId, callData.messageId, { callStatus: reason });
                 } else {
                     console.warn('[HangUp] Missing chat/message info:', callData);
                 }
@@ -521,9 +542,10 @@ export const webrtcService = {
     async addVideoTrack(callId: string, isCaller: boolean) {
         if (!this.pc) return null;
         try {
+            // Video only: the call already has an audio track. Requesting audio
+            // here leaked a second, unused microphone capture.
             const stream = await navigator.mediaDevices.getUserMedia({ 
-                video: { width: { ideal: 640 }, height: { ideal: 480 }, frameRate: { ideal: 24 } },
-                audio: true
+                video: { width: { ideal: 640 }, height: { ideal: 480 }, frameRate: { ideal: 24 } }
             });
             const videoTrack = stream.getVideoTracks()[0];
             
