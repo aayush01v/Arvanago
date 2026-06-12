@@ -2,7 +2,7 @@
 import { useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Course, User } from '@/types';
-import { updateUserProfile } from '@/services/firestoreService';
+import { auth } from '@/services/firebase';
 import { LOGO_URL } from '@/constants';
 import { safeLocalStorage } from '@/utils/safeStorage';
 import { PENDING_COURSE_STORAGE_KEY } from '@/constants';
@@ -39,29 +39,16 @@ export const useRazorpayEnrollment = ({ user, onProfileUpdate }: UseRazorpayEnro
         const updatedOngoingCourses = [...(user.ongoingCourses || []), course.id];
         const updatedEnrolledCourses = [...(user.enrolledCourses || []), course.id];
 
-        try {
-            // Update Firestore Database (this will handle free courses, and act as a redundant update for paid)
-            await updateUserProfile(user.uid, {
+        if (onProfileUpdate) {
+            onProfileUpdate({
                 ongoingCourses: updatedOngoingCourses,
                 enrolledCourses: updatedEnrolledCourses,
             });
-
-            // Update local React state so the UI updates instantly
-            if (onProfileUpdate) {
-                onProfileUpdate({
-                    ongoingCourses: updatedOngoingCourses,
-                    enrolledCourses: updatedEnrolledCourses,
-                });
-            }
-
-            setToastMessage(`Enrolled in ${course.title}`);
-            setShowToast(true);
-            navigate(`/courses/${course.id}/learn`);
-        } catch (error) {
-            console.error('Failed to update user profile in Firestore', error);
-            setToastMessage('Enrollment failed');
-            setShowToast(true);
         }
+
+        setToastMessage(`Enrolled in ${course.title}`);
+        setShowToast(true);
+        navigate(`/courses/${course.id}/learn`);
     }, [user, onProfileUpdate, navigate]);
 
     const handleEnroll = useCallback(async (course: Course, couponCode?: string, discountedPrice?: number) => {
@@ -95,9 +82,17 @@ export const useRazorpayEnrollment = ({ user, onProfileUpdate }: UseRazorpayEnro
                 }
 
                 // 1. Create Order
+                const idToken = await auth.currentUser?.getIdToken();
+                if (!idToken) {
+                    throw new Error('You must be signed in to enroll in a course.');
+                }
+
                 const res = await fetch('/api/create-order', {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: {
+                        'Content-Type': 'application/json',
+                        Authorization: `Bearer ${idToken}`,
+                    },
                     body: JSON.stringify({
                         courseId: course.id,
                         currency: 'INR',
@@ -149,7 +144,10 @@ export const useRazorpayEnrollment = ({ user, onProfileUpdate }: UseRazorpayEnro
                             try {
                                 const verifyRes = await fetch('/api/verify-payment', {
                                     method: 'POST',
-                                    headers: { 'Content-Type': 'application/json' },
+                                    headers: {
+                                        'Content-Type': 'application/json',
+                                        Authorization: `Bearer ${idToken}`,
+                                    },
                                     body: JSON.stringify({
                                         razorpay_order_id: response.razorpay_order_id,
                                         razorpay_payment_id: response.razorpay_payment_id,
@@ -222,7 +220,39 @@ export const useRazorpayEnrollment = ({ user, onProfileUpdate }: UseRazorpayEnro
         } else {
             // Free course flow
             setEnrollingCourseId(course.id);
-            await completeEnrollment(course);
+            try {
+                const idToken = await auth.currentUser?.getIdToken();
+                if (!idToken) {
+                    throw new Error('You must be signed in to enroll in a course.');
+                }
+
+                const enrollRes = await fetch('/api/course/enroll', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        Authorization: `Bearer ${idToken}`,
+                    },
+                    body: JSON.stringify({ courseId: course.id }),
+                });
+
+                if (!enrollRes.ok) {
+                    const errText = await enrollRes.text();
+                    let errMsg = 'Failed to enroll in course';
+                    try {
+                        const parsed = JSON.parse(errText);
+                        errMsg = parsed.error || errMsg;
+                    } catch (error) {
+                        void error;
+                    }
+                    throw new Error(errMsg);
+                }
+
+                await completeEnrollment(course);
+            } catch (error: any) {
+                console.error('Free enrollment failed', error);
+                setToastMessage(error?.message || 'Enrollment failed');
+                setShowToast(true);
+            }
             setEnrollingCourseId(null);
         }
     }, [user, navigate, completeEnrollment]);

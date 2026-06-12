@@ -274,11 +274,6 @@ const CourseLearnPage: React.FC = () => {
       enrolledCourses: updatedEnrolledCourses,
       ongoingCourses: updatedOngoingCourses,
     });
-
-    void updateUserProfile(user.uid, {
-      enrolledCourses: updatedEnrolledCourses,
-      ongoingCourses: updatedOngoingCourses,
-    });
   }, [course, coursesLoading, isEnrolled, onProfileUpdate, user]);
 
   const navigationSections = useMemo(

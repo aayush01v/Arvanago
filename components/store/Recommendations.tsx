@@ -6,6 +6,7 @@ import Icon from '@/components/common/Icon';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { slugify } from '@/utils/slugify';
+import { useStoreCart } from '@/hooks/useStoreCart';
 
 interface RecommendationsProps {
   excludeProductId?: string;
@@ -19,6 +20,19 @@ const Recommendations: React.FC<RecommendationsProps> = ({
   const navigate = useNavigate();
   const [topProducts, setTopProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
+  const { addToCart, wishlist, isInWishlist, toggleWishlist, cart } = useStoreCart();
+  const [visibleProducts, setVisibleProducts] = useState(4);
+
+  useEffect(() => {
+    const updateVisibleProducts = () => {
+      const width = window.innerWidth;
+      setVisibleProducts(width >= 1280 ? 5 : width >= 1024 ? 4 : width >= 640 ? 3 : 2);
+    };
+
+    updateVisibleProducts();
+    window.addEventListener('resize', updateVisibleProducts);
+    return () => window.removeEventListener('resize', updateVisibleProducts);
+  }, []);
 
   useEffect(() => {
     const fetchTopProducts = async () => {
@@ -47,7 +61,6 @@ const Recommendations: React.FC<RecommendationsProps> = ({
   }, [excludeProductId]);
 
   const [currentIndex, setCurrentIndex] = useState(0);
-  const visibleProducts = 4 + Math.min(window.innerWidth >= 1024 ? 1 : 0, 1); // Responsive: 4-5 items visible
   const maxIndex = Math.max(0, topProducts.length - visibleProducts);
 
   const goToPrev = () => setCurrentIndex((prev) => Math.max(0, prev - 1));
@@ -76,6 +89,12 @@ const Recommendations: React.FC<RecommendationsProps> = ({
   }
 
   if (topProducts.length === 0) return null;
+
+  const productCartQuantities = topProducts.reduce((map, product) => {
+    const quantity = cart.reduce((total, item) => total + (item.product.id === product.id ? item.quantity : 0), 0);
+    map.set(product.id, quantity);
+    return map;
+  }, new Map<string, number>());
 
   return (
     <motion.section 
@@ -139,6 +158,11 @@ const Recommendations: React.FC<RecommendationsProps> = ({
                 <ProductCard
                   product={product}
                   onClick={() => navigate(`/store/${slugify(product.name)}/${product.id}`)}
+                  onAddToCart={addToCart}
+                  onWishlistToggle={toggleWishlist}
+                  onQuickView={() => navigate(`/store/${slugify(product.name)}/${product.id}`)}
+                  inWishlist={isInWishlist(product.id)}
+                  inCartQuantity={productCartQuantities.get(product.id) ?? 0}
                 />
               </motion.div>
             ))}

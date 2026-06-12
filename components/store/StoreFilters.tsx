@@ -62,9 +62,9 @@ const StoreFilters: React.FC<StoreFiltersProps> = ({
   }, [isDropdownOpen]);
 
   return (
-    <div className="mb-8 space-y-4">
+    <div className="mb-3 space-y-3">
       {/* Search bar row */}
-      <div className="flex flex-col sm:flex-row gap-3">
+      <div className="flex items-center gap-2.5 mb-3">
         {/* Search Input */}
         <div className="relative flex-1">
           <Icon name="search" className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
@@ -73,7 +73,7 @@ const StoreFilters: React.FC<StoreFiltersProps> = ({
             placeholder="Search tablets, laptops, headphones..."
             value={searchQuery}
             onChange={e => onSearchChange(e.target.value)}
-            className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-brand-primary/40 focus:border-brand-primary text-sm transition shadow-sm"
+            className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-brand-primary/40 focus:border-brand-primary text-sm transition shadow-sm"
           />
           {searchQuery && (
             <button onClick={() => onSearchChange('')} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600">
@@ -83,10 +83,10 @@ const StoreFilters: React.FC<StoreFiltersProps> = ({
         </div>
 
         {/* Enhanced Sort & Price Dropdown */}
-        <div className="relative">
+        <div className="relative shrink-0">
           <button
             onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-            className="flex items-center justify-between min-w-[160px] gap-2 pl-4 pr-3 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white text-sm shadow-sm hover:border-brand-primary transition"
+            className="flex items-center justify-between min-w-[150px] sm:min-w-[176px] gap-2 pl-3.5 pr-3 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white text-sm shadow-sm hover:border-brand-primary transition"
           >
             <div className="flex items-center gap-1.5">
               <span>
@@ -160,14 +160,14 @@ const StoreFilters: React.FC<StoreFiltersProps> = ({
       </div>
 
       {/* Category chips row */}
-      <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center">
+      <div className="mb-3">
         {/* Category chips */}
-        <div className="flex flex-wrap gap-2 flex-1">
+        <div className="flex flex-nowrap gap-2 overflow-x-auto overflow-y-hidden whitespace-nowrap pb-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
           {categories.map(cat => (
             <button
               key={cat}
               onClick={() => onCategoryChange(cat)}
-              className={`px-4 py-1.5 rounded-full text-xs font-semibold border transition-all ${
+              className={`shrink-0 px-[14px] py-2 rounded-full text-sm font-semibold border transition-all ${
                 selectedCategory === cat
                   ? 'bg-brand-primary text-white border-brand-primary shadow-md shadow-brand-primary/20'
                   : 'bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-400 border-slate-200 dark:border-slate-700 hover:border-brand-primary/50 hover:text-brand-primary'

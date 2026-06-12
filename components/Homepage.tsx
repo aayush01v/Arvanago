@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import Icon from './common/Icon.tsx';
 import { useScrollAnimation } from '../hooks/useScrollAnimation.ts';
@@ -24,8 +24,120 @@ const Reveal: React.FC<{ children: React.ReactNode; className?: string; delay?: 
     );
 };
 
+const TERMINAL_SLOGANS = [
+    { header: 'ambition', slogan: '"Learn everything."' },
+    { header: 'resilience', slogan: '"Break every barrier."' },
+    { header: 'curiosity', slogan: '"Ask more. Know more."' },
+    { header: 'creativity', slogan: '"Build the future."' },
+    { header: 'discipline', slogan: '"Ship great code."' },
+];
+
+const PAUSE_AFTER_TYPING_MS = 2400;
+const PAUSE_BEFORE_DELETING_MS = 650;
+const PAUSE_BEFORE_NEXT_SLOGAN_MS = 500;
+
+const randomBetween = (min: number, max: number) => {
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+};
+
+const getHumanTypingDelay = (nextChar: string, index: number) => {
+    let delay = randomBetween(90, 175);
+
+    // First character feels slower, like a person starting to type
+    if (index === 0) {
+        delay += randomBetween(250, 550);
+    }
+
+    // Human pause after spaces
+    if (nextChar === ' ') {
+        delay += randomBetween(90, 220);
+    }
+
+    // Bigger pause after punctuation
+    if (['.', ',', ';', ':', '!', '?'].includes(nextChar)) {
+        delay += randomBetween(250, 600);
+    }
+
+    // Slight pause around quotation marks
+    if (nextChar === '"') {
+        delay += randomBetween(100, 250);
+    }
+
+    // Occasional thinking hesitation
+    if (Math.random() < 0.1) {
+        delay += randomBetween(220, 520);
+    }
+
+    return delay;
+};
+
+const getHumanDeletingDelay = (charBeingDeleted: string) => {
+    let delay = randomBetween(45, 95);
+
+    if (charBeingDeleted === ' ') {
+        delay += randomBetween(25, 80);
+    }
+
+    if (['.', ',', ';', ':', '!', '?'].includes(charBeingDeleted)) {
+        delay += randomBetween(60, 150);
+    }
+
+    return delay;
+};
+
 const Homepage: React.FC<HomepageProps> = ({ onNavigateToLogin }) => {
     const [isInfoModalOpen, setIsInfoModalOpen] = useState(false);
+    const [sloganIdx, setSloganIdx] = useState(0);
+    const [displayedSlogan, setDisplayedSlogan] = useState('');
+    const [phase, setPhase] = useState<'typing' | 'pausing' | 'deleting'>('typing');
+
+    useEffect(() => {
+        const currentSlogan = TERMINAL_SLOGANS[sloganIdx].slogan;
+        let timeout: ReturnType<typeof setTimeout> | undefined;
+
+        if (phase === 'typing') {
+            if (displayedSlogan.length < currentSlogan.length) {
+                const nextChar = currentSlogan[displayedSlogan.length];
+                const delay = getHumanTypingDelay(nextChar, displayedSlogan.length);
+
+                timeout = setTimeout(() => {
+                    setDisplayedSlogan(
+                        currentSlogan.slice(0, displayedSlogan.length + 1)
+                    );
+                }, delay);
+            } else {
+                timeout = setTimeout(() => {
+                    setPhase('pausing');
+                }, PAUSE_AFTER_TYPING_MS);
+            }
+        }
+
+        if (phase === 'pausing') {
+            timeout = setTimeout(() => {
+                setPhase('deleting');
+            }, PAUSE_BEFORE_DELETING_MS);
+        }
+
+        if (phase === 'deleting') {
+            if (displayedSlogan.length > 0) {
+                const charBeingDeleted = displayedSlogan[displayedSlogan.length - 1];
+                const delay = getHumanDeletingDelay(charBeingDeleted);
+
+                timeout = setTimeout(() => {
+                    setDisplayedSlogan(prev => prev.slice(0, -1));
+                }, delay);
+            } else {
+                timeout = setTimeout(() => {
+                    setSloganIdx(prev => (prev + 1) % TERMINAL_SLOGANS.length);
+                    setPhase('typing');
+                }, PAUSE_BEFORE_NEXT_SLOGAN_MS);
+            }
+        }
+
+        return () => {
+            if (timeout) clearTimeout(timeout);
+        };
+    }, [displayedSlogan, sloganIdx, phase]);
 
     return (
         // Forced pure dark mode for premium aesthetic
@@ -53,7 +165,7 @@ const Homepage: React.FC<HomepageProps> = ({ onNavigateToLogin }) => {
             <header className="absolute top-0 left-0 right-0 z-50 pt-8 px-6 md:px-12">
                 <div className="container mx-auto max-w-7xl flex justify-between items-center">
                     <div className="flex items-center gap-3">
-                        <img src={LOGO_URL} alt="Logo" className="h-8 w-8 object-contain" />
+                        <img src={LOGO_URL} alt="Logo" className="h-8 w-8 object-contain" loading="eager" fetchPriority="high" />
                         <span className="text-xl font-bold tracking-tight text-white">Edusimulate</span>
                     </div>
                     <div className="flex items-center gap-6">
@@ -93,13 +205,13 @@ const Homepage: React.FC<HomepageProps> = ({ onNavigateToLogin }) => {
                             <div className="flex flex-col sm:inline-flex sm:flex-row items-center gap-4 sm:gap-0 sm:p-1.5 sm:bg-white/5 sm:backdrop-blur-xl sm:rounded-full sm:border sm:border-white/10 sm:shadow-2xl sm:shadow-brand-primary/10 w-full sm:w-auto px-4 sm:px-0">
                                 <button
                                     onClick={onNavigateToLogin}
-                                    className="w-full sm:w-auto px-8 py-4 rounded-full bg-white text-black font-bold text-lg hover:scale-[0.98] transition-transform duration-300 flex items-center justify-center gap-2 shadow-[0_0_20px_rgba(255,255,255,0.15)] sm:shadow-none"
+                                    className="w-full sm:w-auto px-8 py-4 rounded-full bg-white text-black font-bold text-lg hover:bg-[#f8f8f8] hover:shadow-[0_0_30px_rgba(255,255,255,0.45)] transition-all duration-300 flex items-center justify-center gap-2 shadow-[0_0_24px_rgba(255,255,255,0.3)] sm:shadow-[0_0_24px_rgba(255,255,255,0.25)]"
                                 >
                                     Start Learning <Icon name="arrow-right" className="w-5 h-5" />
                                 </button>
                                 <Link
                                     to="/store"
-                                    className="w-full sm:w-auto px-8 py-4 rounded-full text-white font-bold text-lg bg-white/5 border border-white/10 sm:bg-transparent sm:border-transparent hover:bg-white/10 transition-colors duration-300 flex items-center justify-center gap-2"
+                                    className="w-full sm:w-auto px-8 py-4 rounded-full text-white font-bold text-lg bg-white/15 border border-white/25 sm:bg-white/10 sm:border-white/20 hover:bg-white/25 hover:shadow-[0_0_24px_rgba(59,130,246,0.35)] transition-all duration-300 flex items-center justify-center gap-2"
                                 >
                                     <Icon name="shopping-bag" className="w-5 h-5 text-white/70" /> Shop Gear
                                 </Link>
@@ -111,7 +223,7 @@ const Homepage: React.FC<HomepageProps> = ({ onNavigateToLogin }) => {
                         <span className="text-[10px] font-bold tracking-[0.2em] text-white/70 uppercase mb-5">Trusted by learners & partnered with</span>
                         <div className="flex flex-wrap justify-center items-center gap-6 md:gap-10 grayscale opacity-80 hover:opacity-100 hover:grayscale-0 transition-all duration-500">
                             <div className="flex items-center gap-2 font-bold text-white text-sm md:text-base"><Icon name="shield-check" className="w-5 h-5" /> Razorpay Secure</div>
-                            <div className="flex items-center gap-2 font-bold text-white text-sm md:text-base"><img src="https://upload.wikimedia.org/wikipedia/commons/9/93/Amazon_Web_Services_Logo.svg" alt="AWS" className="h-5 object-contain invert hover:invert-0 transition-all" /> AWS EdStart</div>
+                            <div className="flex items-center gap-2 font-bold text-white text-sm md:text-base"><img src="https://upload.wikimedia.org/wikipedia/commons/9/93/Amazon_Web_Services_Logo.svg" alt="AWS" className="h-5 object-contain invert hover:invert-0 transition-all" loading="lazy" /> AWS EdStart</div>
                             <div className="flex items-center gap-2 font-bold text-white text-sm md:text-base"><Icon name="award" className="w-5 h-5" /> ISO Certified</div>
                             <div className="flex items-center gap-2 font-bold text-white text-sm md:text-base"><Icon name="users" className="w-5 h-5" /> 50k+ Learners</div>
                         </div>
@@ -119,28 +231,52 @@ const Homepage: React.FC<HomepageProps> = ({ onNavigateToLogin }) => {
                 </section>
 
                 {/* 2. INVESTOR SCALE SECTION */}
-                <section className="border-y border-white/10 bg-white/5 backdrop-blur-sm py-24">
-                    <div className="container mx-auto max-w-7xl px-6">
-                        <div className="grid grid-cols-2 md:grid-cols-4 gap-8 divide-x divide-white/10">
-                            <Reveal delay="0ms" className="text-center px-4">
-                                <div className="text-5xl md:text-6xl font-black tracking-tighter text-white mb-2">50k<span className="text-brand-primary">+</span></div>
-                                <div className="text-xs font-bold tracking-[0.2em] text-white/40 uppercase">Active Learners</div>
-                            </Reveal>
-                            <Reveal delay="100ms" className="text-center px-4">
-                                <div className="text-5xl md:text-6xl font-black tracking-tighter text-white mb-2">1.2M<span className="text-purple-500">+</span></div>
-                                <div className="text-xs font-bold tracking-[0.2em] text-white/40 uppercase">Code Executions</div>
-                            </Reveal>
-                            <Reveal delay="200ms" className="text-center px-4">
-                                <div className="text-5xl md:text-6xl font-black tracking-tighter text-white mb-2">99.9<span className="text-blue-500">%</span></div>
-                                <div className="text-xs font-bold tracking-[0.2em] text-white/40 uppercase">Uptime SLA</div>
-                            </Reveal>
-                            <Reveal delay="300ms" className="text-center px-4">
-                                <div className="text-5xl md:text-6xl font-black tracking-tighter text-white mb-2">24<span className="text-emerald-500">/7</span></div>
-                                <div className="text-xs font-bold tracking-[0.2em] text-white/40 uppercase">AI Mentorship</div>
-                            </Reveal>
-                        </div>
-                    </div>
-                </section>
+<section className="border-y border-white/10 bg-white/5 backdrop-blur-sm py-24">
+    <div className="container mx-auto max-w-7xl px-6">
+        {/* Removed 'divide-x divide-white/10' from here */}
+        <div className="relative grid grid-cols-2 md:grid-cols-4 gap-8">
+            <div
+                aria-hidden="true"
+                className="pointer-events-none absolute left-0 top-1/2 -translate-y-1/2 h-28 w-px bg-gradient-to-b from-white/0 via-white/30 to-white/0 hidden md:block"
+            />
+            <Reveal
+                delay="0ms"
+                className="relative text-center px-4 pl-8"
+            >
+                <div className="text-5xl md:text-6xl font-black tracking-tighter text-white mb-2">
+                    50k<span className="text-brand-primary">+</span>
+                </div>
+                <div className="text-xs font-bold tracking-[0.2em] text-white/40 uppercase">
+                    Active Learners
+                </div>
+            </Reveal>
+
+            <Reveal 
+                delay="100ms" 
+                className="relative text-center px-4 pl-8 before:content-[''] before:absolute before:left-0 before:top-1/2 before:transform before:-translate-y-1/2 before:h-28 before:w-px before:bg-gradient-to-b before:from-white/0 before:via-white/30 before:to-white/0"
+            >
+                <div className="text-5xl md:text-6xl font-black tracking-tighter text-white mb-2">1.2M<span className="text-purple-500">+</span></div>
+                <div className="text-xs font-bold tracking-[0.2em] text-white/40 uppercase">Code Executions</div>
+            </Reveal>
+
+            <Reveal 
+                delay="200ms" 
+                className="relative text-center px-4 pl-8 before:content-[''] before:absolute before:left-0 before:top-1/2 before:transform before:-translate-y-1/2 before:h-28 before:w-px before:bg-gradient-to-b before:from-white/0 before:via-white/30 before:to-white/0"
+            >
+                <div className="text-5xl md:text-6xl font-black tracking-tighter text-white mb-2">99.9<span className="text-blue-500">%</span></div>
+                <div className="text-xs font-bold tracking-[0.2em] text-white/40 uppercase">Uptime SLA</div>
+            </Reveal>
+
+            <Reveal 
+                delay="300ms" 
+                className="relative text-center px-4 pl-8 before:content-[''] before:absolute before:left-0 before:top-1/2 before:transform before:-translate-y-1/2 before:h-28 before:w-px before:bg-gradient-to-b before:from-white/0 before:via-white/30 before:to-white/0"
+            >
+                <div className="text-5xl md:text-6xl font-black tracking-tighter text-white mb-2">24<span className="text-emerald-500">/7</span></div>
+                <div className="text-xs font-bold tracking-[0.2em] text-white/40 uppercase">AI Mentorship</div>
+            </Reveal>
+        </div>
+    </div>
+</section>
 
                 {/* 3. BENTO 2.0 (UNIFIED ECOSYSTEM) */}
                 <section className="py-32 container mx-auto max-w-7xl px-6">
@@ -150,41 +286,58 @@ const Homepage: React.FC<HomepageProps> = ({ onNavigateToLogin }) => {
                         </h2>
                     </Reveal>
 
-                    <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 auto-rows-[400px]">
+                    <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 auto-rows-auto lg:auto-rows-[400px]">
                         
                         {/* BENTO ITEM 1: LMS */}
-                        <Reveal delay="0ms" className="lg:col-span-7 relative group rounded-3xl overflow-hidden bg-[#111] border border-white/5 hover:border-white/20 transition-colors duration-500">
+                        <Reveal delay="0ms" className="min-h-[400px] lg:col-span-7 relative group rounded-3xl overflow-hidden bg-[#111] border border-white/5 hover:border-white/20 transition-colors duration-500">
                             {/* Inner Shadow / Glow */}
                             <div className="absolute inset-0 shadow-[inset_0_0_100px_rgba(0,0,0,0.8)] z-10 pointer-events-none" />
                             <div className="absolute top-0 right-0 w-96 h-96 bg-brand-primary/20 blur-[100px] rounded-full group-hover:bg-brand-primary/30 transition-colors duration-700" />
                             
                             <div className="relative z-20 p-10 h-full flex flex-col">
                                 <div className="w-12 h-12 rounded-xl bg-white/10 flex items-center justify-center mb-6 backdrop-blur-md border border-white/10">
-                                    <img src={LOGO_URL} alt="Edusimulate Platform" className="w-7 h-7 object-contain grayscale brightness-200" />
+                                    <img src={LOGO_URL} alt="Edusimulate Platform" className="w-7 h-7 object-contain grayscale brightness-200" loading="lazy" />
                                 </div>
                                 <h3 className="text-3xl font-bold text-white mb-2">The Learning Platform</h3>
                                 <p className="text-white/50 text-lg mb-8 max-w-md">Adaptive AI curriculum, real-time code execution, and instantly verifiable certificates.</p>
                                 
-                                {/* Mock UI Component replacing simple bullet points */}
+                                {/* Typing slogan terminal */}
                                 <div className="mt-auto rounded-xl bg-[#0A0A0A] border border-white/10 p-4 shadow-2xl transform group-hover:-translate-y-2 transition-transform duration-500">
+                                    {/* Title bar */}
                                     <div className="flex items-center gap-2 mb-3">
                                         <div className="w-3 h-3 rounded-full bg-red-500/50" />
                                         <div className="w-3 h-3 rounded-full bg-yellow-500/50" />
                                         <div className="w-3 h-3 rounded-full bg-green-500/50" />
                                         <div className="ml-2 text-xs font-mono text-white/30">main.cpp</div>
                                     </div>
+
+                                    {/* Static code structure — only the slogan text animates */}
                                     <div className="font-mono text-sm text-emerald-400">
-                                        <span className="text-purple-400">#include</span> &lt;iostream&gt;<br/>
-                                        <span className="text-blue-400">int</span> <span className="text-yellow-200">main</span>() {'{'}<br/>
-                                        &nbsp;&nbsp;std::cout &lt;&lt; <span className="text-orange-300">"Build the future."</span>;<br/>
-                                        {'}'}
+                                        <div>
+                                            <span className="text-purple-400">#include</span>
+                                            <span className="text-emerald-400"> &lt;mindset&gt;</span>
+                                        </div>
+                                        <div>
+                                            <span className="text-blue-400">int</span>
+                                            <span className="text-yellow-200"> main</span>
+                                            <span className="text-emerald-400">() {'{'}</span>
+                                        </div>
+                                        <div>
+                                            <span className="text-emerald-400">&nbsp;&nbsp;std::cout &lt;&lt; </span>
+                                            <span className="text-orange-300">{displayedSlogan}</span>
+                                            <span className="inline-block w-[7px] h-[1em] bg-orange-300/80 ml-px align-middle animate-text-cursor-blink" />
+                                            <span className="text-emerald-400">;</span>
+                                        </div>
+                                        <div>
+                                            <span className="text-emerald-400">{'}'}</span>
+                                        </div>
                                     </div>
-                                </div>
-                            </div>
+                                </div> {/* <-- Add this missing closing tag */}
+                            </div> 
                         </Reveal>
 
                         {/* BENTO ITEM 2: STORE */}
-                        <Reveal delay="100ms" className="lg:col-span-5 relative group rounded-3xl overflow-hidden bg-[#111] border border-white/5 hover:border-white/20 transition-colors duration-500">
+                        <Reveal delay="100ms" className="min-h-[400px] lg:col-span-5 relative group rounded-3xl overflow-hidden bg-[#111] border border-white/5 hover:border-white/20 transition-colors duration-500">
                             <div className="absolute inset-0 shadow-[inset_0_0_100px_rgba(0,0,0,0.8)] z-10 pointer-events-none" />
                             <div className="absolute bottom-0 left-0 w-96 h-96 bg-purple-600/20 blur-[100px] rounded-full group-hover:bg-purple-600/30 transition-colors duration-700" />
                             
@@ -220,7 +373,7 @@ const Homepage: React.FC<HomepageProps> = ({ onNavigateToLogin }) => {
                             {/* Brand & HQ */}
                             <div className="lg:col-span-2">
                                 <div className="flex items-center gap-3 mb-6">
-                                    <img src={LOGO_URL} alt="Logo" className="h-10 w-10 object-contain drop-shadow-[0_0_8px_rgba(255,255,255,0.3)]" />
+                                    <img src={LOGO_URL} alt="Logo" className="h-10 w-10 object-contain drop-shadow-[0_0_8px_rgba(255,255,255,0.3)]" loading="lazy" />
                                     <span className="text-2xl font-bold tracking-tight text-white">Edusimulate</span>
                                 </div>
                                 <p className="text-white/40 text-lg max-w-sm mb-8 leading-relaxed">

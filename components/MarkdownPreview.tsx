@@ -2,7 +2,34 @@ import React from 'react';
 import ReactMarkdown from 'react-markdown';
 import rehypeRaw from 'rehype-raw';
 import remarkGfm from 'remark-gfm';
-import DOMPurify from 'dompurify';
+import remarkBreaks from 'remark-breaks';
+import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
+import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
+
+const MarkdownComponents: any = {
+    a: ({ node, ...props }: any) => <a {...props} className="text-brand-primary hover:underline cursor-pointer" onClick={(e) => {
+        e.preventDefault();
+        // Handle internal link navigation here if passed down
+    }} />,
+    code({ node, inline, className, children, ...props }: any) {
+        const match = /language-(\w+)/.exec(className || '');
+        if (!inline && match) {
+            return (
+                <SyntaxHighlighter
+                    {...props}
+                    style={vscDarkPlus}
+                    language={match[1]}
+                    PreTag="div"
+                    className="rounded-md my-4"
+                >
+                    {String(children).replace(/\n$/, '')}
+                </SyntaxHighlighter>
+            );
+        }
+        return <code className={`${className} bg-slate-100 dark:bg-slate-800 px-1.5 py-0.5 rounded text-sm font-mono`} {...props}>{children}</code>;
+    }
+};
+
 
 interface MarkdownPreviewProps {
     content: string;
@@ -33,6 +60,13 @@ const MarkdownPreview: React.FC<MarkdownPreviewProps> = ({ content, className = 
         cleanText = cleanText.replace(/\[!cc-header\]\s*(.*)/g, '### $1');
         cleanText = cleanText.replace(/\[!cc-card\]/g, '');
 
+        // Temporarily extract code blocks and inline code
+        const codeBlocks: string[] = [];
+        cleanText = cleanText.replace(/```[\s\S]*?```|`[^`]+`/g, (match) => {
+            codeBlocks.push(match);
+            return `__CODE_BLOCK_${codeBlocks.length - 1}__`;
+        });
+
         // 3. Handle Wiki-links [[Note Name|Alias]]
         // Replace with [Alias || Note Name](#)
         cleanText = cleanText.replace(/\[\[([^\]|]+)(?:\|([^\]]+))?\]\]/g, (match, p1, p2) => {
@@ -49,13 +83,16 @@ const MarkdownPreview: React.FC<MarkdownPreviewProps> = ({ content, className = 
         // 5. Handle Tags #tag
         cleanText = cleanText.replace(/(^|\s)#([a-zA-Z0-9_-]+)/g, '$1<span class="text-brand-primary bg-brand-primary/10 px-1 rounded text-xs font-mono">#$2</span>');
 
+        // Restore code blocks
+        cleanText = cleanText.replace(/__CODE_BLOCK_(\d+)__/g, (match, index) => {
+            return codeBlocks[parseInt(index, 10)];
+        });
+
         return { cleanText, classes };
     };
 
     const { cleanText, classes } = content ? processText(content) : { cleanText: '', classes: '' };
-    const sanitizedText = DOMPurify.sanitize(cleanText, {
-        ALLOWED_URI_REGEXP: /^(?:(?:https?|mailto|tel):|[^a-z]|[a-z+.-]+(?:[^a-z+.-:]|$))/i,
-    });
+    const sanitizedText = cleanText;
 
     const handleClick = (e: React.MouseEvent) => {
         const target = e.target as HTMLElement;
@@ -73,7 +110,8 @@ const MarkdownPreview: React.FC<MarkdownPreviewProps> = ({ content, className = 
         >
             <ReactMarkdown
                 rehypePlugins={[rehypeRaw]}
-                remarkPlugins={[remarkGfm]}
+                remarkPlugins={[remarkGfm, remarkBreaks]}
+                components={MarkdownComponents}
             >
                 {sanitizedText}
             </ReactMarkdown>

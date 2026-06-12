@@ -105,12 +105,17 @@ const LoginPage: React.FC<LoginPageProps> = ({ onNavigateHome }) => {
         }
     };
 
-    const handleGoogleSignIn = async () => {
+    const handleGoogleSignIn = async (e: React.MouseEvent) => {
+        e.preventDefault();
+        if (loading) return;
+        setLoading(true);
         setError('');
         try {
             await signInWithGoogle();
+            // Do not setLoading(false) here because App.tsx will navigate away and unmount us
         } catch (err: any) {
             setError(err.message || "Google Sign In failed.");
+            setLoading(false);
         }
     };
 
@@ -339,10 +344,12 @@ const LoginPage: React.FC<LoginPageProps> = ({ onNavigateHome }) => {
                         </div>
 
                         <button
+                            type="button"
                             onClick={handleGoogleSignIn}
-                            className="relative z-10 w-full bg-white/5 text-white border border-white/10 hover:bg-white/10 font-bold py-3.5 rounded-xl transition-all flex items-center justify-center gap-3 active:scale-[0.98]"
+                            disabled={loading}
+                            className={`relative z-10 w-full bg-white/5 text-white border border-white/10 hover:bg-white/10 font-bold py-3.5 rounded-xl transition-all flex items-center justify-center gap-3 active:scale-[0.98] ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
                         >
-                            <img src="https://www.google.com/favicon.ico" alt="Google" className="w-5 h-5" />
+                            {loading ? <Icon name="spinner" className="w-5 h-5 animate-spin" /> : <img src="https://www.google.com/favicon.ico" alt="Google" className="w-5 h-5" />}
                             <span>Google</span>
                         </button>
                     </div>

@@ -6,6 +6,7 @@ import { VitePWA } from 'vite-plugin-pwa';
 
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), "");
+  const esbuildDrop: ('console' | 'debugger')[] = mode === 'production' ? ['console', 'debugger'] : [];
 
   return {
     server: {
@@ -113,6 +114,18 @@ export default defineConfig(({ mode }) => {
               if (id.includes('apexcharts') || id.includes('react-apexcharts')) {
                 return 'charts';
               }
+              // Separate syntax highlighting (heavy — includes all language grammars)
+              if (id.includes('react-syntax-highlighter') || id.includes('highlight.js') || id.includes('refractor') || id.includes('prismjs')) {
+                return 'syntax-highlighter';
+              }
+              // Separate KaTeX math rendering
+              if (id.includes('katex')) {
+                return 'katex';
+              }
+              // Separate HLS video streaming library
+              if (id.includes('hls.js')) {
+                return 'hls';
+              }
               // Firebase (already good)
               if (id.includes('firebase')) {
                 if (id.includes('/auth')) return 'firebase-auth';
@@ -138,7 +151,7 @@ export default defineConfig(({ mode }) => {
     },
     esbuild: {
       // Strip all console.* and debugger statements in production
-      drop: mode === 'production' ? ['console', 'debugger'] : []
-    }
+      drop: esbuildDrop,
+    } as any
   };
 });

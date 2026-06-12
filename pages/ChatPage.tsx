@@ -416,7 +416,7 @@ const ChatPage: React.FC = () => {
                                 >
                                     {isStartingCall
                                         ? <Icon name="loader" className="w-5 h-5 md:w-6 md:h-6 animate-spin" />
-                                        : <Icon name="video" className="w-5 h-5 md:w-6 md:h-6" />}
+                                        : <Icon name="phone" className="w-5 h-5 md:w-6 md:h-6" />}
                                 </button>
                             </div>
                         </div>

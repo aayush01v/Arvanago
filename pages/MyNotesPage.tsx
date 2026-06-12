@@ -1,26 +1,32 @@
 import React, { useEffect, useState, useRef, useCallback } from 'react';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, Home, Share2, Trash2, Plus, LayoutGrid, Maximize, FileEdit, Settings, Search, Upload } from 'lucide-react';
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
-import { createNoteInVault, createVault, getNotesForVault, getUserVaults, deleteNote, updateNote, updateVault, deleteVault } from '../services/firestoreService';
-import { Note, Vault } from '../types';
+import { createBoard, getUserBoards, updateBoard, deleteBoard, searchPublicBoards, getPublicBoard } from '../services/firestoreService';
+import { CanvasBoard } from '../types';
 import Icon from '../components/common/Icon';
-import FileExplorer from '../components/FileExplorer';
 import CanvasRenderer from '../components/CanvasRenderer';
-import MarkdownPreview from '../components/MarkdownPreview';
 import { Helmet } from 'react-helmet-async';
-import JSZip from 'jszip';
-
+import { motion, AnimatePresence } from 'framer-motion';
 
 const MyNotesPage: React.FC = () => {
-    const [vaults, setVaults] = useState<Vault[]>([]);
-    const [notes, setNotes] = useState<Note[]>([]);
-    const [selectedNote, setSelectedNote] = useState<Note | null>(null);
+    const [boards, setBoards] = useState<CanvasBoard[]>([]);
     const [loading, setLoading] = useState(true);
-    const [importing, setImporting] = useState(false);
     const [searchParams, setSearchParams] = useSearchParams();
-    const vaultId = searchParams.get('vaultId');
+    const boardId = searchParams.get('boardId');
     const navigate = useNavigate();
     const location = useLocation();
+
+    const [currentUserId, setCurrentUserId] = useState<string | null>(null);
+    const viewerRef = useRef<HTMLDivElement>(null);
+    const fileInputRef = useRef<HTMLInputElement>(null);
+
+    const [activeTab, setActiveTab] = useState<'my_boards' | 'community'>('my_boards');
+    const [searchQuery, setSearchQuery] = useState('');
+    const [communityBoards, setCommunityBoards] = useState<CanvasBoard[]>([]);
+    const [communityLoading, setCommunityLoading] = useState(false);
+    const [activeCommunityBoard, setActiveCommunityBoard] = useState<CanvasBoard | null>(null);
+
+    const isPublic = searchParams.get('isPublic') === 'true';
 
     const handleBack = useCallback(() => {
         if (location.key !== 'default') {
@@ -29,11 +35,6 @@ const MyNotesPage: React.FC = () => {
             navigate('/dashboard');
         }
     }, [navigate, location]);
-
-    const [currentUserId, setCurrentUserId] = useState<string | null>(null);
-    const viewerRef = useRef<HTMLDivElement>(null);
-
-    const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
     useEffect(() => {
         let unsubscribeAuth: (() => void) | null = null;
@@ -59,462 +60,379 @@ const MyNotesPage: React.FC = () => {
     useEffect(() => {
         if (!currentUserId) return;
 
-        const loadVaults = async () => {
+        const loadBoards = async () => {
             setLoading(true);
             try {
-                const userVaults = await getUserVaults(currentUserId);
-                setVaults(userVaults);
+                const userBoards = await getUserBoards(currentUserId);
+                setBoards(userBoards);
             } catch (err) {
-                console.error("Failed to load vaults", err);
+                console.error("Failed to load boards", err);
             } finally {
                 setLoading(false);
             }
         };
-        loadVaults();
+        loadBoards();
     }, [currentUserId]);
 
     useEffect(() => {
-        if (!currentUserId || !vaultId) {
-            setNotes([]);
-            return;
+        if (activeTab === 'community') {
+            const loadCommunity = async () => {
+                setCommunityLoading(true);
+                try {
+                    const results = await searchPublicBoards(searchQuery);
+                    setCommunityBoards(results);
+                } catch (err) {
+                    console.error("Failed to load community boards", err);
+                } finally {
+                    setCommunityLoading(false);
+                }
+            };
+            const debounce = setTimeout(loadCommunity, 300);
+            return () => clearTimeout(debounce);
         }
+    }, [activeTab, searchQuery]);
 
-        const loadNotes = async () => {
-            setLoading(true);
-            try {
-                const vaultNotes = await getNotesForVault(currentUserId, vaultId);
-                setNotes(vaultNotes);
-            } catch (err) {
-                console.error("Failed to load notes", err);
-            } finally {
-                setLoading(false);
-            }
-        };
-        loadNotes();
-    }, [currentUserId, vaultId]);
+    useEffect(() => {
+        if (boardId && isPublic && !activeCommunityBoard) {
+            getPublicBoard(boardId).then(board => {
+                if (board) setActiveCommunityBoard(board);
+            }).catch(err => console.error("Failed to fetch public board:", err));
+        }
+    }, [boardId, isPublic, activeCommunityBoard]);
 
-    const handleCreateVault = async () => {
+    const handleCreateBoard = async () => {
         if (!currentUserId) return;
-        const name = prompt("Enter Vault Name:");
+        const name = prompt("Enter Board Name:");
         if (!name) return;
 
         try {
-            await createVault(currentUserId, name);
-            // Refresh
-            const userVaults = await getUserVaults(currentUserId);
-            setVaults(userVaults);
+            const newBoard = await createBoard(currentUserId, name);
+            setBoards(prev => [newBoard, ...prev]);
+            setSearchParams({ boardId: newBoard.id });
         } catch (err: any) {
             console.error(err);
-            alert(`Failed to create vault: ${err.message || 'Unknown error'}`);
+            alert(`Failed to create board: ${err.message || 'Unknown error'}`);
         }
     };
 
-    const activeVault = vaults.find(v => v.id === vaultId);
+    const handleImportCanvas = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file || !currentUserId) return;
 
-    const handleNavigate = (pathOrTitle: string) => {
-        if (!pathOrTitle) return;
-        let target = pathOrTitle.replace(/\[\[|\]\]/g, '');
-        let note = notes.find(n => n.title === target || n.title === target + '.md' || n.title === target + '.canvas');
-        if (!note) {
-            note = notes.find(n => n.title.replace(/\.(md|canvas|txt)$/, '') === target);
-        }
-        if (!note) {
-            note = notes.find(n => n.path && (n.path === target || n.path.endsWith('/' + target)));
-        }
-
-        if (note) {
-            setSelectedNote(note);
-        } else {
-            console.warn("Note not found:", target);
-            alert(`Note not found: ${target}`);
-        }
+        const reader = new FileReader();
+        reader.onload = async (event) => {
+            try {
+                const content = event.target?.result as string;
+                // Validate it's a valid JSON with nodes and edges
+                const parsed = JSON.parse(content);
+                if (!parsed.nodes || !parsed.edges) throw new Error("Invalid .canvas file format.");
+                
+                const name = file.name.replace(/\.canvas$/i, '');
+                const newBoard = await createBoard(currentUserId, name, undefined, content);
+                setBoards(prev => [newBoard, ...prev]);
+                setSearchParams({ boardId: newBoard.id });
+            } catch (err: any) {
+                console.error("Import failed:", err);
+                alert(`Failed to import .canvas file: ${err.message}`);
+            }
+        };
+        reader.readAsText(file);
+        // reset input
+        if (fileInputRef.current) fileInputRef.current.value = '';
     };
+
+    const activeBoard = isPublic ? activeCommunityBoard : boards.find(b => b.id === boardId);
 
     const handleSaveCanvas = async (newContent: string) => {
-        if (!currentUserId || !selectedNote) return;
+        if (!currentUserId || !activeBoard) return;
 
         // Optimistic UI update
-        const updated = { ...selectedNote, content: newContent };
-        setSelectedNote(updated); // Update the viewer
-        setNotes(prev => prev.map(n => n.id === updated.id ? updated : n)); // Update the list
+        const updated = { ...activeBoard, canvasData: newContent };
+        setBoards(prev => prev.map(b => b.id === updated.id ? updated : b));
 
-        // Debounced save could be better, but direct save for now
         try {
-            await updateNote(currentUserId, selectedNote.id, { content: newContent });
+            await updateBoard(currentUserId, activeBoard.id, { canvasData: newContent });
         } catch (err) {
             console.error("Failed to save canvas", err);
         }
     };
-    const importTemplate = async () => {
-        if (!currentUserId) return;
-        setImporting(true);
-        try {
-            const response = await fetch('/templates/Engineering-Maths.zip');
-            if (!response.ok) throw new Error("Failed to fetch template");
-            const blob = await response.blob();
 
-            const zip = await JSZip.loadAsync(blob);
-
-            // Process files
-            const promises: Promise<void>[] = [];
-
-            // Create Vault
-            const vault = await createVault(currentUserId, "Engineering Maths", "Sequence and Series");
-
-            zip.forEach((relativePath, zipEntry) => {
-                if (zipEntry.dir) return;
-                if (relativePath.includes('__MACOSX') || relativePath.split(/[/\\]/).some(p => p.startsWith('.'))) return;
-
-                // Normalize Path
-                const normalizedPath = relativePath.replace(/\\/g, '/');
-
-                // Collect CSS
-                if (relativePath.endsWith('.css')) {
-                    promises.push(
-                        zipEntry.async("string").then(async (content) => {
-                            console.log(`Found CSS: ${relativePath}`);
-                            // Save CSS to vault
-                            await updateVault(currentUserId, vault.id, { css: content });
-                        })
-                    );
-                    return;
-                }
-
-                // Clean paths (remove top folder if exists)
-                const parts = normalizedPath.split('/');
-                const cleanPath = parts.length > 1 ? parts.slice(1).join('/') : normalizedPath;
-                if (!cleanPath) return;
-
-                const ext = cleanPath.split('.').pop()?.toLowerCase();
-                if (!ext) return;
-
-                // Process Text Files
-                if (['md', 'canvas', 'txt'].includes(ext)) {
-                    promises.push(
-                        zipEntry.async("string").then(async (content) => {
-                            const title = cleanPath.split('/').pop() || cleanPath;
-                            const path = cleanPath.includes('/') ? cleanPath.substring(0, cleanPath.lastIndexOf('/')) : '';
-                            await createNoteInVault(currentUserId, vault.id, title, content, path);
-                        })
-                    );
-                }
-            });
-
-            await Promise.all(promises);
-
-            // Refresh vaults
-            const userVaults = await getUserVaults(currentUserId);
-            setVaults(userVaults);
-            // Navigate to new vault
-            setSearchParams({ vaultId: vault.id });
-
-        } catch (error) {
-            console.error("Import failed:", error);
-            alert("Failed to import template.");
-        } finally {
-            setImporting(false);
-        }
-    };
-
-
-
-    if (loading && !vaults.length && !notes.length) {
+    if (loading && !boards.length) {
         return (
-            <div className="p-10 flex justify-center">
-                <div className="animate-spin h-8 w-8 border-4 border-brand-primary border-t-transparent rounded-full"></div>
+            <div className="py-32 w-full flex items-center justify-center">
+                <div className="animate-spin h-10 w-10 border-4 border-brand-primary border-t-transparent rounded-full shadow-lg"></div>
             </div>
         )
     }
 
-    // NOTE VIEW
-    if (vaultId && activeVault) {
-
+    // ==========================================
+    // EDITOR VIEW (FULL SCREEN CANVAS)
+    // ==========================================
+    if (boardId && activeBoard) {
         return (
-            <div className="flex flex-col md:flex-row h-[calc(100dvh-64px)] md:h-[calc(100vh-64px)] overflow-hidden bg-slate-50 dark:bg-slate-900">
+            <div className="relative w-full h-[calc(100vh-180px)] bg-slate-50 dark:bg-slate-900 overflow-hidden flex flex-col rounded-2xl" ref={viewerRef}>
                 <Helmet>
-                    <title>{activeVault.name} | Edusimulate</title>
+                    <title>{activeBoard.name} | Canvas | Edusimulate</title>
                 </Helmet>
-                {activeVault.css && (
-                    <style>{activeVault.css}</style>
-                )}
 
-                {/* Mobile Sidebar Overlay */}
-                {isSidebarOpen && (
-                    <div
-                        className="fixed inset-0 bg-black/50 z-30 md:hidden"
-                        onClick={() => setIsSidebarOpen(false)}
-                        aria-hidden="true"
-                    />
-                )}
-
-                {/* Mobile Top Bar (Persistent) */}
-                <div className="md:hidden flex items-center justify-between p-3 bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 flex-shrink-0 z-20 shadow-sm">
-                    <button
-                        onClick={() => setIsSidebarOpen(true)}
-                        className="flex items-center gap-2 text-slate-700 dark:text-slate-200 px-3 py-2 bg-slate-100 dark:bg-slate-700/50 rounded-lg active:bg-slate-200"
-                        aria-label="Open sidebar"
-                    >
-                        <Icon name="menu" className="w-5 h-5" />
-                        <span className="text-sm font-semibold">Files</span>
+                {/* Floating Top Nav (Glassmorphism) */}
+                <div className="absolute top-4 left-1/2 -translate-x-1/2 z-50 flex items-center gap-2 md:gap-4 px-4 py-2 md:px-6 md:py-3 bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border border-white/20 dark:border-slate-700/50 rounded-full shadow-xl shadow-slate-200/20 dark:shadow-black/40">
+                    <button onClick={() => setSearchParams({})} className="p-2 text-slate-500 hover:text-brand-primary dark:text-slate-400 dark:hover:text-white transition-colors rounded-full hover:bg-slate-100 dark:hover:bg-slate-800" title="Back to Dashboard">
+                        <Home className="w-5 h-5" />
                     </button>
-                    <div className="font-semibold text-slate-700 dark:text-slate-300 truncate max-w-[50%] text-sm">
-                        {selectedNote ? selectedNote.title : activeVault.name}
-                    </div>
-                </div>
-
-                {/* Left Sidebar: File Explorer */}
-                <div className={`fixed inset-y-0 left-0 w-72 z-40 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 flex flex-col transform transition-transform duration-300 md:relative md:translate-x-0 ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
-                    <div className="p-4 border-b border-slate-200 dark:border-slate-800 flex items-center gap-2">
-                        <button onClick={handleBack} className="p-1.5 text-slate-500 hover:text-slate-700 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors" aria-label="Go Back">
-                            <ArrowLeft className="w-5 h-5" />
-                        </button>
-                        <h2 className="font-semibold text-slate-700 dark:text-slate-300 truncate flex-1" title={activeVault.name}>{activeVault.name}</h2>
-                        <button onClick={() => setSearchParams({})} className="text-slate-400 hover:text-slate-600" aria-label="Close vault">
-                            <Icon name="x" className="w-5 h-5" />
-                        </button>
+                    
+                    <div className="w-px h-6 bg-slate-200 dark:bg-slate-700"></div>
+                    
+                    <div className="font-semibold text-slate-800 dark:text-slate-100 px-2 max-w-[150px] md:max-w-[300px] truncate text-sm md:text-base">
+                        {activeBoard.name}
                     </div>
 
-                    <div className="flex-1 overflow-y-auto">
-                        <FileExplorer
-                            notes={notes}
-                            onSelect={(note) => {
-                                setIsSidebarOpen(false);
-                                setSelectedNote(note);
-                            }}
-                            selectedNoteId={selectedNote?.id}
-                        />
-                    </div>
+                    <div className="w-px h-6 bg-slate-200 dark:bg-slate-700"></div>
 
-                    <div className="p-4 border-t border-slate-200 dark:border-slate-800">
-                        <button onClick={async () => {
+                    <button
+                        onClick={async () => {
                             if (!currentUserId) return;
-                            const t = prompt("Note Title");
-                            if (t) {
-                                await createNoteInVault(currentUserId, vaultId, t, "# New Note");
-                                // reload notes roughly
-                                const vaultNotes = await getNotesForVault(currentUserId, vaultId);
-                                setNotes(vaultNotes);
+                            try {
+                                const newStatus = !activeBoard.isPublic;
+                                await updateBoard(currentUserId, activeBoard.id, { isPublic: newStatus });
+                                const updated = { ...activeBoard, isPublic: newStatus };
+                                setBoards(prev => prev.map(b => b.id === updated.id ? updated : b));
+                                if (newStatus) {
+                                    const url = `${window.location.origin}/board/${activeBoard.id}`;
+                                    navigator.clipboard.writeText(url);
+                                    alert("Public link copied to clipboard!");
+                                }
+                            } catch (err) { alert("Failed to share."); }
+                        }}
+                        className={`p-2 rounded-full transition-all ${activeBoard.isPublic ? 'text-brand-primary bg-brand-primary/10' : 'text-slate-500 hover:text-brand-primary dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'}`}
+                        title="Share Board"
+                    >
+                        <Share2 className="w-5 h-5" />
+                    </button>
+
+                    <button
+                        onClick={() => {
+                            if (!document.fullscreenElement) {
+                                viewerRef.current?.requestFullscreen().catch(e => console.log(e));
+                            } else {
+                                document.exitFullscreen();
                             }
-                        }} className="w-full flex items-center justify-center gap-2 py-3 bg-brand-primary/10 text-brand-primary rounded-lg hover:bg-brand-primary hover:text-white transition-colors" aria-label="Create new note">
-                            <Icon name="plus-square" className="w-5 h-4" />
-                            <span className="text-sm font-medium">New Note</span>
-                        </button>
-                    </div>
+                        }}
+                        className="p-2 text-slate-500 hover:text-brand-primary dark:text-slate-400 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors hidden sm:block"
+                        title="Fullscreen"
+                    >
+                        <Maximize className="w-5 h-5" />
+                    </button>
                 </div>
 
-                {/* Main Content: Editor/Viewer */}
-                <div ref={viewerRef} className="flex-1 overflow-auto bg-white dark:bg-slate-800 relative w-full h-full">
-                    {selectedNote ? (
-                        <div className="max-w-5xl mx-auto p-4 md:p-8 h-full flex flex-col">
-                            <div className="flex items-center justify-between mb-6 pb-4 border-b border-slate-100 dark:border-slate-700 gap-2">
-                                <div className="flex items-center gap-2 overflow-hidden">
-                                    <div className="min-w-0">
-                                        <h1 className="text-2xl md:text-3xl font-bold text-slate-900 dark:text-white mb-1 truncate">{selectedNote.title}</h1>
-                                        <div className="text-xs md:text-sm text-slate-400 flex gap-2 truncate">
-                                            <span>{selectedNote.path ? `In ${selectedNote.path}` : 'Root'}</span>
-                                            <span className="hidden sm:inline">•</span>
-                                            <span className="hidden sm:inline">{selectedNote.createdAt?.toDate ? selectedNote.createdAt.toDate().toLocaleDateString() : ''}</span>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div className="flex gap-1 md:gap-2 flex-shrink-0">
-                                    <button
-                                        onClick={async () => {
-                                            if (!currentUserId) return;
-                                            try {
-                                                const newStatus = !selectedNote.isPublic;
-                                                await updateNote(currentUserId, selectedNote.id, { isPublic: newStatus });
-                                                // Optimistic update
-                                                const updated = { ...selectedNote, isPublic: newStatus };
-                                                setSelectedNote(updated);
-                                                setNotes(prev => prev.map(n => n.id === updated.id ? updated : n));
-
-                                                if (newStatus) {
-                                                    const url = `${window.location.origin}/note/${selectedNote.id}`;
-                                                    navigator.clipboard.writeText(url);
-                                                    alert("Link copied!");
-                                                }
-                                            } catch (err) { alert("Failed"); }
-                                        }}
-                                        className={`p-2 rounded-lg transition-colors ${selectedNote.isPublic ? 'text-brand-primary bg-brand-primary/10' : 'text-slate-400 hover:bg-slate-100'}`}
-                                        title="Share"
-                                        aria-label="Share note"
-                                    >
-                                        <Icon name="share" className="w-5 h-5" />
-                                    </button>
-                                    <button
-                                        onClick={async () => {
-                                            if (!currentUserId || !confirm("Delete?")) return;
-                                            await deleteNote(currentUserId, selectedNote.id);
-                                            setNotes(prev => prev.filter(n => n.id !== selectedNote.id));
-                                            setSelectedNote(null);
-                                        }}
-                                        className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg"
-                                        title="Delete"
-                                        aria-label="Delete note"
-                                    >
-                                        <Icon name="trash" className="w-5 h-5" />
-                                    </button>
-                                    <div className="w-px h-6 bg-slate-200 dark:bg-slate-700 mx-1 hidden sm:block"></div>
-                                    <button
-                                        onClick={() => {
-                                            if (!document.fullscreenElement) {
-                                                viewerRef.current?.requestFullscreen().catch((e) => console.log(e));
-                                            } else {
-                                                document.exitFullscreen();
-                                            }
-                                        }}
-                                        className="p-2 text-slate-400 hover:text-brand-primary hover:bg-brand-primary/10 rounded-lg"
-                                        title="Toggle Fullscreen"
-                                        aria-label="Toggle fullscreen"
-                                    >
-                                        <Icon name="maximize" className="w-5 h-5" />
-                                    </button>
-                                </div>
-                            </div>
-                            <div className="prose dark:prose-invert max-w-none flex-1 h-full overflow-hidden">
-                                {selectedNote.title.endsWith('.canvas') ? (
-                                    <CanvasRenderer
-                                        content={selectedNote.content}
-                                        onNavigate={handleNavigate}
-                                        onSave={handleSaveCanvas}
-                                        files={notes}
-                                    />
-                                ) : (
-                                    <div className="h-full overflow-y-auto p-4 pb-20">
-                                        <MarkdownPreview content={selectedNote.content} onNavigate={handleNavigate} />
-                                    </div>
-                                )}
-                            </div>
-                        </div>
-                    ) : (
-                        <div className="h-full flex flex-col items-center justify-center text-slate-400 p-4 text-center">
-                            <Icon name="file-text" className="w-16 h-16 mb-4 opacity-20" />
-                            <p className="text-lg">Select a file to view</p>
-                            <p className="text-sm opacity-60 mt-2">Use the "Files" button above to browse.</p>
-                        </div>
-                    )}
+                {/* Canvas Area */}
+                <div className="flex-1 w-full h-full relative">
+                    <CanvasRenderer
+                        content={activeBoard.canvasData}
+                        onSave={handleSaveCanvas}
+                    />
                 </div>
             </div>
         );
     }
 
-    // VAULTS VIEW
+    // ==========================================
+    // DASHBOARD VIEW (BOARDS LIST)
+    // ==========================================
     return (
-        <div className="p-6">
+        <div className="min-h-[calc(100vh-64px)] bg-slate-50 dark:bg-slate-900/50 p-4 md:p-8">
             <Helmet>
-                <title>My Vaults | Edusimulate</title>
+                <title>My Canvas Boards | Edusimulate</title>
             </Helmet>
 
-            <div className="mb-8 flex items-center justify-between">
-                <div className="flex items-center gap-4">
-                    <button onClick={handleBack} className="p-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400 hover:text-brand-primary hover:border-brand-primary/50 rounded-full hover:shadow-md transition-all group" aria-label="Go Back">
-                        <ArrowLeft className="w-5 h-5 group-hover:-translate-x-0.5 transition-transform" />
-                    </button>
-                    <div>
-                        <h1 className="text-2xl font-bold text-slate-900 dark:text-white">My Vaults</h1>
-                        <p className="text-slate-500 dark:text-slate-400">Organize your knowledge base.</p>
-                    </div>
-                </div>
-                <button
-                    onClick={handleCreateVault}
-                    className="flex items-center gap-2 rounded-lg bg-brand-primary px-4 py-2 text-white hover:bg-brand-primary-dark transition-colors"
-                >
-                    <Icon name="plus-square" className="h-5 w-5" />
-                    <span>New Vault</span>
-                </button>
-            </div>
-
-            {vaults.length === 0 ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto mt-12">
-                    <div className="bg-gradient-to-br from-blue-600 to-cyan-500 rounded-2xl p-8 text-white shadow-xl relative overflow-hidden group">
-                        <div className="relative z-10">
-                            <h3 className="text-2xl font-bold mb-2">Start Engineering Maths</h3>
-                            <p className="text-blue-50 mb-6">
-                                Jumpstart your engineering notes with a default Sequence & Series canvas using Canvas Candy.
-                            </p>
-                            <button
-                                onClick={importTemplate}
-                                disabled={importing}
-                                className="bg-white text-blue-600 px-6 py-3 rounded-xl font-bold hover:bg-blue-50 transition-colors disabled:opacity-75 disabled:cursor-not-allowed flex items-center gap-2"
-                            >
-                                {importing ? (
-                                    <>
-                                        <div className="w-4 h-4 border-2 border-blue-600/30 border-t-blue-600 rounded-full animate-spin" />
-                                        Installing...
-                                    </>
-                                ) : (
-                                    <>
-                                        <Icon name="download" className="w-5 h-5" />
-                                        Install Template
-                                    </>
-                                )}
-                            </button>
-                        </div>
-                        <div className="absolute -right-12 -bottom-12 opacity-20">
-                            <Icon name="layers" className="w-64 h-64" />
+            <div className="max-w-7xl mx-auto">
+                <header className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-12">
+                    <div className="flex items-center gap-4">
+                        <button onClick={handleBack} className="p-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400 hover:text-brand-primary hover:border-brand-primary/50 hover:shadow-lg hover:shadow-brand-primary/10 rounded-full transition-all group">
+                            <ArrowLeft className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
+                        </button>
+                        <div>
+                            <h1 className="text-3xl md:text-4xl font-extrabold text-slate-900 dark:text-white tracking-tight">Canvas Boards</h1>
+                            <p className="text-slate-500 dark:text-slate-400 mt-1 text-sm md:text-base">Your infinite workspaces for brainstorming and learning.</p>
                         </div>
                     </div>
-
-                    <div className="bg-white dark:bg-slate-800 rounded-2xl p-8 border border-slate-200 dark:border-slate-700 shadow-sm hover:shadow-md transition-all group flex flex-col justify-center items-center text-center cursor-pointer" onClick={handleCreateVault}>
-                        <div className="w-16 h-16 bg-slate-100 dark:bg-slate-700 rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-                            <Icon name="plus-square" className="w-8 h-8 text-slate-400 dark:text-slate-500" />
-                        </div>
-                        <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-2">Create Fresh Vault</h3>
-                        <p className="text-slate-500 dark:text-slate-400">
-                            Start from scratch with an empty vault and build your own system.
-                        </p>
-                    </div>
-                </div>
-            ) : (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                    {vaults.map(vault => (
-                        <div
-                            key={vault.id}
-                            onClick={() => setSearchParams({ vaultId: vault.id })}
-                            className="group relative bg-white dark:bg-slate-800 rounded-xl p-6 border border-slate-200 dark:border-slate-700 shadow-sm hover:shadow-md transition-all cursor-pointer overflow-hidden"
+                    
+                    <div className="flex gap-3">
+                        <input 
+                            type="file" 
+                            accept=".canvas" 
+                            ref={fileInputRef} 
+                            onChange={handleImportCanvas} 
+                            className="hidden" 
+                        />
+                        <motion.button
+                            whileHover={{ scale: 1.02 }}
+                            whileTap={{ scale: 0.98 }}
+                            onClick={() => fileInputRef.current?.click()}
+                            className="flex items-center gap-2 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-4 py-3.5 text-slate-700 dark:text-slate-200 font-semibold shadow-sm hover:shadow-md transition-all"
                         >
-                            <div className="flex items-start justify-between mb-4">
-                                <div className="p-3 bg-brand-primary/10 text-brand-primary rounded-lg group-hover:bg-brand-primary group-hover:text-white transition-colors">
-                                    <Icon name="layers" className="w-6 h-6" />
+                            <Upload className="w-5 h-5" />
+                            <span className="hidden sm:inline">Import</span>
+                        </motion.button>
+                        <motion.button
+                            whileHover={{ scale: 1.02 }}
+                            whileTap={{ scale: 0.98 }}
+                            onClick={handleCreateBoard}
+                            className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-brand-primary to-blue-600 px-6 py-3.5 text-white font-semibold shadow-lg shadow-brand-primary/30 hover:shadow-xl hover:shadow-brand-primary/40 transition-all border border-white/10"
+                        >
+                            <Plus className="w-5 h-5" />
+                            <span>Create Board</span>
+                        </motion.button>
+                    </div>
+                </header>
+
+                <div className="mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-200 dark:border-slate-700 pb-4">
+                    <div className="flex gap-6">
+                        <button 
+                            onClick={() => setActiveTab('my_boards')}
+                            className={`pb-4 border-b-2 font-semibold transition-colors ${activeTab === 'my_boards' ? 'border-brand-primary text-brand-primary' : 'border-transparent text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200'}`}
+                        >
+                            My Boards
+                        </button>
+                        <button 
+                            onClick={() => setActiveTab('community')}
+                            className={`pb-4 border-b-2 font-semibold transition-colors ${activeTab === 'community' ? 'border-brand-primary text-brand-primary' : 'border-transparent text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200'}`}
+                        >
+                            Community Boards
+                        </button>
+                    </div>
+
+                    {activeTab === 'community' && (
+                        <div className="relative">
+                            <Search className="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+                            <input 
+                                type="text"
+                                placeholder="Search community..."
+                                value={searchQuery}
+                                onChange={(e) => setSearchQuery(e.target.value)}
+                                className="pl-10 pr-4 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary/50 text-slate-700 dark:text-slate-200 w-full md:w-64"
+                            />
+                        </div>
+                    )}
+                </div>
+
+                {activeTab === 'my_boards' ? (
+                    boards.length === 0 ? (
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                            <div 
+                                onClick={handleCreateBoard}
+                                className="bg-white/50 dark:bg-slate-800/50 backdrop-blur-sm rounded-3xl border-2 border-dashed border-slate-300 dark:border-slate-700 hover:border-brand-primary hover:bg-brand-primary/5 transition-all cursor-pointer flex flex-col items-center justify-center p-12 text-slate-500 hover:text-brand-primary group min-h-[300px]"
+                            >
+                                <div className="w-20 h-20 bg-white dark:bg-slate-800 rounded-full shadow-sm flex items-center justify-center mb-6 group-hover:scale-110 group-hover:shadow-md transition-all duration-300">
+                                    <Plus className="w-10 h-10" />
                                 </div>
-                                <button
-                                    onClick={async (e) => {
-                                        e.stopPropagation();
-                                        if (confirm(`Are you sure you want to delete vault "${vault.name}"? This will delete ALL notes inside it.`)) {
-                                            try {
-                                                if (currentUserId) {
-                                                    await deleteVault(currentUserId, vault.id);
-                                                    setVaults(prev => prev.filter(v => v.id !== vault.id));
-                                                }
-                                            } catch (err) {
-                                                console.error(err);
-                                                alert("Failed to delete vault");
-                                            }
-                                        }
-                                    }}
-                                    className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors opacity-0 group-hover:opacity-100"
-                                    title="Delete Vault"
-                                >
-                                    <Icon name="trash" className="w-5 h-5" />
-                                </button>
-                            </div>
-                            <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-1 group-hover:text-brand-primary transition-colors">{vault.name}</h3>
-                            <p className="text-sm text-slate-500 dark:text-slate-400 line-clamp-2 mb-4">
-                                {vault.description || "No description"}
-                            </p>
-                            <div className="flex items-center text-xs text-slate-400">
-                                <span>Updated {vault.updatedAt?.toDate ? vault.updatedAt.toDate().toLocaleDateString() : 'Just now'}</span>
+                                <h3 className="text-xl font-bold mb-2">Create First Board</h3>
+                                <p className="text-center opacity-80 max-w-[250px]">Start with a blank infinite canvas to map out your ideas.</p>
                             </div>
                         </div>
-                    ))}
-
-                    <div className="bg-slate-50 dark:bg-slate-800/50 rounded-xl border-2 border-dashed border-slate-300 dark:border-slate-700 hover:border-brand-primary hover:bg-brand-primary/5 transition-all cursor-pointer flex flex-col items-center justify-center p-6 text-slate-500 dark:text-slate-400 hover:text-brand-primary" onClick={handleCreateVault}>
-                        <Icon name="plus-square" className="w-8 h-8 mb-2" />
-                        <span className="font-medium">New Vault</span>
-                    </div>
-                </div>
-            )}
+                    ) : (
+                        <motion.div 
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
+                        >
+                            {boards.map(board => (
+                                <motion.div
+                                    key={board.id}
+                                    whileHover={{ y: -5 }}
+                                    onClick={() => setSearchParams({ boardId: board.id })}
+                                    className="group relative bg-white dark:bg-slate-800 rounded-3xl p-6 border border-slate-200 dark:border-slate-700 shadow-sm hover:shadow-xl hover:shadow-brand-primary/5 transition-all cursor-pointer overflow-hidden flex flex-col h-[280px]"
+                                >
+                                    {/* Decorative Top Gradient */}
+                                    <div className="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-brand-primary to-blue-400 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                                    
+                                    <div className="flex items-start justify-between mb-6">
+                                        <div className="w-12 h-12 rounded-2xl bg-brand-primary/10 text-brand-primary flex items-center justify-center group-hover:bg-brand-primary group-hover:text-white transition-colors duration-300">
+                                            <LayoutGrid className="w-6 h-6" />
+                                        </div>
+                                        <button
+                                            onClick={async (e) => {
+                                                e.stopPropagation();
+                                                if (confirm(`Delete board "${board.name}"?`)) {
+                                                    try {
+                                                        if (currentUserId) {
+                                                            await deleteBoard(currentUserId, board.id);
+                                                            setBoards(prev => prev.filter(b => b.id !== board.id));
+                                                        }
+                                                    } catch (err) {
+                                                        alert("Failed to delete board");
+                                                    }
+                                                }
+                                            }}
+                                            className="p-2.5 text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-xl transition-all opacity-0 group-hover:opacity-100 z-10"
+                                            title="Delete Board"
+                                        >
+                                            <Trash2 className="w-5 h-5" />
+                                        </button>
+                                    </div>
+                                    
+                                    <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-2 group-hover:text-brand-primary transition-colors line-clamp-1">{board.name}</h3>
+                                    <p className="text-sm text-slate-500 dark:text-slate-400 line-clamp-2 mb-auto">
+                                        {board.description || "An infinite workspace"}
+                                    </p>
+                                    
+                                    <div className="mt-6 pt-4 border-t border-slate-100 dark:border-slate-700 flex items-center justify-between text-xs text-slate-400 font-medium">
+                                        <span>Updated {board.updatedAt?.toDate ? board.updatedAt.toDate().toLocaleDateString() : 'Just now'}</span>
+                                        {board.isPublic && (
+                                            <span className="flex items-center gap-1 text-brand-primary bg-brand-primary/10 px-2 py-1 rounded-full">
+                                                <Share2 className="w-3 h-3" /> Shared
+                                            </span>
+                                        )}
+                                    </div>
+                                </motion.div>
+                            ))}
+                        </motion.div>
+                    )
+                ) : (
+                    communityLoading ? (
+                        <div className="py-20 flex items-center justify-center w-full">
+                            <div className="animate-spin h-8 w-8 border-4 border-brand-primary border-t-transparent rounded-full"></div>
+                        </div>
+                    ) : communityBoards.length === 0 ? (
+                        <div className="py-20 text-center text-slate-500 dark:text-slate-400">
+                            <Search className="w-12 h-12 mx-auto mb-4 opacity-50" />
+                            <p>No public boards found matching your search.</p>
+                        </div>
+                    ) : (
+                        <motion.div 
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
+                        >
+                            {communityBoards.map(board => (
+                                <motion.div
+                                    key={board.id}
+                                    whileHover={{ y: -5 }}
+                                    onClick={() => setSearchParams({ boardId: board.id, isPublic: 'true' })}
+                                    className="group relative bg-white dark:bg-slate-800 rounded-3xl p-6 border border-slate-200 dark:border-slate-700 shadow-sm hover:shadow-xl hover:shadow-brand-primary/5 transition-all cursor-pointer overflow-hidden flex flex-col h-[280px]"
+                                >
+                                    <div className="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-emerald-400 to-teal-500 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                                    
+                                    <div className="flex items-start justify-between mb-6">
+                                        <div className="w-12 h-12 rounded-2xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center group-hover:bg-emerald-500 group-hover:text-white transition-colors duration-300">
+                                            <Search className="w-6 h-6" />
+                                        </div>
+                                    </div>
+                                    
+                                    <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-2 group-hover:text-emerald-500 transition-colors line-clamp-1">{board.name}</h3>
+                                    <p className="text-sm text-slate-500 dark:text-slate-400 line-clamp-2 mb-auto">
+                                        {board.description || "Community workspace"}
+                                    </p>
+                                    
+                                    <div className="mt-6 pt-4 border-t border-slate-100 dark:border-slate-700 flex items-center justify-between text-xs text-slate-400 font-medium">
+                                        <span>Updated {board.updatedAt?.toDate ? board.updatedAt.toDate().toLocaleDateString() : 'Just now'}</span>
+                                    </div>
+                                </motion.div>
+                            ))}
+                        </motion.div>
+                    )
+                )}
+            </div>
         </div>
     );
 };

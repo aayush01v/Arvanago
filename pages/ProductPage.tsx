@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState, useRef, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Product, ProductReview } from '@/types';
 import { db } from '@/services/firebase';
@@ -28,7 +28,7 @@ const StarRow = ({ rating, size = 'md' }: { rating: number; size?: 'sm' | 'md' }
 const ProductPage: React.FC = () => {
   const { productId } = useParams<{ productId: string }>();
   const navigate = useNavigate();
-  const { addToCart, cart, cartItemCount, setCartOpen } = useStoreCart();
+  const { addToCart, cart, cartItemCount, setCartOpen, toggleWishlist, isInWishlist } = useStoreCart();
 
   const [product, setProduct] = useState<Product | null>(null);
   const [reviews, setReviews] = useState<ProductReview[]>([]);
@@ -40,9 +40,11 @@ const ProductPage: React.FC = () => {
   const [selectedVariant, setSelectedVariant] = useState<{ label: string; price: number } | undefined>(undefined);
   const [addedFeedback, setAddedFeedback] = useState(false);
   const [reviewImgModal, setReviewImgModal] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState<'description' | 'features' | 'specs' | 'reviews'>('description');
+  const [activeTab, setActiveTab] = useState<'features' | 'specs' | 'reviews'>('reviews');
+  const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(false);
 
   const detailsRef = useRef<HTMLDivElement>(null);
+  const tabsSectionRef = useRef<HTMLDivElement>(null);
 
   // Scroll to top when this page mounts or productId changes
   useEffect(() => {
@@ -56,6 +58,13 @@ const ProductPage: React.FC = () => {
   const isOutOfStock = (product?.stock ?? 0) <= 0;
   const reachedMax = product ? inCartQuantity >= product.stock : false;
   const mustPickVariant = product?.variants && product.variants.length > 0 && !selectedVariant;
+  const cartQuantities = useMemo(() => {
+    const quantities = new Map<string, number>();
+    cart.forEach((item) => {
+      quantities.set(item.product.id, (quantities.get(item.product.id) ?? 0) + item.quantity);
+    });
+    return quantities;
+  }, [cart]);
 
   // ── Data loading ──────────────────────────────────────────────────────
   useEffect(() => {
@@ -65,6 +74,7 @@ const ProductPage: React.FC = () => {
     setOtherProducts([]);
     setActiveImg(0);
     setSelectedVariant(undefined);
+    setIsDescriptionExpanded(false);
 
     const load = async () => {
       try {
@@ -146,6 +156,13 @@ const ProductPage: React.FC = () => {
 
   const avgRating = product?.ratingAvg || 0;
 
+
+  useEffect(() => {
+    if (!product) return;
+    if (product.features?.length) setActiveTab('features');
+    else if (product.specs?.length) setActiveTab('specs');
+    else setActiveTab('reviews');
+  }, [product]);
   const ratingDist = [5, 4, 3, 2, 1].map(star => {
     let count = 0;
     if (product?.ratingDistribution) {
@@ -232,7 +249,9 @@ const ProductPage: React.FC = () => {
                 setTouchStartX(null);
               }}
             >
-              <AnimatePresence mode="wait">
+              <AnimatePresence>{addedFeedback && <motion.span initial={{ scale: 0.4, opacity: 0.5 }} animate={{ scale: 1.8, opacity: 0 }} exit={{ opacity: 0 }} transition={{ duration: 0.55, ease: "easeOut" }} className="absolute inset-0 bg-white/30 rounded-2xl" />}</AnimatePresence>
+                <AnimatePresence>{addedFeedback && <motion.span initial={{ scale: 0.4, opacity: 0.5 }} animate={{ scale: 1.8, opacity: 0 }} exit={{ opacity: 0 }} transition={{ duration: 0.55, ease: "easeOut" }} className="absolute inset-0 bg-white/30 rounded-2xl" />}</AnimatePresence>
+          <AnimatePresence mode="wait">
                 {images.length > 0 ? (
                   <motion.img
                     key={activeImg}
@@ -390,12 +409,28 @@ const ProductPage: React.FC = () => {
               </div>
             )}
 
-            {/* Description Preview (Full description moved to tabs) */}
+            {/* Description Preview with expandable full content */}
             <div className="mb-2">
-              <p className="text-slate-700 dark:text-slate-300 leading-relaxed whitespace-pre-wrap text-sm line-clamp-4">
-                {product.description}
-              </p>
-              <button onClick={() => setActiveTab('description')} className="text-xs font-bold text-brand-primary hover:underline mt-1">Read more</button>
+              <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/40 p-4 sm:p-5">
+                <h3 className="text-base sm:text-lg font-black text-slate-900 dark:text-white mb-2">About this product</h3>
+                <div
+                  id="product-description"
+                  className={`text-slate-700 dark:text-slate-300 leading-relaxed whitespace-pre-wrap text-sm md:text-base overflow-hidden transition-[max-height] duration-300 ease-in-out ${isDescriptionExpanded ? 'max-h-[1200px]' : 'max-h-24 sm:max-h-28'}`}
+                  aria-hidden={false}
+                >
+                  {product.description}
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setIsDescriptionExpanded(prev => !prev)}
+                  aria-expanded={isDescriptionExpanded}
+                  aria-controls="product-description"
+                  className="text-sm font-bold text-brand-primary hover:underline mt-3 inline-flex items-center gap-1"
+                >
+                  {isDescriptionExpanded ? 'Read less' : 'Read more'}
+                  <Icon name={isDescriptionExpanded ? 'chevron-up' : 'chevron-down'} className="w-4 h-4" />
+                </button>
+              </div>
             </div>
 
             {/* CTA — visible on md+ (mobile version is sticky footer below) */}
@@ -403,7 +438,7 @@ const ProductPage: React.FC = () => {
               <button
                 onClick={handleAddToCart}
                 disabled={isOutOfStock || reachedMax || !!mustPickVariant}
-                className="flex-1 py-3.5 px-6 rounded-2xl font-black text-white bg-gradient-to-r from-brand-primary to-blue-600 hover:opacity-90 active:scale-[0.98] transition-all flex items-center justify-center gap-2 shadow-xl shadow-brand-primary/25 disabled:opacity-50 disabled:pointer-events-none"
+                className="relative overflow-hidden flex-1 py-3.5 px-6 rounded-2xl font-black text-white bg-gradient-to-r from-brand-primary to-blue-600 hover:opacity-90 active:scale-[0.98] transition-all flex items-center justify-center gap-2 shadow-xl shadow-brand-primary/25 disabled:opacity-50 disabled:pointer-events-none"
               >
                 <AnimatePresence mode="wait">
                   {addedFeedback ? (
@@ -444,42 +479,11 @@ const ProductPage: React.FC = () => {
         </div>
 
         {/* ── Why Students Love It Section ── */}
-        <div className="mt-8 mb-4 bg-blue-50 dark:bg-blue-900/10 rounded-3xl p-6 md:p-8 border border-blue-100 dark:border-blue-900/30">
-          <h2 className="text-xl font-black text-slate-900 dark:text-white mb-4 flex items-center gap-2">
-            <Icon name="star" className="w-6 h-6 text-brand-primary" />
-            Why Students Love It
-          </h2>
-          <div className="grid sm:grid-cols-3 gap-6">
-            <div className="bg-white dark:bg-slate-900 rounded-2xl p-4 shadow-sm border border-slate-100 dark:border-slate-800">
-              <div className="w-8 h-8 rounded-full bg-brand-primary/10 flex items-center justify-center mb-3">
-                <Icon name="zap" className="w-4 h-4 text-brand-primary" />
-              </div>
-              <h3 className="font-bold text-sm text-slate-900 dark:text-white mb-1">Lag-Free Studying</h3>
-              <p className="text-xs text-slate-500 dark:text-slate-400">Power through heavy PDFs, video lectures, and multitasking without slowdowns.</p>
-            </div>
-            <div className="bg-white dark:bg-slate-900 rounded-2xl p-4 shadow-sm border border-slate-100 dark:border-slate-800">
-              <div className="w-8 h-8 rounded-full bg-emerald-500/10 flex items-center justify-center mb-3">
-                <Icon name="shield-check" className="w-4 h-4 text-emerald-500" />
-              </div>
-              <h3 className="font-bold text-sm text-slate-900 dark:text-white mb-1">Eye-Care Certified</h3>
-              <p className="text-xs text-slate-500 dark:text-slate-400">Low blue light output to protect your vision during long late-night study sessions.</p>
-            </div>
-            <div className="bg-white dark:bg-slate-900 rounded-2xl p-4 shadow-sm border border-slate-100 dark:border-slate-800">
-              <div className="w-8 h-8 rounded-full bg-amber-500/10 flex items-center justify-center mb-3">
-                <Icon name="zap" className="w-4 h-4 text-amber-500" />
-              </div>
-              <h3 className="font-bold text-sm text-slate-900 dark:text-white mb-1">All-Day Battery</h3>
-              <p className="text-xs text-slate-500 dark:text-slate-400">Leave the charger at home. Lasts through all your lectures and self-study blocks.</p>
-            </div>
-          </div>
-        </div>
-
         {/* ── Product Tabs Section ── */}
-        <div className="mt-16 bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
+        <div ref={tabsSectionRef} className="mt-16 bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
           {/* Tab Headers */}
           <div className="flex overflow-x-auto border-b border-slate-200 dark:border-slate-800 scrollbar-hide">
             {[
-              { id: 'description', label: 'Description' },
               ...(product.features?.length ? [{ id: 'features', label: 'Features' }] : []),
               ...(product.specs?.length ? [{ id: 'specs', label: 'Specifications' }] : []),
               { id: 'reviews', label: `Reviews (${product.reviewCount || 0})` },
@@ -500,14 +504,6 @@ const ProductPage: React.FC = () => {
 
           {/* Tab Content */}
           <div className="p-6 sm:p-8">
-            {activeTab === 'description' && (
-              <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="max-w-3xl">
-                <h3 className="text-lg font-black text-slate-900 dark:text-white mb-4">About this product</h3>
-                <p className="text-slate-700 dark:text-slate-300 leading-relaxed whitespace-pre-wrap text-sm md:text-base">
-                  {product.description}
-                </p>
-              </motion.div>
-            )}
 
             {activeTab === 'features' && product.features && (
               <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="max-w-3xl">
@@ -625,7 +621,15 @@ const ProductPage: React.FC = () => {
             <div className="flex gap-4 overflow-x-auto pb-6 pt-1 -mx-4 px-4 sm:mx-0 sm:px-0 snap-x snap-mandatory rounded-xl">
               {suggestions.map(rp => (
                 <div key={rp.id} className="shrink-0 w-[160px] sm:w-[200px] lg:w-[220px] snap-start">
-                  <ProductCard product={rp} onClick={handleProductCardClick} />
+                  <ProductCard
+                    product={rp}
+                    onClick={handleProductCardClick}
+                    onQuickView={handleProductCardClick}
+                    onAddToCart={addToCart}
+                    onWishlistToggle={toggleWishlist}
+                    inWishlist={isInWishlist(rp.id)}
+                    inCartQuantity={cartQuantities.get(rp.id) ?? 0}
+                  />
                 </div>
               ))}
             </div>
@@ -653,7 +657,16 @@ const ProductPage: React.FC = () => {
             {/* Vertically scrollable 3-column grid container */}
             <div className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-4 max-h-[600px] overflow-y-auto pr-1 pb-2">
               {otherProducts.map(rp => (
-                <ProductCard key={rp.id} product={rp} onClick={handleProductCardClick} />
+                <ProductCard
+                  key={rp.id}
+                  product={rp}
+                  onClick={handleProductCardClick}
+                  onQuickView={handleProductCardClick}
+                  onAddToCart={addToCart}
+                  onWishlistToggle={toggleWishlist}
+                  inWishlist={isInWishlist(rp.id)}
+                  inCartQuantity={cartQuantities.get(rp.id) ?? 0}
+                />
               ))}
             </div>
           </motion.div>
@@ -673,7 +686,7 @@ const ProductPage: React.FC = () => {
         <button
           onClick={handleAddToCart}
           disabled={isOutOfStock || reachedMax || !!mustPickVariant}
-          className="flex-1 py-3 rounded-2xl font-black text-white bg-gradient-to-r from-brand-primary to-blue-600 hover:opacity-90 active:scale-[0.98] transition-all flex items-center justify-center gap-2 shadow-lg shadow-brand-primary/30 disabled:opacity-50 disabled:pointer-events-none text-sm"
+          className="relative overflow-hidden flex-1 py-3 rounded-2xl font-black text-white bg-gradient-to-r from-brand-primary to-blue-600 hover:opacity-90 active:scale-[0.98] transition-all flex items-center justify-center gap-2 shadow-lg shadow-brand-primary/30 disabled:opacity-50 disabled:pointer-events-none text-sm"
         >
           <AnimatePresence mode="wait">
             {addedFeedback ? (

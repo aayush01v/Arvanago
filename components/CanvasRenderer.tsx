@@ -1,4 +1,3 @@
-import { Note } from '../types';
 import React, { useMemo, useState, useRef, useEffect, useCallback } from 'react';
 import ReactMarkdown from 'react-markdown';
 import rehypeRaw from 'rehype-raw';
@@ -6,7 +5,84 @@ import remarkGfm from 'remark-gfm';
 import remarkMath from 'remark-math';
 import rehypeKatex from 'rehype-katex';
 import Icon from './common/Icon';
-import DOMPurify from 'dompurify';
+
+import mermaid from 'mermaid';
+import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
+import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
+import remarkBreaks from 'remark-breaks';
+
+mermaid.initialize({
+    startOnLoad: false,
+    theme: 'default',
+    securityLevel: 'loose',
+    fontFamily: 'Inter, sans-serif',
+    suppressErrorRendering: true
+});
+
+const MermaidChart = ({ chart }: { chart: string }) => {
+    const containerRef = useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+        let isMounted = true;
+        if (containerRef.current) {
+            const id = `mermaid-${Math.random().toString(36).substr(2, 9)}`;
+            
+            // First check if parse is valid, or just render it
+            mermaid.render(id, chart)
+                .then((result) => {
+                    if (isMounted && containerRef.current) {
+                        containerRef.current.innerHTML = result.svg;
+                    }
+                })
+                .catch((e) => {
+                    console.error("Mermaid parsing error", e);
+                    if (isMounted && containerRef.current) {
+                        containerRef.current.innerHTML = `<div class="text-red-500 text-sm font-mono border border-red-500/20 bg-red-50 dark:bg-red-900/10 p-2 rounded">Error parsing Mermaid diagram:<br/>${e.message || 'Syntax error'}</div>`;
+                    }
+                });
+        }
+        return () => {
+            isMounted = false;
+        };
+    }, [chart]);
+
+    return <div ref={containerRef} className="mermaid-chart flex justify-center my-4 overflow-x-auto w-full" />;
+};
+
+const MarkdownComponents: any = {
+    a: ({ node, ...props }: any) => <a {...props} className="text-brand-primary hover:underline cursor-pointer" onClick={(e) => {
+        e.preventDefault();
+        // Handle internal link navigation here if passed down
+    }} />,
+    code({ node, inline, className, children, ...props }: any) {
+        const match = /language-(\w+)/.exec(className || '');
+        if (!inline && match) {
+            if (match[1] === 'mermaid') {
+                let chartText = String(children).replace(/\n$/, '');
+                // Auto-quote unquoted node text in brackets that contains parentheses to fix Mermaid 11 strictness
+                chartText = chartText.replace(/([a-zA-Z0-9_]+)\s*\[([^"\]]+)\]/g, (m, id, text) => {
+                    const t = text.trim();
+                    if (t.startsWith('(') && t.endsWith(')')) return m;
+                    if (text.includes('(') || text.includes(')')) return `${id}["${text}"]`;
+                    return m;
+                });
+                return <MermaidChart chart={chartText} />;
+            }
+            return (
+                <SyntaxHighlighter
+                    {...props}
+                    style={vscDarkPlus}
+                    language={match[1]}
+                    PreTag="div"
+                    className="rounded-md my-4"
+                >
+                    {String(children).replace(/\n$/, '')}
+                </SyntaxHighlighter>
+            );
+        }
+        return <code className={`${className} bg-slate-100 dark:bg-slate-800 px-1.5 py-0.5 rounded text-sm font-mono`} {...props}>{children}</code>;
+    }
+};
 
 interface CanvasNode {
     id: string;
@@ -36,11 +112,10 @@ interface CanvasData {
     edges: CanvasEdge[];
 }
 
-interface CanvasRendererProps {
+export interface CanvasRendererProps {
     content: string;
-    onNavigate?: (path: string) => void;
-    onSave?: (newContent: string) => void;
-    files?: Note[];
+    onNavigate?: (id: string) => void;
+    onSave?: (data: string) => void;
 }
 
 // --- Helpers ---
@@ -59,39 +134,96 @@ const hexToRgb = (hex: string) => {
 
 const processNodeText = (text: string) => {
     let cleanText = text;
+
+    // Unescape double-stringified JSON if present
+    if (cleanText.startsWith('"') && cleanText.endsWith('"')) {
+        try {
+            const parsed = JSON.parse(cleanText);
+            if (typeof parsed === 'string') {
+                cleanText = parsed;
+            }
+        } catch(e) {
+            // ignore
+        }
+    }
+
     let classes = "";
     const frontmatterRegex = /^\s*---\n([\s\S]*?)\n---\n/;
-    const match = text.match(frontmatterRegex);
+    const match = cleanText.match(frontmatterRegex);
     let frontmatterContent = "";
     if (match) {
         frontmatterContent = match[1];
-        cleanText = text.replace(frontmatterRegex, '');
+        cleanText = cleanText.replace(frontmatterRegex, '');
     }
     const cssClassesRegex = /cssclasses:\s*(.*)/;
-    const classMatch = frontmatterContent.match(cssClassesRegex) || text.match(cssClassesRegex);
+    const classMatch = frontmatterContent.match(cssClassesRegex) || cleanText.match(cssClassesRegex);
     if (classMatch) {
         classes = classMatch[1].replace(/[\[\]]/g, '').trim().replace(/,/g, ' ');
         cleanText = cleanText.replace(/cssclasses:.*(\r\n|\n|\r)?/g, '');
     }
-    cleanText = cleanText.replace(/>\s*\[!cc-header(-noborder)?\]\s*(.*)/g, (match, noBorder, title) => {
-        const type = noBorder ? 'cc-header-noborder' : 'cc-header';
-        const style = `background-color: rgba(var(--canvas-color), var(--cc-header-opacity-level)); border-bottom: ${noBorder ? 'none' : '2px solid rgba(var(--canvas-color), 1)'}; padding: 8px 16px; margin: -1rem -1rem 1rem -1rem;`;
-        return `<div data-callout="${type}" class="callout" style="${style}"><div class="callout-title" style="font-weight: bold;">${title}</div></div>`;
+
+    // Process all callouts (standard and custom cc-)
+    cleanText = cleanText.replace(/(?:^|\n)>\s*\[!([a-zA-Z0-9-]+)\]\s*([^\n]*)(?:\n>\s*.*)*/g, (match, type, title) => {
+        let lines = match.split('\n');
+        let firstLine = lines[0];
+        let hasLeadingNewline = false;
+        if (!firstLine.trim() && lines.length > 1) {
+            hasLeadingNewline = true;
+            lines.shift();
+        }
+        lines.shift(); // remove the callout title line
+        let body = lines.map(line => line.replace(/^>\s?/, '')).join('\n');
+        
+        const proseReset = "[&>p]:m-0 [&>h1]:m-0 [&>h2]:m-0 [&>h3]:m-0 [&>h4]:m-0 [&>h5]:m-0 [&>h6]:m-0";
+        let html = '';
+        if (type.startsWith('cc-header')) {
+            const noBorder = type.includes('-noborder');
+            const style = `background-color: rgba(var(--canvas-color), var(--cc-header-opacity-level)); border-bottom: ${noBorder ? 'none' : '2px solid rgba(var(--canvas-color), 1)'}; padding: 8px 16px; margin: -1rem -1rem 1rem -1rem;`;
+            html = `<div data-callout="cc-header${noBorder ? '-noborder' : ''}" class="callout" style="${style}"><div class="callout-title ${proseReset}" style="font-weight: bold;">\n\n${title}\n\n</div></div>`;
+        } else if (type.startsWith('cc-footer')) {
+            const noBorder = type.includes('-noborder');
+            const style = `background-color: rgba(var(--canvas-color), var(--cc-footers-opacity-level)); border-top: ${noBorder ? 'none' : '2px solid rgba(var(--canvas-color), 1)'}; padding: 8px 16px; margin: 1rem -1rem -1rem -1rem;`;
+            html = `<div data-callout="cc-footer${noBorder ? '-noborder' : ''}" class="callout" style="${style}"><div class="callout-title ${proseReset}" style="font-weight: bold;">\n\n${title}\n\n</div></div>`;
+        } else if (type.startsWith('cc-label-left') || type.startsWith('cc-label-right')) {
+            const side = type.includes('left') ? 'left' : 'right';
+            const noBorder = type.includes('-noborder');
+            const isLeft = side === 'left';
+            const innerTitle = title.trim() ? title : '';
+            const style = `position: absolute; ${isLeft ? 'left: 0; transform: translateX(-100%); border-right: 2px solid rgba(var(--canvas-color), 1);' : 'right: 0; transform: translateX(100%); border-left: 2px solid rgba(var(--canvas-color), 1);'} top: 20px; background-color: rgba(var(--canvas-color), var(--cc-labels-opacity-level)); padding: 4px 8px; ${noBorder ? 'border: none;' : ''}`;
+            html = `<div data-callout="${type}" class="callout" style="${style}"><div class="callout-title ${proseReset}"><div class="callout-title-inner">\n\n${innerTitle}\n\n</div></div></div>`;
+        } else if (type === 'cc-card') {
+            html = '';
+        } else {
+            let color = 'rgb(59, 130, 246)'; // info
+            let bgColor = 'rgba(59, 130, 246, 0.1)';
+            const t = type.toLowerCase();
+            if (['tip', 'success', 'check', 'done'].includes(t)) { color = 'rgb(16, 185, 129)'; bgColor = 'rgba(16, 185, 129, 0.1)'; }
+            else if (['warning', 'caution', 'attention'].includes(t)) { color = 'rgb(245, 158, 11)'; bgColor = 'rgba(245, 158, 11, 0.1)'; }
+            else if (['error', 'danger', 'bug', 'fail'].includes(t)) { color = 'rgb(239, 68, 68)'; bgColor = 'rgba(239, 68, 68, 0.1)'; }
+            else if (['quote', 'cite', 'abstract', 'summary'].includes(t)) { color = 'rgb(156, 163, 175)'; bgColor = 'rgba(156, 163, 175, 0.1)'; }
+
+            const defaultTitle = title || type.charAt(0).toUpperCase() + type.slice(1);
+            const style = `border-left: 4px solid ${color}; background-color: ${bgColor}; padding: 8px 16px; margin-bottom: 0.5rem; border-radius: 4px; font-weight: 600; color: ${color};`;
+            html = `<div class="obsidian-callout ${proseReset}" style="${style}">\n\n${defaultTitle}\n\n</div>`;
+        }
+
+        return `${hasLeadingNewline ? '\n' : ''}${html}\n\n${body}`;
     });
-    cleanText = cleanText.replace(/>\s*\[!cc-footer(-noborder)?\]\s*(.*)/g, (match, noBorder, title) => {
-        const type = noBorder ? 'cc-footer-noborder' : 'cc-footer';
-        const style = `background-color: rgba(var(--canvas-color), var(--cc-footers-opacity-level)); border-top: ${noBorder ? 'none' : '2px solid rgba(var(--canvas-color), 1)'}; padding: 8px 16px; margin: 1rem -1rem -1rem -1rem;`;
-        return `<div data-callout="${type}" class="callout" style="${style}"><div class="callout-title" style="font-weight: bold;">${title}</div></div>`;
+
+    // Temporarily extract code blocks and inline code to prevent replacing content inside them
+    const codeBlocks: string[] = [];
+    cleanText = cleanText.replace(/```[\s\S]*?```|`[^`]+`/g, (match) => {
+        codeBlocks.push(match);
+        return `__CODE_BLOCK_${codeBlocks.length - 1}__`;
     });
-    cleanText = cleanText.replace(/>\s*\[!cc-label-(left|right)(-noborder)?\]\s*(.*)/g, (match, side, noBorder, title) => {
-        const type = `cc-label-${side}${noBorder ? '-noborder' : ''}`;
-        const innerTitle = title.trim() ? title : '';
-        const isLeft = side === 'left';
-        const style = `position: absolute; ${isLeft ? 'left: 0; transform: translateX(-100%); border-right: 2px solid rgba(var(--canvas-color), 1);' : 'right: 0; transform: translateX(100%); border-left: 2px solid rgba(var(--canvas-color), 1);'} top: 20px; background-color: rgba(var(--canvas-color), var(--cc-labels-opacity-level)); padding: 4px 8px; ${noBorder ? 'border: none;' : ''}`;
-        return `<div data-callout="${type}" class="callout" style="${style}"><div class="callout-title"><div class="callout-title-inner">${innerTitle}</div></div></div>`;
-    });
-    cleanText = cleanText.replace(/\[!cc-card\]/g, '');
+
     cleanText = cleanText.replace(/(^|\s)#([a-zA-Z0-9_-]+)/g, '$1<span class="text-brand-primary bg-brand-primary/10 px-1 rounded text-xs font-mono">#$2</span>');
+
+    // Restore code blocks
+    cleanText = cleanText.replace(/__CODE_BLOCK_(\d+)__/g, (match, index) => {
+        return codeBlocks[parseInt(index, 10)];
+    });
+
     return { cleanText, classes };
 };
 
@@ -158,13 +290,28 @@ const MemoizedNode = React.memo(({
     setText: (text: string) => void,
     updateText: (text: string) => void
 }) => {
-    const { cleanText, classes } = node.text ? processNodeText(node.text) : { cleanText: '', classes: '' };
+    const nodeContent = useMemo(() => {
+        if (node.type === 'file' && node.file) {
+            return `[[${node.file}]]`;
+        }
+        return node.text || '';
+    }, [node]);
+
+    const { cleanText, classes } = nodeContent ? processNodeText(nodeContent) : { cleanText: '', classes: '' };
     const nodeColor = node.color ? getColor(node.color) : undefined;
     const nodeRgb = nodeColor ? hexToRgb(nodeColor) : undefined;
 
     // Process images in text
     const processedText = useMemo(() => {
         let text = cleanText;
+        
+        // Temporarily extract code blocks and inline code
+        const codeBlocks: string[] = [];
+        text = text.replace(/```[\s\S]*?```|`[^`]+`/g, (match) => {
+            codeBlocks.push(match);
+            return `__CODE_BLOCK_${codeBlocks.length - 1}__`;
+        });
+
         text = text.replace(/!\[\[([^\]]+)\]\]/g, (match, p1) => {
             const src = resolveFileSrc(p1);
             if (/\.(png|jpg|jpeg|gif|svg|webp)$/i.test(p1)) {
@@ -179,11 +326,14 @@ const MemoizedNode = React.memo(({
             return `<a href="#" data-internal-link="${target}" class="text-brand-primary hover:underline">${label}</a>`;
         });
 
+        // Restore code blocks
+        text = text.replace(/__CODE_BLOCK_(\d+)__/g, (match, index) => {
+            return codeBlocks[parseInt(index, 10)];
+        });
+
         return text;
     }, [cleanText, resolveFileSrc]);
-    const sanitizedProcessedText = useMemo(() => DOMPurify.sanitize(processedText, {
-        ALLOWED_URI_REGEXP: /^(?:(?:https?|mailto|tel):|[^a-z]|[a-z+.-]+(?:[^a-z+.-:]|$))/i,
-    }), [processedText]);
+    const sanitizedProcessedText = useMemo(() => processedText, [processedText]);
 
     const nodeStyle: any = {
         left: node.x - minX,
@@ -268,23 +418,19 @@ const MemoizedNode = React.memo(({
                         isSelected && isEditingText ? (
                             <textarea
                                 className="w-full h-full resize-none outline-none bg-transparent"
-                                value={node.text}
+                                value={nodeContent}
                                 onChange={(e) => setText(e.target.value)}
                                 onBlur={() => updateText(node.text || '')}
                                 autoFocus
+                                disabled={node.type === 'file'}
                                 onMouseDown={e => e.stopPropagation()}
                             />
                         ) : (
                             <div className="markdown-body text-sm prose dark:prose-invert max-w-none select-text">
                                 <ReactMarkdown
-                                    remarkPlugins={[remarkGfm, remarkMath]}
+                                    remarkPlugins={[remarkGfm, remarkMath, remarkBreaks]}
                                     rehypePlugins={[rehypeRaw, rehypeKatex]}
-                                    components={{
-                                        a: ({ node, ...props }) => <a {...props} className="text-brand-primary hover:underline cursor-pointer" onClick={(e) => {
-                                            e.preventDefault();
-                                            // Handle internal link navigation here if passed down
-                                        }} />,
-                                    }}
+                                    components={MarkdownComponents}
                                 >
                                     {sanitizedProcessedText}
                                 </ReactMarkdown>
@@ -295,9 +441,15 @@ const MemoizedNode = React.memo(({
             </div>
         </div>
     );
+}, (prevProps, nextProps) => {
+    return prevProps.node === nextProps.node &&
+           prevProps.isSelected === nextProps.isSelected &&
+           prevProps.isEditingText === nextProps.isEditingText &&
+           prevProps.minX === nextProps.minX &&
+           prevProps.minY === nextProps.minY;
 });
 
-const CanvasRenderer: React.FC<CanvasRendererProps> = ({ content, onNavigate, onSave, files = [] }) => {
+const CanvasRenderer: React.FC<CanvasRendererProps> = ({ content, onNavigate, onSave }) => {
     const [data, setData] = useState<CanvasData>({ nodes: [], edges: [] });
 
     useEffect(() => {
@@ -763,11 +915,25 @@ const CanvasRenderer: React.FC<CanvasRendererProps> = ({ content, onNavigate, on
         if (e.ctrlKey || e.metaKey) {
             e.preventDefault();
             e.stopPropagation(); // Stop zoom prop
+            
+            const container = containerRef.current;
+            if (!container) return;
+            const rect = container.getBoundingClientRect();
+            const mouseX = e.clientX - rect.left;
+            const mouseY = e.clientY - rect.top;
+
             const delta = -e.deltaY * 0.001;
-            setTransform(prev => ({
-                ...prev,
-                scale: Math.min(Math.max(0.1, prev.scale + delta), 5)
-            }));
+            
+            setTransform(prev => {
+                const newScale = Math.min(Math.max(0.1, prev.scale + delta), 5);
+                const scaleRatio = newScale / prev.scale;
+                
+                return {
+                    scale: newScale,
+                    x: mouseX - (mouseX - prev.x) * scaleRatio,
+                    y: mouseY - (mouseY - prev.y) * scaleRatio
+                };
+            });
         } else {
             e.stopPropagation(); // Stop scroll prop
             setTransform(prev => ({
@@ -807,7 +973,7 @@ const CanvasRenderer: React.FC<CanvasRendererProps> = ({ content, onNavigate, on
             onMouseLeave={onMouseUp}
         >
             <div
-                className={`absolute origin-top-left ${interactionMode === 'pan' || interactionMode.startsWith('drag') ? 'duration-0' : 'transition-transform duration-75 ease-out'}`}
+                className="absolute origin-top-left"
                 style={{
                     transform: `translate(${transform.x}px, ${transform.y}px) scale(${transform.scale})`,
                     willChange: 'transform'

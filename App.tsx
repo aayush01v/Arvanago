@@ -43,7 +43,6 @@ const BlogPage = React.lazy(() => import('@/pages/BlogPage'));
 const BlogPostPage = React.lazy(() => import('@/pages/BlogPostPage'));
 const AdminBlogPage = React.lazy(() => import('@/pages/AdminBlogPage'));
 const MyNotesPage = React.lazy(() => import('@/pages/MyNotesPage'));
-const PublicNotePage = React.lazy(() => import('@/pages/PublicNotePage'));
 const VideoPreviewPage = React.lazy(() => import('@/pages/VideoPreviewPage'));
 const DesignSystemReferencePage = React.lazy(() => import('@/pages/DesignSystemReferencePage'));
 const StorePage = React.lazy(() => import('@/pages/StorePage'));
@@ -219,14 +218,14 @@ const App: React.FC = () => {
 
     if (user) {
       const stored = safeLocalStorage.getItem(`${GLOBAL_THEME_KEY}:${user.uid}`);
-      const preference = stored ?? user.themePreference ?? 'light';
+      const preference = stored ?? user.themePreference ?? 'dark';
       const dark = preference === 'dark';
 
       setIsDarkMode(dark);
       persistThemePreference(dark, user);
     } else {
       const stored = safeLocalStorage.getItem(GLOBAL_THEME_KEY);
-      setIsDarkMode(stored === 'dark');
+      setIsDarkMode(stored !== 'light');
     }
   }, [user, persistThemePreference]);
 
@@ -434,7 +433,6 @@ const App: React.FC = () => {
                   <Route path="/dashboard" element={<DashboardPage />} />
                   <Route path="/my-learnings" element={<MyLearningsPage />} />
                   <Route path="/mynotes" element={<MyNotesPage />} />
-                  <Route path="/note/:noteId" element={<PublicNotePage />} />
                   <Route path="/explore" element={<ExploreCoursesPage />} />
                   <Route path="/leaderboard" element={<LeaderboardPage />} />
                   <Route path="/chat" element={<ChatPage />} />

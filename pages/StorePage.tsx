@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState, useRef } from 'react';
+import React, { useEffect, useMemo, useState, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import SEO from '@/components/common/SEO';
 import { Product } from '@/types';
@@ -14,7 +14,7 @@ import QuickViewModal from '@/components/store/QuickViewModal';
 import Recommendations from '@/components/store/Recommendations';
 import { slugify } from '@/utils/slugify';
 import WhatsAppButton from '@/components/store/WhatsAppButton';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 
 const StorePage: React.FC = () => {
   const navigate = useNavigate();
@@ -34,11 +34,30 @@ const StorePage: React.FC = () => {
   const [sortBy, setSortBy] = useState<'default' | 'price-asc' | 'price-desc' | 'rating'>('default');
   const [maxPrice, setMaxPrice] = useState(Infinity);
 
-  const { setCartOpen, cartItemCount } = useStoreCart();
+  const { setCartOpen, cartItemCount, cart, wishlist, addToCart, toggleWishlist } = useStoreCart();
   const [showOrders, setShowOrders] = useState(false);
   const [showPicksBanner, setShowPicksBanner] = useState(true);
   const [quickViewProduct, setQuickViewProduct] = useState<Product | null>(null);
   const [showQuickView, setShowQuickView] = useState(false);
+
+  const productCartQuantities = useMemo(() => {
+    const quantities = new Map<string, number>();
+    cart.forEach((item) => {
+      quantities.set(item.product.id, (quantities.get(item.product.id) ?? 0) + item.quantity);
+    });
+    return quantities;
+  }, [cart]);
+
+  const wishlistSet = useMemo(() => new Set(wishlist), [wishlist]);
+
+  const handleAddToCart = useCallback((product: Product) => {
+    addToCart(product);
+  }, [addToCart]);
+
+  const handleWishlistToggle = useCallback((productId: string) => {
+    toggleWishlist(productId);
+  }, [toggleWishlist]);
+
 
   // Listen for My Orders button click from the global header
   useEffect(() => {
@@ -165,6 +184,15 @@ const StorePage: React.FC = () => {
     return filteredProducts.slice(0, displayedCount);
   }, [filteredProducts, displayedCount]);
 
+  const handleProductOpen = useCallback((product: Product) => {
+    navigate(`/store/${slugify(product.name)}/${product.id}`);
+  }, [navigate]);
+
+  const handleQuickView = useCallback((product: Product) => {
+    setQuickViewProduct(product);
+    setShowQuickView(true);
+  }, []);
+
   const absoluteMax = useMemo(() =>
     products.length ? Math.max(...products.map(p => p.price), 1000) : 100000,
     [products]
@@ -231,49 +259,49 @@ const StorePage: React.FC = () => {
         {/* Auto-sliding trending banner */}
         {!loading && products.length > 0 && (
           <>
-            {/* Trust Section */}
-            <div className="mb-10 bg-white dark:bg-slate-900 rounded-2xl md:rounded-3xl p-5 md:p-7 border border-slate-200 dark:border-slate-800 shadow-sm">
-              <div className="flex flex-col md:flex-row items-center gap-6 md:gap-10">
-                <div className="w-full md:w-auto flex-1 text-center md:text-left">
-                  <p className="text-xs font-bold text-brand-primary uppercase tracking-widest mb-1">Why EduSimulate?</p>
-                  <h2 className="text-lg md:text-xl font-black text-slate-900 dark:text-white leading-tight">
-                    Premium Tech for Future<br className="hidden md:block" /> Doctors &amp; Engineers
-                  </h2>
-                </div>
-                <div className="w-full md:w-auto grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
-                  {[
-                    { icon: 'shield-check', title: '100% Genuine', desc: 'Brand Authorized' },
-                    { icon: 'zap', title: 'High Performance', desc: 'Curated for Creators' },
-                    { icon: 'truck', title: 'Fast Delivery', desc: 'Pan-India Shipping' },
-                    { icon: 'headphones', title: 'Priority Support', desc: 'Always here to help' },
-                  ].map(feature => (
-                    <div key={feature.title} className="flex items-start gap-2.5">
-                      <div className="w-8 h-8 rounded-xl bg-brand-primary/10 flex items-center justify-center shrink-0 mt-0.5">
-                        <Icon name={feature.icon} className="w-4 h-4 text-brand-primary" />
+            <section className="mb-8 rounded-[2rem] border border-slate-200/80 dark:border-slate-800 bg-white/90 dark:bg-slate-900/90 shadow-[0_20px_60px_-35px_rgba(15,23,42,0.45)] overflow-hidden">
+              <div className="grid gap-4 md:gap-6 lg:grid-cols-[1.25fr_0.75fr] p-5 md:p-8 bg-[radial-gradient(circle_at_top_right,_rgba(14,165,233,0.16),_transparent_35%),linear-gradient(135deg,_rgba(255,255,255,0.92),_rgba(248,250,252,0.96))] dark:bg-[radial-gradient(circle_at_top_right,_rgba(14,165,233,0.18),_transparent_35%),linear-gradient(135deg,_rgba(15,23,42,0.96),_rgba(15,23,42,0.92))]">
+                <div>
+                  <div className="inline-flex items-center gap-2 rounded-full border border-brand-primary/20 bg-brand-primary/5 px-3 py-1 text-[11px] font-bold uppercase tracking-[0.24em] text-brand-primary">
+                    Curated store
+                  </div>
+                  <h1 className="mt-3 md:mt-4 text-[clamp(2rem,5vw,2.8rem)] md:text-5xl font-black leading-[1.1] md:leading-tight text-slate-900 dark:text-white max-w-2xl">
+                    Study smarter. Carry better.
+                  </h1>
+                  <div className="mt-4 md:mt-6 grid grid-cols-2 gap-3 md:gap-5 max-w-2xl">
+                    {[
+                      { icon: 'shield-check', title: '100% Genuine', desc: 'Brand Authorized' },
+                      { icon: 'zap', title: 'High Performance', desc: 'Curated for Creators' },
+                      { icon: 'truck', title: 'Fast Delivery', desc: 'Pan-India Shipping' },
+                      { icon: 'headphones', title: 'Priority Support', desc: 'Always here to help' },
+                    ].map((feature) => (
+                      <div key={feature.title} className="rounded-2xl border border-slate-200/80 dark:border-slate-700/80 bg-white/75 dark:bg-slate-800/70 p-[14px] md:px-3.5 md:py-3 flex items-start gap-2 md:gap-3 shadow-sm min-w-0">
+                        <div className="w-10 h-10 md:w-9 md:h-9 rounded-xl bg-brand-primary/10 flex items-center justify-center shrink-0 mt-0.5">
+                          <Icon name={feature.icon} className="w-3.5 h-3.5 text-brand-primary" />
+                        </div>
+                        <div className="min-w-0">
+                          <p className="text-[clamp(1.2rem,2.8vw,1.5rem)] md:text-xl font-bold text-slate-900 dark:text-white leading-[1.1] break-words">{feature.title}</p>
+                          <p className="mt-0.5 md:mt-1 text-[0.75rem] md:text-lg text-slate-600 dark:text-slate-300 leading-[1.2] break-words">{feature.desc}</p>
+                        </div>
                       </div>
-                      <div>
-                        <h3 className="text-xs font-bold text-slate-800 dark:text-slate-200 leading-tight">{feature.title}</h3>
-                        <p className="text-[10px] text-slate-400 dark:text-slate-500 mt-0.5 leading-tight">{feature.desc}</p>
-                      </div>
-                    </div>
-                  ))}
+                    ))}
+                  </div>
                 </div>
               </div>
-            </div>
-            
+            </section>
+
             {/* Student Picks Section */}
             {showPicksBanner && (
               <div className="mb-10 relative">
                 {/* ── Students Top Summer Picks Banner — 1920×600 responsive ── */}
                 <div
-                  className="relative w-full rounded-2xl md:rounded-3xl overflow-hidden mb-6 shadow-xl cursor-pointer group"
-                  style={{ paddingBottom: 'clamp(160px, 31.25%, 600px)' }}
+                  className="relative w-full aspect-[1024/318] rounded-2xl md:rounded-3xl overflow-hidden mb-6 shadow-xl cursor-pointer group bg-slate-100 dark:bg-slate-900"
                   onClick={() => navigate('/store/ipad-10th-gen-apple-pencil-usb-c-combo/ipad_10th_gen_combo')}
                 >
                   <img
                     src="https://i.imgur.com/Q3YiHXt.jpeg"
                     alt="Students Top Summer Picks"
-                    className="absolute inset-0 w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-700"
+                    className="absolute inset-0 w-full h-full object-contain object-center md:group-hover:scale-105 transition-transform duration-700"
                   />
                   
                   {/* Subtle hover overlay */}
@@ -379,7 +407,7 @@ const StorePage: React.FC = () => {
           <>
             {/* Result count label */}
             {/* Breadcrumb */}
-            <nav aria-label="Breadcrumb" className="mb-6">
+            <nav aria-label="Breadcrumb" className="mt-3 mb-4">
               <ol className="flex items-center space-x-2 text-sm text-slate-500 dark:text-slate-400">
                 <li>
                   <a href="/" className="hover:text-brand-primary transition-colors">Home</a>
@@ -393,37 +421,25 @@ const StorePage: React.FC = () => {
               </ol>
             </nav>
 
-            <motion.div 
-              variants={{
-                hidden: { opacity: 0 },
-                show: { opacity: 1, transition: { staggerChildren: 0.08 } }
-              }}
-              initial="hidden"
-              animate="show"
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.2 }}
               className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-6"
             >
-              <AnimatePresence mode="popLayout">
-                {displayedProducts.map(product => (
-                  <motion.div
-                    key={product.id}
-                    variants={{
-                      hidden: { opacity: 0, y: 30, scale: 0.95 },
-                      show: { opacity: 1, y: 0, scale: 1, transition: { type: 'spring', damping: 20, stiffness: 300 } }
-                    }}
-                    exit={{ opacity: 0, scale: 0.9, transition: { duration: 0.15 } }}
-                    layout
-                  >
-                    <ProductCard
-                      product={product}
-                      onClick={(p) => navigate(`/store/${slugify(p.name)}/${p.id}`)}
-                      onQuickView={() => {
-                        setQuickViewProduct(product);
-                        setShowQuickView(true);
-                      }}
-                    />
-                  </motion.div>
-                ))}
-              </AnimatePresence>
+              {displayedProducts.map(product => (
+                <div key={product.id}>
+                  <ProductCard
+                    product={product}
+                    onClick={handleProductOpen}
+                    onQuickView={handleQuickView}
+                    onAddToCart={handleAddToCart}
+                    onWishlistToggle={handleWishlistToggle}
+                    inWishlist={wishlistSet.has(product.id)}
+                    inCartQuantity={productCartQuantities.get(product.id) ?? 0}
+                  />
+                </div>
+              ))}
             </motion.div>
             
             {/* Infinite Scroll Trigger */}
