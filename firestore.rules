@@ -10,9 +10,14 @@ service cloud.firestore {
 
     // 1. USERS
     match /users/{userId} {
-      // Public profiles are visible only when explicitly public.
-      // Owner/admin can always read.
-      allow read: if isOwner(userId) || isAdmin() || (resource != null && resource.data.get('isPublic', false) == true);
+      // Single-document reads: owner, admin, any verified user (needed to load
+      // chat partner profiles), or explicitly public profiles.
+      allow get: if isOwner(userId) || isAdmin() || isEmailVerified() || (resource != null && resource.data.get('isPublic', false) == true);
+      // List queries: the previous combined 'read' rule was only provable for
+      // admins on queries, which silently blocked user search in chat for
+      // normal users. Verified users may now run small, limited queries
+      // (chat search uses limit(10)).
+      allow list: if isAdmin() || (isEmailVerified() && request.query.limit <= 25);
       allow create: if isOwner(userId);
       // Allow update:
       // 1. Own profile (except role + follower counters reserved for trusted backend)
@@ -110,15 +115,37 @@ service cloud.firestore {
 
     // 6. CHATS
     match /chats/{chatId} {
-      // Only allow creating chats with exactly 2 participants, one being the creator
-      allow create: if isEmailVerified() && 
+      function isChatParticipant() {
+        return isEmailVerified() &&
+          get(/databases/$(database)/documents/chats/$(chatId)).data.participants.hasAny([request.auth.uid]);
+      }
+
+      // Only allow creating chats with exactly 2 distinct participants, one
+      // being the creator, and a deterministic ID derived from the sorted
+      // participants (prevents duplicate or spoofed chat docs).
+      allow create: if isEmailVerified() &&
                       request.resource.data.participants.size() == 2 &&
-                      request.resource.data.participants.hasAll([request.auth.uid]);
+                      request.resource.data.participants.hasAll([request.auth.uid]) &&
+                      request.resource.data.participants[0] < request.resource.data.participants[1] &&
+                      chatId == request.resource.data.participants[0] + '_' + request.resource.data.participants[1];
       allow read: if isEmailVerified() && (resource == null || resource.data.participants.hasAny([request.auth.uid]));
-      allow update, delete: if isEmailVerified() && resource.data.participants.hasAny([request.auth.uid]);
-      
+      // Participants may update chat metadata but never the participant list.
+      allow update: if isEmailVerified() &&
+                      resource.data.participants.hasAny([request.auth.uid]) &&
+                      request.resource.data.participants == resource.data.participants;
+      allow delete: if isEmailVerified() && resource.data.participants.hasAny([request.auth.uid]);
+
       match /messages/{messageId} {
-         allow read, write: if isEmailVerified() && get(/databases/$(database)/documents/chats/$(chatId)).data.participants.hasAny([request.auth.uid]);
+         allow read: if isChatParticipant();
+         // The sender field cannot be forged.
+         allow create: if isChatParticipant() && request.resource.data.senderId == request.auth.uid;
+         // The sender can edit their own message; the other participant may
+         // only update call status (hangup/decline comes from either side).
+         allow update: if isChatParticipant() && (
+           resource.data.senderId == request.auth.uid ||
+           request.resource.data.diff(resource.data).affectedKeys().hasOnly(['callStatus'])
+         );
+         allow delete: if isChatParticipant() && resource.data.senderId == request.auth.uid;
       }
     }
 

@@ -9,7 +9,7 @@ export interface ChatMessage {
   imageUrl?: string;
   timestamp: Timestamp;
   callId?: string;
-  callStatus?: 'started' | 'ended';
+  callStatus?: 'started' | 'ended' | 'missed' | 'declined';
   callType?: 'video' | 'audio';
   isRead?: boolean;
 }
@@ -61,8 +61,16 @@ export const chatService = {
   },
 
   // Send Message
-  // Send Message
   async sendMessage(chatId: string, senderId: string, text: string, imageUrl?: string, callId?: string, callType?: 'video' | 'audio'): Promise<string> {
+    // Basic input validation: no empty/whitespace-only messages, cap length
+    const trimmedText = (text || '').trim();
+    if (!trimmedText && !imageUrl && !callId) {
+      throw new Error('Cannot send an empty message');
+    }
+    if (trimmedText.length > 2000) {
+      throw new Error('Message is too long (max 2000 characters)');
+    }
+
     const chatRef = db.collection('chats').doc(chatId);
     const messagesRef = chatRef.collection('messages');
 
@@ -70,7 +78,7 @@ export const chatService = {
 
     const docRef = await messagesRef.add({
       senderId,
-      text,
+      text: trimmedText,
       imageUrl: imageUrl || null,
       callId: callId || null,
       callStatus: callId ? 'started' : null,
@@ -86,7 +94,7 @@ export const chatService = {
 
     const updates: any = {
       lastMessage: {
-        text,
+        text: trimmedText,
         imageUrl: imageUrl || null,
         senderId,
         timestamp,
@@ -160,13 +168,15 @@ export const chatService = {
     return null;
   },
 
-  // Search users by name
+  // Search users by name or username (prefix match).
+  // Works for any verified user: the Firestore rules allow limited 'list'
+  // queries on /users, not just admins.
   async searchUsers(nameQuery: string): Promise<User[]> {
-    // Firestore doesn't support substring search natively without external tools (Algolia etc).
-    // For this demo/scale, we will fetch users and filter client side or do a prefix match.
-    // Prefix match:
-    // Prefix match on Name
-    // Prefix match on Name (Original)
+    // Firestore doesn't support substring search natively without external
+    // tools (Algolia etc), so we do a prefix match on name and username.
+    nameQuery = (nameQuery || '').trim();
+    if (nameQuery.length < 2) return [];
+
     const queries = [
       db.collection('users').where('name', '>=', nameQuery).where('name', '<=', nameQuery + '\uf8ff').limit(10).get(),
       db.collection('users').where('username', '>=', nameQuery).where('username', '<=', nameQuery + '\uf8ff').limit(10).get()
@@ -188,7 +198,9 @@ export const chatService = {
       snapshots.forEach(snapshot => {
         snapshot.docs.forEach(doc => {
           const data = doc.data() as User;
-          usersMap.set(data.uid, data);
+          if (data?.uid) {
+            usersMap.set(data.uid, data);
+          }
         });
       });
 
