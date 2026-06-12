@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState, useCallback } from 'react';
 import { createPortal } from 'react-dom';
 import { webrtcService } from '../services/webrtcService';
+import { db } from '../services/firebase';
 import Icon from './common/Icon';
 import { User } from '../types';
 
@@ -20,6 +21,10 @@ const CallModal: React.FC<CallModalProps> = ({ isOpen, onClose, callId, isCaller
     const [isVideoOff, setIsVideoOff] = useState(false);
     const [isSpeakerOn, setIsSpeakerOn] = useState(true);
     const [connectionStatus, setConnectionStatus] = useState<'connecting' | 'connected' | 'reconnecting' | 'failed'>('connecting');
+    const [currentCallType, setCurrentCallType] = useState(callType);
+    const [upgradeRequest, setUpgradeRequest] = useState<{ status: string, requestedBy: string } | null>(null);
+    const [isUpgrading, setIsUpgrading] = useState(false);
+    const [isMinimized, setIsMinimized] = useState(false);
 
     // Ref to track the polling interval so we can clear it
     const streamPollRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -110,6 +115,7 @@ const CallModal: React.FC<CallModalProps> = ({ isOpen, onClose, callId, isCaller
     //  - Modal opens, then callId arrives later (caller optimistic-open was removed, but guard here too)
     //  - Modal closes → teardown
     useEffect(() => {
+        let unsub = () => {};
         if (isOpen) {
             // Reset UI state for a fresh call
             setConnectionStatus('connecting');
@@ -117,6 +123,34 @@ const CallModal: React.FC<CallModalProps> = ({ isOpen, onClose, callId, isCaller
             setIsVideoOff(false);
             setIsSpeakerOn(true);
             startCall();
+
+            if (callId) {
+                unsub = db.collection('calls').doc(callId).onSnapshot(snap => {
+                    if (!snap.exists) {
+                        console.log('[CallModal] Call ended remotely, closing.');
+                        onClose();
+                        return;
+                    }
+                    const data = snap.data();
+                    if (data?.upgradeToVideo) {
+                        setUpgradeRequest(data.upgradeToVideo);
+                        const myRole = isCaller ? 'caller' : 'callee';
+                        
+                        // If an upgrade was accepted and we haven't processed it yet
+                        if (data.upgradeToVideo.status === 'accepted' && data.upgradeToVideo.requestedBy === myRole && !isUpgrading) {
+                            setIsUpgrading(true);
+                            webrtcService.addVideoTrack(callId, isCaller).then(() => {
+                                setCurrentCallType('video');
+                                attachLocalStream();
+                                setIsUpgrading(false);
+                            }).catch(e => {
+                                console.error("Error upgrading:", e);
+                                setIsUpgrading(false);
+                            });
+                        }
+                    }
+                });
+            }
         } else {
             stopStreamPolling();
             stopCall();
@@ -124,6 +158,7 @@ const CallModal: React.FC<CallModalProps> = ({ isOpen, onClose, callId, isCaller
 
         return () => {
             stopStreamPolling();
+            unsub();
         };
     }, [isOpen, callId]); // Re-runs if callId changes while open (callee re-join edge case)
 
@@ -191,7 +226,16 @@ const CallModal: React.FC<CallModalProps> = ({ isOpen, onClose, callId, isCaller
         }
     };
 
-    const toggleVideo = () => {
+    const handleVideoToggle = async () => {
+        if (currentCallType === 'audio') {
+            // Request upgrade instead of normal toggle
+            if (callId) {
+                const myRole = isCaller ? 'caller' : 'callee';
+                await webrtcService.requestVideoUpgrade(callId, myRole);
+            }
+            return;
+        }
+
         if (webrtcService.localStream) {
             webrtcService.localStream.getVideoTracks().forEach(track => {
                 track.enabled = !track.enabled;
@@ -227,20 +271,71 @@ const CallModal: React.FC<CallModalProps> = ({ isOpen, onClose, callId, isCaller
     if (!isOpen) return null;
 
     return createPortal(
-        <div className="fixed inset-0 z-[9999] flex flex-col items-center justify-center sm:p-6 animate-fade-in">
+        <div className={`z-[9999] flex flex-col items-center justify-center sm:p-6 animate-fade-in ${isMinimized ? 'fixed bottom-4 right-4 pointer-events-none' : 'fixed inset-0'}`}>
             {/* Backdrop with Blur */}
-            <div className="absolute inset-0 bg-slate-900/90 backdrop-blur-xl transition-all duration-500" />
+            {!isMinimized && <div className="absolute inset-0 bg-slate-900/90 backdrop-blur-xl transition-all duration-500 pointer-events-auto" />}
 
-            <div className="relative w-full sm:max-w-5xl h-full sm:max-h-[85vh] bg-black/80 sm:rounded-[2.5rem] overflow-hidden shadow-2xl border-0 sm:border border-white/10 flex flex-col items-center">
+            <div 
+                className={`transition-all duration-500 overflow-hidden shadow-2xl flex flex-col items-center pointer-events-auto group ${
+                    isMinimized 
+                    ? 'w-64 h-48 rounded-xl bg-slate-900 border border-white/20 hover:border-brand-primary/50 cursor-pointer relative z-50' 
+                    : 'relative w-full sm:max-w-5xl h-full sm:max-h-[85vh] bg-black/80 sm:rounded-[2.5rem] border-0 sm:border border-white/10'
+                }`}
+                onClick={() => {
+                    if (isMinimized) setIsMinimized(false);
+                }}
+            >
 
                 {/* Main Video Area */}
-                <div className="relative w-full h-full flex items-center justify-center overflow-hidden bg-slate-900">
+                <div className="relative w-full h-full flex items-center justify-center overflow-hidden bg-slate-900 rounded-[inherit]">
                     <video
                         ref={remoteVideoRef}
                         autoPlay
                         playsInline
                         className="w-full h-full object-cover"
                     />
+
+                    {/* UPGRADE PROMPT OVERLAY */}
+                    {upgradeRequest?.status === 'pending' && upgradeRequest.requestedBy !== (isCaller ? 'caller' : 'callee') && (
+                        <div className="absolute inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-md animate-fade-in">
+                            <div className="bg-slate-900 border border-white/10 rounded-3xl p-8 max-w-sm w-full shadow-2xl flex flex-col items-center text-center animate-scale-in">
+                                <div className="w-16 h-16 bg-brand-primary/20 text-brand-primary rounded-full flex items-center justify-center mb-4">
+                                    <Icon name="video" className="w-8 h-8" />
+                                </div>
+                                <h3 className="text-xl font-bold text-white mb-2">{otherUser?.name || 'User'} wants to turn on video</h3>
+                                <p className="text-white/60 mb-8">Would you like to turn on your camera and switch to a video call?</p>
+                                <div className="flex gap-4 w-full">
+                                    <button 
+                                        onClick={() => {
+                                            webrtcService.respondToVideoUpgrade(callId!, 'rejected');
+                                            setUpgradeRequest(null);
+                                        }}
+                                        className="flex-1 py-3 px-4 rounded-xl bg-slate-800 text-white font-medium hover:bg-slate-700 transition-colors"
+                                    >
+                                        Decline
+                                    </button>
+                                    <button 
+                                        onClick={() => {
+                                            setIsUpgrading(true);
+                                            webrtcService.respondToVideoUpgrade(callId!, 'accepted');
+                                            webrtcService.addVideoTrack(callId!, isCaller).then(() => {
+                                                setCurrentCallType('video');
+                                                attachLocalStream();
+                                                setIsUpgrading(false);
+                                                setUpgradeRequest(null);
+                                            }).catch(e => {
+                                                console.error("Upgrade error:", e);
+                                                setIsUpgrading(false);
+                                            });
+                                        }}
+                                        className="flex-1 py-3 px-4 rounded-xl bg-brand-primary text-white font-bold hover:bg-brand-primary/90 shadow-lg shadow-brand-primary/25 transition-all"
+                                    >
+                                        Accept
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    )}
 
                     {/* Status Check / Avatar Fallback */}
                     {connectionStatus !== 'connected' && (
@@ -281,48 +376,67 @@ const CallModal: React.FC<CallModalProps> = ({ isOpen, onClose, callId, isCaller
                     )}
 
                     {/* Gradient Overlay for Controls */}
-                    <div className="absolute inset-x-0 bottom-0 h-48 bg-gradient-to-t from-black/90 via-black/50 to-transparent pointer-events-none" />
+                    {!isMinimized && <div className="absolute inset-x-0 bottom-0 h-48 bg-gradient-to-t from-black/90 via-black/50 to-transparent pointer-events-none" />}
                 </div>
 
                 {/* Local Video (PiP) */}
-                <div className="absolute top-6 right-6 w-28 h-40 sm:w-48 sm:h-64 bg-slate-800 rounded-2xl overflow-hidden shadow-2xl border border-white/20 transition-all hover:scale-105 hover:border-brand-primary/50 group z-20">
+                <div className={`absolute top-6 right-6 w-28 h-40 sm:w-48 sm:h-64 bg-slate-800 rounded-2xl overflow-hidden shadow-2xl border border-white/20 transition-all group z-20 pointer-events-none ${currentCallType === 'audio' || isMinimized ? 'hidden' : ''}`}>
                     <video
                         ref={localVideoRef}
                         autoPlay
                         playsInline
                         muted
-                        className={`w-full h-full object-cover transform scale-x-[-1] transition-opacity duration-300 ${isVideoOff || callType === 'audio' ? 'opacity-0' : 'opacity-100'}`}
+                        className={`w-full h-full object-cover transform scale-x-[-1] transition-opacity duration-300 ${isVideoOff ? 'opacity-0' : 'opacity-100'}`}
                     />
-                    {(isVideoOff || callType === 'audio') && (
+                    {isVideoOff && (
                         <div className="absolute inset-0 flex flex-col items-center justify-center bg-slate-800 p-4 text-center">
                             <div className="w-10 h-10 sm:w-16 sm:h-16 rounded-full bg-slate-700 flex items-center justify-center mb-2">
-                                <Icon name={callType === 'audio' ? "mic" : "videoOff"} className="w-6 h-6 sm:w-8 sm:h-8 text-slate-400" />
+                                <Icon name="videoOff" className="w-6 h-6 sm:w-8 sm:h-8 text-slate-400" />
                             </div>
                         </div>
                     )}
                 </div>
 
                 {/* Header Info */}
-                <div className="absolute top-6 left-6 flex items-center gap-4 z-20">
-                    <button onClick={onClose} className="p-3 rounded-full bg-black/40 hover:bg-black/60 backdrop-blur-md text-white/80 hover:text-white border border-white/10 transition-all">
-                        <Icon name="minimize-2" className="w-5 h-5" />
-                    </button>
-                    {/* Connection status badge */}
-                    <div className={`px-3 py-1.5 rounded-full text-xs font-bold backdrop-blur-md border transition-all ${
-                        connectionStatus === 'connected' ? 'bg-green-500/20 text-green-300 border-green-500/30' :
-                        connectionStatus === 'failed' ? 'bg-red-500/20 text-red-300 border-red-500/30' :
-                        connectionStatus === 'reconnecting' ? 'bg-yellow-500/20 text-yellow-300 border-yellow-500/30' :
-                        'bg-white/10 text-white/60 border-white/10'
-                    }`}>
-                        {connectionStatus === 'connected' ? '● Connected' :
-                         connectionStatus === 'failed' ? '● Failed' :
-                         connectionStatus === 'reconnecting' ? '● Reconnecting...' :
-                         '● Connecting...'}
+                {!isMinimized && (
+                    <div className="absolute top-6 left-6 flex items-center gap-4 z-20">
+                        <button 
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                setIsMinimized(true);
+                            }} 
+                            className="p-3 rounded-full bg-black/40 hover:bg-black/60 backdrop-blur-md text-white/80 hover:text-white border border-white/10 transition-all"
+                            title="Minimize Call"
+                        >
+                            <Icon name="minimize" className="w-5 h-5" />
+                        </button>
+                        {/* Connection status badge */}
+                        <div className={`px-3 py-1.5 rounded-full text-xs font-bold backdrop-blur-md border transition-all ${
+                            connectionStatus === 'connected' ? 'bg-green-500/20 text-green-300 border-green-500/30' :
+                            connectionStatus === 'failed' ? 'bg-red-500/20 text-red-300 border-red-500/30' :
+                            connectionStatus === 'reconnecting' ? 'bg-yellow-500/20 text-yellow-300 border-yellow-500/30' :
+                            'bg-white/10 text-white/60 border-white/10'
+                        }`}>
+                            {connectionStatus === 'connected' ? '● Connected' :
+                             connectionStatus === 'failed' ? '● Failed' :
+                             connectionStatus === 'reconnecting' ? '● Reconnecting...' :
+                             '● Connecting...'}
+                        </div>
                     </div>
-                </div>
+                )}
+                
+                {/* Minimized Overlay Icon */}
+                {isMinimized && (
+                    <div className="absolute inset-0 flex items-center justify-center bg-black/40 backdrop-blur-[2px] opacity-0 group-hover:opacity-100 transition-opacity z-30">
+                        <div className="p-4 rounded-full bg-brand-primary text-white shadow-xl">
+                            <Icon name="maximize" className="w-6 h-6" />
+                        </div>
+                    </div>
+                )}
 
                 {/* Floating Controls Bar */}
-                <div className="absolute bottom-6 sm:bottom-10 left-1/2 -translate-x-1/2 flex items-center gap-3 sm:gap-6 z-30 p-2 rounded-full w-full justify-center px-4">
+                {!isMinimized && (
+                    <div className="absolute bottom-6 sm:bottom-10 left-1/2 -translate-x-1/2 flex items-center gap-3 sm:gap-6 z-30 p-2 rounded-full w-full justify-center px-4">
 
                     <button
                         onClick={toggleMute}
@@ -353,15 +467,14 @@ const CallModal: React.FC<CallModalProps> = ({ isOpen, onClose, callId, isCaller
                     </button>
 
                     <button
-                        onClick={toggleVideo}
-                        disabled={callType === 'audio'}
-                        className={`p-4 sm:p-5 rounded-full transition-all duration-300 backdrop-blur-md shadow-lg border ${isVideoOff || callType === 'audio'
+                        onClick={handleVideoToggle}
+                        className={`p-4 sm:p-5 rounded-full transition-all duration-300 backdrop-blur-md shadow-lg border ${isVideoOff
                             ? 'bg-white text-slate-900 border-white hover:bg-slate-200'
                             : 'bg-white/10 text-white border-white/10 hover:bg-white/20 hover:scale-110'
-                            } ${callType === 'audio' ? 'opacity-50 cursor-not-allowed' : ''}`}
-                        title={isVideoOff ? "Turn Video On" : "Turn Video Off"}
+                            }`}
+                        title={currentCallType === 'audio' ? "Request Video Upgrade" : isVideoOff ? "Turn Video On" : "Turn Video Off"}
                     >
-                        <Icon name={isVideoOff || callType === 'audio' ? 'videoOff' : 'video'} className="w-6 h-6" />
+                        <Icon name={isVideoOff ? 'videoOff' : 'video'} className="w-6 h-6" />
                     </button>
 
                     <button
@@ -376,6 +489,7 @@ const CallModal: React.FC<CallModalProps> = ({ isOpen, onClose, callId, isCaller
                     </button>
 
                 </div>
+                )}
             </div>
         </div>,
         document.body

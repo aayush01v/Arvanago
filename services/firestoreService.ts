@@ -13,9 +13,9 @@ import type {
   User,
   BlogPost,
   Comment,
-  Note,
+  CanvasBoard,
   Coupon,
-  Vault,
+
 } from '../types.ts';
 
 // Increased cache TTL for better performance
@@ -802,20 +802,6 @@ const sanitizeInstructors = (value: unknown): CourseInstructor[] | undefined => 
 };
 
 
-export const getUserNotes = async (userId: string): Promise<Note[]> => {
-  if (!userId) return [];
-
-  try {
-    const snapshot = await db.collection('users').doc(userId).collection('notes').orderBy('createdAt', 'desc').get();
-    return snapshot.docs.map(doc => ({
-      id: doc.id,
-      ...doc.data()
-    } as Note));
-  } catch (error) {
-    console.warn(`Failed to fetch notes for user ${userId}, returning empty list.`, error);
-    return [];
-  }
-};
 
 const sanitizeDescriptionSections = (
   value: unknown,
@@ -2165,113 +2151,79 @@ export const deleteComment = async (postId: string, commentId: string): Promise<
 
 
 
-// Vault Services
-export const createVault = async (userId: string, name: string, description?: string): Promise<Vault> => {
-  const vaultsRef = db.collection('users').doc(userId).collection('vaults');
-  const newVaultRef = vaultsRef.doc();
+// CanvasBoard Services
+export const createBoard = async (userId: string, name: string, description?: string, customCanvasData?: string): Promise<CanvasBoard> => {
+  const boardsRef = db.collection('users').doc(userId).collection('boards');
+  const newBoardRef = boardsRef.doc();
   const timestamp = firebase.firestore.Timestamp.now();
 
-  const newVault: Vault = {
-    id: newVaultRef.id,
+  const initialCanvasData = customCanvasData || JSON.stringify({ nodes: [], edges: [] });
+
+  const newBoard: CanvasBoard = {
+    id: newBoardRef.id,
     userId,
     name,
-    description: description || null, // Firebase doesn't accept undefined
-    createdAt: timestamp,
-    updatedAt: timestamp,
-  };
-
-  await newVaultRef.set(newVault);
-  return newVault;
-};
-
-export const deleteVault = async (userId: string, vaultId: string): Promise<void> => {
-  // 1. Delete all notes in this vault
-  const notesRef = db.collection('users').doc(userId).collection('notes');
-  const snapshot = await notesRef.where('vaultId', '==', vaultId).get();
-
-  const batch = db.batch();
-  snapshot.docs.forEach(doc => {
-    batch.delete(doc.ref);
-  });
-
-  // 2. Delete the vault itself
-  const vaultRef = db.collection('users').doc(userId).collection('vaults').doc(vaultId);
-  batch.delete(vaultRef);
-
-  await batch.commit();
-};
-
-export const updateVault = async (userId: string, vaultId: string, updates: Partial<Vault>): Promise<void> => {
-  await db.collection('users').doc(userId).collection('vaults').doc(vaultId).update({
-    ...updates,
-    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-  });
-};
-
-export const getUserVaults = async (userId: string): Promise<Vault[]> => {
-  const snapshot = await db.collection('users').doc(userId).collection('vaults').orderBy('createdAt', 'desc').get();
-  return snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() } as Vault));
-};
-
-export const getNotesForVault = async (userId: string, vaultId: string): Promise<Note[]> => {
-  const snapshot = await db.collection('users').doc(userId).collection('notes')
-    .where('vaultId', '==', vaultId)
-    .orderBy('createdAt', 'desc')
-    .get();
-
-  return snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() } as Note));
-};
-
-export const createNoteInVault = async (userId: string, vaultId: string, title: string, content: string, path?: string): Promise<Note> => {
-  const notesRef = db.collection('users').doc(userId).collection('notes');
-  const newNoteRef = notesRef.doc();
-  const timestamp = firebase.firestore.Timestamp.now();
-
-  const newNote: Note = {
-    id: newNoteRef.id,
-    userId,
-    title,
-    content,
-    vaultId,
-    path: path || '',
+    description: description || null,
+    canvasData: initialCanvasData,
     isPublic: false,
     createdAt: timestamp,
     updatedAt: timestamp,
   };
 
-  await newNoteRef.set(newNote);
-  return newNote;
+  await newBoardRef.set(newBoard);
+  return newBoard;
 };
 
-export const deleteNote = async (userId: string, noteId: string): Promise<void> => {
-  await db.collection('users').doc(userId).collection('notes').doc(noteId).delete();
+export const deleteBoard = async (userId: string, boardId: string): Promise<void> => {
+  const boardRef = db.collection('users').doc(userId).collection('boards').doc(boardId);
+  await boardRef.delete();
 };
 
-export const updateNote = async (userId: string, noteId: string, updates: Partial<Note>): Promise<void> => {
-  await db.collection('users').doc(userId).collection('notes').doc(noteId).update({
+export const updateBoard = async (userId: string, boardId: string, updates: Partial<CanvasBoard>): Promise<void> => {
+  await db.collection('users').doc(userId).collection('boards').doc(boardId).update({
     ...updates,
     updatedAt: firebase.firestore.FieldValue.serverTimestamp()
   });
 };
 
-export const getPublicNote = async (userId: string, noteId: string): Promise<Note | null> => {
-  // We need userId to find the note because it's in a subcollection.
-  // However, the shared link might only have noteId if we structured it differently.
-  // But since notes are subcollections of users, we typically need the userId path.
-  // Wait, if I only have noteId, I can't easily find it in a subcollection queryGroup without an index.
-  // Simplest approach: The share link should logically be /note/:userId/:noteId OR we use collection group queries.
-  // Let's assume for now we will pass userId in the URL or use collection group.
+export const getUserBoards = async (userId: string): Promise<CanvasBoard[]> => {
+  const snapshot = await db.collection('users').doc(userId).collection('boards').orderBy('createdAt', 'desc').get();
+  return snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() } as CanvasBoard));
+};
 
-  // Using collection group query for 'notes' where id == noteId AND isPublic == true
-  const snapshot = await db.collectionGroup('notes')
-    .where('id', '==', noteId)
+export const getPublicBoard = async (boardId: string): Promise<CanvasBoard | null> => {
+  const snapshot = await db.collectionGroup('boards')
+    .where('id', '==', boardId)
     .where('isPublic', '==', true)
     .limit(1)
     .get();
   if (snapshot.empty) return null;
-  const note = snapshot.docs[0].data() as Note;
-  if (!note.isPublic) return null;
-  return note;
+  const board = snapshot.docs[0].data() as CanvasBoard;
+  if (!board.isPublic) return null;
+  return board;
+};
+
+export const searchPublicBoards = async (searchQuery: string = ''): Promise<CanvasBoard[]> => {
+  let query: firebase.firestore.Query<firebase.firestore.DocumentData> = db.collectionGroup('boards')
+    .where('isPublic', '==', true);
+
+  // Since Firestore lacks full-text search, we fetch a batch of recent public boards 
+  // and filter them client-side if a query is provided.
+  // For a simple app, limiting to 50 results is usually sufficient.
+  query = query.orderBy('updatedAt', 'desc').limit(50);
+
+  const snapshot = await query.get();
+  let boards = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as CanvasBoard));
+
+  if (searchQuery.trim()) {
+    const term = searchQuery.toLowerCase().trim();
+    boards = boards.filter(board => 
+      board.name.toLowerCase().includes(term) || 
+      (board.description && board.description.toLowerCase().includes(term))
+    );
+  }
+
+  return boards;
 };
 // =========================================================================
 // COUPON SERVICE

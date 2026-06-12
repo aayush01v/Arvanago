@@ -41,11 +41,15 @@ service cloud.firestore {
         allow update: if false;
       }
       
-      // Notes & Vaults
+      // Notes, Vaults, and Boards
       match /vaults/{vaultId} {
         allow read, write: if isOwner(userId);
       }
       match /notes/{noteId} {
+        allow read: if isOwner(userId) || (resource != null && resource.data.get('isPublic', false) == true);
+        allow write: if isOwner(userId);
+      }
+      match /boards/{boardId} {
         allow read: if isOwner(userId) || (resource != null && resource.data.get('isPublic', false) == true);
         allow write: if isOwner(userId);
       }
@@ -198,8 +202,11 @@ service cloud.firestore {
       );
     }
     
-    // 11. COLLECTION GROUP QUERIES (NOTES)
+    // 11. COLLECTION GROUP QUERIES (NOTES & BOARDS)
     match /{path=**}/notes/{noteId} {
+      allow read: if resource != null && resource.data.get('isPublic', false) == true;
+    }
+    match /{path=**}/boards/{boardId} {
       allow read: if resource != null && resource.data.get('isPublic', false) == true;
     }
     

@@ -18,7 +18,12 @@ const icons: { [key: string]: React.ReactNode } = {
       <path d="M5 16H2" />
     </>
   ),
-  volume: <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />,
+  volume: (
+    <>
+      <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
+      <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07" />
+    </>
+  ),
   'volume-x': (
     <>
       <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
@@ -223,10 +228,10 @@ const icons: { [key: string]: React.ReactNode } = {
   ),
   minimize: (
     <>
-      <polyline points="9 3 3 3 3 9" />
-      <polyline points="15 21 21 21 21 15" />
-      <line x1="3" y1="3" x2="10" y2="10" />
-      <line x1="21" y1="21" x2="14" y2="14" />
+      <polyline points="4 14 10 14 10 20" />
+      <polyline points="20 10 14 10 14 4" />
+      <line x1="14" y1="10" x2="21" y2="3" />
+      <line x1="3" y1="21" x2="10" y2="14" />
     </>
   ),
   ticket: (

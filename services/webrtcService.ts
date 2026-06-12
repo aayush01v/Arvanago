@@ -45,8 +45,13 @@ export const webrtcService = {
 
         this.currentFacingMode = facingMode;
         const constraints = {
-            audio: true,
-            video: type === 'video' ? { facingMode } : false
+            audio: { echoCancellation: true, noiseSuppression: true },
+            video: type === 'video' ? { 
+                facingMode,
+                width: { ideal: 640, max: 1280 },
+                height: { ideal: 480, max: 720 },
+                frameRate: { ideal: 24, max: 30 }
+            } : false
         };
         try {
             const stream = await navigator.mediaDevices.getUserMedia(constraints);
@@ -167,10 +172,34 @@ export const webrtcService = {
         const offerCandidates = callDoc.collection('offerCandidates');
         const answerCandidates = callDoc.collection('answerCandidates');
 
+        let candidateBatch: RTCIceCandidateInit[] = [];
+        let batchTimeout: NodeJS.Timeout | null = null;
+
         this.pc.onicecandidate = (event) => {
             if (event.candidate) {
-                console.log('[Caller] New ICE candidate');
-                offerCandidates.add(event.candidate.toJSON());
+                console.log('[Caller] Queuing ICE candidate');
+                candidateBatch.push(event.candidate.toJSON());
+                
+                if (!batchTimeout) {
+                    batchTimeout = setTimeout(async () => {
+                        const batchToCommit = candidateBatch;
+                        candidateBatch = [];
+                        batchTimeout = null;
+                        
+                        if (batchToCommit.length > 0) {
+                            try {
+                                const dbBatch = db.batch();
+                                batchToCommit.forEach(candidate => {
+                                    dbBatch.set(offerCandidates.doc(), candidate);
+                                });
+                                await dbBatch.commit();
+                                console.log(`[Caller] Batched ${batchToCommit.length} ICE candidates`);
+                            } catch (e) {
+                                console.error('[Caller] Error committing ICE batch:', e);
+                            }
+                        }
+                    }, 300); // Wait 300ms to gather multiple candidates
+                }
             }
         };
 
@@ -203,6 +232,7 @@ export const webrtcService = {
 
         // Queue for answer-side ICE candidates arriving before answer SDP is set
         const candidateQueue: RTCIceCandidate[] = [];
+        let lastProcessedAnswer = '';
 
         // Listen for remote answer
         const unsubInfo = callDoc.onSnapshot(async (snapshot) => {
@@ -231,6 +261,14 @@ export const webrtcService = {
                     await callDoc.update({ status: 'connected' });
                 } catch (e) {
                     console.error("[Caller] Error setting remote description:", e);
+                }
+            } else if (data?.renegotiationAnswer && data.renegotiationAnswer.sdp !== lastProcessedAnswer) {
+                lastProcessedAnswer = data.renegotiationAnswer.sdp;
+                console.log('[Caller] Renegotiation Answer Received');
+                try {
+                    await this.pc.setRemoteDescription(new RTCSessionDescription(data.renegotiationAnswer));
+                } catch (e) {
+                    console.error("[Caller] Error setting renegotiation answer:", e);
                 }
             }
         });
@@ -297,10 +335,34 @@ export const webrtcService = {
             console.log('[Callee] Connection state:', this.pc?.connectionState);
         };
 
+        let candidateBatch: RTCIceCandidateInit[] = [];
+        let batchTimeout: NodeJS.Timeout | null = null;
+
         this.pc.onicecandidate = (event) => {
             if (event.candidate) {
-                console.log('[Callee] New ICE candidate');
-                answerCandidates.add(event.candidate.toJSON());
+                console.log('[Callee] Queuing ICE candidate');
+                candidateBatch.push(event.candidate.toJSON());
+                
+                if (!batchTimeout) {
+                    batchTimeout = setTimeout(async () => {
+                        const batchToCommit = candidateBatch;
+                        candidateBatch = [];
+                        batchTimeout = null;
+                        
+                        if (batchToCommit.length > 0) {
+                            try {
+                                const dbBatch = db.batch();
+                                batchToCommit.forEach(candidate => {
+                                    dbBatch.set(answerCandidates.doc(), candidate);
+                                });
+                                await dbBatch.commit();
+                                console.log(`[Callee] Batched ${batchToCommit.length} ICE candidates`);
+                            } catch (e) {
+                                console.error('[Callee] Error committing ICE batch:', e);
+                            }
+                        }
+                    }, 300); // Wait 300ms to gather multiple candidates
+                }
             }
         };
 
@@ -358,10 +420,29 @@ export const webrtcService = {
         await callDoc.update({ answer, status: 'connected' });
         console.log('[Callee] Answer sent, status=connected');
 
-        // Listen for call document deletion (caller hung up)
-        const unsubCall = callDoc.onSnapshot((snapshot) => {
+        let lastProcessedOffer = '';
+        // Listen for call document deletion and renegotiation offers
+        const unsubCall = callDoc.onSnapshot(async (snapshot) => {
             if (!snapshot.exists) {
                 this.hangUp('');
+                return;
+            }
+            const data = snapshot.data();
+            if (data?.renegotiationOffer && data.renegotiationOffer.sdp !== lastProcessedOffer) {
+                lastProcessedOffer = data.renegotiationOffer.sdp;
+                console.log('[Callee] Renegotiation Offer Received');
+                if (this.pc) {
+                    try {
+                        await this.pc.setRemoteDescription(new RTCSessionDescription(data.renegotiationOffer));
+                        const answer = await this.pc.createAnswer();
+                        await this.pc.setLocalDescription(answer);
+                        await callDoc.update({
+                            renegotiationAnswer: { type: answer.type, sdp: answer.sdp }
+                        });
+                    } catch(e) {
+                        console.error("[Callee] Error processing renegotiation:", e);
+                    }
+                }
             }
         });
         this.unsubscribes.push(unsubCall);
@@ -422,5 +503,54 @@ export const webrtcService = {
 
     async updateCall(callId: string, updates: any) {
         await db.collection('calls').doc(callId).update(updates);
+    },
+
+    // --- Video Upgrade Methods ---
+    async requestVideoUpgrade(callId: string, requestedBy: string) {
+        await db.collection('calls').doc(callId).update({
+            upgradeToVideo: { status: 'pending', requestedBy }
+        });
+    },
+
+    async respondToVideoUpgrade(callId: string, status: 'accepted' | 'rejected') {
+        await db.collection('calls').doc(callId).update({
+            'upgradeToVideo.status': status
+        });
+    },
+
+    async addVideoTrack(callId: string, isCaller: boolean) {
+        if (!this.pc) return null;
+        try {
+            const stream = await navigator.mediaDevices.getUserMedia({ 
+                video: { width: { ideal: 640 }, height: { ideal: 480 }, frameRate: { ideal: 24 } },
+                audio: true
+            });
+            const videoTrack = stream.getVideoTracks()[0];
+            
+            // Add track to local stream for UI
+            if (this.localStream) {
+                this.localStream.addTrack(videoTrack);
+            } else {
+                this.localStream = stream;
+            }
+            
+            // Add track to PeerConnection
+            this.pc.addTrack(videoTrack, this.localStream);
+
+            // Caller drives renegotiation
+            if (isCaller) {
+                const offer = await this.pc.createOffer();
+                await this.pc.setLocalDescription(offer);
+                await db.collection('calls').doc(callId).update({
+                    renegotiationOffer: { type: offer.type, sdp: offer.sdp },
+                    renegotiationAnswer: firebase.firestore.FieldValue.delete()
+                });
+            }
+            
+            return videoTrack;
+        } catch (e) {
+            console.error("Error adding video track:", e);
+            throw e;
+        }
     }
 };
